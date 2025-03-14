@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, JSX, SetStateAction } from "react";
 import { GrFormClose } from "react-icons/gr";
 import { RiScissorsCutLine } from "react-icons/ri";
 import {

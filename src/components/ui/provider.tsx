@@ -8,15 +8,11 @@ import {
 } from "@chakra-ui/react";
 import { ColorModeProvider, type ColorModeProviderProps } from "./color-mode";
 
-const config = defineConfig({
-  globalCss: {
-    main: {
-      transition: "355ms ease !important",
-    },
-  },
-});
+const config = defineConfig({});
 
-const system = createSystem(defaultConfig, config);
+const { preflight, ...defaultConfig2 } = defaultConfig;
+
+const system = createSystem(defaultConfig2, config);
 
 export function Provider(props: ColorModeProviderProps) {
   return (
