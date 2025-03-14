@@ -1,0 +1,15 @@
+@keyframes blinkOutline {
+  0% {
+    outline: 4px solid rgb(158, 0, 0);
+  }
+  100% {
+    outline: 4px solid rgb(255, 0, 0);
+  }
+}
+
+.not-connectable {
+  outline-offset: 7px;
+  border-radius: 3px;
+  animation: blinkOutline 600ms infinite;
+  transition: 100ms;
+}
