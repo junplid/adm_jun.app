@@ -60,7 +60,7 @@ export const NodeMessage: React.FC<Node<DataNode>> = ({ data }) => {
           <PopoverHeader
             position={"sticky"}
             top={0}
-            paddingTop={"13px"}
+            paddingTop={"15px"}
             paddingBottom={"5px"}
             className="dark:!bg-[#111111] !bg-[#fff] z-10 border border-white/5 rounded-md rounded-b-none border-b-0"
           >
