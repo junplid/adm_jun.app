@@ -14,7 +14,7 @@ const Container = styled.div<{ size?: string }>`
 
 const Header = styled.div`
   position: absolute;
-  top: 3px;
+  top: 5px;
   left: 0;
   text-align: center;
   width: 100%;
@@ -48,6 +48,8 @@ interface PropsPatternNodeComponent {
   descriptionNode?: string;
   children: ReactNode;
   isConnectable?: boolean;
+  clickable?: boolean;
+  open?: boolean;
 }
 
 export const PatternNodeComponent: FC<PropsPatternNodeComponent> = ({
@@ -56,14 +58,15 @@ export const PatternNodeComponent: FC<PropsPatternNodeComponent> = ({
 }) => {
   const bgContainer = useColorModeValue("#cfcfcf", "#151516");
   const boderColor = useColorModeValue("#b1b1b1", "#333335");
-  const colorName = useColorModeValue("#1a1919", "#fbfbfb");
-  const colorDesc = useColorModeValue("#7c7c7c", "#bcbcbc");
+  const colorName = useColorModeValue("#1a1919", "#ffffff");
+  const colorDesc = useColorModeValue("#7c7c7c", "#aaaaaa");
 
   return (
     <VStack alignItems={"baseline"} gap={0}>
       <Container
         className={isConnectable ? "" : "not-connectable"}
         size={props.size}
+        style={{ cursor: props.clickable ? "pointer" : "" }}
       >
         <Content
           style={{
@@ -71,6 +74,13 @@ export const PatternNodeComponent: FC<PropsPatternNodeComponent> = ({
             borderColor: boderColor,
             borderWidth: 0.5,
           }}
+          {...(props.clickable && {
+            className:
+              "dark:hover:!bg-[#1d1d1d] hover:!bg-[#e4e4e4] duration-300",
+          })}
+          {...(props.open && {
+            className: "dark:!bg-[#1d1d1d] !bg-[#e4e4e4] duration-300",
+          })}
         >
           {props.children}
         </Content>

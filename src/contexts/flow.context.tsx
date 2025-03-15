@@ -84,6 +84,7 @@ export const FlowProvider = ({
 }: PropsProviderFlowContext_I): JSX.Element => {
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([
     { id: "0", type: "nodeInitial", position: { x: 200, y: 200 }, data: {} },
+    { id: "1", type: "nodeMessage", position: { x: 100, y: 100 }, data: {} },
     // { id: "1", type: "nodeMessage", position: { x: 200, y: 100 }, data: {} },
   ]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);

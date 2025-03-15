@@ -46,6 +46,7 @@ type NodeTypesGeneric = {
 import { addEdge, Background, MiniMap, Panel, ReactFlow } from "@xyflow/react";
 import { useColorModeValue, ColorModeButton } from "@components/ui/color-mode";
 import { LayoutPrivateContext } from "@contexts/layout-private.context";
+import { NodeMessage } from "./nodes/Message";
 
 export function FlowBuilderPage() {
   // const bgContainer = useColorModeValue("#f3f3f3", "#161619");
@@ -71,7 +72,7 @@ export function FlowBuilderPage() {
   const nodeTypes: NodeTypesGeneric = useMemo(
     () => ({
       nodeInitial: NodeInitial,
-      // nodeMessage: NodeMessage,
+      nodeMessage: NodeMessage,
       // nodeReply: NodeReply,
       // nodeValidation: NodeValidation,
       // nodeMenu: NodeMenu,
