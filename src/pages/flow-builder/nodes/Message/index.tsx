@@ -1,4 +1,11 @@
-import { Field, Input, NumberInput, Text, Textarea } from "@chakra-ui/react";
+import {
+  Button,
+  Field,
+  Input,
+  NumberInput,
+  Text,
+  Textarea,
+} from "@chakra-ui/react";
 import { useMemo, useState } from "react";
 import { AiOutlineFieldTime } from "react-icons/ai";
 import { Handle, Node, Position, useReactFlow } from "@xyflow/react";
@@ -16,6 +23,7 @@ import {
   PopoverDescription,
   PopoverHeader,
 } from "@components/ui/popover";
+import { IoIosCloseCircle } from "react-icons/io";
 
 type DataNode = {
   message: string;
@@ -71,18 +79,27 @@ export const NodeMessage: React.FC<Node<DataNode>> = ({ data }) => {
               Envia vários balões de texto
             </PopoverDescription>
           </PopoverHeader>
-          <PopoverBody>
-            <div className="flex flex-col gap-y-5 ">
-              <div className="gap-y-2 flex flex-col">
+          <PopoverBody paddingTop={"18px"}>
+            <div className="flex flex-col gap-y-5">
+              {/* Item do balão */}
+              <div className="relative group gap-y-2 flex flex-col bg-zinc-300/35 dark:bg-zinc-600/10 py-2.5 rounded-sm p-2">
+                <a className="absolute -top-2 -left-2">
+                  <IoIosCloseCircle
+                    size={22}
+                    className="text-red-500/40 hover:text-red-500/80 duration-200 cursor-pointer"
+                  />
+                </a>
                 <NumberInput.Root defaultValue="0" min={0} max={10} size={"md"}>
                   <div className="flex w-full justify-between px-2">
                     <div className="flex flex-col">
-                      <NumberInput.Label fontWeight={"bolder"}>
+                      <NumberInput.Label fontWeight={"medium"}>
                         Segundos digitando...
                       </NumberInput.Label>
-                      <span className="text-white/70">Para enviar o balão</span>
+                      <span className="dark:text-white/70 text-black/50 font-light">
+                        Para enviar o prox balão
+                      </span>
                     </div>
-                    <NumberInput.Input maxW={"50px"} />
+                    <NumberInput.Input maxW={"43px"} />
                   </div>
                 </NumberInput.Root>
 
@@ -99,32 +116,10 @@ export const NodeMessage: React.FC<Node<DataNode>> = ({ data }) => {
                   />
                 </Field.Root>
               </div>
-              <div className="gap-y-2 flex flex-col">
-                <NumberInput.Root defaultValue="0" min={0} max={10} size={"md"}>
-                  <div className="flex w-full justify-between px-2">
-                    <div className="flex flex-col">
-                      <NumberInput.Label fontWeight={"bolder"}>
-                        Segundos digitando...
-                      </NumberInput.Label>
-                      <span className="text-white/70">Para enviar o balão</span>
-                    </div>
-                    <NumberInput.Input maxW={"50px"} />
-                  </div>
-                </NumberInput.Root>
 
-                <Field.Root gap={"3px"} required>
-                  <Field.Label>
-                    Balão de texto <Field.RequiredIndicator />
-                  </Field.Label>
-                  <TextareaAutosize
-                    placeholder="Digite sua mensagem aqui"
-                    style={{ resize: "none" }}
-                    minRows={3}
-                    maxRows={10}
-                    className="p-3 py-2.5 rounded-sm w-full border-white/10 border"
-                  />
-                </Field.Root>
-              </div>
+              <Button size={"sm"} colorPalette={"green"}>
+                Adicionar balão
+              </Button>
             </div>
           </PopoverBody>
         </PopoverContent>
