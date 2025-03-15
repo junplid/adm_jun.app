@@ -97,7 +97,7 @@ const ToggleMenu = ({
         setToggledMenu(!toggledMenu);
       }
     }}
-    className="dark:text-[#ededed] text-[#1c1c1c] cursor-pointer"
+    className="dark:text-[#ededed] text-[#1c1c1c] cursor-pointer pointer-events-auto"
   >
     {toggledMenu ? <IoClose size={25} /> : <HiMenu size={25} />}
   </button>

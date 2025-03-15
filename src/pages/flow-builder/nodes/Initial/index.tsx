@@ -1,8 +1,5 @@
 import { Handle, Position } from "@xyflow/react";
-import { AiOutlinePlayCircle } from "react-icons/ai";
 import { PatternNode } from "../Pattern";
-import { Box } from "@chakra-ui/react";
-import { BsSkipStartCircle } from "react-icons/bs";
 import { VscDebugStart } from "react-icons/vsc";
 
 export const NodeInitial: React.FC = () => {
@@ -11,8 +8,10 @@ export const NodeInitial: React.FC = () => {
       descriptionNode="Inicia o fluxo"
       nameNode="Start"
     >
-      <VscDebugStart size={30} />
-      <Handle type="source" position={Position.Right} style={{ right: -15 }} />
+      <div className="">
+        <VscDebugStart className="dark:text-zinc-100 text-zinc-800" size={35} />
+      </div>
+      <Handle type="source" position={Position.Right} style={{ right: -8 }} />
     </PatternNode.PatternContainer>
   );
 };

@@ -1,12 +1,12 @@
 import { JSX, useContext } from "react";
 import { Outlet } from "react-router-dom";
 import { LayoutPrivateContext } from "@contexts/layout-private.context";
-import { ColorModeButton, useColorModeValue } from "@components/ui/color-mode";
+import { ColorModeButton } from "@components/ui/color-mode";
 
 export function LayoutMain(): JSX.Element {
   const { ToggleMenu } = useContext(LayoutPrivateContext);
-  const bgSideBar = useColorModeValue("#d8d8d8", "#3f3f3f");
-  const shadowSideBar = useColorModeValue("#dadada5c", "#12111199");
+  // const bgSideBar = useColorModeValue("#d8d8d8", "#3f3f3f");
+  // const shadowSideBar = useColorModeValue("#dadada5c", "#12111199");
 
   return (
     <div className="w-full relative">

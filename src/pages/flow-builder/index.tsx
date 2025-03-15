@@ -1,7 +1,7 @@
-import { Box, HStack, Text } from "@chakra-ui/react";
+import { Box, HStack } from "@chakra-ui/react";
 import { FlowContext, TypesNodes } from "@contexts/flow.context";
 import { useCallback, useContext, useMemo } from "react";
-
+import "./styles.css";
 import { NodeInitial } from "./nodes/Initial";
 
 // import { NodeMessage } from "./flow-lib/nodes/Message";
@@ -43,19 +43,14 @@ type NodeTypesGeneric = {
   [x in TypesNodes]: any;
 };
 
-import {
-  addEdge,
-  Background,
-  Controls,
-  MiniMap,
-  Panel,
-  ReactFlow,
-} from "@xyflow/react";
+import { addEdge, Background, MiniMap, Panel, ReactFlow } from "@xyflow/react";
 import { useColorModeValue, ColorModeButton } from "@components/ui/color-mode";
+import { LayoutPrivateContext } from "@contexts/layout-private.context";
 
 export function FlowBuilderPage() {
   // const bgContainer = useColorModeValue("#f3f3f3", "#161619");
   const colorDotFlow = useColorModeValue("#c6c6c6", "#373737");
+  const { ToggleMenu } = useContext(LayoutPrivateContext);
 
   const {
     reactflow: {
@@ -116,7 +111,6 @@ export function FlowBuilderPage() {
     <Box
       // bg={bgContainer}
       as={"main"}
-      w={"100vw"}
       h={"100svh"}
     >
       {/* o header precisa ser fixado */}
@@ -194,14 +188,25 @@ export function FlowBuilderPage() {
         fitView
         attributionPosition="top-right"
       >
-        <Controls />
-        <MiniMap />
+        <MiniMap
+          style={{ width: 180, height: 100 }}
+          className="dark:!bg-[#37373791] !bg-[#47484971]"
+        />
         <Panel
           position="top-left"
-          style={{ margin: 0, width: "100%", padding: "10px 20px" }}
+          style={{
+            margin: 0,
+            width: "100%",
+            padding: "10px 20px",
+            pointerEvents: "none",
+          }}
         >
-          <HStack justifyContent={"space-between"} w={"100%"}>
-            <Text>Junplid</Text>
+          <HStack
+            pointerEvents={"none"}
+            justifyContent={"space-between"}
+            w={"100%"}
+          >
+            {ToggleMenu}
             <HStack>
               <ColorModeButton />
             </HStack>

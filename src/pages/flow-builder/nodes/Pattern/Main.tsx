@@ -4,8 +4,8 @@ import "./styles.css";
 import { useColorModeValue } from "@components/ui/color-mode";
 import { VStack } from "@chakra-ui/react";
 
-const Container = styled.div<{ size: string }>`
-  width: ${({ size }) => size};
+const Container = styled.div<{ size?: string }>`
+  width: ${({ size }) => size || ""};
 
   :hover .action__node {
     top: -57px !important;
@@ -37,7 +37,7 @@ const DescriptionNode = styled.span`
 `;
 
 const Content = styled.div`
-  padding: 7px;
+  padding: 6px;
   border-radius: 3px;
   position: relative;
 `;
@@ -51,18 +51,20 @@ interface PropsPatternNodeComponent {
 }
 
 export const PatternNodeComponent: FC<PropsPatternNodeComponent> = ({
-  size = "70px",
   isConnectable = true,
   ...props
 }) => {
-  const bgContainer = useColorModeValue("#eeeeee", "#151516");
-  const boderColor = useColorModeValue("#e0e0e0", "#242428");
-  const colorName = useColorModeValue("#232222", "#fbfbfb");
-  const colorDesc = useColorModeValue("#676565", "#bcbcbc");
+  const bgContainer = useColorModeValue("#cfcfcf", "#151516");
+  const boderColor = useColorModeValue("#b1b1b1", "#333335");
+  const colorName = useColorModeValue("#1a1919", "#fbfbfb");
+  const colorDesc = useColorModeValue("#7c7c7c", "#bcbcbc");
 
   return (
     <VStack alignItems={"baseline"} gap={0}>
-      <Container className={isConnectable ? "" : "not-connectable"} size={size}>
+      <Container
+        className={isConnectable ? "" : "not-connectable"}
+        size={props.size}
+      >
         <Content
           style={{
             background: bgContainer,
