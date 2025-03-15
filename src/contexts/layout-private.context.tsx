@@ -7,7 +7,7 @@ import {
   useMemo,
   useState,
 } from "react";
-import { BsFillGearFill } from "react-icons/bs";
+import { BsDiscord, BsFillGearFill } from "react-icons/bs";
 import { FaRobot, FaTools, FaWpforms } from "react-icons/fa";
 import { HiMiniUserGroup } from "react-icons/hi2";
 import { IoIosPeople, IoMdHelpCircle } from "react-icons/io";
@@ -26,6 +26,7 @@ import { InViewComponent } from "@components/InView";
 import { JSX } from "@emotion/react/jsx-runtime";
 import { HiMenu } from "react-icons/hi";
 import { useColorModeValue } from "@components/ui/color-mode";
+import { Tooltip } from "@components/ui/tooltip";
 
 const themeMockColor = "#e2ec55";
 
@@ -66,7 +67,7 @@ const ShadowBottomMemoComponent = memo(() => {
         style={{
           background: gradient,
           opacity: Number(!showShadowBottom),
-          bottom: 0,
+          bottom: 59,
         }}
       ></div>
     </>
@@ -981,6 +982,22 @@ export function LayoutPrivateProvider(): JSX.Element {
               </SubMenu>
             </Menu>
             <ShadowBottomMemoComponent />
+            <div
+              style={{ background: bgSideBar }}
+              className="sticky bottom-0 z-50 pb-3 pt-3 flex w-full items-center justify-center p-1 px-2"
+            >
+              <Tooltip
+                showArrow
+                positioning={{
+                  placement: "right",
+                }}
+                content="Acesse a comunidade"
+              >
+                <a className="flex text-white border border-white/25 justify-center cursor-pointer items-center bg-[#646ee4] hover:bg-[#4460ff] duration-300 p-2 rounded-sm">
+                  <BsDiscord size={18} />
+                </a>
+              </Tooltip>
+            </div>
           </div>
         </Sidebar>
         <main className="w-full">

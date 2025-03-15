@@ -93,7 +93,11 @@ export default function App() {
 
         {/* <Route path="/checkout/:pl" element={<CheckoutPage />} /> */}
 
-        <Route path="*" caseSensitive element={<Navigate to="/" />} />
+        <Route
+          path="*"
+          caseSensitive
+          element={<Navigate to="/auth/dashboard" />}
+        />
       </Routes>
     </BrowserRouter>
   );

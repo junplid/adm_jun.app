@@ -1,13 +1,14 @@
-import { Tooltip as ChakraTooltip, Portal } from "@chakra-ui/react"
-import * as React from "react"
+import { Tooltip as ChakraTooltip, Portal } from "@chakra-ui/react";
+import * as React from "react";
+import { useColorModeValue } from "./color-mode";
 
 export interface TooltipProps extends ChakraTooltip.RootProps {
-  showArrow?: boolean
-  portalled?: boolean
-  portalRef?: React.RefObject<HTMLElement>
-  content: React.ReactNode
-  contentProps?: ChakraTooltip.ContentProps
-  disabled?: boolean
+  showArrow?: boolean;
+  portalled?: boolean;
+  portalRef?: React.RefObject<HTMLElement>;
+  content: React.ReactNode;
+  contentProps?: ChakraTooltip.ContentProps;
+  disabled?: boolean;
 }
 
 export const Tooltip = React.forwardRef<HTMLDivElement, TooltipProps>(
@@ -20,17 +21,29 @@ export const Tooltip = React.forwardRef<HTMLDivElement, TooltipProps>(
       content,
       contentProps,
       portalRef,
+      openDelay = 80,
+      closeDelay = 500,
       ...rest
-    } = props
+    } = props;
 
-    if (disabled) return children
+    const bg = useColorModeValue("#6e7174", "#b1b3b8");
+
+    if (disabled) return children;
 
     return (
-      <ChakraTooltip.Root {...rest}>
+      <ChakraTooltip.Root
+        {...rest}
+        openDelay={openDelay}
+        closeDelay={closeDelay}
+      >
         <ChakraTooltip.Trigger asChild>{children}</ChakraTooltip.Trigger>
         <Portal disabled={!portalled} container={portalRef}>
           <ChakraTooltip.Positioner>
-            <ChakraTooltip.Content ref={ref} {...contentProps}>
+            <ChakraTooltip.Content
+              ref={ref}
+              {...contentProps}
+              css={{ "--tooltip-bg": bg }}
+            >
               {showArrow && (
                 <ChakraTooltip.Arrow>
                   <ChakraTooltip.ArrowTip />
@@ -41,6 +54,6 @@ export const Tooltip = React.forwardRef<HTMLDivElement, TooltipProps>(
           </ChakraTooltip.Positioner>
         </Portal>
       </ChakraTooltip.Root>
-    )
-  },
-)
+    );
+  }
+);
