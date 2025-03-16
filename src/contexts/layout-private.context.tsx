@@ -22,8 +22,6 @@ import { Tooltip } from "@components/ui/tooltip";
 import { TbTags } from "react-icons/tb";
 import { GoWorkflow } from "react-icons/go";
 
-const themeMockColor = "#e2ec55";
-
 export const ShadowTopMemoComponent = memo(() => {
   const [showShadowTop, setShowShadowTop] = useState(true);
   const gradient = useColorModeValue(
@@ -61,7 +59,7 @@ const ShadowBottomMemoComponent = memo(() => {
         style={{
           background: gradient,
           opacity: Number(!showShadowBottom),
-          bottom: 59,
+          bottom: 50,
         }}
       ></div>
     </>
@@ -105,6 +103,10 @@ export function LayoutPrivateProvider(): JSX.Element {
   const bgSideBar = useColorModeValue("#ffffff", "#121111");
   const shadowSideBar = useColorModeValue("#dadada5c", "#12111199");
 
+  const activeColor = useColorModeValue("#1d1d1d", "#ffffff");
+  const disabledColor = useColorModeValue("#979797", "#a7a7a7");
+  const subMenuBg = useColorModeValue("#cecece67", "#2b2b2b42");
+
   const dataValue = useMemo(
     () => ({
       ToggleMenu: ToggleMenu({ setToggledMenu, toggledMenu }),
@@ -114,12 +116,12 @@ export function LayoutPrivateProvider(): JSX.Element {
 
   return (
     <LayoutPrivateContext.Provider value={dataValue}>
-      <div className="items-start  duration-500 w-full flex bg-[#f1f1f1] dark:bg-[#1c1c1c]">
+      <div className="items-start duration-500 w-full flex bg-[#f1f1f1] dark:bg-[#1c1c1c]">
         <Sidebar
           collapsed={!toggledMenu}
           backgroundColor={bgSideBar}
-          collapsedWidth="82px"
-          width="350px"
+          collapsedWidth="70px"
+          width="280px"
           rootStyles={{
             border: "none !important",
             boxShadow: toggledMenu ? `10px 0 10px ${shadowSideBar}` : undefined,
@@ -134,66 +136,69 @@ export function LayoutPrivateProvider(): JSX.Element {
               <span className="block font-bold text-lg">Junplid</span>
             </div>
             <Menu
-              className="relative font-semibold"
+              className="relative font-semibold flex-1"
               menuItemStyles={{
                 button(params) {
                   return {
                     ...params,
                     color:
-                      params.open || params.active ? themeMockColor : "#fff",
-                    fontWeight: params.active ? 400 : 200,
+                      params.open || params.active
+                        ? activeColor
+                        : disabledColor,
+                    fontWeight: params.active ? 500 : 300,
+                    fontSize: 15.3,
                     ":hover": {
                       background: "transparent",
+                      color: `${activeColor} !important`,
                     },
                   };
                 },
-                subMenuContent: {
-                  background: "#00000034",
-                  boxShadow: "0 7px 10px -10px #000000ae inset",
-                },
+                subMenuContent: { background: subMenuBg },
                 icon(params) {
                   return {
                     ...params,
-                    width: 29,
-                    height: 29,
-                    minWidth: 29,
+                    width: 23,
+                    height: 23,
+                    minWidth: 23,
                     color:
-                      params.open || params.active ? themeMockColor : "#bfdaf0",
-                    marginRight: 20,
+                      params.open || params.active
+                        ? activeColor
+                        : disabledColor,
+                    marginRight: 10,
                   };
                 },
               }}
             >
               <MenuItem
-                icon={<MdMonitorHeart size={25} />}
+                icon={<MdMonitorHeart size={20} />}
                 active={pathname === "/auth/dashboard"}
                 component={<Link to={"/auth/dashboard"} />}
               >
                 Dashboard
               </MenuItem>
               <MenuItem
-                icon={<MdBusiness size={25} />}
+                icon={<MdBusiness size={20} />}
                 component={<Link to={"/auth/business"} />}
                 active={pathname === "/auth/business"}
               >
                 Negócios
               </MenuItem>
               <MenuItem
-                icon={<PiPlugsConnectedFill size={25} />}
+                icon={<PiPlugsConnectedFill size={20} />}
                 component={<Link to={"/auth/connections"} />}
                 active={pathname === "/auth/connections"}
               >
                 Conexões WA
               </MenuItem>
               <MenuItem
-                icon={<GoWorkflow size={25} />}
-                component={<Link to={"/auth/flows"} />}
-                active={pathname === "/auth/flows"}
+                icon={<GoWorkflow size={20} />}
+                component={<Link to={"/auth/flows/1"} />}
+                active={pathname === "/auth/flows/1"}
               >
                 Construtor de fluxos
               </MenuItem>
               <MenuItem
-                icon={<TbTags size={25} />}
+                icon={<TbTags size={21} />}
                 component={
                   <Link to={"/auth/production-settings/customization-tag"} />
                 }
@@ -204,7 +209,7 @@ export function LayoutPrivateProvider(): JSX.Element {
                 Tags
               </MenuItem>
               <MenuItem
-                icon={<PiBracketsCurlyBold size={25} />}
+                icon={<PiBracketsCurlyBold size={19} />}
                 component={
                   <Link
                     to={
@@ -221,7 +226,7 @@ export function LayoutPrivateProvider(): JSX.Element {
               </MenuItem>
 
               <MenuItem
-                icon={<BsChatLeftDots size={25} />}
+                icon={<BsChatLeftDots size={19} />}
                 active={pathname === "/auth/receiving-automation/chatbot"}
                 component={<Link to={"/auth/receiving-automation/chatbot"} />}
               >
@@ -238,7 +243,7 @@ export function LayoutPrivateProvider(): JSX.Element {
               <SubMenu
                 className="remove-scaped"
                 active={pathname.includes("/auth/help")}
-                icon={<IoMdHelpCircle size={25} />}
+                icon={<IoMdHelpCircle size={21} />}
                 label="Ajuda"
                 onClick={() => {
                   if (!toggledMenu) {
@@ -288,7 +293,6 @@ export function LayoutPrivateProvider(): JSX.Element {
                 </MenuItem>
               </SubMenu>
             </Menu>
-            <ShadowBottomMemoComponent />
             <div
               style={{ background: bgSideBar }}
               className="sticky bottom-0 z-50 pb-3 pt-3 flex w-full items-center justify-center p-1 px-2"
@@ -305,6 +309,7 @@ export function LayoutPrivateProvider(): JSX.Element {
                 </a>
               </Tooltip>
             </div>
+            <ShadowBottomMemoComponent />
           </div>
         </Sidebar>
         <main className="w-full">

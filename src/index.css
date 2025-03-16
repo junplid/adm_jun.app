@@ -30,3 +30,8 @@
   width: 0px;
   background-color: transparent;
 }
+
+.ps-submenu-expand-icon span {
+  width: 8px;
+  height: 8px;
+}
