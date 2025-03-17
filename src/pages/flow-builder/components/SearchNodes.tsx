@@ -67,7 +67,7 @@ export function SearchNodesComponents(): JSX.Element {
             ref={ref}
             size={"sm"}
             className="!text-[#1f1f1f] dark:placeholder:text-[#dadadac5] dark:!text-[#ffffff]  pointer-events-auto !bg-[#f5f5f5] dark:!bg-[#181616c5]"
-            placeholder="Buscar pelo node"
+            placeholder="Busque pelo node"
             fontSize={"14px"}
             w={"320px"}
             onChange={({ target }) => setSearch(target.value)}
