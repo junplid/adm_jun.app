@@ -3,36 +3,32 @@ import { Handle, Node, Position } from "@xyflow/react";
 import { PatternNode } from "../Pattern";
 import TextareaAutosize from "react-textarea-autosize";
 import { IoIosCloseCircle } from "react-icons/io";
-import { BsChatLeftDots } from "react-icons/bs";
-// import useStore from "../../flowStore";
-import { RxLapTimer } from "react-icons/rx";
-import { useColorModeValue } from "@components/ui/color-mode";
+import { PiBracketsCurlyBold } from "react-icons/pi";
 
 type DataNode = {
   message: string;
   interval: number;
 };
 
-export const NodeReply: React.FC<Node<DataNode>> = () => {
+export const NodeRemoveVariables: React.FC<Node<DataNode>> = () => {
   // const updateNode = useStore((s) => s.updateNode);
-  const colorTimeout = useColorModeValue("#F94A65", "#B1474A");
 
   return (
     <div>
       <PatternNode.PatternPopover
-        title="Node de resposta"
-        description="Espera resposta do lead"
+        title="Node de variáveis"
+        description="Adiciona várias variáveis"
         node={{
           children: (
             <div className="p-1">
-              <BsChatLeftDots
-                className="dark:text-blue-400 text-blue-700"
+              <PiBracketsCurlyBold
+                className="dark:text-red-300 text-red-800"
                 size={26.8}
               />
             </div>
           ),
-          name: "Resposta",
-          description: "Receber",
+          name: "Variáveis",
+          description: "Remover",
         }}
       >
         <div className="flex flex-col gap-y-5">
@@ -79,22 +75,7 @@ export const NodeReply: React.FC<Node<DataNode>> = () => {
       </PatternNode.PatternPopover>
 
       <Handle type="target" position={Position.Left} style={{ left: -8 }} />
-
-      <Handle
-        type="source"
-        position={Position.Right}
-        style={{ right: -8, top: 12 }}
-      />
-      <span className="absolute -right-[13px] top-[31px] dark:text-red-400 text-red-500">
-        <RxLapTimer size={11} />
-      </span>
-      <Handle
-        id={`${colorTimeout} timeout`}
-        type="source"
-        position={Position.Right}
-        style={{ right: -20, top: 37 }}
-        className="dark:!border-red-400/60 dark:!bg-red-400/15 !border-red-500/70 !bg-red-500/15"
-      />
+      <Handle type="source" position={Position.Right} style={{ right: -8 }} />
     </div>
   );
 };

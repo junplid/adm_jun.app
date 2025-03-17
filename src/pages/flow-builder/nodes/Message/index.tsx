@@ -2,7 +2,7 @@ import { Button, Field, NumberInput } from "@chakra-ui/react";
 import { Handle, Node, Position } from "@xyflow/react";
 import { PatternNode } from "../Pattern";
 import TextareaAutosize from "react-textarea-autosize";
-import { TbSend } from "react-icons/tb";
+import { TbTextSize } from "react-icons/tb";
 import { IoIosCloseCircle } from "react-icons/io";
 // import useStore from "../../flowStore";
 
@@ -22,14 +22,14 @@ export const NodeMessage: React.FC<Node<DataNode>> = () => {
         node={{
           children: (
             <div className="p-0.5">
-              <TbSend
-                className="dark:text-green-600 text-green-700"
+              <TbTextSize
+                className="dark:text-teal-400 text-teal-700"
                 size={31}
               />
             </div>
           ),
           name: "Texto",
-          description: "Envia balões de texto",
+          description: "Envia",
         }}
       >
         <div className="flex flex-col gap-y-5">

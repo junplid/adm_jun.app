@@ -4,10 +4,7 @@ import { VscDebugStart } from "react-icons/vsc";
 
 export const NodeInitial: React.FC = () => {
   return (
-    <PatternNode.PatternContainer
-      descriptionNode="Inicia o fluxo"
-      nameNode="Start"
-    >
+    <PatternNode.PatternContainer descriptionNode="Inicia" nameNode="fluxo">
       <div className="">
         <VscDebugStart className="dark:text-zinc-100 text-zinc-800" size={35} />
       </div>

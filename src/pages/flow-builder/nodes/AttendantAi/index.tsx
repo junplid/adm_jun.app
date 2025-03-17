@@ -7,7 +7,7 @@ import TextareaAutosize from "react-textarea-autosize";
 import { AutoCompleteTextarea } from "../../../../components/TextareaAutoComplete";
 import { Button, Input } from "@chakra-ui/react";
 import { TbRobot } from "react-icons/tb";
-import { CustomHandle } from "../../helpers/fn";
+import { CustomHandle } from "../../customs/node";
 import { v4 } from "uuid";
 import { IoClose } from "react-icons/io5";
 

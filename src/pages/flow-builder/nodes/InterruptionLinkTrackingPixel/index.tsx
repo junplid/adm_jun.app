@@ -1,7 +1,7 @@
 import { Input } from "@chakra-ui/react";
 import { useContext, useMemo, useState } from "react";
 import { Node, Position, useReactFlow, useStoreApi } from "reactflow";
-import { CustomHandle } from "../../helpers/fn";
+import { CustomHandle } from "../../customs/node";
 import { PatternNode } from "../Pattern";
 import { AiOutlineLineChart } from "react-icons/ai";
 import CopyToClipboard from "react-copy-to-clipboard";

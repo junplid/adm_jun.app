@@ -15,7 +15,7 @@ import SelectComponent from "../../../../components/Select";
 import { PatternNode } from "../Pattern";
 import { FlowContext } from "../../../../contexts/flow.context";
 import { AutoCompleteInput } from "../../../../components/InputAutoComplete";
-import { CustomHandle } from "../../helpers/fn";
+import { CustomHandle } from "../../customs/node";
 import {
   MdCheckBox,
   MdCheckBoxOutlineBlank,

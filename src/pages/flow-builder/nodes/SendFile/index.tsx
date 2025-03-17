@@ -4,7 +4,7 @@ import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { AiOutlineFieldTime, AiOutlineFile } from "react-icons/ai";
 import { Handle, Node, Position, useReactFlow, useStoreApi } from "reactflow";
 import SelectComponent from "../../../../components/Select";
-import { CustomHandle } from "../../helpers/fn";
+import { CustomHandle } from "../../customs/node";
 import { PatternNode } from "../Pattern";
 import { FlowContext } from "../../../../contexts/flow.context";
 import { AutoCompleteTextarea } from "../../../../components/TextareaAutoComplete";

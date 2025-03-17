@@ -2,7 +2,7 @@ import { Input } from "@chakra-ui/react";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { AiOutlineEnvironment, AiOutlineFieldTime } from "react-icons/ai";
 import { Handle, Node, Position, useReactFlow, useStoreApi } from "reactflow";
-import { CustomHandle } from "../../helpers/fn";
+import { CustomHandle } from "../../customs/node";
 import { PatternNode } from "../Pattern";
 import SelectComponent from "../../../../components/Select";
 import { FlowContext } from "../../../../contexts/flow.context";

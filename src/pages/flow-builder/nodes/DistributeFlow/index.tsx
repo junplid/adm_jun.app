@@ -4,7 +4,7 @@ import { IoMdAdd, IoMdClose } from "react-icons/io";
 import { Handle, Node, Position, useReactFlow, useStoreApi } from "reactflow";
 import { v4 } from "uuid";
 import SelectComponent from "../../../../components/Select";
-import { CustomHandle } from "../../helpers/fn";
+import { CustomHandle } from "../../customs/node";
 import { PatternNode } from "../Pattern";
 import { AiOutlineBranches } from "react-icons/ai";
 import { FlowContext } from "../../../../contexts/flow.context";

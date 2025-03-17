@@ -3,7 +3,7 @@ import { IoMdAdd, IoMdClose } from "react-icons/io";
 import { Handle, Node, Position, useReactFlow, useStoreApi } from "reactflow";
 import { v4 } from "uuid";
 import { InputWhatsAppNumberComponent } from "../../../../components/InputWhatsAppNumber";
-import { CustomHandle } from "../../helpers/fn";
+import { CustomHandle } from "../../customs/node";
 import { PatternNode } from "../Pattern";
 import { AutoCompleteTextarea } from "../../../../components/TextareaAutoComplete";
 import { FlowContext } from "../../../../contexts/flow.context";

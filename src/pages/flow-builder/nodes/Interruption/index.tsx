@@ -4,7 +4,7 @@ import { IoMdAdd, IoMdClose } from "react-icons/io";
 import { MdOutlineAdd } from "react-icons/md";
 import { Node, Position, useReactFlow, useStoreApi } from "reactflow";
 import { v4 } from "uuid";
-import { CustomHandle } from "../../helpers/fn";
+import { CustomHandle } from "../../customs/node";
 import { PatternNode } from "../Pattern";
 import { BsSignStop } from "react-icons/bs";
 

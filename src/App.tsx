@@ -4,6 +4,8 @@ import { FlowBuilderPage } from "./pages/flow-builder";
 import { LayoutPrivateProvider } from "@contexts/layout-private.context";
 import { LayoutMain } from "./layouts/main";
 import { DashboardPage } from "./pages/dashboard";
+import { DnDProvider } from "@contexts/DnD.context";
+import { ReactFlowProvider } from "@xyflow/react";
 
 // import { NodeMessage } from "./flow-lib/nodes/Message";
 // import { NodeReply } from "./flow-lib/nodes/Reply";
@@ -54,7 +56,17 @@ export default function App() {
             <Route path="dashboard" caseSensitive element={<DashboardPage />} />
           </Route>
 
-          <Route path="flows/:id" caseSensitive element={<FlowBuilderPage />} />
+          <Route
+            path="flows/:id"
+            caseSensitive
+            element={
+              <ReactFlowProvider>
+                <DnDProvider>
+                  <FlowBuilderPage />
+                </DnDProvider>
+              </ReactFlowProvider>
+            }
+          />
           <Route
             path="*"
             caseSensitive

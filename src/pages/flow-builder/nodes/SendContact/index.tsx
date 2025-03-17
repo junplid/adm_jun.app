@@ -3,7 +3,7 @@ import { useContext, useMemo } from "react";
 import { AiOutlineFieldTime } from "react-icons/ai";
 import { Handle, Node, Position, useReactFlow, useStoreApi } from "reactflow";
 import { InputWhatsAppNumberComponent } from "../../../../components/InputWhatsAppNumber";
-import { CustomHandle } from "../../helpers/fn";
+import { CustomHandle } from "../../customs/node";
 import { PatternNode } from "../Pattern";
 import { FaRegAddressCard } from "react-icons/fa";
 import { FlowContext } from "../../../../contexts/flow.context";

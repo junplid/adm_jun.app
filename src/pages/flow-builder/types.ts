@@ -17,4 +17,6 @@ export type AppState = {
   setNodes: (nodes: AppNode[]) => void;
   setEdges: (edges: Edge[]) => void;
   updateNode: (nodeId: string, data: any) => void;
+  getEdgesNode: (nodeId: string) => Edge[];
+  addNode: (node: Omit<AppNode, "id">) => void;
 };

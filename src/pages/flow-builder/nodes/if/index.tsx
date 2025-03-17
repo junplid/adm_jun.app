@@ -3,9 +3,7 @@ import { Handle, Node, Position } from "@xyflow/react";
 import { PatternNode } from "../Pattern";
 import TextareaAutosize from "react-textarea-autosize";
 import { IoIosCloseCircle } from "react-icons/io";
-import { BsChatLeftDots } from "react-icons/bs";
-// import useStore from "../../flowStore";
-import { RxLapTimer } from "react-icons/rx";
+import { FaCheck, FaTimes } from "react-icons/fa";
 import { useColorModeValue } from "@components/ui/color-mode";
 
 type DataNode = {
@@ -13,9 +11,11 @@ type DataNode = {
   interval: number;
 };
 
-export const NodeReply: React.FC<Node<DataNode>> = () => {
+export const NodeIF: React.FC<Node<DataNode>> = () => {
   // const updateNode = useStore((s) => s.updateNode);
-  const colorTimeout = useColorModeValue("#F94A65", "#B1474A");
+
+  const colorTrue = useColorModeValue("#00CE6B", "#179952");
+  const colorFalse = useColorModeValue("#FB4F6A", "#FB4F6A");
 
   return (
     <div>
@@ -24,15 +24,12 @@ export const NodeReply: React.FC<Node<DataNode>> = () => {
         description="Espera resposta do lead"
         node={{
           children: (
-            <div className="p-1">
-              <BsChatLeftDots
-                className="dark:text-blue-400 text-blue-700"
-                size={26.8}
-              />
+            <div className="p-[4.5px] translate-y-0.5 py-[9.5px] text-xs font-bold dark:text-yellow-300 text-yellow-600">
+              {"if (..)"}
             </div>
           ),
-          name: "Resposta",
-          description: "Receber",
+          name: "Lógica",
+          description: "Condição",
         }}
       >
         <div className="flex flex-col gap-y-5">
@@ -80,16 +77,22 @@ export const NodeReply: React.FC<Node<DataNode>> = () => {
 
       <Handle type="target" position={Position.Left} style={{ left: -8 }} />
 
-      <Handle
-        type="source"
-        position={Position.Right}
-        style={{ right: -8, top: 12 }}
-      />
-      <span className="absolute -right-[13px] top-[31px] dark:text-red-400 text-red-500">
-        <RxLapTimer size={11} />
+      <span className="absolute -right-[12.3px] top-[8.3px] dark:text-green-400 text-green-500">
+        <FaCheck size={9.5} />
       </span>
       <Handle
-        id={`${colorTimeout} timeout`}
+        id={`${colorTrue} true`}
+        type="source"
+        position={Position.Right}
+        style={{ right: -20, top: 13 }}
+        className="dark:!border-green-400/60 dark:!bg-green-400/15 !border-green-500/80 !bg-green-500/15"
+      />
+
+      <span className="absolute -right-[13px] top-[31px] dark:text-red-400 text-red-500">
+        <FaTimes size={11} />
+      </span>
+      <Handle
+        id={`${colorFalse} false`}
         type="source"
         position={Position.Right}
         style={{ right: -20, top: 37 }}

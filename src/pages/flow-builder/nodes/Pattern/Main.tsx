@@ -87,10 +87,10 @@ export const PatternNodeComponent: FC<PropsPatternNodeComponent> = ({
       </Container>
       <div style={{ position: "relative", width: "100%" }}>
         <Header>
-          <NameNode style={{ color: colorName }}>{props.nameNode}</NameNode>
           <DescriptionNode style={{ color: colorDesc }}>
             {props.descriptionNode}
           </DescriptionNode>
+          <NameNode style={{ color: colorName }}>{props.nameNode}</NameNode>
         </Header>
       </div>
     </VStack>
