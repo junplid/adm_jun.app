@@ -1,6 +1,5 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
-import { FlowProvider } from "@contexts/flow.context";
 import { FlowBuilderPage } from "./pages/flow-builder";
 import { LayoutPrivateProvider } from "@contexts/layout-private.context";
 import { LayoutMain } from "./layouts/main";
@@ -55,15 +54,7 @@ export default function App() {
             <Route path="dashboard" caseSensitive element={<DashboardPage />} />
           </Route>
 
-          <Route
-            path="flows/:id"
-            caseSensitive
-            element={
-              <FlowProvider>
-                <FlowBuilderPage />
-              </FlowProvider>
-            }
-          />
+          <Route path="flows/:id" caseSensitive element={<FlowBuilderPage />} />
           <Route
             path="*"
             caseSensitive

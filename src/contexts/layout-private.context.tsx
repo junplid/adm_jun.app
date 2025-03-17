@@ -101,7 +101,7 @@ export function LayoutPrivateProvider(): JSX.Element {
   const { pathname } = useLocation();
 
   const bgSideBar = useColorModeValue("#ffffff", "#121111");
-  const shadowSideBar = useColorModeValue("#dadada5c", "#12111199");
+  const shadowSideBar = useColorModeValue("#e9e9e940", "#12111199");
 
   const activeColor = useColorModeValue("#1d1d1d", "#ffffff");
   const disabledColor = useColorModeValue("#979797", "#a7a7a7");
@@ -116,7 +116,7 @@ export function LayoutPrivateProvider(): JSX.Element {
 
   return (
     <LayoutPrivateContext.Provider value={dataValue}>
-      <div className="items-start duration-500 w-full flex bg-[#f1f1f1] dark:bg-[#1c1c1c]">
+      <div className="items-start duration-500 w-full flex bg-[#f5f5f5] dark:bg-[#181616c5]">
         <Sidebar
           collapsed={!toggledMenu}
           backgroundColor={bgSideBar}

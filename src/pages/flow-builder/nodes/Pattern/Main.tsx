@@ -56,7 +56,7 @@ export const PatternNodeComponent: FC<PropsPatternNodeComponent> = ({
   isConnectable = true,
   ...props
 }) => {
-  const bgContainer = useColorModeValue("#cfcfcf", "#151516");
+  const bgContainer = useColorModeValue("#e0e0e0", "#151516");
   const boderColor = useColorModeValue("#b1b1b1", "#333335");
   const colorName = useColorModeValue("#1a1919", "#ffffff");
   const colorDesc = useColorModeValue("#7c7c7c", "#aaaaaa");
@@ -79,7 +79,7 @@ export const PatternNodeComponent: FC<PropsPatternNodeComponent> = ({
               "dark:hover:!bg-[#1d1d1d] hover:!bg-[#e4e4e4] duration-300",
           })}
           {...(props.open && {
-            className: "dark:!bg-[#1d1d1d] !bg-[#e4e4e4] duration-300",
+            className: "dark:!bg-[#1d1d1d] !bg-[#f7f7f7] duration-300",
           })}
         >
           {props.children}

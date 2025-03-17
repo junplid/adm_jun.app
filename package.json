@@ -27,7 +27,8 @@
     "reactflow": "^11.11.4",
     "styled-components": "^6.1.15",
     "tailwindcss": "^4.0.14",
-    "uuid": "^11.1.0"
+    "uuid": "^11.1.0",
+    "npmZustand": "npm:zustand@^5.0.3"
   },
   "devDependencies": {
     "@chakra-ui/cli": "^3.13.0",
