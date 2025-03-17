@@ -8,13 +8,14 @@ import {
   PopoverTitle,
   PopoverTrigger,
 } from "@components/ui/popover";
-import { JSX, ReactNode, useContext, useRef, useState } from "react";
+import { JSX, ReactNode, useContext, useMemo, useRef, useState } from "react";
 import { BsChatLeftDots } from "react-icons/bs";
 import { IoSearchSharp } from "react-icons/io5";
 import { PiBracketsCurlyBold, PiFlowArrowBold } from "react-icons/pi";
 import { TbTags, TbTextSize } from "react-icons/tb";
 import { TypesNodes } from "..";
 import { DnDContext } from "@contexts/DnD.context";
+import removeAccents from "remove-accents";
 
 export function SearchNodesComponents(): JSX.Element {
   const [open, setOpen] = useState(false);
@@ -27,6 +28,24 @@ export function SearchNodesComponents(): JSX.Element {
     setType(nodeType);
     event.dataTransfer.effectAllowed = "move";
   };
+
+  const nodeListFilter = useMemo(() => {
+    if (!search.length) return nodesList;
+
+    const normalizedSearch = removeAccents(search.toLowerCase());
+
+    return nodesList.filter((node) => {
+      const normalizedName = removeAccents(node.name.toLowerCase());
+      const normalizedDescription = node.description
+        ? removeAccents(node.description.toLowerCase())
+        : "";
+
+      return (
+        normalizedName.includes(normalizedSearch) ||
+        normalizedDescription.includes(normalizedSearch)
+      );
+    });
+  }, [search]);
 
   return (
     <PopoverRoot
@@ -73,20 +92,22 @@ export function SearchNodesComponents(): JSX.Element {
             </PopoverTitle>
           </PopoverHeader>
         )}
-        <PopoverBody paddingX={"8px"} paddingTop={"5px"}>
+        <PopoverBody paddingX={"8px"} paddingTop={"10px"}>
           <ul>
-            {nodesList.map((node) => (
+            {nodeListFilter.map((node) => (
               <li
                 key={node.id}
-                className="dndnode flex h-[52px] items-center gap-3.5 select-none cursor-grab hover:bg-zinc-700/40 p-1.5 rounded-lg px-3"
-                onDragStart={(event) => onDragStart(event, node.type)}
+                className="dndnode flex h-[52px] items-center gap-3.5 select-none cursor-grab dark:hover:bg-zinc-700/40 hover:bg-zinc-300/50 p-1.5 rounded-lg px-3"
+                onDragStart={(event) => {
+                  onDragStart(event, node.type);
+                }}
                 draggable
               >
                 {node.icon}
                 <div>
                   <span className="font-medium">{node.name}</span>
                   {node.description && (
-                    <p className="font-light text-white/65">
+                    <p className="font-light dark:text-white/65 text-black/65">
                       {node.description}
                     </p>
                   )}
@@ -145,7 +166,7 @@ const nodesList: {
       />
     ),
     name: "Adicionar variáveis",
-    description: "Atribua várias variáveis",
+    description: "Atribua/Sobrescreva várias variáveis",
     id: "4",
     type: "nodeAddVariables",
   },
