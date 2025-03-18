@@ -1,25 +1,54 @@
-import { Button, Field, NumberInput } from "@chakra-ui/react";
 import { Handle, Node, Position } from "@xyflow/react";
 import { PatternNode } from "../Pattern";
-import TextareaAutosize from "react-textarea-autosize";
-import { IoIosCloseCircle } from "react-icons/io";
 import { PiFlowArrowBold } from "react-icons/pi";
-// import useStore from "../../flowStore";
-// import useStore from "../../flowStore";
+import {
+  SelectContent,
+  SelectItem,
+  SelectLabel,
+  SelectRoot,
+  SelectTrigger,
+  SelectValueText,
+} from "@components/ui/select";
+import { createListCollection, Select, Span, Stack } from "@chakra-ui/react";
+import useStore from "../../flowStore";
+import { useEffect } from "react";
 
 type DataNode = {
-  message: string;
-  interval: number;
+  id: number;
 };
 
-export const NodeSendFlow: React.FC<Node<DataNode>> = () => {
-  // const updateNode = useStore((s) => s.updateNode);
-  // const node = useStore((s) => s.);
+const timesList = createListCollection({
+  items: [
+    {
+      label: "Seg",
+      value: "seg",
+      description: "Segundos",
+    },
+    {
+      label: "Min",
+      value: "min",
+      description: "Minutos",
+    },
+    {
+      label: "Hor",
+      value: "hor",
+      description: "Horas",
+    },
+  ],
+});
+
+export const NodeSendFlow: React.FC<Node<DataNode>> = ({ data, id }) => {
+  const updateNode = useStore((s) => s.updateNode);
+
+  useEffect(() => {
+    // caso tenho apenas um fluxo, então auto selecione ele!
+  }, []);
+
   return (
     <div>
       <PatternNode.PatternPopover
-        title="Node de variáveis"
-        description="Adiciona várias variáveis"
+        title="Node de enviar fluxo"
+        description="Transferir a conversa para outro fluxo"
         node={{
           children: (
             <div className="p-1">
@@ -33,46 +62,36 @@ export const NodeSendFlow: React.FC<Node<DataNode>> = () => {
           description: "Enviar",
         }}
       >
-        <div className="flex flex-col gap-y-5">
-          {/* Item do balão */}
-          <div className="relative group gap-y-2 flex flex-col dark:bg-zinc-600/10 py-2.5 rounded-sm p-2">
-            <a className="absolute -top-2 -left-2">
-              <IoIosCloseCircle
-                size={22}
-                className="text-red-500/40 hover:text-red-500/80 duration-200 cursor-pointer"
-              />
-            </a>
-            <NumberInput.Root defaultValue="0" min={0} max={60} size={"md"}>
-              <div className="flex w-full justify-between px-2">
-                <div className="flex flex-col">
-                  <NumberInput.Label fontWeight={"medium"}>
-                    Segundos digitando...
-                  </NumberInput.Label>
-                  <span className="dark:text-white/70 text-black/50 font-light">
-                    Para enviar o prox balão
-                  </span>
-                </div>
-                <NumberInput.Input maxW={"43px"} />
-              </div>
-            </NumberInput.Root>
-
-            <Field.Root gap={"3px"} required>
-              <Field.Label>
-                Balão de texto <Field.RequiredIndicator />
-              </Field.Label>
-              <TextareaAutosize
-                placeholder="Digite sua mensagem aqui"
-                style={{ resize: "none" }}
-                minRows={3}
-                maxRows={10}
-                className="p-3 py-2.5 rounded-sm w-full border-black/10 dark:border-white/10 border"
-              />
-            </Field.Root>
-          </div>
-
-          <Button size={"sm"} colorPalette={"green"}>
-            Adicionar balão
-          </Button>
+        <div className="flex flex-col -mt-3">
+          <SelectRoot
+            // @ts-expect-error
+            value={data.id}
+            defaultValue={["min"]}
+            onValueChange={(e) => {
+              updateNode(id, {
+                data: { id: e.value },
+              });
+            }}
+            collection={timesList}
+            className="!gap-1"
+          >
+            <SelectLabel className="p-0 m-0">Selecione o fluxo</SelectLabel>
+            <SelectTrigger>
+              <SelectValueText placeholder="Tipo" />
+            </SelectTrigger>
+            <SelectContent>
+              {timesList.items.map((time) => (
+                <SelectItem item={time} key={time.value}>
+                  <Stack gap="0">
+                    <Select.ItemText>{time.label}</Select.ItemText>
+                    <Span color="fg.muted" textStyle="xs">
+                      {time.description}
+                    </Span>
+                  </Stack>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </SelectRoot>
         </div>
       </PatternNode.PatternPopover>
 

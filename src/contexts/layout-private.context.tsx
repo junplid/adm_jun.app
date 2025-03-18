@@ -206,7 +206,7 @@ export function LayoutPrivateProvider(): JSX.Element {
                   pathname === "/auth/production-settings/customization-tag"
                 }
               >
-                Tags
+                Etiquetas
               </MenuItem>
               <MenuItem
                 icon={<PiBracketsCurlyBold size={19} />}

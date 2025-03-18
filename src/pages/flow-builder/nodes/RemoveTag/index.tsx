@@ -1,24 +1,56 @@
-import { Button, Field, NumberInput } from "@chakra-ui/react";
 import { Handle, Node, Position } from "@xyflow/react";
 import { PatternNode } from "../Pattern";
-import TextareaAutosize from "react-textarea-autosize";
 import { TbTags } from "react-icons/tb";
-import { IoIosCloseCircle } from "react-icons/io";
-// import useStore from "../../flowStore";
+import { WithContext as ReactTags, SEPARATORS, Tag } from "react-tag-input";
+import useStore from "../../flowStore";
+import { useEffect, useState } from "react";
+
+const suggestions = ["Teste 1", "Teste 2"].map((country) => {
+  return {
+    id: country,
+    text: country,
+    className: "",
+  };
+});
 
 type DataNode = {
-  message: string;
-  interval: number;
+  list: number[];
 };
 
-export const NodeRemoveTags: React.FC<Node<DataNode>> = () => {
-  // const updateNode = useStore((s) => s.updateNode);
+export const NodeRemoveTags: React.FC<Node<DataNode>> = ({ data, id }) => {
+  const updateNode = useStore((s) => s.updateNode);
+
+  const [tags, setTags] = useState<Array<Tag>>([]);
+  const [focus, setFocus] = useState(false);
+
+  const handleDelete = (index: number) => {
+    if (!index && tags.length === 1) {
+      setTags(tags.filter((_, i) => i !== index));
+    } else {
+      setTags(tags.filter((_, i) => i !== index));
+    }
+  };
+
+  const handleAddition = (tag: Tag) => {
+    setTags((prevTags) => {
+      return [
+        ...prevTags,
+        { ...tag, text: tag.text.trim().replace(/\s/g, "_") },
+      ];
+    });
+  };
+
+  useEffect(() => {
+    if (!data.list?.length) {
+      updateNode(id, { data: { list: [] } });
+    }
+  }, [id]);
 
   return (
     <div>
       <PatternNode.PatternPopover
-        title="Node de remover tags"
-        description="Remove várias tags"
+        title="Node de remover etiquetas"
+        description="Remova várias etiquetas/tags do lead"
         node={{
           children: (
             <div className="p-1">
@@ -29,46 +61,27 @@ export const NodeRemoveTags: React.FC<Node<DataNode>> = () => {
           description: "Remove",
         }}
       >
-        <div className="flex flex-col gap-y-5">
-          {/* Item do balão */}
-          <div className="relative group gap-y-2 flex flex-col dark:bg-zinc-600/10 py-2.5 rounded-sm p-2">
-            <a className="absolute -top-2 -left-2">
-              <IoIosCloseCircle
-                size={22}
-                className="text-red-500/40 hover:text-red-500/80 duration-200 cursor-pointer"
-              />
-            </a>
-            <NumberInput.Root defaultValue="0" min={0} max={60} size={"md"}>
-              <div className="flex w-full justify-between px-2">
-                <div className="flex flex-col">
-                  <NumberInput.Label fontWeight={"medium"}>
-                    Segundos digitando...
-                  </NumberInput.Label>
-                  <span className="dark:text-white/70 text-black/50 font-light">
-                    Para enviar o prox balão
-                  </span>
-                </div>
-                <NumberInput.Input maxW={"43px"} />
-              </div>
-            </NumberInput.Root>
-
-            <Field.Root gap={"3px"} required>
-              <Field.Label>
-                Balão de texto <Field.RequiredIndicator />
-              </Field.Label>
-              <TextareaAutosize
-                placeholder="Digite sua mensagem aqui"
-                style={{ resize: "none" }}
-                minRows={3}
-                maxRows={10}
-                className="p-3 py-2.5 rounded-sm w-full border-black/10 dark:border-white/10 border"
-              />
-            </Field.Root>
-          </div>
-
-          <Button size={"sm"} colorPalette={"green"}>
-            Adicionar balão
-          </Button>
+        <div className="flex flex-col gap-y-5 -mt-3 ">
+          <ReactTags
+            tags={tags}
+            suggestions={suggestions}
+            separators={[SEPARATORS.ENTER]}
+            handleAddition={handleAddition}
+            handleDelete={handleDelete}
+            placeholder="Digite e pressione `ENTER`"
+            allowDragDrop={false}
+            handleInputFocus={() => setFocus(true)}
+            handleInputBlur={() => setFocus(false)}
+            handleTagClick={handleDelete}
+            classNames={{
+              selected: `flex flex-wrap border p-2 rounded-sm gap-1.5 gap-y-2 w-full ${focus ? "border-white" : "border-white/10"}`,
+              tagInputField:
+                "!border-none bg-[#ffffff05] focus:bg-[#ffffff10] outline-none p-1 px-2 w-full",
+              remove: "hidden",
+              tag: "hover:bg-red-500 duration-300 !cursor-pointer bg-white/15 px-1",
+              tagInput: "w-full",
+            }}
+          />
         </div>
       </PatternNode.PatternPopover>
 
