@@ -28,7 +28,6 @@ export const NodeMessage: React.FC<Node<DataNode>> = ({
   useEffect(() => {
     if (!data.messages?.length) {
       updateNode(id, {
-        ...node,
         data: { messages: [{ key: v4(), text: "" }] },
       });
     }
@@ -70,7 +69,6 @@ export const NodeMessage: React.FC<Node<DataNode>> = ({
                     className="absolute -top-2 -left-2"
                     onClick={() => {
                       updateNode(id, {
-                        ...node,
                         data: {
                           messages: data.messages!.filter(
                             (s) => s.key !== msg.key
@@ -94,12 +92,11 @@ export const NodeMessage: React.FC<Node<DataNode>> = ({
                   onValueChange={(e) => {
                     const nextMessages = data.messages!.map((m) => {
                       if (m.key === msg.key) {
-                        m.interval = Number(e.value);
+                        m.interval = e.valueAsNumber;
                       }
                       return m;
                     });
                     updateNode(id, {
-                      ...node,
                       data: { messages: nextMessages },
                     });
                   }}
@@ -139,7 +136,6 @@ export const NodeMessage: React.FC<Node<DataNode>> = ({
                         return m;
                       });
                       updateNode(id, {
-                        ...node,
                         data: { messages: nextMessages },
                       });
                     }}
@@ -149,7 +145,6 @@ export const NodeMessage: React.FC<Node<DataNode>> = ({
                         return m;
                       });
                       updateNode(id, {
-                        ...node,
                         data: { messages: nextMessages },
                       });
                     }}
