@@ -4,7 +4,7 @@ import { PatternNode } from "../Pattern";
 import TextareaAutosize from "react-textarea-autosize";
 import { TbTextSize } from "react-icons/tb";
 import { IoIosCloseCircle } from "react-icons/io";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import useStore from "../../flowStore";
 import { v4 } from "uuid";
 
@@ -32,12 +32,6 @@ export const NodeMessage: React.FC<Node<DataNode>> = ({
       });
     }
   }, []);
-
-  const refTextarea = useRef(null);
-
-  useEffect(() => {
-    console.log(refTextarea);
-  }, [refTextarea]);
 
   return (
     <div>
@@ -121,7 +115,6 @@ export const NodeMessage: React.FC<Node<DataNode>> = ({
 
                 <Field.Root gap={"3px"} required>
                   <TextareaAutosize
-                    ref={refTextarea}
                     placeholder="Digite sua mensagem aqui"
                     style={{
                       resize: "none",

@@ -28,6 +28,7 @@ import { NodeSendFlow } from "./nodes/SendFlow";
 import { SearchNodesComponents } from "./components/SearchNodes";
 import { DnDContext } from "@contexts/DnD.context";
 import { AppNode } from "./types";
+import { FeedbackComponent } from "./components/feedback";
 
 type NodeTypesGeneric = {
   [x in TypesNodes]: any;
@@ -137,6 +138,7 @@ export function FlowBuilderPage() {
             >
               {ToggleMenu}
               <HStack>
+                <FeedbackComponent />
                 <SearchNodesComponents />
                 <ColorModeButton />
               </HStack>

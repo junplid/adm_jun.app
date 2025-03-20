@@ -79,7 +79,7 @@ export const PatternNodeComponent: FC<PropsPatternNodeComponent> = ({
               "dark:hover:!bg-[#1d1d1d] hover:!bg-[#e4e4e4] duration-300",
           })}
           {...(props.open && {
-            className: "dark:!bg-[#1d1d1d] !bg-[#f7f7f7] duration-300",
+            className: "dark:!bg-[#1d1d1d] !bg-[#f0f0f0] duration-300",
           })}
         >
           {props.children}
