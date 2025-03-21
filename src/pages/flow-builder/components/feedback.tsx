@@ -15,7 +15,7 @@ import { JSX } from "react";
 export function FeedbackComponent(): JSX.Element {
   return (
     <PopoverRoot positioning={{ placement: "bottom-end" }}>
-      <PopoverTrigger>
+      <PopoverTrigger as={"div"}>
         <Button
           className="dark:bg-white/10 hover:dark:!bg-white/20 bg-black/5 hover:!bg-black/10"
           pointerEvents={"all"}

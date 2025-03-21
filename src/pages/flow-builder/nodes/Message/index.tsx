@@ -1,12 +1,13 @@
-import { Button, Field, NumberInput } from "@chakra-ui/react";
+import { Button, NumberInput } from "@chakra-ui/react";
+import { useVariables } from "../../../../hooks/useVariables";
 import { Handle, Node, Position } from "@xyflow/react";
-import { PatternNode } from "../Pattern";
-import TextareaAutosize from "react-textarea-autosize";
-import { TbTextSize } from "react-icons/tb";
 import { IoIosCloseCircle } from "react-icons/io";
-import { useEffect } from "react";
+import { TbTextSize } from "react-icons/tb";
+import { PatternNode } from "../Pattern";
 import useStore from "../../flowStore";
+import { useEffect } from "react";
 import { v4 } from "uuid";
+import AutocompleteTextField from "@components/Autocomplete";
 
 type DataNode = {
   messages?: {
@@ -23,6 +24,7 @@ export const NodeMessage: React.FC<Node<DataNode>> = ({
   height,
   ...node
 }) => {
+  const variables = useVariables();
   const updateNode = useStore((s) => s.updateNode);
 
   useEffect(() => {
@@ -105,15 +107,15 @@ export const NodeMessage: React.FC<Node<DataNode>> = ({
                       </span>
                     </div>
                     <NumberInput.Input
-                      style={{
-                        borderColor: msg.interval ? "transparent" : "",
-                      }}
+                      // style={{
+                      //   borderColor: msg.interval ? "transparent" : "",
+                      // }}
                       maxW={"43px"}
                     />
                   </div>
                 </NumberInput.Root>
 
-                <Field.Root gap={"3px"} required>
+                {/* <Field.Root gap={"3px"} required>
                   <TextareaAutosize
                     placeholder="Digite sua mensagem aqui"
                     style={{
@@ -143,7 +145,14 @@ export const NodeMessage: React.FC<Node<DataNode>> = ({
                     }}
                     value={msg.text}
                   />
-                </Field.Root>
+                </Field.Root> */}
+                <AutocompleteTextField
+                  // @ts-expect-error
+                  trigger={["{{"]}
+                  options={{ "{{": variables.map((s) => s.name) }}
+                  spacer={"}} "}
+                  placeholder="Digite sua mensagem aqui"
+                />
               </div>
             ))}
 

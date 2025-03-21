@@ -37,6 +37,7 @@ export const PatternNodePopoverComponent: FC<PropsPatternNodeComponent> = (
       lazyMount
       unmountOnExit
       open={open}
+      portalled
       onOpenChange={(e) => setOpen(e.open)}
     >
       <PopoverTrigger>
@@ -45,6 +46,7 @@ export const PatternNodePopoverComponent: FC<PropsPatternNodeComponent> = (
           nameNode={props.node.name}
           descriptionNode={props.node.description}
           clickable
+          size={props.node.size}
           isConnectable={props.node.isConnectable}
         >
           {props.node.children}

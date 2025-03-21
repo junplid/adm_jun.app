@@ -15,6 +15,7 @@ import { useColorModeValue, ColorModeButton } from "@components/ui/color-mode";
 import { LayoutPrivateContext } from "@contexts/layout-private.context";
 import { useShallow } from "zustand/react/shallow";
 
+import "react-autocomplete-input/dist/bundle.css";
 import useStore from "./flowStore";
 import { NodeInitial } from "./nodes/Initial";
 import { NodeMessage } from "./nodes/Message";
@@ -104,7 +105,7 @@ export function FlowBuilderPage() {
   );
 
   return (
-    <Box as={"main"} className="dndflow" h={"100svh"}>
+    <Box as={"div"} className="dndflow" h={"100svh"}>
       <div className="reactflow-wrapper w-full h-full" ref={reactFlowWrapper}>
         <ReactFlow
           nodes={nodes}
@@ -115,7 +116,7 @@ export function FlowBuilderPage() {
           nodeTypes={nodeTypes}
           onDrop={onDrop}
           onDragOver={onDragOver}
-          fitView
+          // fitView
           attributionPosition="top-right"
         >
           <MiniMap
@@ -137,7 +138,7 @@ export function FlowBuilderPage() {
               w={"100%"}
             >
               {ToggleMenu}
-              <HStack>
+              <HStack className="pointer-events-auto">
                 <FeedbackComponent />
                 <SearchNodesComponents />
                 <ColorModeButton />

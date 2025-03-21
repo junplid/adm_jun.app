@@ -1,5 +1,9 @@
 import { JSX } from "react";
 
 export function DashboardPage(): JSX.Element {
-  return <p>pagina home</p>;
+  return (
+    <div className="ml-20">
+      <p>pagina home</p>
+    </div>
+  );
 }

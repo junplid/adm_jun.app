@@ -1,0 +1,610 @@
+import React, { createRef } from "react";
+import PropTypes from "prop-types";
+import getCaretCoordinates from "textarea-caret";
+import getInputSelection, { setCaretPosition } from "get-input-selection";
+import isEqual from "lodash.isequal";
+import scrollIntoView from "scroll-into-view-if-needed";
+import "./styles.css";
+import { createPortal } from "react-dom";
+import { Presence } from "@chakra-ui/react";
+
+const KEY_UP = 38;
+const KEY_DOWN = 40;
+const KEY_RETURN = 13;
+const KEY_ENTER = 14;
+const KEY_ESCAPE = 27;
+const KEY_TAB = 9;
+
+const OPTION_LIST_MIN_WIDTH = 100;
+
+const propTypes = {
+  Component: PropTypes.oneOfType([PropTypes.string, PropTypes.elementType]),
+  defaultValue: PropTypes.string,
+  disabled: PropTypes.bool,
+  maxOptions: PropTypes.number,
+  onBlur: PropTypes.func,
+  onChange: PropTypes.func,
+  onKeyDown: PropTypes.func,
+  onRequestOptions: PropTypes.func,
+  onSelect: PropTypes.func,
+  changeOnSelect: PropTypes.func,
+  options: PropTypes.oneOfType([
+    PropTypes.object,
+    PropTypes.arrayOf(PropTypes.string),
+  ]),
+  regex: PropTypes.string,
+  matchAny: PropTypes.bool,
+  minChars: PropTypes.number,
+  requestOnlyIfNoOptions: PropTypes.bool,
+  spaceRemovers: PropTypes.arrayOf(PropTypes.string),
+  spacer: PropTypes.string,
+  trigger: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.arrayOf(PropTypes.string),
+  ]),
+  value: PropTypes.string,
+  offsetX: PropTypes.number,
+  offsetY: PropTypes.number,
+  passThroughEnter: PropTypes.bool,
+  passThroughTab: PropTypes.bool,
+  triggerMatchWholeWord: PropTypes.bool,
+  triggerCaseInsensitive: PropTypes.bool,
+};
+
+const defaultProps = {
+  Component: "textarea",
+  defaultValue: "",
+  disabled: false,
+  maxOptions: 6,
+  onBlur: () => {},
+  onChange: () => {},
+  onKeyDown: () => {},
+  onRequestOptions: () => {},
+  onSelect: () => {},
+  changeOnSelect: (trigger, slug) => trigger + slug,
+  options: [],
+  regex: "^[A-Za-z0-9\\-_]+$",
+  matchAny: false,
+  minChars: 0,
+  requestOnlyIfNoOptions: true,
+  spaceRemovers: [",", ".", "!", "?"],
+  spacer: " ",
+  trigger: "@",
+  offsetX: 0,
+  offsetY: 0,
+  value: null,
+  passThroughEnter: false,
+  passThroughTab: true,
+  triggerMatchWholeWord: false,
+  triggerCaseInsensitive: false,
+};
+
+class AutocompleteTextField extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.isTrigger = this.isTrigger.bind(this);
+    this.arrayTriggerMatch = this.arrayTriggerMatch.bind(this);
+    this.getMatch = this.getMatch.bind(this);
+    this.handleChange = this.handleChange.bind(this);
+    this.handleKeyDown = this.handleKeyDown.bind(this);
+    this.handleBlur = this.handleBlur.bind(this);
+    this.handleResize = this.handleResize.bind(this);
+    this.handleSelection = this.handleSelection.bind(this);
+    this.updateCaretPosition = this.updateCaretPosition.bind(this);
+    this.updateHelper = this.updateHelper.bind(this);
+    this.resetHelper = this.resetHelper.bind(this);
+    this.renderAutocompleteList = this.renderAutocompleteList.bind(this);
+
+    this.state = {
+      helperVisible: false,
+      left: 0,
+      trigger: null,
+      matchLength: 0,
+      matchStart: 0,
+      options: [],
+      selection: 0,
+      top: 0,
+      value: null,
+    };
+
+    this.recentValue = props.defaultValue;
+    this.enableSpaceRemovers = false;
+    this.refInput = createRef();
+    this.refCurrent = createRef();
+    this.refParent = createRef();
+  }
+
+  componentDidMount() {
+    window.addEventListener("resize", this.handleResize);
+    window.addEventListener("scroll", this.handleResize);
+  }
+
+  componentDidUpdate(prevProps) {
+    const { options } = this.props;
+    const { caret } = this.state;
+    const { helperVisible } = this.state;
+
+    if (!isEqual(options, prevProps.options)) {
+      this.updateHelper(this.recentValue, caret, options);
+    }
+
+    if (helperVisible && this.refCurrent.current) {
+      scrollIntoView(this.refCurrent.current, {
+        boundary: this.refParent.current,
+        scrollMode: "if-needed",
+      });
+    }
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("resize", this.handleResize);
+    window.removeEventListener("scroll", this.handleResize);
+  }
+
+  getMatch(str, caret, providedOptions) {
+    const { trigger, matchAny, regex } = this.props;
+    const re = new RegExp(regex);
+
+    let triggers = trigger;
+    if (!Array.isArray(triggers)) {
+      triggers = new Array(trigger);
+    }
+    triggers.sort();
+
+    const providedOptionsObject = providedOptions;
+    if (Array.isArray(providedOptions)) {
+      triggers.forEach((triggerStr) => {
+        providedOptionsObject[triggerStr] = providedOptions;
+      });
+    }
+
+    const triggersMatch = this.arrayTriggerMatch(triggers, re);
+    let slugData = null;
+
+    for (
+      let triggersIndex = 0;
+      triggersIndex < triggersMatch.length;
+      triggersIndex++
+    ) {
+      const { triggerStr, triggerMatch, triggerLength } =
+        triggersMatch[triggersIndex];
+
+      for (let i = caret - 1; i >= 0; --i) {
+        const substr = str.substring(i, caret);
+        const match = substr.match(re);
+        let matchStart = -1;
+
+        if (triggerLength > 0) {
+          const triggerIdx = triggerMatch ? i : i - triggerLength + 1;
+
+          if (triggerIdx < 0) {
+            // out of input
+            break;
+          }
+
+          if (this.isTrigger(triggerStr, str, triggerIdx)) {
+            matchStart = triggerIdx + triggerLength;
+          }
+
+          if (!match && matchStart < 0) {
+            break;
+          }
+        } else {
+          if (match && i > 0) {
+            // find first non-matching character or begin of input
+            continue;
+          }
+          matchStart = i === 0 && match ? 0 : i + 1;
+
+          if (caret - matchStart === 0) {
+            // matched slug is empty
+            break;
+          }
+        }
+
+        if (matchStart >= 0) {
+          const triggerOptions = providedOptionsObject[triggerStr];
+          if (triggerOptions == null) {
+            continue;
+          }
+
+          const matchedSlug = str.substring(matchStart, caret);
+
+          const options = triggerOptions.filter((slug) => {
+            const idx = slug.toLowerCase().indexOf(matchedSlug.toLowerCase());
+            return idx !== -1 && (matchAny || idx === 0);
+          });
+
+          const currTrigger = triggerStr;
+          const matchLength = matchedSlug.length;
+
+          if (slugData === null) {
+            slugData = {
+              trigger: currTrigger,
+              matchStart,
+              matchLength,
+              options,
+            };
+          } else {
+            slugData = {
+              ...slugData,
+              trigger: currTrigger,
+              matchStart,
+              matchLength,
+              options,
+            };
+          }
+        }
+      }
+    }
+
+    return slugData;
+  }
+
+  arrayTriggerMatch(triggers, re) {
+    const triggersMatch = triggers.map((trigger) => ({
+      triggerStr: trigger,
+      triggerMatch: trigger.match(re),
+      triggerLength: trigger.length,
+    }));
+
+    return triggersMatch;
+  }
+
+  isTrigger(trigger, str, i) {
+    if (!trigger || !trigger.length) {
+      return true;
+    }
+
+    const { triggerMatchWholeWord } = this.props;
+    if (triggerMatchWholeWord && i > 0 && str.charAt(i - 1).match(/[\w]/)) {
+      return false;
+    }
+
+    const { triggerCaseInsensitive } = this.props;
+    if (
+      str.substr(i, trigger.length) === trigger ||
+      (triggerCaseInsensitive &&
+        str.substr(i, trigger.length).toLowerCase() === trigger.toLowerCase())
+    ) {
+      return true;
+    }
+
+    return false;
+  }
+
+  handleBlur(e) {
+    const { onBlur } = this.props;
+    this.resetHelper();
+    if (onBlur) {
+      onBlur(e);
+    }
+  }
+
+  handleChange(e) {
+    const { onChange, options, spaceRemovers, spacer, value } = this.props;
+
+    const old = this.recentValue;
+    const str = e.target.value;
+    const caret = getInputSelection(e.target).end;
+
+    if (!str.length) {
+      this.setState({ helperVisible: false });
+    }
+
+    this.recentValue = str;
+
+    this.setState({ caret, value: e.target.value });
+
+    if (!str.length || !caret) {
+      return onChange(e.target.value);
+    }
+
+    // '@wonderjenny ,|' -> '@wonderjenny, |'
+    if (
+      this.enableSpaceRemovers &&
+      spaceRemovers.length &&
+      str.length > 2 &&
+      spacer.length
+    ) {
+      for (let i = 0; i < Math.max(old.length, str.length); ++i) {
+        if (old[i] !== str[i]) {
+          if (
+            i >= 2 &&
+            str[i - 1] === spacer &&
+            spaceRemovers.indexOf(str[i - 2]) === -1 &&
+            spaceRemovers.indexOf(str[i]) !== -1 &&
+            this.getMatch(str.substring(0, i - 2), caret - 3, options)
+          ) {
+            const newValue = `${str.slice(0, i - 1)}${str.slice(i, i + 1)}${str.slice(i - 1, i)}${str.slice(i + 1)}`;
+
+            this.updateCaretPosition(i + 1);
+            this.refInput.current.value = newValue;
+
+            if (!value) {
+              this.setState({ value: newValue });
+            }
+
+            return onChange(newValue);
+          }
+
+          break;
+        }
+      }
+
+      this.enableSpaceRemovers = false;
+    }
+
+    this.updateHelper(str, caret, options);
+
+    if (!value) {
+      this.setState({ value: e.target.value });
+    }
+
+    return onChange(e.target.value);
+  }
+
+  handleKeyDown(event) {
+    const { helperVisible, options, selection } = this.state;
+    const { onKeyDown, passThroughEnter, maxOptions, passThroughTab } =
+      this.props;
+    const optionsCount =
+      maxOptions > 0 ? Math.min(options.length, maxOptions) : options.length;
+
+    if (helperVisible) {
+      switch (event.keyCode) {
+        case KEY_ESCAPE:
+          event.preventDefault();
+          this.resetHelper();
+          break;
+        case KEY_UP:
+          event.preventDefault();
+          if (optionsCount > 0) {
+            this.setState({
+              selection:
+                Math.max(0, optionsCount + selection - 1) % optionsCount,
+            });
+          }
+          break;
+        case KEY_DOWN:
+          event.preventDefault();
+          if (optionsCount > 0) {
+            this.setState({ selection: (selection + 1) % optionsCount });
+          }
+          break;
+        case KEY_ENTER:
+        case KEY_RETURN:
+          if (!passThroughEnter) {
+            event.preventDefault();
+          }
+          this.handleSelection(selection);
+          break;
+        case KEY_TAB:
+          if (!passThroughTab) {
+            event.preventDefault();
+          }
+          this.handleSelection(selection);
+          break;
+        default:
+          onKeyDown(event);
+          break;
+      }
+    } else {
+      onKeyDown(event);
+    }
+  }
+
+  handleResize() {
+    this.setState({ helperVisible: false });
+  }
+
+  handleSelection(idx) {
+    const { spacer, onSelect, changeOnSelect } = this.props;
+    const { matchStart, matchLength, options, trigger } = this.state;
+
+    const slug = options[idx];
+    const value = this.recentValue;
+    const part1 =
+      trigger.length === 0
+        ? ""
+        : value.substring(0, matchStart - trigger.length);
+    const part2 = value.substring(matchStart + matchLength);
+
+    const event = { target: this.refInput.current };
+    const changedStr = changeOnSelect(trigger, slug);
+
+    event.target.value = `${part1}${changedStr}${spacer}${part2}`;
+    this.handleChange(event);
+    onSelect(event.target.value);
+
+    this.resetHelper();
+
+    const advanceCaretDistance =
+      part1.length + changedStr.length + (spacer ? spacer.length : 1);
+
+    this.updateCaretPosition(advanceCaretDistance);
+
+    this.enableSpaceRemovers = true;
+  }
+
+  updateCaretPosition(caret) {
+    this.setState({ caret }, () =>
+      setCaretPosition(this.refInput.current, caret)
+    );
+  }
+
+  updateHelper(str, caret, options) {
+    const input = this.refInput.current;
+
+    const slug = this.getMatch(str, caret, options);
+
+    if (slug) {
+      const caretPos = getCaretCoordinates(input, caret);
+      const rect = input.getBoundingClientRect();
+
+      const top = caretPos.top + rect.top - input.scrollTop;
+      const left = Math.min(
+        /* Fully inside the viewport */
+        caretPos.left + rect.left - input.scrollLeft,
+        /* Ensure minimal width inside viewport */
+        window.innerWidth - OPTION_LIST_MIN_WIDTH
+      );
+
+      const { minChars, onRequestOptions, requestOnlyIfNoOptions } = this.props;
+      if (
+        slug.matchLength >= minChars &&
+        (slug.options.length > 1 ||
+          (slug.options.length === 1 &&
+            (slug.options[0].length !== slug.matchLength ||
+              slug.options[0].length === 1)))
+      ) {
+        this.setState({
+          helperVisible: true,
+          top,
+          left,
+          ...slug,
+        });
+      } else {
+        if (!requestOnlyIfNoOptions || !slug.options.length) {
+          onRequestOptions(str.substr(slug.matchStart, slug.matchLength));
+        }
+
+        this.resetHelper();
+      }
+    } else {
+      this.resetHelper();
+    }
+  }
+
+  resetHelper() {
+    this.setState({ helperVisible: false, selection: 0 });
+  }
+
+  renderAutocompleteList() {
+    const {
+      helperVisible,
+      left,
+      matchStart,
+      matchLength,
+      options,
+      selection,
+      top,
+      value,
+    } = this.state;
+
+    const { maxOptions, offsetX, offsetY } = this.props;
+
+    if (options.length === 0) {
+      return null;
+    }
+
+    if (selection >= options.length) {
+      this.setState({ selection: 0 });
+
+      return null;
+    }
+
+    const optionNumber = maxOptions === 0 ? options.length : maxOptions;
+
+    const helperOptions = options.slice(0, optionNumber).map((val, idx) => {
+      const highlightStart = val
+        .toLowerCase()
+        .indexOf(value.substr(matchStart, matchLength).toLowerCase());
+
+      return (
+        <li
+          className={idx === selection ? "active" : null}
+          ref={idx === selection ? this.refCurrent : null}
+          key={val}
+          onClick={() => {
+            this.handleSelection(idx);
+          }}
+          onMouseDown={(e) => {
+            e.preventDefault();
+          }}
+          onMouseEnter={() => {
+            this.setState({ selection: idx });
+          }}
+        >
+          {val.slice(0, highlightStart)}
+          <strong>{val.substr(highlightStart, matchLength)}</strong>
+          {val.slice(highlightStart + matchLength)}
+        </li>
+      );
+    });
+
+    /* FIXME: de-hardcode that 5 pixels margin */
+    const maxWidth = window.innerWidth - left - offsetX - 5;
+    const maxHeight = window.innerHeight - top - offsetY - 5;
+
+    return createPortal(
+      <Presence
+        animationName={{
+          _open: "slide-from-top, fade-in",
+          _closed: "slide-to-top, fade-out",
+        }}
+        animationDuration="moderate"
+        present={!!helperVisible}
+        position={"fixed"}
+        top={top + offsetY}
+        left={left + offsetX}
+        zIndex={99999}
+      >
+        <ul
+          className="react-autocomplete-input !shadow-xl shadow-black/50"
+          style={{
+            maxHeight,
+            maxWidth,
+          }}
+          ref={this.refParent}
+        >
+          {helperOptions}
+        </ul>
+      </Presence>,
+      document.body
+    );
+  }
+
+  render() {
+    const { Component, defaultValue, disabled, value, ...rest } = this.props;
+
+    const { value: stateValue } = this.state;
+
+    const propagated = Object.assign({}, rest);
+    Object.keys(propTypes).forEach((k) => {
+      delete propagated[k];
+    });
+
+    let val = "";
+
+    if (typeof value !== "undefined" && value !== null) {
+      val = value;
+    } else if (stateValue) {
+      val = stateValue;
+    } else if (defaultValue) {
+      val = defaultValue;
+    }
+
+    return (
+      <>
+        <textarea
+          className="p-3 py-2.5 rounded-sm resize-none dark:border-white/10 border-black/10 border"
+          disabled={disabled}
+          onBlur={this.handleBlur}
+          onChange={this.handleChange}
+          onKeyDown={this.handleKeyDown}
+          ref={this.refInput}
+          value={val}
+          {...propagated}
+        />
+        {this.renderAutocompleteList()}
+      </>
+    );
+  }
+}
+
+AutocompleteTextField.propTypes = propTypes;
+AutocompleteTextField.defaultProps = defaultProps;
+
+export default AutocompleteTextField;

@@ -1,0 +1,52 @@
+.react-autocomplete-input {
+  bottom: auto;
+  font-size: 14px;
+  position: fixed;
+  text-align: left;
+  z-index: 20000;
+  overflow-y: auto;
+  margin-top: 1em;
+  padding: 2px 3px 3px;
+  border-radius: 4px;
+}
+
+.react-autocomplete-input {
+  background-color: #fff;
+}
+
+.dark .react-autocomplete-input {
+  background-color: #0e0e0e;
+}
+
+.react-autocomplete-input > li {
+  cursor: pointer;
+  padding: 5px 10px;
+  min-width: 130px;
+  border-radius: 4px;
+  font-weight: 400;
+  color: #757575;
+}
+
+.dark .react-autocomplete-input > li {
+  color: #a3a3a3;
+}
+
+.react-autocomplete-input > li > strong {
+  font-weight: 600;
+  font-size: 15px;
+  color: #161616;
+}
+
+.dark .react-autocomplete-input > li > strong {
+  color: #f5f5f5;
+}
+
+.dark .react-autocomplete-input > li.active {
+  background-color: #1f1e20;
+  color: #fff;
+}
+
+.react-autocomplete-input > li.active {
+  background-color: #dfdfdf;
+  color: #757575;
+}

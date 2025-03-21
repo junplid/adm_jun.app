@@ -120,7 +120,7 @@ export const NodeIF: React.FC<Node<DataNode>> = ({ data, id }) => {
           {data.list?.map((item) => {
             const elements: ReactNode[] = [];
             elements.push(
-              <div key={item.key} className="flex flex-col gap-y-2">
+              <div className="flex flex-col gap-y-2">
                 <SelectRoot
                   // @ts-expect-error
                   value={data.id}
@@ -254,7 +254,6 @@ export const NodeIF: React.FC<Node<DataNode>> = ({ data, id }) => {
                 </div>
               );
             }
-
             elements.push(
               <div className="w-full flex flex-col items-center mt-3">
                 <SelectRoot
@@ -302,7 +301,7 @@ export const NodeIF: React.FC<Node<DataNode>> = ({ data, id }) => {
                 </SelectRoot>
               </div>
             );
-            return <div>{elements}</div>;
+            return <div key={item.key}>{elements}</div>;
           })}
         </div>
       </PatternNode.PatternPopover>
