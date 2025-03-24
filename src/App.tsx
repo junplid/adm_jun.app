@@ -6,6 +6,8 @@ import { LayoutMain } from "./layouts/main";
 import { DashboardPage } from "./pages/dashboard";
 import { DnDProvider } from "@contexts/DnD.context";
 import { ReactFlowProvider } from "@xyflow/react";
+import { LoginPage } from "./pages/login";
+import { SignupPage } from "./pages/signup";
 
 // import { NodeMessage } from "./flow-lib/nodes/Message";
 // import { NodeReply } from "./flow-lib/nodes/Reply";
@@ -95,6 +97,9 @@ export default function App() {
               /> */}
 
         {/* <Route path="/checkout/:pl" element={<CheckoutPage />} /> */}
+
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
 
         <Route
           path="*"
