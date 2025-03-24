@@ -9,7 +9,7 @@ export function LayoutMain(): JSX.Element {
   // const shadowSideBar = useColorModeValue("#dadada5c", "#12111199");
 
   return (
-    <div className="w-full relative">
+    <div className="w-full h-full flex flex-col">
       <header
         style={
           {
@@ -22,9 +22,16 @@ export function LayoutMain(): JSX.Element {
         {ToggleMenu}
         <ColorModeButton />
       </header>
-      <div className="w-full block">
+      <div
+        className="w-full h-full p-3 pt-2 flex-1"
+        // style={{ height: "calc(100vh - 65px)" }}
+      >
         <Outlet />
       </div>
+      <footer className="text-white/50 text-xs p-0.5 text-end flex items-center justify-between px-3">
+        <span>Última atualização: 24/03/2025</span>
+        <span className="font-medium">Versão 0.1.03-alpha</span>
+      </footer>
     </div>
   );
 }

@@ -19,7 +19,7 @@ import { JSX } from "@emotion/react/jsx-runtime";
 import { HiMenu } from "react-icons/hi";
 import { useColorModeValue } from "@components/ui/color-mode";
 import { Tooltip } from "@components/ui/tooltip";
-import { TbTags } from "react-icons/tb";
+import { TbDoorExit, TbTags } from "react-icons/tb";
 import { GoWorkflow } from "react-icons/go";
 
 export const ShadowTopMemoComponent = memo(() => {
@@ -55,11 +55,11 @@ const ShadowBottomMemoComponent = memo(() => {
     <>
       <InViewComponent onChange={(is) => setShowShadowBottom(is)} />
       <div
-        className={`pointer-events-none absolute left-0 z-30 h-20 w-full`}
+        className={`pointer-events-none absolute left-0 z-30 h-12 w-full`}
         style={{
           background: gradient,
           opacity: Number(!showShadowBottom),
-          bottom: 50,
+          bottom: 99,
         }}
       ></div>
     </>
@@ -133,7 +133,9 @@ export function LayoutPrivateProvider(): JSX.Element {
               style={{ minHeight: 50, background: bgSideBar }}
               className="sticky top-0 z-50 flex w-full items-center justify-center p-1 px-2"
             >
-              <span className="block font-bold text-lg">Junplid</span>
+              <span className="block font-bold text-lg select-none">
+                Junplid
+              </span>
             </div>
             <Menu
               className="relative font-semibold flex-1"
@@ -295,7 +297,7 @@ export function LayoutPrivateProvider(): JSX.Element {
             </Menu>
             <div
               style={{ background: bgSideBar }}
-              className="sticky bottom-0 z-50 pb-3 pt-3 flex w-full items-center justify-center p-1 px-2"
+              className="sticky bottom-0 gap-y-1 z-50 pb-3 pt-3 flex flex-col w-full items-center justify-center p-1 px-2"
             >
               <Tooltip
                 showArrow
@@ -308,11 +310,25 @@ export function LayoutPrivateProvider(): JSX.Element {
                   <BsDiscord size={18} />
                 </a>
               </Tooltip>
+              <Tooltip
+                showArrow
+                positioning={{
+                  placement: "right",
+                }}
+                content="Sair"
+              >
+                <Link
+                  to={"/login"}
+                  className="flex text-white border border-white/25 justify-center cursor-pointer items-center bg-[#e46464] hover:bg-[#ff4444] duration-300 p-2 rounded-sm"
+                >
+                  <TbDoorExit size={18} />
+                </Link>
+              </Tooltip>
             </div>
             <ShadowBottomMemoComponent />
           </div>
         </Sidebar>
-        <main className="w-full">
+        <main className="w-full h-screen">
           <Outlet />
         </main>
       </div>

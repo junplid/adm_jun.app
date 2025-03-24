@@ -53,7 +53,7 @@ export const NodeMessage: React.FC<Node<DataNode>> = ({
           description: "Envia",
         }}
       >
-        <div className="flex flex-col gap-y-5">
+        <div className="flex flex-col gap-y-5 -mt-3">
           {!!data.messages?.length &&
             data.messages!.map((msg) => (
               <div

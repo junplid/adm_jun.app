@@ -1,6 +1,7 @@
 import {
   Button,
   createListCollection,
+  Highlight,
   NumberInput,
   Select,
   Span,
@@ -22,14 +23,8 @@ import {
   SelectTrigger,
   SelectValueText,
 } from "@components/ui/select";
-
-const suggestions = ["Teste 1", "Teste 2"].map((country) => {
-  return {
-    id: country,
-    text: country,
-    className: "",
-  };
-});
+import { useVariables } from "../../../../hooks/useVariables";
+import { db } from "../../../../db";
 
 type DataNode = {
   isSave?: boolean;
@@ -61,27 +56,33 @@ const timesList = createListCollection({
 });
 
 export const NodeReply: React.FC<Node<DataNode>> = ({ data, id }) => {
+  const variables = useVariables();
   const updateNode = useStore((s) => s.updateNode);
   const colorTimeout = useColorModeValue("#F94A65", "#B1474A");
+  const colorQuery = useColorModeValue("#000000", "#ffffff");
 
-  const [tags, setTags] = useState<Array<Tag>>([]);
-  const [focus, setFocus] = useState(false);
+  const [vars, setVars] = useState<Array<Tag>>([]);
 
   const handleDelete = (index: number) => {
-    if (!index && tags.length === 1) {
-      setTags(tags.filter((_, i) => i !== index));
+    if (!index && vars.length === 1) {
+      setVars(vars.filter((_, i) => i !== index));
     } else {
-      setTags(tags.filter((_, i) => i !== index));
+      setVars(vars.filter((_, i) => i !== index));
     }
   };
 
-  const handleAddition = (tag: Tag) => {
-    setTags((prevTags) => {
-      return [
-        ...prevTags,
-        { ...tag, text: tag.text.trim().replace(/\s/g, "_") },
-      ];
-    });
+  const handleAddition = (v: Tag) => {
+    const nextName = v.text.trim().replace(/\s/g, "_");
+    const exist = variables.find((s) => s.name === nextName);
+    if (!exist) {
+      db.variables.add({ name: nextName });
+      // enviar cadastro da nova variavel pra api;
+    }
+
+    const existVar = vars.find((s) => s.text === nextName);
+    if (!existVar) {
+      setVars((prevVars) => [...prevVars, { ...v, text: nextName }]);
+    }
   };
 
   useEffect(() => {
@@ -108,26 +109,48 @@ export const NodeReply: React.FC<Node<DataNode>> = ({ data, id }) => {
           description: "Receber",
         }}
       >
-        <div className="flex flex-col -mt-3 gap-y-5">
+        <div className="flex flex-col relative -mt-3 gap-y-5">
           {!!data.isSave && (
             <ReactTags
-              tags={tags}
-              suggestions={suggestions}
+              tags={vars}
+              suggestions={variables.map((v) => ({
+                className: "",
+                id: String(v.id),
+                text: v.name,
+              }))}
               separators={[SEPARATORS.ENTER]}
               handleAddition={handleAddition}
               handleDelete={handleDelete}
               placeholder="Digite e pressione `ENTER`"
               allowDragDrop={false}
-              handleInputFocus={() => setFocus(true)}
-              handleInputBlur={() => setFocus(false)}
               handleTagClick={handleDelete}
+              renderSuggestion={(item, query) => (
+                <div
+                  key={item.id}
+                  className="p-2 dark:text-white/50 text-black/40 py-1.5 cursor-pointer"
+                  style={{ borderRadius: 20 }}
+                >
+                  <Highlight
+                    styles={{
+                      // px: "0.5",
+                      // bg: "#ea5c0a",
+                      color: colorQuery,
+                      fontWeight: 600,
+                    }}
+                    query={query}
+                  >
+                    {item.text}
+                  </Highlight>
+                </div>
+              )}
               classNames={{
-                selected: `flex flex-wrap border p-2 rounded-sm gap-1.5 gap-y-2 w-full ${focus ? "border-white" : "border-white/10"}`,
-                tagInputField:
-                  "!border-none bg-[#ffffff05] focus:bg-[#ffffff10] outline-none p-1 px-2 w-full",
+                selected: `flex flex-wrap border gap-1.5 gap-y-2 w-full border-none`,
+                tagInputField: `p-2.5 rounded-sm w-full border dark:border-white/10 border-black/10`,
                 remove: "hidden",
-                tag: "hover:bg-red-500 duration-300 !cursor-pointer bg-white/15 px-1",
+                tag: "hover:bg-red-500 duration-300 !cursor-pointer dark:bg-white/15 bg-black/15 px-1",
                 tagInput: "w-full",
+                suggestions:
+                  "absolute z-50 dark:bg-[#111111] bg-white w-full translate-y-2 shadow-xl p-1 border dark:border-white/10 border-black/10 rounded-sm",
               }}
             />
           )}

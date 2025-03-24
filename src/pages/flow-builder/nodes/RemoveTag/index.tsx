@@ -4,6 +4,8 @@ import { TbTags } from "react-icons/tb";
 import { WithContext as ReactTags, SEPARATORS, Tag } from "react-tag-input";
 import useStore from "../../flowStore";
 import { useEffect, useState } from "react";
+import { Highlight } from "@chakra-ui/react";
+import { useColorModeValue } from "@components/ui/color-mode";
 
 const suggestions = ["Teste 1", "Teste 2"].map((country) => {
   return {
@@ -21,7 +23,7 @@ export const NodeRemoveTags: React.FC<Node<DataNode>> = ({ data, id }) => {
   const updateNode = useStore((s) => s.updateNode);
 
   const [tags, setTags] = useState<Array<Tag>>([]);
-  const [focus, setFocus] = useState(false);
+  const colorQuery = useColorModeValue("#000000", "#ffffff");
 
   const handleDelete = (index: number) => {
     if (!index && tags.length === 1) {
@@ -70,16 +72,34 @@ export const NodeRemoveTags: React.FC<Node<DataNode>> = ({ data, id }) => {
             handleDelete={handleDelete}
             placeholder="Digite e pressione `ENTER`"
             allowDragDrop={false}
-            handleInputFocus={() => setFocus(true)}
-            handleInputBlur={() => setFocus(false)}
             handleTagClick={handleDelete}
+            renderSuggestion={(item, query) => (
+              <div
+                key={item.id}
+                className="p-2 dark:text-white/50 text-black/40 py-1.5 cursor-pointer"
+                style={{ borderRadius: 20 }}
+              >
+                <Highlight
+                  styles={{
+                    // px: "0.5",
+                    // bg: "#ea5c0a",
+                    color: colorQuery,
+                    fontWeight: 600,
+                  }}
+                  query={query}
+                >
+                  {item.text}
+                </Highlight>
+              </div>
+            )}
             classNames={{
-              selected: `flex flex-wrap border p-2 rounded-sm gap-1.5 gap-y-2 w-full ${focus ? "border-white" : "border-white/10"}`,
-              tagInputField:
-                "!border-none bg-[#ffffff05] focus:bg-[#ffffff10] outline-none p-1 px-2 w-full",
+              selected: `flex flex-wrap border gap-1.5 gap-y-2 w-full border-none`,
+              tagInputField: `p-2.5 rounded-sm w-full border dark:border-white/10 border-black/10`,
               remove: "hidden",
-              tag: "hover:bg-red-500 duration-300 !cursor-pointer bg-white/15 px-1",
+              tag: "hover:bg-red-500 duration-300 !cursor-pointer dark:bg-white/15 bg-black/15 px-1",
               tagInput: "w-full",
+              suggestions:
+                "absolute z-50 dark:bg-[#111111] bg-white w-full translate-y-2 shadow-xl p-1 border dark:border-white/10 border-black/10 rounded-sm",
             }}
           />
         </div>

@@ -2,7 +2,7 @@ import { JSX } from "react";
 
 export function DashboardPage(): JSX.Element {
   return (
-    <div className="ml-20">
+    <div>
       <p>pagina home</p>
     </div>
   );

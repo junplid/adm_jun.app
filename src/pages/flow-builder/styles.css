@@ -40,3 +40,15 @@
 .react-autocomplete-input::-webkit-scrollbar-track {
   background-color: #797979;
 } */
+
+.dark .ReactTags__activeSuggestion {
+  background: #1f1e20;
+}
+
+.ReactTags__activeSuggestion {
+  background: #efeff1;
+}
+
+.react-tags-wrapper ul li {
+  border-radius: 3px;
+}

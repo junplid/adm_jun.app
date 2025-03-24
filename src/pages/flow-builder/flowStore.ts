@@ -19,12 +19,12 @@ export const initialNodes = [
   //   position: { x: 550, y: 100 },
   //   data: {},
   // },
-  // {
-  //   id: "7",
-  //   type: "nodeIF",
-  //   position: { x: 635, y: 100 },
-  //   data: {},
-  // },
+  {
+    id: "7",
+    type: "nodeIF",
+    position: { x: 635, y: 100 },
+    data: {},
+  },
   {
     id: "8",
     type: "nodeSendFlow",
