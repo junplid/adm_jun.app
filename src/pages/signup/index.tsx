@@ -1,32 +1,32 @@
-import { Checkbox, Input } from "@chakra-ui/react";
+import { Button, Input, InputGroup } from "@chakra-ui/react";
 import { AxiosError } from "axios";
-import { JSX, useCallback, useContext, useState } from "react";
+import { JSX, useCallback } from "react";
 import { useCookies } from "react-cookie";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-// import { InputWhatsAppNumberComponent } from "../../components/InputWhatsAppNumber";
 import { api } from "../../services/api";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Field } from "@components/ui/field";
+import { toaster } from "@components/ui/toaster";
+import { ErrorResponse_I } from "../../services/api/ErrorResponse";
+import { useHookFormMask } from "use-mask-input";
 
 const FormSchema = z.object({
-  email: z.string().min(1, "Esse campo é obrigatório."),
-  password: z.string().min(1, "Esse campo é obrigatório."),
+  name: z.string().min(6, "Campo nome completo inválido."),
+  cpfCnpj: z.string().min(1, "Esse campo é obrigatório."),
   number: z.string().min(1, "Esse campo é obrigatório."),
+  email: z.string().email({
+    message: "Campo de e-mail inválido.",
+  }),
+  password: z.string().min(1, "Esse campo é obrigatório."),
 });
 
 type Fields = z.infer<typeof FormSchema>;
 
 export const SignupPage: React.FC = (): JSX.Element => {
   const [_cookies, setCookies] = useCookies(["auth"]);
-  const [fields, setFields] = useState<Fields_I>({} as Fields_I);
-  const [load, setLoad] = useState<boolean>(false);
-  const [checked, setChecked] = useState<boolean>(false);
   const navigate = useNavigate();
-  const [fieldsErrors, setFieldsErrors] = useState<IFieldsErrors>(
-    {} as IFieldsErrors
-  );
   const [searchParams] = useSearchParams();
 
   const {
@@ -38,42 +38,46 @@ export const SignupPage: React.FC = (): JSX.Element => {
     resolver: zodResolver(FormSchema),
   });
 
+  const registerWithMask = useHookFormMask(register);
+
   const signup = useCallback(async (fields: Fields) => {
     try {
-      setLoad(true);
       const affiliate = searchParams.get("affiliate") || undefined;
       const { data } = await api.post("/public/register-account", {
         ...fields,
         affiliate,
       });
       setCookies("auth", `BEARER ${data.token}`);
-      navigate("/auth/system-configuration/plans");
-      setLoad(false);
+      navigate("/auth/dashboard");
     } catch (error) {
       if (error instanceof AxiosError) {
-        setLoad(false);
-        setFieldsErrors({
-          email:
-            error.response?.data.errors.find((e: any) =>
-              e.path.includes("email")
-            )?.message ?? null,
-          password:
-            error.response?.data.errors.find((e: any) =>
-              e.path.includes("password")
-            )?.message ?? null,
-          number:
-            error.response?.data.errors.find((e: any) =>
-              e.path.includes("number")
-            )?.message ?? null,
-        });
-        return;
+        if (error.code === "ERR_NETWORK") {
+          toaster.create({
+            type: "info",
+            title: "Servidor ocupado!",
+            description: "Por favor, tente novamente mais tarde.",
+          });
+
+          return;
+        }
+        if (error.response?.status === 400) {
+          const dataError = error.response?.data as ErrorResponse_I;
+          if (dataError.toast.length) {
+            // dataError.toast.forEach(({ text, ...rest }) => toast(text, rest));
+          }
+          if (dataError.input.length) {
+            dataError.input.forEach(({ text, path }) =>
+              // @ts-expect-error
+              setError(path, { message: text })
+            );
+          }
+        }
       }
-      console.log(error);
     }
   }, []);
 
   return (
-    <div className="m-auto flex flex-col w-full max-w-sm flex-1 mt-10 gap-y-5">
+    <div className="m-auto flex flex-col w-full max-w-sm flex-1 my-10 gap-y-5">
       <span className="text-2xl font-semibold text-center select-none">
         Junplid
       </span>
@@ -91,106 +95,107 @@ export const SignupPage: React.FC = (): JSX.Element => {
               <div className="flex flex-col space-y-5">
                 <div className="flex w-full flex-col gap-y-4">
                   <Field
-                    invalid={!!errors.email}
+                    invalid={!!errors.name}
                     label="Nome completo"
+                    errorText={errors.name?.message}
+                  >
+                    <Input
+                      {...register("name")}
+                      autoComplete="nope"
+                      type="text"
+                    />
+                  </Field>
+
+                  <Field
+                    invalid={!!errors.cpfCnpj}
+                    label="CPF ou CNPJ"
+                    errorText={errors.cpfCnpj?.message}
+                    helperText="Usado para identificação unica da conta"
+                  >
+                    <Input
+                      {...registerWithMask("cpfCnpj", [
+                        "999.999.999-99",
+                        "99.999.999/9999-99",
+                      ])}
+                      autoComplete="nope"
+                      type="text"
+                    />
+                  </Field>
+
+                  <Field
+                    invalid={!!errors.number}
+                    label="Número whatsapp"
+                    errorText={errors.number?.message}
+                  >
+                    <InputGroup startElement="+55">
+                      <Input
+                        {...registerWithMask("number", [
+                          "(99) 9999-9999",
+                          "(99) 99999-9999",
+                        ])}
+                        autoComplete="nope"
+                        type="text"
+                      />
+                    </InputGroup>
+                  </Field>
+
+                  <Field
+                    invalid={!!errors.email}
+                    label="E-mail de acesso"
                     errorText={errors.email?.message}
                   >
                     <Input
                       {...register("email")}
                       autoComplete="nope"
                       type="text"
-                      placeholder="me@exemplo.com"
+                      placeholder="me@exemple.com"
                     />
                   </Field>
 
-                  <Field.Root autoCorrect="off" invalid={!!errors.email}>
-                    <Field.Label>Número whatsapp</Field.Label>
-                    <Input
-                      {...register("number")}
-                      autoComplete="nope"
-                      type="text"
-                      placeholder="Email "
-                    />
-                    <Field.ErrorText>{errors.email?.message}</Field.ErrorText>
-                  </Field.Root>
-                  <Field.Root autoCorrect="off" invalid={!!errors.email}>
-                    <Field.Label>CPF ou CNPJ</Field.Label>
-                    <Input
-                      {...register("email")}
-                      autoComplete="nope"
-                      type="text"
-                      placeholder="Email de acesso"
-                    />
-                    <Field.HelperText>
-                      Usado para identificação unica da conta
-                    </Field.HelperText>
-                    <Field.ErrorText>{errors.email?.message}</Field.ErrorText>
-                  </Field.Root>
-                  <Field.Root autoCorrect="off" invalid={!!errors.email}>
-                    <Field.Label>Email de acesso</Field.Label>
-                    <Input
-                      {...register("email")}
-                      autoComplete="nope"
-                      type="text"
-                      placeholder="Email de acesso"
-                    />
-                    <Field.ErrorText>{errors.email?.message}</Field.ErrorText>
-                  </Field.Root>
-
-                  <Field.Root invalid={!!errors.password}>
-                    <Field.Label>Senha</Field.Label>
-                    <Input
-                      type="password"
-                      autoComplete="nope"
-                      placeholder="Senha de acesso"
-                      {...register("password")}
-                    />
-                    <Field.ErrorText>
-                      {errors.password?.message}
-                    </Field.ErrorText>
-                  </Field.Root>
-                </div>
-                <div>
-                  {/* <Checkbox
-                    checked={checked}
-                    onChange={({ target }) => {
-                      setChecked(target.checked);
-                    }}
+                  <Field
+                    invalid={!!errors.password}
+                    label="Senha de acesso"
+                    errorText={errors.password?.message}
                   >
-                    <span className="text-white">
-                      Eu concordo com os{" "}
-                      <Link to={"/"} className="text-purple-500">
-                        Termos de Serviço
-                      </Link>{" "}
-                      e{" "}
-                      <Link to={"/"} className="text-purple-500">
-                        Política de Privacidade
-                      </Link>
-                    </span>
-                  </Checkbox> */}
+                    <Input
+                      {...register("password")}
+                      autoComplete="nope"
+                      type="password"
+                    />
+                  </Field>
                 </div>
-                <button
-                  disabled={!checked}
-                  className={`whitespace-nowrap rounded-sm bg-purple-800 px-10 py-2.5 font-semibold uppercase tracking-wider text-slate-50 duration-200 hover:bg-purple-700 ${
-                    checked ? "" : "opacity-25"
-                  }`}
+                <span className="text-white">
+                  Ao criar uma conta, você concorda com nossos{" "}
+                  <Link to={"/"} className="text-blue-400">
+                    Termos de Serviço
+                  </Link>{" "}
+                  e{" "}
+                  <Link to={"/"} className="text-blue-400">
+                    Política de Privacidade
+                  </Link>
+                  . Utilizamos cookies essenciais e tecnologias similares para
+                  oferecer uma melhor experiência.
+                </span>
+                <Button
+                  loadingText="Aguarde..."
+                  loading={isSubmitting}
+                  type="submit"
                 >
-                  {load ? "Aguarde..." : "Criar conta"}
-                </button>
+                  Criar conta
+                </Button>
               </div>
-              <div className="space-y-3">
-                <div className="flex items-center justify-center gap-x-2">
-                  <div className="w-full bg-white/60" style={{ height: 1.5 }} />
-                  <span className="text-white">OU</span>
-                  <div className="w-full bg-white/60" style={{ height: 1.5 }} />
-                </div>
-                <Link
-                  to={`/login?${searchParams.toString()}`}
-                  className="block w-full border-2 border-dashed border-white/50 px-5 py-2.5 text-center text-white duration-300 hover:bg-white/5"
-                >
-                  Acesse uma conta existente
-                </Link>
-              </div>
+
+              <Button
+                variant={"outline"}
+                borderStyle={"dashed"}
+                borderWidth={"2px"}
+                as={Link}
+                // @ts-expect-error
+                to={`/login?${searchParams.toString()}`}
+                className="w-full"
+              >
+                Acesse uma conta existente
+              </Button>
             </form>
           </div>
         </div>

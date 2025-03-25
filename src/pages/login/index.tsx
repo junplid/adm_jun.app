@@ -1,4 +1,5 @@
-import { Button, Field, Input } from "@chakra-ui/react";
+import { Button, Input } from "@chakra-ui/react";
+import { Field } from "@components/ui/field";
 import { AxiosError } from "axios";
 import React, { JSX, useCallback, useEffect } from "react";
 import { useCookies } from "react-cookie";
@@ -71,7 +72,7 @@ export const LoginPage: React.FC = (): JSX.Element => {
   }, []);
 
   return (
-    <div className="m-auto flex flex-col w-full max-w-sm flex-1 mt-10 gap-y-5">
+    <div className="m-auto flex flex-col w-full max-w-sm flex-1 my-10 gap-y-5">
       <span className="text-2xl font-semibold text-center select-none">
         Junplid
       </span>
@@ -86,27 +87,31 @@ export const LoginPage: React.FC = (): JSX.Element => {
               className="w-full space-y-4 flex flex-col"
             >
               <div className="flex w-full flex-col gap-y-3">
-                <Field.Root autoCorrect="off" invalid={!!errors.email}>
-                  <Field.Label>Email</Field.Label>
+                <Field
+                  invalid={!!errors.email}
+                  label="Email"
+                  errorText={errors.email?.message}
+                >
                   <Input
                     {...register("email")}
                     autoComplete="nope"
                     type="text"
                     placeholder="Email de acesso"
                   />
-                  <Field.ErrorText>{errors.email?.message}</Field.ErrorText>
-                </Field.Root>
+                </Field>
 
-                <Field.Root invalid={!!errors.password}>
-                  <Field.Label>Senha</Field.Label>
+                <Field
+                  invalid={!!errors.password}
+                  label="Senha"
+                  errorText={errors.password?.message}
+                >
                   <Input
-                    type="password"
-                    autoComplete="nope"
-                    placeholder="Senha de acesso"
                     {...register("password")}
+                    autoComplete="nope"
+                    type="text"
+                    placeholder="Senha de acesso"
                   />
-                  <Field.ErrorText>{errors.password?.message}</Field.ErrorText>
-                </Field.Root>
+                </Field>
 
                 <div className="mt-1 flex justify-end">
                   {/* <RecoverPasswordComponent /> */}

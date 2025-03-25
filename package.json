@@ -33,6 +33,7 @@
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.54.2",
     "react-icons": "^5.5.0",
+    "react-input-mask": "^2.0.4",
     "react-intersection-observer": "^9.16.0",
     "react-outside-click-handler": "^1.3.0",
     "react-pro-sidebar": "^1.1.0",
@@ -47,6 +48,7 @@
     "styled-components": "^6.1.15",
     "tailwindcss": "^4.0.14",
     "textarea-caret": "^3.1.0",
+    "use-mask-input": "^3.4.2",
     "uuid": "^11.1.0"
   },
   "devDependencies": {
@@ -57,6 +59,7 @@
     "@types/prop-types": "^15.7.14",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
+    "@types/react-input-mask": "^3.0.6",
     "@types/react-outside-click-handler": "^1.3.4",
     "@types/textarea-caret": "^3.0.3",
     "@vitejs/plugin-react-swc": "^3.8.0",
