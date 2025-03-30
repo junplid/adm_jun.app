@@ -2,7 +2,7 @@ import "@xyflow/react/dist/style.css";
 import "./styles.css";
 
 import { Box, HStack, Presence, Spinner } from "@chakra-ui/react";
-import { useCallback, useContext, useMemo, useRef } from "react";
+import { useCallback, useContext, useEffect, useMemo, useRef } from "react";
 import {
   Background,
   MiniMap,
@@ -32,6 +32,9 @@ import { FeedbackComponent } from "./components/feedback";
 import useSyncLoadStore from "./syncLoadStore";
 import { IoSaveOutline } from "react-icons/io5";
 import { RiErrorWarningLine } from "react-icons/ri";
+import { useParams } from "react-router-dom";
+import { getVariables } from "../../services/api/Variable";
+import { db } from "../../db";
 
 type NodeTypesGeneric = {
   [x in TypesNodes]: any;
@@ -63,9 +66,12 @@ export function FlowBuilderPage() {
   );
   const addNode = useStore((s) => s.addNode);
   const { screenToFlowPosition } = useReactFlow();
-  const colorDotFlow = useColorModeValue("#c6c6c6", "#373737");
   const { ToggleMenu } = useContext(LayoutPrivateContext);
   const reactFlowWrapper = useRef(null);
+
+  const params = useParams<{ id: string }>();
+
+  const colorDotFlow = useColorModeValue("#c6c6c6", "#373737");
 
   const {
     load: syncLoad,
@@ -123,6 +129,18 @@ export function FlowBuilderPage() {
   //     setLoad("hidden");
   //   };
   // }, [nodes, edges]);
+
+  useEffect(() => {
+    if (params.id) {
+      (async () => {
+        // buscar informações do fluxo e do data fluxo;
+        const variables = await getVariables({});
+        db.variables.bulkAdd(
+          variables.map((v) => ({ name: v.name, id: v.id }))
+        );
+      })();
+    }
+  }, [params.id]);
 
   return (
     <Box as={"div"} className="dndflow" h={"100svh"}>

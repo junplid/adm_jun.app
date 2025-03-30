@@ -1,7 +1,7 @@
 import { Button, Input } from "@chakra-ui/react";
 import { Field } from "@components/ui/field";
 import { AxiosError } from "axios";
-import React, { JSX, useCallback, useEffect } from "react";
+import React, { JSX, useCallback, useEffect, useState } from "react";
 import { useCookies } from "react-cookie";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import moment from "moment";
@@ -23,6 +23,7 @@ export const LoginPage: React.FC = (): JSX.Element => {
   const [_, setCookies, removeCookie] = useCookies(["auth"]);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const [errorContainer, setErrorContainer] = useState<string | null>(null);
 
   const {
     handleSubmit,
@@ -36,9 +37,10 @@ export const LoginPage: React.FC = (): JSX.Element => {
   const login = useCallback(async (fields: any) => {
     try {
       const { data } = await api.post("/public/login-account", fields);
-      setCookies("auth", `BEARER ${data.token}`, {
-        expires: moment().add(3, "year").toDate(),
-      });
+      const token = `BEARER ${data.token}`;
+      setCookies("auth", token, { expires: moment().add(3, "year").toDate() });
+      api.defaults.headers.common["Authorization"] = token;
+
       navigate("/auth/dashboard");
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -48,11 +50,13 @@ export const LoginPage: React.FC = (): JSX.Element => {
             title: "Servidor ocupado!",
             description: "Por favor, tente novamente mais tarde.",
           });
-
           return;
         }
         if (error.response?.status === 400) {
           const dataError = error.response?.data as ErrorResponse_I;
+          if (dataError.container) {
+            setErrorContainer(dataError.container);
+          }
           if (dataError.toast.length) {
             // dataError.toast.forEach(({ text, ...rest }) => toast(text, rest));
           }
@@ -79,9 +83,14 @@ export const LoginPage: React.FC = (): JSX.Element => {
       <div className="min-h-full w-full rounded-sm bg-[#f5f5f5] dark:bg-[#181616c5] shadow-xl border border-black/5 dark:border-none">
         <div className="flex h-full w-full flex-1 items-center p-6 py-8">
           <div className="w-full flex-col flex gap-y-3">
-            <h3 className="text-xl font-semibold text-black dark:text-white">
-              Acessar conta
-            </h3>
+            <div>
+              <h3 className="text-xl font-semibold text-black dark:text-white">
+                Acessar conta
+              </h3>
+              {errorContainer && (
+                <span className="text-red-400 text-sm">{errorContainer}</span>
+              )}
+            </div>
             <form
               onSubmit={handleSubmit(login)}
               className="w-full space-y-4 flex flex-col"
@@ -108,7 +117,7 @@ export const LoginPage: React.FC = (): JSX.Element => {
                   <Input
                     {...register("password")}
                     autoComplete="nope"
-                    type="text"
+                    type="password"
                     placeholder="Senha de acesso"
                   />
                 </Field>

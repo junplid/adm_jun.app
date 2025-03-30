@@ -8,6 +8,7 @@ import { DnDProvider } from "@contexts/DnD.context";
 import { ReactFlowProvider } from "@xyflow/react";
 import { LoginPage } from "./pages/login";
 import { SignupPage } from "./pages/signup";
+import { AuthProvider } from "@contexts/auth.context";
 
 // import { NodeMessage } from "./flow-lib/nodes/Message";
 // import { NodeReply } from "./flow-lib/nodes/Reply";
@@ -48,7 +49,15 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route caseSensitive element={<LayoutPrivateProvider />} path="auth">
+        <Route
+          caseSensitive
+          element={
+            <AuthProvider>
+              <LayoutPrivateProvider />
+            </AuthProvider>
+          }
+          path="auth"
+        >
           <Route path="" caseSensitive element={<LayoutMain />}>
             <Route
               path=""

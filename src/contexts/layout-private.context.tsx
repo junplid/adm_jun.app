@@ -116,7 +116,7 @@ export function LayoutPrivateProvider(): JSX.Element {
 
   return (
     <LayoutPrivateContext.Provider value={dataValue}>
-      <div className="items-start duration-500 w-full flex bg-[#f5f5f5] dark:bg-[#181616c5]">
+      <div className="items-start duration-500 w-full flex">
         <Sidebar
           collapsed={!toggledMenu}
           backgroundColor={bgSideBar}

@@ -25,6 +25,7 @@ import {
 } from "@components/ui/select";
 import { useVariables } from "../../../../hooks/useVariables";
 import { db } from "../../../../db";
+import { createVariable } from "../../../../services/api/Variable";
 
 type DataNode = {
   isSave?: boolean;
@@ -71,12 +72,18 @@ export const NodeReply: React.FC<Node<DataNode>> = ({ data, id }) => {
     }
   };
 
-  const handleAddition = (v: Tag) => {
+  const handleAddition = async (v: Tag) => {
     const nextName = v.text.trim().replace(/\s/g, "_");
     const exist = variables.find((s) => s.name === nextName);
     if (!exist) {
-      db.variables.add({ name: nextName });
-      // enviar cadastro da nova variavel pra api;
+      const vv = await db.variables.add({ name: nextName });
+      const variable = await createVariable({
+        targetId: vv,
+        name: nextName,
+        businessIds: [],
+        type: "dynamics",
+      });
+      await db.variables.update(vv, { id: variable.id });
     }
 
     const existVar = vars.find((s) => s.text === nextName);

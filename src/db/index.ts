@@ -1,8 +1,8 @@
 import Dexie, { Table } from "dexie";
 
 export interface Variable {
+  targetId?: number;
   id?: number;
-  _id?: number;
   name: string;
 }
 
@@ -12,7 +12,7 @@ class JunplidDatabase extends Dexie {
   constructor() {
     super("JunplidDatabase");
     this.version(1).stores({
-      variables: "++id, _id, name",
+      variables: "++targetId, id, name",
     });
   }
 }
