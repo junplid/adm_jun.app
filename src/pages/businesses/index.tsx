@@ -1,0 +1,178 @@
+import { AxiosError } from "axios";
+import { JSX, useContext, useEffect, useMemo, useState } from "react";
+import moment from "moment";
+import { TableComponent } from "../../components/Table";
+import { Column } from "../../components/Table";
+import { ModalCreateBusiness } from "./modals/create";
+import { getBusinesses } from "../../services/api/Business";
+import { AuthContext } from "@contexts/auth.context";
+import { ErrorResponse_I } from "../../services/api/ErrorResponse";
+import { toaster } from "@components/ui/toaster";
+import { ModalDelete } from "./modals/delete";
+
+export interface BusinessRow {
+  id: number;
+  name: string;
+  createAt: Date;
+}
+
+export const BusinessesPage: React.FC = (): JSX.Element => {
+  const { logout } = useContext(AuthContext);
+  const [businesses, setBusinesses] = useState<BusinessRow[]>(
+    [] as BusinessRow[]
+  );
+  const [load, setLoad] = useState<boolean>(false);
+
+  const renderColumns = useMemo(() => {
+    const columns: Column[] = [
+      {
+        key: "id",
+        name: "ID",
+        styles: { width: 170 },
+      },
+      {
+        key: "name",
+        name: "Nome",
+        styles: { width: 170 },
+      },
+      {
+        key: "createAt",
+        name: "Data de criação",
+        styles: { width: 200 },
+        render(row) {
+          return (
+            <div className="flex flex-col">
+              <span>{moment(row.createAt).format("D/M/YY")}</span>
+              <span className="text-xs text-white/50">
+                {moment(row.createAt).format("HH:mm")}
+              </span>
+            </div>
+          );
+        },
+      },
+      {
+        key: "actions",
+        name: "",
+        styles: { width: 200 },
+        render(row) {
+          return (
+            <div className="flex h-full items-center gap-x-1.5">
+              {/*<ModalView
+                setBusiness={setBusiness}
+                id={row.id}
+                buttonJSX={(open) => (
+                  <Button
+                    onClick={open}
+                    size={"sm"}
+                    bg={"#60c4eb39"}
+                    _hover={{ bg: "#60c4eb63" }}
+                  >
+                    <LuEye size={18} color={"#92f2ff"} />
+                  </Button>
+                )}
+              />
+              <ModalClone
+                setBusiness={setBusiness}
+                id={row.id}
+                buttonJSX={(open) => (
+                  <Button
+                    onClick={open}
+                    size={"sm"}
+                    bg={"#ebaf6039"}
+                    _hover={{ bg: "#ebb46062" }}
+                  >
+                    <FaRegClone size={16} color="#f39d4d" />
+                  </Button>
+                )}
+              />*/}
+          {/* <ModalEdit
+                id={row.id ?? 0}
+                setBusiness={setBusiness}
+                buttonJSX={(onOpen) => (
+                  <Button
+                    onClick={onOpen}
+                    size={"sm"}
+                    bg={"#608ceb39"}
+                    _hover={{ bg: "#6098eb61" }}
+                  >
+                    <MdEdit size={18} color={"#9ec9fa"} />
+                  </Button>
+                )}
+              /> */}
+              <ModalDelete
+                buttonJSX={(open) => (
+                  <Button
+                    onClick={open}
+                    size={"sm"}
+                    bg={"#eb606039"}
+                    _hover={{ bg: "#eb606060" }}
+                  >
+                    <MdDeleteOutline size={19} color={"#fa9393"} />
+                  </Button>
+                )}
+                data={{ id: row.id, name: row.name }}
+                setBusiness={setBusiness}
+              />*/}
+            </div>
+          );
+        },
+      },
+    ];
+    return columns;
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const businessesList = await getBusinesses();
+        setBusinesses(businessesList);
+        setLoad(true);
+      } catch (error) {
+        setLoad(true);
+        if (error instanceof AxiosError) {
+          if (error.response?.status === 401) logout();
+          if (error.response?.status === 400) {
+            const dataError = error.response?.data as ErrorResponse_I;
+            if (dataError.toast.length) dataError.toast.forEach(toaster.create);
+            if (dataError.input.length) {
+              dataError.input.forEach(({ text, path }) =>
+                // @ts-expect-error
+                setError(path, { message: text })
+              );
+            }
+          }
+        }
+      }
+    })();
+  }, []);
+
+  return (
+    <div className="h-full gap-y-2 flex flex-col">
+      <div className="flex flex-col gap-y-0.5">
+        <div className="flex items-center gap-x-5">
+          <h1 className="text-lg font-semibold">Empresas</h1>
+          <ModalCreateBusiness
+            onCreate={async (newBusiness) =>
+              setBusinesses((s) => [newBusiness, ...s])
+            }
+          />
+        </div>
+        <p className="text-white/60 font-light">
+          Workspaces para organizar e gerenciar suas operações de forma
+          eficiente.
+        </p>
+      </div>
+      <div
+        style={{ maxHeight: "calc(100vh - 180px)" }}
+        className="flex flex-col"
+      >
+        <TableComponent
+          rows={businesses}
+          columns={renderColumns}
+          textEmpity="Nenhum negócio criado."
+          load={!load}
+        />
+      </div>
+    </div>
+  );
+};

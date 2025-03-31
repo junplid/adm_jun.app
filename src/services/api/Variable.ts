@@ -1,18 +1,18 @@
 import { api } from "./index";
 
-export interface Variable {
-  id: number;
-  name: string;
-  business: { name: string; id: number }[];
-  value: string | null;
-  type: "dynamics" | "constant" | "system";
-}
-
 export async function getVariables(params: {
   type?: "dynamics" | "constant" | "system";
   name?: string;
   businessIds?: number[];
-}): Promise<Variable[]> {
+}): Promise<
+  {
+    id: number;
+    name: string;
+    business: { name: string; id: number }[];
+    value: string | null;
+    type: "dynamics" | "constant" | "system";
+  }[]
+> {
   const { data } = await api.get("/private/variable", {
     params: {
       ...params,
@@ -37,5 +37,5 @@ export async function createVariable(body: {
   targetId: number | undefined;
 }> {
   const { data } = await api.post("/private/variable", body);
-  return data.variables;
+  return data.variable;
 }

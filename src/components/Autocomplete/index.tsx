@@ -7,6 +7,7 @@ import scrollIntoView from "scroll-into-view-if-needed";
 import "./styles.css";
 import { createPortal } from "react-dom";
 import { Presence } from "@chakra-ui/react";
+import TextareaAutosize from "react-textarea-autosize";
 
 const KEY_UP = 38;
 const KEY_DOWN = 40;
@@ -588,7 +589,9 @@ class AutocompleteTextField extends React.Component {
 
     return (
       <>
-        <textarea
+        <TextareaAutosize
+          minRows={2}
+          maxRows={6}
           className="p-3 py-2.5 rounded-sm resize-none dark:border-white/10 border-black/10 border"
           disabled={disabled}
           onBlur={this.handleBlur}

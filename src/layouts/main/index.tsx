@@ -23,7 +23,7 @@ export function LayoutMain(): JSX.Element {
         <ColorModeButton />
       </header>
       <div
-        className="w-full h-full p-3 pt-2 flex-1"
+        className="w-full h-full max-w-7xl mx-auto p-8 py-2 flex-1"
         // style={{ height: "calc(100vh - 65px)" }}
       >
         <Outlet />

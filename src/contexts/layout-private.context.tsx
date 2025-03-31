@@ -101,7 +101,7 @@ export function LayoutPrivateProvider(): JSX.Element {
   const { pathname } = useLocation();
 
   const bgSideBar = useColorModeValue("#ffffff", "#121111");
-  const shadowSideBar = useColorModeValue("#e9e9e940", "#12111199");
+  const shadowSideBar = useColorModeValue("#e9e9e940", "#12111149");
 
   const activeColor = useColorModeValue("#1d1d1d", "#ffffff");
   const disabledColor = useColorModeValue("#979797", "#a7a7a7");
@@ -124,7 +124,7 @@ export function LayoutPrivateProvider(): JSX.Element {
           width="280px"
           rootStyles={{
             border: "none !important",
-            boxShadow: toggledMenu ? `10px 0 10px ${shadowSideBar}` : undefined,
+            boxShadow: toggledMenu ? `4px 0 8px ${shadowSideBar}` : undefined,
           }}
         >
           <div className="flex h-screen flex-col scroll-hidden overflow-y-scroll">
@@ -180,10 +180,10 @@ export function LayoutPrivateProvider(): JSX.Element {
               </MenuItem>
               <MenuItem
                 icon={<MdBusiness size={20} />}
-                component={<Link to={"/auth/business"} />}
-                active={pathname === "/auth/business"}
+                component={<Link to={"/auth/businesses"} />}
+                active={pathname === "/auth/businesses"}
               >
-                Negócios
+                Empresas
               </MenuItem>
               <MenuItem
                 icon={<PiPlugsConnectedFill size={20} />}

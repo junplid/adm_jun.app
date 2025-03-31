@@ -80,9 +80,10 @@ export const NodeReply: React.FC<Node<DataNode>> = ({ data, id }) => {
       const variable = await createVariable({
         targetId: vv,
         name: nextName,
-        businessIds: [],
+        businessIds: [15],
         type: "dynamics",
       });
+      console.log(variable);
       await db.variables.update(vv, { id: variable.id });
     }
 

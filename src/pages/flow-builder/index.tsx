@@ -133,7 +133,7 @@ export function FlowBuilderPage() {
   useEffect(() => {
     if (params.id) {
       (async () => {
-        // buscar informações do fluxo e do data fluxo;
+        await db.variables.clear();
         const variables = await getVariables({});
         db.variables.bulkAdd(
           variables.map((v) => ({ name: v.name, id: v.id }))

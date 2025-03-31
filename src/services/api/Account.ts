@@ -1,6 +1,6 @@
 import { api } from "./index";
 
-export interface Account {
+export async function getAccount(token: string): Promise<{
   id: number;
   email: string;
   name: string;
@@ -9,9 +9,7 @@ export interface Account {
   createAt: Date;
   number: string;
   Plan: { type: "paid" | "free" } | null;
-}
-
-export async function getAccount(token: string): Promise<Account> {
+}> {
   const { data } = await api.get("/private/account-user", {
     headers: { Authorization: token },
   });

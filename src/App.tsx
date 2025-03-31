@@ -9,6 +9,7 @@ import { ReactFlowProvider } from "@xyflow/react";
 import { LoginPage } from "./pages/login";
 import { SignupPage } from "./pages/signup";
 import { AuthProvider } from "@contexts/auth.context";
+import { BusinessesPage } from "./pages/businesses";
 
 // import { NodeMessage } from "./flow-lib/nodes/Message";
 // import { NodeReply } from "./flow-lib/nodes/Reply";
@@ -65,6 +66,11 @@ export default function App() {
               element={<Navigate to="dashboard" />}
             />
             <Route path="dashboard" caseSensitive element={<DashboardPage />} />
+            <Route
+              path="businesses"
+              caseSensitive
+              element={<BusinessesPage />}
+            />
           </Route>
 
           <Route

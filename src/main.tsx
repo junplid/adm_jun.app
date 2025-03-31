@@ -8,12 +8,10 @@ import { CookiesProvider } from "react-cookie";
 import { Toaster } from "@components/ui/toaster.tsx";
 
 createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <CookiesProvider>
-      <Provider>
-        <App />
-        <Toaster />
-      </Provider>
-    </CookiesProvider>
-  </StrictMode>
+  <CookiesProvider>
+    <Provider>
+      <App />
+      <Toaster />
+    </Provider>
+  </CookiesProvider>
 );

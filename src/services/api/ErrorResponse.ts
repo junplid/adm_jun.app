@@ -1,15 +1,21 @@
 export interface ErrorResponse_I {
   toast: {
-    text: string;
-    type?: "info" | "success" | "warning" | "error" | "default";
-    autoClose?: number;
-    isLoading?: boolean;
-    theme?: "light" | "dark" | "colored";
-    draggable?: boolean | "mouse" | "touch";
+    title: string;
+    duration?: number;
+    description?: string;
+    type?: "info" | "success" | "loading" | "error";
+    placement?:
+      | "top"
+      | "top-start"
+      | "top-end"
+      | "bottom"
+      | "bottom-start"
+      | "bottom-end";
   }[];
   container?: string;
   input: {
     path: string;
     text: string;
   }[];
+  statusCode: number;
 }
