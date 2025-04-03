@@ -13,7 +13,6 @@ import {
   DialogActionTrigger,
   DialogDescription,
 } from "@components/ui/dialog";
-import { IoAdd } from "react-icons/io5";
 import { Field } from "@components/ui/field";
 import TextareaAutosize from "react-textarea-autosize";
 import { BusinessRow } from "..";
@@ -28,6 +27,8 @@ import { AuthContext } from "@contexts/auth.context";
 
 interface IProps {
   onCreate(business: BusinessRow): Promise<void>;
+  trigger: JSX.Element;
+  placement?: "top" | "bottom" | "center";
 }
 
 const FormSchema = z.object({
@@ -40,7 +41,10 @@ const FormSchema = z.object({
 
 type Fields = z.infer<typeof FormSchema>;
 
-export function ModalCreateBusiness(props: IProps): JSX.Element {
+export function ModalCreateBusiness({
+  placement = "bottom",
+  ...props
+}: IProps): JSX.Element {
   const { logout } = useContext(AuthContext);
   const {
     handleSubmit,
@@ -58,13 +62,10 @@ export function ModalCreateBusiness(props: IProps): JSX.Element {
     try {
       const { data } = await api.post("/private/business", fields);
       const { name } = fields;
-      reset();
-      toaster.success({
-        title: `Empresa ${name}`,
-        description: "Adicionada com sucesso",
-      });
       setOpen(false);
-      setTimeout(() => props.onCreate({ ...data, name }), 200);
+      await new Promise((resolve) => setTimeout(resolve, 220));
+      reset();
+      props.onCreate({ ...data.business, name });
     } catch (error) {
       if (error instanceof AxiosError) {
         if (error.response?.status === 401) logout();
@@ -86,14 +87,10 @@ export function ModalCreateBusiness(props: IProps): JSX.Element {
     <DialogRoot
       open={open}
       onOpenChange={(e) => setOpen(e.open)}
-      placement={"bottom"}
+      placement={placement}
       motionPreset="slide-in-bottom"
     >
-      <DialogTrigger asChild>
-        <Button variant="outline" size={"sm"}>
-          <IoAdd /> Adicionar
-        </Button>
-      </DialogTrigger>
+      <DialogTrigger asChild>{props.trigger}</DialogTrigger>
       <DialogContent as={"form"} onSubmit={handleSubmit(create)} w={"470px"}>
         <DialogHeader flexDirection={"column"} gap={0}>
           <DialogTitle>Criar empresa</DialogTitle>

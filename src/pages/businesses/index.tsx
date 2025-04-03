@@ -8,7 +8,13 @@ import { getBusinesses } from "../../services/api/Business";
 import { AuthContext } from "@contexts/auth.context";
 import { ErrorResponse_I } from "../../services/api/ErrorResponse";
 import { toaster } from "@components/ui/toaster";
-import { ModalDelete } from "./modals/delete";
+import { ModalDeleteBusiness } from "./modals/delete";
+import { Button } from "@chakra-ui/react";
+import { MdDeleteOutline, MdEdit } from "react-icons/md";
+import { ModalViewBusiness } from "./modals/view";
+import { LuEye } from "react-icons/lu";
+import { IoAdd } from "react-icons/io5";
+import { ModalEditBusiness } from "./modals/edit";
 
 export interface BusinessRow {
   id: number;
@@ -56,22 +62,22 @@ export const BusinessesPage: React.FC = (): JSX.Element => {
         styles: { width: 200 },
         render(row) {
           return (
-            <div className="flex h-full items-center gap-x-1.5">
-              {/*<ModalView
-                setBusiness={setBusiness}
+            <div className="flex h-full items-center justify-end gap-x-1.5">
+              <ModalViewBusiness
+                setBusinesses={setBusinesses}
                 id={row.id}
-                buttonJSX={(open) => (
+                trigger={
                   <Button
-                    onClick={open}
                     size={"sm"}
-                    bg={"#60c4eb39"}
-                    _hover={{ bg: "#60c4eb63" }}
+                    bg={"#f0f0f016"}
+                    _hover={{ bg: "#ffffff21" }}
+                    _icon={{ width: "20px", height: "20px" }}
                   >
-                    <LuEye size={18} color={"#92f2ff"} />
+                    <LuEye color={"#dbdbdb"} />
                   </Button>
-                )}
+                }
               />
-              <ModalClone
+              {/*  <ModalClone
                 setBusiness={setBusiness}
                 id={row.id}
                 buttonJSX={(open) => (
@@ -85,34 +91,34 @@ export const BusinessesPage: React.FC = (): JSX.Element => {
                   </Button>
                 )}
               />*/}
-          {/* <ModalEdit
+              <ModalEditBusiness
                 id={row.id ?? 0}
-                setBusiness={setBusiness}
-                buttonJSX={(onOpen) => (
+                setBusinesses={setBusinesses}
+                trigger={
                   <Button
-                    onClick={onOpen}
                     size={"sm"}
-                    bg={"#608ceb39"}
-                    _hover={{ bg: "#6098eb61" }}
+                    bg={"#60d6eb13"}
+                    _hover={{ bg: "#30c9e422" }}
+                    _icon={{ width: "20px", height: "20px" }}
                   >
                     <MdEdit size={18} color={"#9ec9fa"} />
                   </Button>
-                )}
-              /> */}
-              <ModalDelete
-                buttonJSX={(open) => (
+                }
+              />
+              <ModalDeleteBusiness
+                trigger={
                   <Button
-                    onClick={open}
                     size={"sm"}
-                    bg={"#eb606039"}
-                    _hover={{ bg: "#eb606060" }}
+                    bg={"#eb606013"}
+                    _hover={{ bg: "#eb606028" }}
+                    _icon={{ width: "20px", height: "20px" }}
                   >
-                    <MdDeleteOutline size={19} color={"#fa9393"} />
+                    <MdDeleteOutline color={"#f75050"} />
                   </Button>
-                )}
+                }
                 data={{ id: row.id, name: row.name }}
-                setBusiness={setBusiness}
-              />*/}
+                setBusinesses={setBusinesses}
+              />
             </div>
           );
         },
@@ -154,6 +160,11 @@ export const BusinessesPage: React.FC = (): JSX.Element => {
           <ModalCreateBusiness
             onCreate={async (newBusiness) =>
               setBusinesses((s) => [newBusiness, ...s])
+            }
+            trigger={
+              <Button variant="outline" size={"sm"}>
+                <IoAdd /> Adicionar
+              </Button>
             }
           />
         </div>

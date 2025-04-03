@@ -1,9 +1,4 @@
-import {
-  FormControl,
-  FormErrorMessage,
-  Input,
-  Textarea,
-} from "@chakra-ui/react";
+import { Button, Input, VStack } from "@chakra-ui/react";
 import { AxiosError } from "axios";
 import {
   Dispatch,
@@ -12,28 +7,48 @@ import {
   useContext,
   useMemo,
   useState,
+  JSX,
+  useEffect,
 } from "react";
 import { useCookies } from "react-cookie";
-import { Business } from "..";
-import { AuthorizationContext } from "../../../contexts/authorization.context";
+import {
+  DialogContent,
+  DialogRoot,
+  DialogTrigger,
+  DialogHeader,
+  DialogTitle,
+  DialogBody,
+  DialogFooter,
+  DialogCloseTrigger,
+  DialogActionTrigger,
+  DialogDescription,
+} from "@components/ui/dialog";
 import { api } from "../../../services/api";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { toast } from "react-toastify";
-import { ErrorResponse_I } from "../../../entities/ErrorResponse";
 import deepEqual from "fast-deep-equal";
-import { ModalFormComponent } from "../../../components/ModalForm";
+import { Field } from "@components/ui/field";
+import TextareaAutosize from "react-textarea-autosize";
+import { BusinessRow } from "..";
+import { AuthContext } from "@contexts/auth.context";
+import { CloseButton } from "@components/ui/close-button";
+import { ErrorResponse_I } from "../../../services/api/ErrorResponse";
+import { toaster } from "@components/ui/toaster";
 
 interface PropsModalEdit {
   id: number;
-  setBusiness: Dispatch<SetStateAction<Business[]>>;
-  buttonJSX: (open: () => void) => JSX.Element;
+  setBusinesses: Dispatch<SetStateAction<BusinessRow[]>>;
+  trigger: JSX.Element;
+  placement?: "top" | "bottom" | "center";
 }
 
 const FormSchema = z.object({
-  name: z.string().min(1, "Campo obrigatório"),
-  description: z.string(),
+  name: z
+    .string()
+    .min(1, "Campo obrigatório.")
+    .transform((value) => value.trim() || undefined),
+  description: z.string().nullable(),
 });
 
 type Fields = z.infer<typeof FormSchema>;
@@ -43,46 +58,43 @@ interface FieldCreateBusiness {
   description: string;
 }
 
-export const ModalEdit: React.FC<PropsModalEdit> = ({
+export const ModalEditBusiness: React.FC<PropsModalEdit> = ({
   id,
+  placement = "bottom",
   ...props
 }): JSX.Element => {
-  const { handleLogout } = useContext(AuthorizationContext);
+  const { logout } = useContext(AuthContext);
   const [cookies] = useCookies(["auth"]);
-  const [fieldsGet, setFieldsGet] = useState<FieldCreateBusiness | null>(null);
+  const [fieldsDraft, setFieldsDraft] = useState<FieldCreateBusiness | null>(
+    null
+  );
 
-  const [loadGet, setLoadGet] = useState<boolean>(false);
+  const [load, setLoad] = useState<boolean>(false);
+  const [open, setOpen] = useState(false);
 
   const {
     handleSubmit,
     register,
-    formState: { errors },
+    formState: { errors, isSubmitting },
     setError,
     setValue,
     reset,
     watch,
   } = useForm<Fields>({
     resolver: zodResolver(FormSchema),
-    mode: "onBlur",
   });
 
   const edit = useCallback(
     async (fieldss: Fields): Promise<void> => {
       try {
-        await toast.promise(
-          api.put(`/private/business/${id}`, undefined, {
-            headers: { authorization: cookies.auth },
-            params: fieldss,
-          }),
-          {
-            success: "Negócio editado com sucesso!",
-            pending: "Editando negócio, aguarde...",
-          }
-        );
-        props.setBusiness((business) => {
+        await api.put(`/private/businesses/${id}`, undefined, {
+          headers: { authorization: cookies.auth },
+          params: fieldss,
+        });
+        await new Promise((resolve) => setTimeout(resolve, 220));
+        props.setBusinesses((business) => {
           return business.map((b) => {
             if (b.id === id) {
-              if (fieldss.description) b.description = fieldss.description;
               if (fieldss.name) b.name = fieldss.name;
             }
             return b;
@@ -90,14 +102,10 @@ export const ModalEdit: React.FC<PropsModalEdit> = ({
         });
       } catch (error) {
         if (error instanceof AxiosError) {
-          if (error.response?.status === 401) {
-            handleLogout();
-          }
+          if (error.response?.status === 401) logout();
           if (error.response?.status === 400) {
             const dataError = error.response?.data as ErrorResponse_I;
-            if (dataError.toast.length) {
-              dataError.toast.forEach(({ text, ...rest }) => toast(text, rest));
-            }
+            if (dataError.toast.length) dataError.toast.forEach(toaster.create);
             if (dataError.input.length) {
               dataError.input.forEach(({ text, path }) =>
                 // @ts-expect-error
@@ -108,83 +116,111 @@ export const ModalEdit: React.FC<PropsModalEdit> = ({
         }
       }
     },
-    [fieldsGet]
+    [fieldsDraft]
   );
 
-  const fields = watch();
-
-  const isSave: boolean = useMemo(() => {
-    return !deepEqual(fieldsGet, fields);
-  }, [fields, fieldsGet]);
-
-  return (
-    <ModalFormComponent
-      onClose={() => reset()}
-      buttonJSX={props.buttonJSX}
-      title="Editar negócio"
-      onSubmit={async (event, closeModal) => {
-        await handleSubmit(edit)(event).then(() => {
-          closeModal();
-        });
-      }}
-      textButtonSubmit={isSave && !loadGet ? "Editar" : undefined}
-      textButtonClose="Cancelar"
-      onOpen={async () => {
-        try {
-          setLoadGet(true);
-          const { data } = await api.get(`/private/business/${id}`, {
-            headers: { authorization: cookies.auth },
-          });
-          setFieldsGet({
-            description: data.business.description,
-            name: data.business.name,
-          });
-          if (data.business.description) {
-            setValue("description", data.business.description);
-          }
-          setValue("name", data.business.name);
-          setLoadGet(false);
-        } catch (error) {
-          if (error instanceof AxiosError) {
-            if (error.response?.status === 401) {
-              handleLogout();
+  useEffect(() => {
+    if (!open) {
+      setTimeout(() => {
+        reset();
+        setLoad(false);
+        setFieldsDraft(null);
+      }, 250);
+      return;
+    }
+    (async () => {
+      try {
+        const { data } = await api.get(`/private/businesses/${id}`);
+        setFieldsDraft(data.business);
+        setValue("name", data.business.name);
+        setValue("description", data.business.description);
+        setLoad(true);
+      } catch (error) {
+        if (error instanceof AxiosError) {
+          if (error.response?.status === 401) logout();
+          if (error.response?.status === 400) {
+            const dataError = error.response?.data as ErrorResponse_I;
+            if (dataError.toast.length) dataError.toast.forEach(toaster.create);
+            if (dataError.input.length) {
+              dataError.input.forEach(({ text, path }) =>
+                // @ts-expect-error
+                setError(path, { message: text })
+              );
             }
           }
-          setLoadGet(false);
         }
-      }}
+      }
+    })();
+  }, [open]);
+
+  const fields = watch();
+  const isSave: boolean = useMemo(() => {
+    return !deepEqual(fieldsDraft, fields);
+  }, [fields, fieldsDraft]);
+
+  console.log({ fields, fieldsDraft });
+
+  return (
+    <DialogRoot
+      open={open}
+      onOpenChange={(e) => setOpen(e.open)}
+      placement={placement}
+      motionPreset="slide-in-bottom"
     >
-      {() => (
-        <div className="grid gap-y-4 text-white">
-          <FormControl isInvalid={!!errors.name}>
-            <Input
-              focusBorderColor="#f6bb0b"
-              borderColor={"#3c3747"}
-              placeholder="Nome do negócio*"
-              type="text"
-              autoComplete="off"
-              {...register("name")}
-            />
-            <FormErrorMessage mt={"3px"}>
-              {errors.name?.message}
-            </FormErrorMessage>
-          </FormControl>
-          <FormControl>
-            <Textarea
-              focusBorderColor="#f6bb0b"
-              borderColor={"#3c3747"}
-              placeholder="Breve descrição do negócio"
-              autoComplete="off"
-              rows={3}
-              resize={"none"}
-              {...register("description")}
-            />
-            <FormErrorMessage mt={"3px"}>
-              {errors.description?.message}
-            </FormErrorMessage>
-          </FormControl>
-        </div>
-      )}
-    </ModalFormComponent>
+      <DialogTrigger asChild>{props.trigger}</DialogTrigger>
+      <DialogContent as={"form"} onSubmit={handleSubmit(edit)} w={"470px"}>
+        <DialogHeader flexDirection={"column"} gap={0}>
+          <DialogTitle>Editar empresa</DialogTitle>
+          <DialogDescription>
+            Edite as informações do seu workspace.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogBody>
+          <VStack gap={4}>
+            <Field
+              errorText={errors.name?.message}
+              invalid={!!errors.name}
+              label="Identificador"
+            >
+              <Input
+                {...register("name")}
+                autoComplete="off"
+                placeholder="Digite o nome da empresa"
+              />
+            </Field>
+            <Field
+              errorText={errors.description?.message}
+              invalid={!!errors.description}
+              label="Descrição"
+            >
+              <TextareaAutosize
+                placeholder=""
+                style={{ resize: "none" }}
+                minRows={3}
+                maxRows={10}
+                className="p-3 py-2.5 rounded-sm w-full border-black/10 dark:border-white/10 border"
+                {...register("description")}
+              />
+            </Field>
+          </VStack>
+        </DialogBody>
+        <DialogFooter>
+          <DialogActionTrigger>
+            <Button variant="outline">Cancel</Button>
+          </DialogActionTrigger>
+          <Button
+            type="submit"
+            colorPalette={"teal"}
+            disabled={!isSave || !load}
+            loading={isSubmitting}
+          >
+            Salvar
+          </Button>
+        </DialogFooter>
+        <DialogCloseTrigger>
+          <CloseButton size="sm" />
+        </DialogCloseTrigger>
+      </DialogContent>
+    </DialogRoot>
   );
 };

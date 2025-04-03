@@ -1,114 +1,110 @@
 import {
-  Button,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
-  useDisclosure,
-} from "@chakra-ui/react";
+  DialogContent,
+  DialogRoot,
+  DialogTrigger,
+  DialogHeader,
+  DialogTitle,
+  DialogBody,
+  DialogCloseTrigger,
+  DialogFooter,
+  DialogActionTrigger,
+} from "@components/ui/dialog";
 import { AxiosError } from "axios";
 import moment from "moment";
-import { Dispatch, SetStateAction, useCallback, useState } from "react";
-import { useCookies } from "react-cookie";
-import { Business } from "..";
-import { AlertDialogComponent } from "../../../components/AlertDialog";
-import LoadSpinnerComponent from "../../../components/LoadSpinner";
+import {
+  Dispatch,
+  SetStateAction,
+  useState,
+  JSX,
+  useEffect,
+  useContext,
+} from "react";
+import { BusinessRow } from "..";
 import { api } from "../../../services/api";
-import { toast } from "react-toastify";
+import { CloseButton } from "@components/ui/close-button";
+import { AuthContext } from "@contexts/auth.context";
+import { Button, Spinner } from "@chakra-ui/react";
+import { ModalDeleteBusiness } from "./delete";
+import { ErrorResponse_I } from "../../../services/api/ErrorResponse";
+import { toaster } from "@components/ui/toaster";
 
 interface DataInfo {
   name: string;
-  connections: number;
-  audiences: number;
-  campaigns: number;
-  description: string | null;
   updateAt: Date;
   createAt: Date;
   id: number;
+  description: string | null;
 }
 
 interface IProps {
   id: number | null;
-  setBusiness: Dispatch<SetStateAction<Business[]>>;
-  buttonJSX: (open: () => void) => JSX.Element;
-  onClose?(): void;
+  setBusinesses: Dispatch<SetStateAction<BusinessRow[]>>;
+  trigger: JSX.Element;
 }
 
-export const ModalView: React.FC<IProps> = ({ id, ...props }): JSX.Element => {
-  const [load, setLoad] = useState<boolean>(false);
-  const [cookies] = useCookies(["auth"]);
+export const ModalViewBusiness: React.FC<IProps> = ({
+  id,
+  ...props
+}): JSX.Element => {
+  const { logout } = useContext(AuthContext);
+  const [open, setOpen] = useState(false);
+  const [load, setLoad] = useState(false);
   const [dataInfo, setDataInfo] = useState<DataInfo | null>(null);
 
-  const { onClose, onOpen, isOpen } = useDisclosure({
-    onClose: props.onClose,
-    onOpen: async () => {
+  useEffect(() => {
+    if (!open) {
+      setTimeout(() => {
+        setLoad(false);
+        setDataInfo(null);
+      }, 250);
+      return;
+    }
+    (async () => {
       try {
-        const token = cookies.auth;
-        const { data } = await api.get(`/private/business/${id}`, {
-          headers: { authorization: token },
-        });
+        await new Promise((resolve) => setTimeout(resolve, 220));
+        const { data } = await api.get(`/private/businesses/${id}/details`);
         setDataInfo(data.business);
         setLoad(true);
       } catch (error) {
         if (error instanceof AxiosError) {
-          if (error.response?.status === 401) {
-            alert("Não autorizado");
+          if (error.response?.status === 401) logout();
+          if (error.response?.status === 400) {
+            const dataError = error.response?.data as ErrorResponse_I;
+            if (dataError.toast.length) dataError.toast.forEach(toaster.create);
+            if (dataError.input.length) {
+              dataError.input.forEach(({ text, path }) =>
+                // @ts-expect-error
+                setError(path, { message: text })
+              );
+            }
           }
         }
       }
-    },
-  });
-
-  const onDelete = useCallback(
-    async (dat: { id: number | null }): Promise<void> => {
-      try {
-        await toast.promise(
-          api.delete(`/private/business/${dat.id}`, {
-            headers: { authorization: cookies.auth },
-          }),
-          {
-            success: "Negócio deletado com sucesso!",
-            pending: "Deletando negócio, aguarde...",
-          }
-        );
-        props.setBusiness((business) =>
-          business.filter((b) => b.id !== dat.id)
-        );
-        await new Promise((res) => setTimeout(res, 100));
-        onClose();
-      } catch (error) {
-        if (error instanceof AxiosError) {
-          if (error.response?.status === 401) {
-            alert("Não autorizado");
-          }
-        }
-      }
-    },
-    [props.setBusiness, onClose, cookies.auth]
-  );
+    })();
+  }, [open]);
 
   return (
     <>
-      {props.buttonJSX(onOpen)}
-
-      <Modal isOpen={isOpen} onClose={onClose} isCentered>
-        <ModalOverlay
-          bg="#01060aa3"
-          backdropFilter="blur(10px) hue-rotate(90deg)"
-        />
-        <ModalContent background={"#0e171d"}>
-          <ModalHeader className="text-white">Vizualizar negócio</ModalHeader>
-          <ModalCloseButton color={"red.400"} />
-          <ModalBody className="text-white">
+      <DialogRoot
+        onOpenChange={(details) => setOpen(details.open)}
+        defaultOpen={false}
+        placement={"bottom"}
+        motionPreset="slide-in-bottom"
+        lazyMount
+        unmountOnExit
+      >
+        <DialogTrigger asChild>{props.trigger}</DialogTrigger>
+        <DialogContent w={"410px"} minH={"400px"}>
+          <DialogHeader flexDirection={"column"} gap={0}>
+            <DialogTitle>Vizualizar detalhes da empresa</DialogTitle>
+          </DialogHeader>
+          <DialogBody className="flex">
             {!load || !dataInfo ? (
-              <div className="flex h-72 items-center justify-center">
-                <LoadSpinnerComponent />
+              <div className="flex w-full items-center justify-center">
+                <Spinner size={"lg"} />
               </div>
             ) : (
-              <div className="grid gap-y-1">
+              <div className="flex flex-col gap-y-1">
                 <div className="flex items-start gap-3">
                   <strong>ID:</strong>
                   <span>{id}</span>
@@ -117,51 +113,57 @@ export const ModalView: React.FC<IProps> = ({ id, ...props }): JSX.Element => {
                   <strong>Nome:</strong>
                   <span>{dataInfo.name}</span>
                 </div>
-                <div className="flex items-start gap-3">
-                  <strong>Descrição:</strong>
-                  <span>{dataInfo.description}</span>
-                </div>
-                <div className="flex items-start gap-3">
-                  <strong>Conexões WA:</strong>
-                  <span>{dataInfo.connections}</span>
-                </div>
-                <div className="flex items-start gap-3">
-                  <strong>Publicos:</strong>
-                  <span>{dataInfo.audiences}</span>
-                </div>
-                <div className="flex items-start gap-3">
-                  <strong>Campanhas:</strong>
-                  <span>{dataInfo.campaigns}</span>
-                </div>
+                {dataInfo.description && (
+                  <div className="flex items-start gap-3">
+                    <strong>Descrição:</strong>
+                    <span>{dataInfo.description}</span>
+                  </div>
+                )}
                 <div className="flex items-start gap-3">
                   <strong>Data de criação:</strong>
-                  <span>{moment(dataInfo.createAt).format("DD/MM/YYYY")}</span>
+                  <div className="flex items-center gap-2">
+                    <span>
+                      {moment(dataInfo.createAt).format("DD/MM/YYYY")}
+                    </span>
+                    <span className="text-xs text-white/50">
+                      {moment(dataInfo.createAt).format("HH:mm")}
+                    </span>
+                  </div>
                 </div>
-                <div className="flex items-start gap-3">
-                  <strong>Ultima atualização:</strong>
-                  <span>{moment(dataInfo.updateAt).format("DD/MM/YYYY")}</span>
-                </div>
+                {dataInfo.createAt !== dataInfo.updateAt && (
+                  <div className="flex items-start gap-3">
+                    <strong>Ultima atualização:</strong>
+                    <div className="flex items-center gap-2">
+                      <span>
+                        {moment(dataInfo.updateAt).format("DD/MM/YYYY")}
+                      </span>
+                      <span className="text-xs text-white/50">
+                        {moment(dataInfo.updateAt).format("HH:mm")}
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
-          </ModalBody>
-          <ModalFooter>
-            <AlertDialogComponent
-              buttonJSX={(onOpen) => (
-                <Button colorScheme="red" onClick={onOpen}>
-                  Deletar negócio
-                </Button>
-              )}
-              colorThemeButtonSubmit="red"
-              labelButton="Deletar"
-              labelButtonSubmit="Deletar"
-              labelHeader="Deletar negócio"
-              textBody="Tem certeza que deseja deletar este negócio?"
-              onSubmit={onDelete}
-              data={{ id }}
-            />
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+          </DialogBody>
+          <DialogFooter>
+            <DialogActionTrigger>
+              <Button colorPalette={"red"}>Fechar</Button>
+            </DialogActionTrigger>
+            {dataInfo?.name && id && (
+              <ModalDeleteBusiness
+                setBusinesses={props.setBusinesses}
+                data={{ id, name: dataInfo?.name }}
+                trigger={<Button variant="outline">Deletar</Button>}
+                placement="top"
+              />
+            )}
+          </DialogFooter>
+          <DialogCloseTrigger>
+            <CloseButton size="sm" />
+          </DialogCloseTrigger>
+        </DialogContent>
+      </DialogRoot>
     </>
   );
 };

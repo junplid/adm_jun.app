@@ -1,99 +1,131 @@
 import {
-  Button,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
-  useDisclosure,
-} from "@chakra-ui/react";
+  DialogContent,
+  DialogRoot,
+  DialogTrigger,
+  DialogHeader,
+  DialogTitle,
+  DialogBody,
+  DialogFooter,
+  DialogCloseTrigger,
+  DialogActionTrigger,
+  DialogDescription,
+} from "@components/ui/dialog";
 import { AxiosError } from "axios";
-import { Dispatch, SetStateAction, useCallback, useState } from "react";
-import { useCookies } from "react-cookie";
-import { Business } from "..";
-import { api } from "../../../services/api";
-import { toast } from "react-toastify";
+import {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useState,
+  JSX,
+  useContext,
+} from "react";
+import { BusinessRow } from "..";
+import { toaster } from "@components/ui/toaster";
+import { deleteBusiness } from "../../../services/api/Business";
+import { Button } from "@chakra-ui/react";
+import { CloseButton } from "@components/ui/close-button";
+import { AuthContext } from "@contexts/auth.context";
+import { ErrorResponse_I } from "../../../services/api/ErrorResponse";
 
 interface PropsModalDelete {
   data: { id: number; name: string } | null;
-  setBusiness: Dispatch<SetStateAction<Business[]>>;
-  buttonJSX: (onOpen: () => void) => JSX.Element;
+  setBusinesses: Dispatch<SetStateAction<BusinessRow[]>>;
+  trigger: JSX.Element;
+  placement?: "top" | "bottom" | "center";
 }
 
-export const ModalDelete: React.FC<PropsModalDelete> = (props): JSX.Element => {
-  const [cookies] = useCookies(["auth"]);
-  const { onClose, onOpen, isOpen } = useDisclosure();
-  const [load, setLoad] = useState<boolean>(false);
+export const ModalDeleteBusiness: React.FC<PropsModalDelete> = ({
+  placement = "bottom",
+  ...props
+}): JSX.Element => {
+  const { logout } = useContext(AuthContext);
+  const [load, setLoad] = useState(false);
+  const [open, setOpen] = useState(false);
 
   const onDelete = useCallback(async (): Promise<void> => {
     try {
       setLoad(true);
-      await toast.promise(
-        api.delete(`/private/business/${props.data?.id}`, {
-          headers: { authorization: cookies.auth },
-        }),
-        {
-          success: "Negócio deletado com sucesso!",
-          pending: "Deletando negócio, aguarde...",
-        }
-      );
-      props.setBusiness((business) =>
-        business.filter((b) => b.id !== props.data?.id)
-      );
+      if (props.data?.id) {
+        deleteBusiness(props.data?.id);
+        setOpen(false);
+        await new Promise((resolve) => setTimeout(resolve, 220));
+        props.setBusinesses((business) =>
+          business.filter((b) => b.id !== props.data?.id)
+        );
+      }
       setLoad(false);
-      await new Promise((res) => setTimeout(res, 100));
-      onClose();
     } catch (error) {
       if (error instanceof AxiosError) {
-        if (error.response?.status === 401) {
-          alert("Não autorizado");
+        if (error.response?.status === 401) logout();
+        if (error.response?.status === 400) {
+          const dataError = error.response?.data as ErrorResponse_I;
+          if (dataError.toast.length) dataError.toast.forEach(toaster.create);
+          if (dataError.input.length) {
+            dataError.input.forEach(({ text, path }) =>
+              // @ts-expect-error
+              setError(path, { message: text })
+            );
+          }
         }
       }
     }
-  }, [props]);
+  }, [props.data?.id]);
 
   return (
-    <>
-      {props.buttonJSX(onOpen)}
-      <Modal isOpen={isOpen} onClose={onClose} isCentered>
-        <ModalOverlay
-          bg="#01060aa3"
-          backdropFilter="blur(10px) hue-rotate(90deg)"
-        />
-        <ModalContent background={"#0e171d"}>
-          <ModalHeader className="text-white">Deletar negócio</ModalHeader>
-          <ModalBody>
-            <p className="text-white">
-              Esta ação não poderá ser desfeita e apagará todos os dados ligados
-              ao negócio{" "}
-              <strong className="text-lg text-white">
-                @{props.data?.name}
+    <DialogRoot
+      open={open}
+      onOpenChange={(details) => setOpen(details.open)}
+      defaultOpen={false}
+      placement={placement}
+      motionPreset="slide-in-bottom"
+      lazyMount
+      unmountOnExit
+      closeOnEscape={false}
+      closeOnInteractOutside={false}
+    >
+      <DialogTrigger asChild>{props.trigger}</DialogTrigger>
+      <DialogContent w={"410px"}>
+        <DialogHeader flexDirection={"column"} gap={0}>
+          <DialogTitle>Deletar empresa</DialogTitle>
+          <DialogDescription color={"#f86363"}>
+            Essa ação não pode ser desfeita.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogBody>
+          <div className="flex flex-col gap-y-1.5">
+            <p className="">
+              Tem certeza de que deseja deletar a empresa{" "}
+              <strong className="font-semibold text-lg">
+                {props.data?.name}
               </strong>
-              , incluindo: parâmetros, públicos e campanhas
+              ?
             </p>
-          </ModalBody>
-          <ModalFooter className="gap-x-4">
-            <Button
-              type="button"
-              paddingX={"10"}
-              colorScheme="green"
-              onClick={onClose}
-            >
-              Cancelar
+            <p>
+              Todos os dados associados, incluindo conexões, fluxos e
+              automações... serão permanentemente removidos. Esta ação é
+              irreversível.
+            </p>
+          </div>
+        </DialogBody>
+        <DialogFooter>
+          <DialogActionTrigger>
+            <Button colorPalette={"red"} loading={load}>
+              Cancel
             </Button>
-            <Button
-              isLoading={load}
-              opacity={load ? 1 : 0.7}
-              type="submit"
-              colorScheme="red"
-              onClick={onDelete}
-            >
-              Deletar permanentemente
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-    </>
+          </DialogActionTrigger>
+          <Button
+            onClick={onDelete}
+            loading={load}
+            loadingText={"Deletando, aguarde..."}
+            variant="outline"
+          >
+            Deletar permanentemente.
+          </Button>
+        </DialogFooter>
+        <DialogCloseTrigger>
+          <CloseButton size="sm" />
+        </DialogCloseTrigger>
+      </DialogContent>
+    </DialogRoot>
   );
 };

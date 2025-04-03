@@ -27,3 +27,7 @@ export async function getBusinesses(params?: {
   const { data } = await api.get("/private/businesses", { params });
   return data.businesses;
 }
+
+export async function deleteBusiness(id: number): Promise<void> {
+  await api.delete(`/private/business/${id}`);
+}
