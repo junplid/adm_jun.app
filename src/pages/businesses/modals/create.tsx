@@ -21,9 +21,9 @@ import { ErrorResponse_I } from "../../../services/api/ErrorResponse";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { api } from "../../../services/api";
 import { toaster } from "@components/ui/toaster";
 import { AuthContext } from "@contexts/auth.context";
+import { createBusiness } from "../../../services/api/Business";
 
 interface IProps {
   onCreate(business: BusinessRow): Promise<void>;
@@ -32,10 +32,7 @@ interface IProps {
 }
 
 const FormSchema = z.object({
-  name: z
-    .string()
-    .min(1, "Campo obrigatório.")
-    .transform((value) => value.trim() || undefined),
+  name: z.string().min(1, "Campo obrigatório."),
   description: z.string().transform((value) => value.trim() || undefined),
 });
 
@@ -60,12 +57,12 @@ export function ModalCreateBusiness({
 
   const create = useCallback(async (fields: Fields): Promise<void> => {
     try {
-      const { data } = await api.post("/private/business", fields);
+      const business = await createBusiness(fields);
       const { name } = fields;
       setOpen(false);
       await new Promise((resolve) => setTimeout(resolve, 220));
       reset();
-      props.onCreate({ ...data.business, name });
+      props.onCreate({ ...business, name });
     } catch (error) {
       if (error instanceof AxiosError) {
         if (error.response?.status === 401) logout();

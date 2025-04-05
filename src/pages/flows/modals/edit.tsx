@@ -10,6 +10,7 @@ import {
   JSX,
   useEffect,
 } from "react";
+import { useCookies } from "react-cookie";
 import {
   DialogContent,
   DialogRoot,
@@ -29,16 +30,15 @@ import { useForm } from "react-hook-form";
 import deepEqual from "fast-deep-equal";
 import { Field } from "@components/ui/field";
 import TextareaAutosize from "react-textarea-autosize";
-import { BusinessRow } from "..";
+import { FlowRow } from "..";
 import { AuthContext } from "@contexts/auth.context";
 import { CloseButton } from "@components/ui/close-button";
 import { ErrorResponse_I } from "../../../services/api/ErrorResponse";
 import { toaster } from "@components/ui/toaster";
-import { updateBusiness } from "../../../services/api/Business";
 
 interface PropsModalEdit {
   id: number;
-  setBusinesses: Dispatch<SetStateAction<BusinessRow[]>>;
+  setBusinesses: Dispatch<SetStateAction<FlowRow[]>>;
   trigger: JSX.Element;
   placement?: "top" | "bottom" | "center";
 }
@@ -48,7 +48,7 @@ const FormSchema = z.object({
     .string()
     .min(1, "Campo obrigatório.")
     .transform((value) => value.trim() || undefined),
-  description: z.string().transform((value) => value.trim() || undefined),
+  description: z.string().nullable(),
 });
 
 type Fields = z.infer<typeof FormSchema>;
@@ -64,6 +64,7 @@ export const ModalEditBusiness: React.FC<PropsModalEdit> = ({
   ...props
 }): JSX.Element => {
   const { logout } = useContext(AuthContext);
+  const [cookies] = useCookies(["auth"]);
   const [fieldsDraft, setFieldsDraft] = useState<FieldCreateBusiness | null>(
     null
   );
@@ -86,7 +87,10 @@ export const ModalEditBusiness: React.FC<PropsModalEdit> = ({
   const edit = useCallback(
     async (fieldss: Fields): Promise<void> => {
       try {
-        await updateBusiness(id, fieldss);
+        await api.put(`/private/businesses/${id}`, undefined, {
+          headers: { authorization: cookies.auth },
+          params: fieldss,
+        });
         await new Promise((resolve) => setTimeout(resolve, 220));
         props.setBusinesses((business) => {
           return business.map((b) => {

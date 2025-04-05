@@ -194,10 +194,10 @@ export function LayoutPrivateProvider(): JSX.Element {
               </MenuItem>
               <MenuItem
                 icon={<GoWorkflow size={20} />}
-                component={<Link to={"/auth/flows/1"} />}
-                active={pathname === "/auth/flows/1"}
+                component={<Link to={"/auth/flows"} />}
+                active={pathname === "/auth/flows"}
               >
-                Construtor de fluxos
+                Construtores de fluxos
               </MenuItem>
               <MenuItem
                 icon={<TbTags size={21} />}

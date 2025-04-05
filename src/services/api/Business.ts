@@ -2,7 +2,6 @@ import { api } from "./index";
 
 export async function createBusiness(body: {
   name: string;
-  accountId: number;
   description?: string;
 }): Promise<{
   id: number;
@@ -10,6 +9,32 @@ export async function createBusiness(body: {
   updateAt: Date;
 }> {
   const { data } = await api.post("/private/businesses", body);
+  return data.business;
+}
+
+export async function updateBusiness(
+  id: number,
+  body: {
+    name?: string;
+    description?: string;
+  }
+): Promise<{
+  updateAt: Date;
+}> {
+  const { data } = await api.put(`/private/businesses/${id}`, undefined, {
+    params: body,
+  });
+  return data.business;
+}
+
+export async function getBusiness(id: number): Promise<{
+  name: string;
+  updateAt: Date;
+  createAt: Date;
+  id: number;
+  description: string | null;
+}> {
+  const { data } = await api.get(`/private/businesses/${id}/details`);
   return data.business;
 }
 
@@ -25,6 +50,19 @@ export async function getBusinesses(params?: {
   }[]
 > {
   const { data } = await api.get("/private/businesses", { params });
+  return data.businesses;
+}
+
+export async function getOptionsBusinesses({
+  filterIds,
+  ...params
+}: {
+  name?: string;
+  filterIds?: number[];
+}): Promise<{ name: string; id: number }[]> {
+  const { data } = await api.get("/private/businesses/options", {
+    params: { ...params, filterIds: filterIds?.join("-") },
+  });
   return data.businesses;
 }
 

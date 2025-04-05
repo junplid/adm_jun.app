@@ -7,7 +7,13 @@ import { type AppNode } from "./types";
 import { v4 } from "uuid";
 
 export const initialNodes = [
-  { id: "0", type: "nodeInitial", position: { x: 100, y: 200 }, data: {} },
+  {
+    id: "0",
+    type: "nodeInitial",
+    position: { x: 100, y: 200 },
+    data: {},
+    deletable: false,
+  },
   { id: "1", type: "nodeMessage", position: { x: 100, y: 100 }, data: {} },
   { id: "2", type: "nodeReply", position: { x: 185, y: 100 }, data: {} },
   // { id: "3", type: "nodeAddTags", position: { x: 280, y: 100 }, data: {} },

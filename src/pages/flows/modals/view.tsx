@@ -19,14 +19,14 @@ import {
   useEffect,
   useContext,
 } from "react";
-import { BusinessRow } from "..";
+import { FlowRow } from "..";
+import { api } from "../../../services/api";
 import { CloseButton } from "@components/ui/close-button";
 import { AuthContext } from "@contexts/auth.context";
 import { Button, Spinner } from "@chakra-ui/react";
 import { ModalDeleteBusiness } from "./delete";
 import { ErrorResponse_I } from "../../../services/api/ErrorResponse";
 import { toaster } from "@components/ui/toaster";
-import { getBusiness } from "../../../services/api/Business";
 
 interface DataInfo {
   name: string;
@@ -38,7 +38,7 @@ interface DataInfo {
 
 interface IProps {
   id: number | null;
-  setBusinesses: Dispatch<SetStateAction<BusinessRow[]>>;
+  setBusinesses: Dispatch<SetStateAction<FlowRow[]>>;
   trigger: JSX.Element;
 }
 
@@ -62,10 +62,8 @@ export const ModalViewBusiness: React.FC<IProps> = ({
     (async () => {
       try {
         await new Promise((resolve) => setTimeout(resolve, 220));
-        if (id) {
-          const data = await getBusiness(id);
-          setDataInfo(data);
-        }
+        const { data } = await api.get(`/private/businesses/${id}/details`);
+        setDataInfo(data.business);
         setLoad(true);
       } catch (error) {
         if (error instanceof AxiosError) {
