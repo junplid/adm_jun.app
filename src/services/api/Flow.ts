@@ -50,6 +50,17 @@ export async function getFlow(id: number): Promise<{
   return data.flows;
 }
 
+export async function getFlowData(id: number): Promise<{
+  name: string;
+  type: FlowType;
+  businessIds: number[];
+  nodes: any[];
+  edges: any[];
+}> {
+  const { data } = await api.get(`/private/flows/${id}/data`);
+  return data.flow;
+}
+
 export async function getFlows(params?: {
   name?: string;
   page?: number;

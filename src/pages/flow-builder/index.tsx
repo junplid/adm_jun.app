@@ -34,7 +34,8 @@ import { IoSaveOutline } from "react-icons/io5";
 import { RiErrorWarningLine } from "react-icons/ri";
 import { useParams } from "react-router-dom";
 import { getVariables } from "../../services/api/Variable";
-import { db } from "../../db";
+import { db, useDBNodes } from "../../db";
+import { useGetFlowData } from "../../hooks/flow";
 
 type NodeTypesGeneric = {
   [x in TypesNodes]: any;
@@ -60,16 +61,36 @@ const selector = (state: any) => ({
 });
 
 export function FlowBuilderPage() {
+  const params = useParams<{ id: string }>();
   const { type } = useContext(DnDContext);
+  const {
+    data: flowData,
+    isFetching,
+    isError,
+  } = useGetFlowData(Number(params.id));
+
   const { nodes, edges, onNodesChange, onEdgesChange, onConnect } = useStore(
-    useShallow(selector)
+    useShallow((s) => ({
+      nodes: [
+        {
+          id: "0",
+          type: "nodeInitial",
+          position: { x: 100, y: 200 },
+          data: {},
+          deletable: false,
+        },
+      ],
+      edges: s.edges,
+      onNodesChange: s.onNodesChange,
+      onEdgesChange: s.onEdgesChange,
+      onConnect: s.onConnect,
+    }))
   );
   const addNode = useStore((s) => s.addNode);
   const { screenToFlowPosition } = useReactFlow();
   const { ToggleMenu } = useContext(LayoutPrivateContext);
   const reactFlowWrapper = useRef(null);
-
-  const params = useParams<{ id: string }>();
+  // const nodes = useDBNodes();
 
   const colorDotFlow = useColorModeValue("#c6c6c6", "#373737");
 
@@ -131,108 +152,180 @@ export function FlowBuilderPage() {
   // }, [nodes, edges]);
 
   useEffect(() => {
-    if (params.id) {
+    if (flowData?.name) {
       (async () => {
+        // await db.nodes.clear();
+        // await db.edges.clear();
+        // db.nodes.bulkAdd(
+        //   flowData.nodes.map((n: any) => ({
+        //     id: n.id,
+        //     data: n.data,
+        //   }))
+        // );
+
         await db.variables.clear();
-        const variables = await getVariables({});
+        const variables = await getVariables({
+          businessIds: flowData.businessIds,
+        });
         db.variables.bulkAdd(
           variables.map((v) => ({ name: v.name, id: v.id }))
         );
       })();
     }
-  }, [params.id]);
+  }, [flowData?.name]);
 
   return (
     <Box as={"div"} className="dndflow" h={"100svh"}>
-      <div className="reactflow-wrapper w-full h-full" ref={reactFlowWrapper}>
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-          nodeTypes={nodeTypes}
-          onDrop={onDrop}
-          onDragOver={onDragOver}
-          // fitView
-          attributionPosition="top-right"
-        >
-          <MiniMap
-            style={{ width: 180, height: 100 }}
-            className="dark:!bg-[#37373791] !bg-[#47484971]"
-          />
-          <Panel
-            position="top-left"
-            style={{
-              margin: 0,
-              width: "100%",
-              padding: "10px 20px",
-              pointerEvents: "none",
-            }}
-          >
-            <HStack
-              pointerEvents={"none"}
-              justifyContent={"space-between"}
-              w={"100%"}
-            >
-              <HStack className="w-full relative">
-                {ToggleMenu}
-                <div className=" w-full">
-                  <Presence
-                    animationName={{
-                      // _open: "slide-from-top, fade-in",
-                      _closed: "slide-to-top, fade-out",
-                    }}
-                    animationDuration="moderate"
-                    present={syncLoad === "load"}
-                    top={"2px"}
-                    position={"absolute"}
-                  >
-                    <Spinner color={"whiteAlpha.700"} />
-                  </Presence>
+      <Presence
+        animationName={{
+          _open: "slide-from-top, fade-in",
+          _closed: "slide-to-top, fade-out",
+        }}
+        animationDuration="moderate"
+        present={isFetching}
+        position={"absolute"}
+        top={0}
+        left={0}
+        zIndex={99999}
+        className="absolute top-0 left-0 w-full h-full z-50 flex items-center justify-center"
+      >
+        <div className="flex items-center justify-center gap-x-5">
+          <Spinner borderWidth="2px" color="teal.500" size="md" />
+          <div>
+            <div className="text-lg font-bold text-gray-500 dark:text-gray-200">
+              Carregando fluxo...
+            </div>
+            <div className="text-sm text-gray-400 dark:text-gray-400">
+              Aguarde enquanto carregamos os dados do fluxo.
+            </div>
+          </div>
+        </div>
+      </Presence>
 
-                  <Presence
-                    animationName={{
-                      _open: "slide-from-top, fade-in",
-                      _closed: "slide-to-top, fade-out",
-                    }}
-                    animationDuration="moderate"
-                    present={syncLoad === "save"}
-                    top={"2px"}
-                    position={"absolute"}
-                  >
-                    <IoSaveOutline size={20} color="#1db4e7" />
-                  </Presence>
-                  <Presence
-                    animationName={{
-                      _open: "slide-from-top, fade-in",
-                      _closed: "slide-to-top, fade-out",
-                    }}
-                    animationDuration="moderate"
-                    present={syncLoad === "error"}
-                    top={"1px"}
-                    position={"absolute"}
-                    w={"full"}
-                    className="gap-x-2 text-red-500 flex items-center w-full"
-                  >
-                    <RiErrorWarningLine size={22} />
-                    <span className="text-base">
-                      Erro de sincronização! Se o erro persistir, contate o
-                      suporte.
-                    </span>
-                  </Presence>
-                </div>
+      {!isFetching && !isError && flowData?.name && (
+        <div className="reactflow-wrapper w-full h-full" ref={reactFlowWrapper}>
+          <ReactFlow
+            nodes={nodes}
+            edges={edges}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
+            onConnect={onConnect}
+            nodeTypes={nodeTypes}
+            onDrop={onDrop}
+            onDragOver={onDragOver}
+            attributionPosition="top-right"
+          >
+            <MiniMap
+              style={{ width: 180, height: 100 }}
+              className="dark:!bg-[#37373791] !bg-[#47484971]"
+            />
+            <Panel
+              position="top-left"
+              style={{
+                margin: 0,
+                width: "100%",
+                padding: "10px 20px",
+                pointerEvents: "none",
+              }}
+            >
+              <HStack
+                pointerEvents={"none"}
+                justifyContent={"space-between"}
+                w={"100%"}
+              >
+                <HStack className="w-full relative">
+                  {ToggleMenu}
+                  <div className=" w-full">
+                    <Presence
+                      animationName={{
+                        // _open: "slide-from-top, fade-in",
+                        _closed: "slide-to-top, fade-out",
+                      }}
+                      animationDuration="moderate"
+                      present={syncLoad === "load"}
+                      top={"2px"}
+                      position={"absolute"}
+                    >
+                      <Spinner color={"whiteAlpha.700"} />
+                    </Presence>
+
+                    <Presence
+                      animationName={{
+                        _open: "slide-from-top, fade-in",
+                        _closed: "slide-to-top, fade-out",
+                      }}
+                      animationDuration="moderate"
+                      present={syncLoad === "save"}
+                      top={"2px"}
+                      position={"absolute"}
+                    >
+                      <IoSaveOutline size={20} color="#1db4e7" />
+                    </Presence>
+                    <Presence
+                      animationName={{
+                        _open: "slide-from-top, fade-in",
+                        _closed: "slide-to-top, fade-out",
+                      }}
+                      animationDuration="moderate"
+                      present={syncLoad === "error"}
+                      top={"1px"}
+                      position={"absolute"}
+                      w={"full"}
+                      className="gap-x-2 text-red-500 flex items-center w-full"
+                    >
+                      <RiErrorWarningLine size={22} />
+                      <span className="text-base">
+                        Erro de sincronização! Se o erro persistir, contate o
+                        suporte.
+                      </span>
+                    </Presence>
+                  </div>
+                </HStack>
+                <HStack className="pointer-events-auto">
+                  <FeedbackComponent />
+                  <SearchNodesComponents />
+                  <ColorModeButton />
+                </HStack>
               </HStack>
-              <HStack className="pointer-events-auto">
-                <FeedbackComponent />
-                <SearchNodesComponents />
-                <ColorModeButton />
-              </HStack>
-            </HStack>
-          </Panel>
-          <Background color={colorDotFlow} gap={9} size={0.8} />
-        </ReactFlow>
-      </div>
+            </Panel>
+            <Panel
+              position="bottom-center"
+              style={{
+                margin: 0,
+                padding: "10px 20px",
+                pointerEvents: "none",
+              }}
+            >
+              <span className="text-sm font-medium">{flowData.name}</span>
+            </Panel>
+            <Background color={colorDotFlow} gap={9} size={0.8} />
+          </ReactFlow>
+        </div>
+      )}
+
+      <Presence
+        animationName={{
+          _open: "slide-from-top, fade-in",
+          _closed: "slide-to-top, fade-out",
+        }}
+        animationDuration="moderate"
+        present={isError && !isFetching}
+        position={"absolute"}
+        top={0}
+        left={0}
+        zIndex={99999}
+        className="absolute top-0 left-0 w-full h-full z-50 flex justify-center"
+      >
+        <div className="flex items-center flex-col gap-y-0.5 mt-14">
+          <div className="text-lg font-bold text-gray-500 dark:text-gray-200">
+            Fluxo não encontrado
+          </div>
+          <div className="text-sm text-gray-400 dark:text-gray-400">
+            O construtor de fluxo que você está tentando acessar não existe ou
+            foi excluído.
+          </div>
+        </div>
+      </Presence>
     </Box>
   );
 }

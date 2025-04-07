@@ -7,6 +7,27 @@ import { AuthContext } from "@contexts/auth.context";
 import { ErrorResponse_I } from "../services/api/ErrorResponse";
 import { UseFormSetError } from "react-hook-form";
 
+export function useGetFlowData(id: number) {
+  const { logout } = useContext(AuthContext);
+  return useQuery({
+    queryKey: ["flow-data", id],
+    queryFn: async () => {
+      try {
+        return await FlowService.getFlowData(id);
+      } catch (error) {
+        if (error instanceof AxiosError) {
+          if (error.response?.status === 401) logout();
+          if (error.response?.status === 400) {
+            const dataError = error.response?.data as ErrorResponse_I;
+            if (dataError.toast.length) dataError.toast.forEach(toaster.create);
+          }
+        }
+        throw error;
+      }
+    },
+  });
+}
+
 export function useGetFlowDetails(id: number) {
   const { logout } = useContext(AuthContext);
   return useQuery({

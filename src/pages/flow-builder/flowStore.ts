@@ -48,7 +48,7 @@ export const initialNodes = [
 
 // this is our useStore hook that we can use in our components to get parts of the store and call actions
 const useStore = create<AppState>((set, get) => ({
-  nodes: initialNodes,
+  nodes: [],
   edges: [],
   onNodesChange: (changes) => {
     set({
