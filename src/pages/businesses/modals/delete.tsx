@@ -11,25 +11,13 @@ import {
   DialogDescription,
 } from "@components/ui/dialog";
 import { AxiosError } from "axios";
-import {
-  Dispatch,
-  SetStateAction,
-  useCallback,
-  useState,
-  JSX,
-  useContext,
-} from "react";
-import { BusinessRow } from "..";
-import { toaster } from "@components/ui/toaster";
-import { deleteBusiness } from "../../../services/api/Business";
+import { useCallback, useState, JSX } from "react";
 import { Button } from "@chakra-ui/react";
 import { CloseButton } from "@components/ui/close-button";
-import { AuthContext } from "@contexts/auth.context";
-import { ErrorResponse_I } from "../../../services/api/ErrorResponse";
+import { useDeleteBusiness } from "../../../hooks/business";
 
 interface PropsModalDelete {
   data: { id: number; name: string } | null;
-  setBusinesses: Dispatch<SetStateAction<BusinessRow[]>>;
   trigger: JSX.Element;
   placement?: "top" | "bottom" | "center";
 }
@@ -38,35 +26,23 @@ export const ModalDeleteBusiness: React.FC<PropsModalDelete> = ({
   placement = "bottom",
   ...props
 }): JSX.Element => {
-  const { logout } = useContext(AuthContext);
-  const [load, setLoad] = useState(false);
   const [open, setOpen] = useState(false);
+
+  const { mutateAsync: deleteBusiness, isPending } = useDeleteBusiness({
+    async onSuccess() {
+      setOpen(false);
+      await new Promise((resolve) => setTimeout(resolve, 220));
+    },
+  });
 
   const onDelete = useCallback(async (): Promise<void> => {
     try {
-      setLoad(true);
-      if (props.data?.id) {
-        deleteBusiness(props.data?.id);
-        setOpen(false);
-        await new Promise((resolve) => setTimeout(resolve, 220));
-        props.setBusinesses((business) =>
-          business.filter((b) => b.id !== props.data?.id)
-        );
-      }
-      setLoad(false);
+      if (props.data?.id) await deleteBusiness(props.data?.id);
     } catch (error) {
       if (error instanceof AxiosError) {
-        if (error.response?.status === 401) logout();
-        if (error.response?.status === 400) {
-          const dataError = error.response?.data as ErrorResponse_I;
-          if (dataError.toast.length) dataError.toast.forEach(toaster.create);
-          if (dataError.input.length) {
-            dataError.input.forEach(({ text, path }) =>
-              // @ts-expect-error
-              setError(path, { message: text })
-            );
-          }
-        }
+        console.log("Error-API", error);
+      } else {
+        console.log("Error-Client", error);
       }
     }
   }, [props.data?.id]);
@@ -109,13 +85,13 @@ export const ModalDeleteBusiness: React.FC<PropsModalDelete> = ({
         </DialogBody>
         <DialogFooter>
           <DialogActionTrigger>
-            <Button colorPalette={"red"} loading={load}>
+            <Button colorPalette={"red"} disabled={isPending}>
               Cancel
             </Button>
           </DialogActionTrigger>
           <Button
             onClick={onDelete}
-            loading={load}
+            loading={isPending}
             loadingText={"Deletando, aguarde..."}
             variant="outline"
           >

@@ -1,4 +1,5 @@
 import Dexie, { Table } from "dexie";
+import { useLiveQuery } from "dexie-react-hooks";
 
 export interface Variable {
   targetId?: number;
@@ -17,4 +18,9 @@ class JunplidDatabase extends Dexie {
   }
 }
 
-export const db = new JunplidDatabase();
+const db = new JunplidDatabase();
+
+const useVariables = (): Variable[] =>
+  useLiveQuery(() => db.variables.toArray(), []) || [];
+
+export { db, useVariables };

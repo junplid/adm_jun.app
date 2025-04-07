@@ -7,19 +7,17 @@ import Select, {
 import { useColorModeValue } from "./ui/color-mode";
 import { motion } from "framer-motion";
 
-interface SelectInputProps extends SelectProps {
-  label?: string;
-}
+interface SelectInputProps extends SelectProps {}
 
 const SelectComponent = forwardRef<any, SelectInputProps>(
-  ({ label, ...props }, ref) => {
+  ({ ...props }, ref) => {
     const colorBorder = useColorModeValue("#e4e4e7", "#27272a");
 
     return (
       <Select
         isClearable
         menuPlacement="auto"
-        menuPortalTarget={document.body}
+        // menuPortalTarget={document.body}
         styles={{
           indicatorSeparator: (base) => ({ ...base, display: "none" }),
           dropdownIndicator: (base) => ({ ...base, display: "none" }),
@@ -100,7 +98,7 @@ const SelectComponent = forwardRef<any, SelectInputProps>(
             padding: "6px 8px",
             borderRadius: "0.125rem",
             ":hover": {
-              backgroundColor: "#2d2d2e",
+              backgroundColor: "#252425",
               color: "#ffffff",
             },
           }),
@@ -111,15 +109,14 @@ const SelectComponent = forwardRef<any, SelectInputProps>(
               initial={{ opacity: 0.5, y: -9 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -15 }}
-              transition={{ duration: 0.2 }}
-              style={{ position: "absolute", width: "100%" }}
+              transition={{ duration: 0.24 }}
+              style={{ position: "absolute", width: "100%", zIndex: 9999 }}
             >
               <SelectComponents.Menu {...props} />
             </motion.div>
           ),
         }}
         ref={ref}
-        isSearchable
         {...props}
       />
     );

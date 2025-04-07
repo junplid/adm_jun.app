@@ -1,4 +1,4 @@
-import { JSX, useCallback, useContext, useState } from "react";
+import { JSX, useCallback, useState } from "react";
 import { Button, Input, VStack } from "@chakra-ui/react";
 import { CloseButton } from "@components/ui/close-button";
 import {
@@ -17,16 +17,13 @@ import { Field } from "@components/ui/field";
 import TextareaAutosize from "react-textarea-autosize";
 import { BusinessRow } from "..";
 import { AxiosError } from "axios";
-import { ErrorResponse_I } from "../../../services/api/ErrorResponse";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { toaster } from "@components/ui/toaster";
-import { AuthContext } from "@contexts/auth.context";
-import { createBusiness } from "../../../services/api/Business";
+import { useCreateBusiness } from "../../../hooks/business";
 
 interface IProps {
-  onCreate(business: BusinessRow): Promise<void>;
+  onCreate?(business: BusinessRow): Promise<void>;
   trigger: JSX.Element;
   placement?: "top" | "bottom" | "center";
 }
@@ -42,11 +39,10 @@ export function ModalCreateBusiness({
   placement = "bottom",
   ...props
 }: IProps): JSX.Element {
-  const { logout } = useContext(AuthContext);
   const {
     handleSubmit,
     register,
-    formState: { errors, isSubmitting },
+    formState: { errors },
     setError,
     reset,
   } = useForm<Fields>({
@@ -55,27 +51,25 @@ export function ModalCreateBusiness({
 
   const [open, setOpen] = useState(false);
 
+  const { mutateAsync: createBusiness, isPending } = useCreateBusiness({
+    setError,
+    async onSuccess() {
+      setOpen(false);
+      await new Promise((resolve) => setTimeout(resolve, 220));
+    },
+  });
+
   const create = useCallback(async (fields: Fields): Promise<void> => {
     try {
       const business = await createBusiness(fields);
       const { name } = fields;
-      setOpen(false);
-      await new Promise((resolve) => setTimeout(resolve, 220));
       reset();
-      props.onCreate({ ...business, name });
+      props.onCreate?.({ ...business, name });
     } catch (error) {
       if (error instanceof AxiosError) {
-        if (error.response?.status === 401) logout();
-        if (error.response?.status === 400) {
-          const dataError = error.response?.data as ErrorResponse_I;
-          if (dataError.toast.length) dataError.toast.forEach(toaster.create);
-          if (dataError.input.length) {
-            dataError.input.forEach(({ text, path }) =>
-              // @ts-expect-error
-              setError(path, { message: text })
-            );
-          }
-        }
+        console.log("Error-API", error);
+      } else {
+        console.log("Error-Client", error);
       }
     }
   }, []);
@@ -86,6 +80,8 @@ export function ModalCreateBusiness({
       onOpenChange={(e) => setOpen(e.open)}
       placement={placement}
       motionPreset="slide-in-bottom"
+      lazyMount
+      unmountOnExit
     >
       <DialogTrigger asChild>{props.trigger}</DialogTrigger>
       <DialogContent as={"form"} onSubmit={handleSubmit(create)} w={"470px"}>
@@ -126,14 +122,16 @@ export function ModalCreateBusiness({
           </VStack>
         </DialogBody>
         <DialogFooter>
-          <DialogActionTrigger>
-            <Button variant="outline">Cancel</Button>
+          <DialogActionTrigger asChild>
+            <Button type="button" disabled={isPending} variant="outline">
+              Cancel
+            </Button>
           </DialogActionTrigger>
-          <Button type="submit" loading={isSubmitting}>
+          <Button type="submit" loading={isPending}>
             Criar
           </Button>
         </DialogFooter>
-        <DialogCloseTrigger>
+        <DialogCloseTrigger asChild>
           <CloseButton size="sm" />
         </DialogCloseTrigger>
       </DialogContent>

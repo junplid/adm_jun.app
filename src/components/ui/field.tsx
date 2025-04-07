@@ -23,9 +23,9 @@ export const Field = React.forwardRef<HTMLDivElement, FieldProps>(
       ...rest
     } = props;
     return (
-      <ChakraField.Root ref={ref} {...rest}>
+      <ChakraField.Root ref={ref} {...rest} gap={"3px"}>
         {label && (
-          <ChakraField.Label>
+          <ChakraField.Label mb={"2px"}>
             {label}
             <ChakraField.RequiredIndicator fallback={optionalText} />
             {buttonInLabel}

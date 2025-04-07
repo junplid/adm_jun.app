@@ -1,12 +1,5 @@
-import {
-  JSX,
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
-import { Button, Input, VStack } from "@chakra-ui/react";
+import { JSX, useCallback, useContext, useState } from "react";
+import { Button, Input, Mark, Text, VStack } from "@chakra-ui/react";
 import { CloseButton } from "@components/ui/close-button";
 import {
   DialogContent,
@@ -30,8 +23,7 @@ import { z } from "zod";
 import { toaster } from "@components/ui/toaster";
 import { AuthContext } from "@contexts/auth.context";
 import { createFlow } from "../../../services/api/Flows";
-import { getOptionsBusinesses } from "../../../services/api/Business";
-import SelectComponent from "@components/Select";
+import SelectBusinesses from "@components/SelectBusinesses";
 
 interface IProps {
   onCreate(business: FlowRow): Promise<void>;
@@ -68,13 +60,6 @@ export function ModalCreateBusiness({
   });
 
   const [open, setOpen] = useState(false);
-  const [load, setLoad] = useState(false);
-
-  const canTriggerCreate = useRef(null);
-
-  const [optBusinesses, setOptBusinesses] = useState<
-    { name: string; id: number }[]
-  >([]);
 
   const create = useCallback(async (fields: Fields): Promise<void> => {
     try {
@@ -101,56 +86,6 @@ export function ModalCreateBusiness({
     }
   }, []);
 
-  useEffect(() => {
-    if (!open) {
-      setTimeout(() => {
-        setLoad(false);
-        setOptBusinesses([]);
-      }, 250);
-      return;
-    }
-    (async () => {
-      try {
-        await new Promise((resolve) => setTimeout(resolve, 220));
-        const opts = await getOptionsBusinesses({});
-        setOptBusinesses(opts);
-        setLoad(true);
-      } catch (error) {
-        if (error instanceof AxiosError) {
-          if (error.response?.status === 401) logout();
-          if (error.response?.status === 400) {
-            const dataError = error.response?.data as ErrorResponse_I;
-            if (dataError.toast.length) dataError.toast.forEach(toaster.create);
-            if (dataError.input.length) {
-              dataError.input.forEach(({ text, path }) =>
-                // @ts-expect-error
-                setError(path, { message: text })
-              );
-            }
-          }
-        }
-      }
-    })();
-  }, [open]);
-
-  useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      // if (canTriggerCreate.current && e.ctrlKey && e.key === "Enter") {
-      //   e.preventDefault();
-      //   alert("Criar empresa completa");
-      //   return;
-      // }
-      if (canTriggerCreate.current && e.key === "Enter") {
-        e.preventDefault();
-        alert("Criar empresa rápida");
-        return;
-      }
-    };
-
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
-  }, []);
-
   return (
     <DialogRoot
       open={open}
@@ -169,53 +104,6 @@ export function ModalCreateBusiness({
         <DialogBody>
           <VStack gap={4}>
             <Field
-              label="Anexar empresas"
-              required
-              buttonInBottom={<span>Criar uma nova empresa?</span>}
-              className="w-full"
-            >
-              <SelectComponent
-                isMulti
-                placeholder={"Selecione as empresas"}
-                options={[]}
-                value={{
-                  label: "EMPRESA 2",
-                  value: "as2",
-                }}
-                noOptionsMessage={({ inputValue }) => {
-                  return (
-                    <div className="flex  text-sm flex-col gap-1 pointer-events-auto">
-                      <span className="text-white/60">
-                        Nenhuma empresa {inputValue && `"${inputValue}"`}{" "}
-                        encontrada
-                      </span>
-                      {!inputValue && (
-                        <span className="text-sm text-white/80">
-                          Digite o nome da empresa que quer adicionar
-                        </span>
-                      )}
-                      {inputValue && (
-                        <div
-                          ref={canTriggerCreate}
-                          className="flex flex-col gap-1 items-center"
-                        >
-                          <a className="text-xs">
-                            <strong className="text-white/80">ENTER</strong>{" "}
-                            para adicionar rapidamente
-                          </a>
-                          {/* <a className="text-xs">
-                            <strong className="text-white/80">CTRL</strong> +{" "}
-                            <strong className="text-white/80">ENTER</strong>{" "}
-                            para adição completa
-                          </a> */}
-                        </div>
-                      )}
-                    </div>
-                  );
-                }}
-              />
-            </Field>
-            <Field
               errorText={errors.name?.message}
               invalid={!!errors.name}
               label="Nome"
@@ -226,6 +114,19 @@ export function ModalCreateBusiness({
                 autoFocus
                 placeholder="Digite o nome do construtor"
               />
+            </Field>
+            <Field
+              label="Anexe empresas"
+              helperText={
+                <Text>
+                  Se nenhuma empresa for selecionada, o construtor será anexado
+                  a todas as empresas existentes e as que forem criadas
+                  futuramente.
+                </Text>
+              }
+              className="w-full"
+            >
+              <SelectBusinesses />
             </Field>
             {/* 
             o tipo padrão atualmente é apenas chatbot, mas futuramente

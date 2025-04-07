@@ -1,5 +1,5 @@
 import { Button, NumberInput } from "@chakra-ui/react";
-import { useVariables } from "../../../../hooks/useVariables";
+import { useVariables } from "../../../../db/index";
 import { Handle, Node, Position } from "@xyflow/react";
 import { IoIosCloseCircle } from "react-icons/io";
 import { TbTextSize } from "react-icons/tb";

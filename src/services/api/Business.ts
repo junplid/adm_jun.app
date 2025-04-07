@@ -16,7 +16,7 @@ export async function updateBusiness(
   id: number,
   body: {
     name?: string;
-    description?: string;
+    description?: string | null;
   }
 ): Promise<{
   updateAt: Date;
@@ -27,7 +27,7 @@ export async function updateBusiness(
   return data.business;
 }
 
-export async function getBusiness(id: number): Promise<{
+export async function getBusinessDetails(id: number): Promise<{
   name: string;
   updateAt: Date;
   createAt: Date;
@@ -35,6 +35,14 @@ export async function getBusiness(id: number): Promise<{
   description: string | null;
 }> {
   const { data } = await api.get(`/private/businesses/${id}/details`);
+  return data.business;
+}
+
+export async function getBusiness(id: number): Promise<{
+  name: string;
+  description: string | null;
+}> {
+  const { data } = await api.get(`/private/businesses/${id}`);
   return data.business;
 }
 

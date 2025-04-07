@@ -1,13 +1,8 @@
-import { AxiosError } from "axios";
-import { JSX, useContext, useEffect, useMemo, useState } from "react";
+import { JSX, useMemo } from "react";
 import moment from "moment";
 import { TableComponent } from "../../components/Table";
 import { Column } from "../../components/Table";
 import { ModalCreateBusiness } from "./modals/create";
-import { getBusinesses } from "../../services/api/Business";
-import { AuthContext } from "@contexts/auth.context";
-import { ErrorResponse_I } from "../../services/api/ErrorResponse";
-import { toaster } from "@components/ui/toaster";
 import { ModalDeleteBusiness } from "./modals/delete";
 import { Button } from "@chakra-ui/react";
 import { MdDeleteOutline, MdEdit } from "react-icons/md";
@@ -15,6 +10,7 @@ import { ModalViewBusiness } from "./modals/view";
 import { LuEye } from "react-icons/lu";
 import { IoAdd } from "react-icons/io5";
 import { ModalEditBusiness } from "./modals/edit";
+import { useGetBusinesses } from "../../hooks/business";
 
 export interface BusinessRow {
   id: number;
@@ -23,11 +19,7 @@ export interface BusinessRow {
 }
 
 export const BusinessesPage: React.FC = (): JSX.Element => {
-  const { logout } = useContext(AuthContext);
-  const [businesses, setBusinesses] = useState<BusinessRow[]>(
-    [] as BusinessRow[]
-  );
-  const [load, setLoad] = useState<boolean>(false);
+  const { data: businesses, isFetching, isPending } = useGetBusinesses();
 
   const renderColumns = useMemo(() => {
     const columns: Column[] = [
@@ -64,7 +56,6 @@ export const BusinessesPage: React.FC = (): JSX.Element => {
           return (
             <div className="flex h-full items-center justify-end gap-x-1.5">
               <ModalViewBusiness
-                setBusinesses={setBusinesses}
                 id={row.id}
                 trigger={
                   <Button
@@ -92,8 +83,7 @@ export const BusinessesPage: React.FC = (): JSX.Element => {
                 )}
               />*/}
               <ModalEditBusiness
-                id={row.id ?? 0}
-                setBusinesses={setBusinesses}
+                id={row.id}
                 trigger={
                   <Button
                     size={"sm"}
@@ -117,7 +107,6 @@ export const BusinessesPage: React.FC = (): JSX.Element => {
                   </Button>
                 }
                 data={{ id: row.id, name: row.name }}
-                setBusinesses={setBusinesses}
               />
             </div>
           );
@@ -127,40 +116,12 @@ export const BusinessesPage: React.FC = (): JSX.Element => {
     return columns;
   }, []);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const businessesList = await getBusinesses();
-        setBusinesses(businessesList);
-        setLoad(true);
-      } catch (error) {
-        setLoad(true);
-        if (error instanceof AxiosError) {
-          if (error.response?.status === 401) logout();
-          if (error.response?.status === 400) {
-            const dataError = error.response?.data as ErrorResponse_I;
-            if (dataError.toast.length) dataError.toast.forEach(toaster.create);
-            if (dataError.input.length) {
-              dataError.input.forEach(({ text, path }) =>
-                // @ts-expect-error
-                setError(path, { message: text })
-              );
-            }
-          }
-        }
-      }
-    })();
-  }, []);
-
   return (
     <div className="h-full gap-y-2 flex flex-col">
       <div className="flex flex-col gap-y-0.5">
         <div className="flex items-center gap-x-5">
           <h1 className="text-lg font-semibold">Empresas</h1>
           <ModalCreateBusiness
-            onCreate={async (newBusiness) =>
-              setBusinesses((s) => [newBusiness, ...s])
-            }
             trigger={
               <Button variant="outline" size={"sm"}>
                 <IoAdd /> Adicionar
@@ -178,10 +139,10 @@ export const BusinessesPage: React.FC = (): JSX.Element => {
         className="flex flex-col"
       >
         <TableComponent
-          rows={businesses}
+          rows={businesses || []}
           columns={renderColumns}
           textEmpity="Nenhum negócio criado."
-          load={!load}
+          load={isFetching || isPending}
         />
       </div>
     </div>

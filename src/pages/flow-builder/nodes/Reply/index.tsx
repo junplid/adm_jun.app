@@ -23,7 +23,7 @@ import {
   SelectTrigger,
   SelectValueText,
 } from "@components/ui/select";
-import { useVariables } from "../../../../hooks/useVariables";
+import { useVariables } from "../../../../db/index";
 import { db } from "../../../../db";
 import { createVariable } from "../../../../services/api/Variable";
 
