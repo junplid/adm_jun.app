@@ -11,62 +11,38 @@ import {
   DialogDescription,
 } from "@components/ui/dialog";
 import { AxiosError } from "axios";
-import {
-  Dispatch,
-  SetStateAction,
-  useCallback,
-  useState,
-  JSX,
-  useContext,
-} from "react";
-import { FlowRow } from "..";
-import { toaster } from "@components/ui/toaster";
-import { deleteBusiness } from "../../../services/api/Business";
+import { useCallback, useState, JSX } from "react";
 import { Button } from "@chakra-ui/react";
 import { CloseButton } from "@components/ui/close-button";
-import { AuthContext } from "@contexts/auth.context";
-import { ErrorResponse_I } from "../../../services/api/ErrorResponse";
+import { useDeleteFlow } from "../../../hooks/flow";
 
 interface PropsModalDelete {
   data: { id: number; name: string } | null;
-  setBusinesses: Dispatch<SetStateAction<FlowRow[]>>;
   trigger: JSX.Element;
   placement?: "top" | "bottom" | "center";
 }
 
-export const ModalDeleteBusiness: React.FC<PropsModalDelete> = ({
+export const ModalDeleteFlow: React.FC<PropsModalDelete> = ({
   placement = "bottom",
   ...props
 }): JSX.Element => {
-  const { logout } = useContext(AuthContext);
-  const [load, setLoad] = useState(false);
   const [open, setOpen] = useState(false);
+
+  const { mutateAsync: deleteFlow, isPending } = useDeleteFlow({
+    async onSuccess() {
+      setOpen(false);
+      await new Promise((resolve) => setTimeout(resolve, 220));
+    },
+  });
 
   const onDelete = useCallback(async (): Promise<void> => {
     try {
-      setLoad(true);
-      if (props.data?.id) {
-        deleteBusiness(props.data?.id);
-        setOpen(false);
-        await new Promise((resolve) => setTimeout(resolve, 220));
-        props.setBusinesses((business) =>
-          business.filter((b) => b.id !== props.data?.id)
-        );
-      }
-      setLoad(false);
+      if (props.data?.id) await deleteFlow(props.data?.id);
     } catch (error) {
       if (error instanceof AxiosError) {
-        if (error.response?.status === 401) logout();
-        if (error.response?.status === 400) {
-          const dataError = error.response?.data as ErrorResponse_I;
-          if (dataError.toast.length) dataError.toast.forEach(toaster.create);
-          if (dataError.input.length) {
-            dataError.input.forEach(({ text, path }) =>
-              // @ts-expect-error
-              setError(path, { message: text })
-            );
-          }
-        }
+        console.log("Error-API", error);
+      } else {
+        console.log("Error-Client", error);
       }
     }
   }, [props.data?.id]);
@@ -86,36 +62,35 @@ export const ModalDeleteBusiness: React.FC<PropsModalDelete> = ({
       <DialogTrigger asChild>{props.trigger}</DialogTrigger>
       <DialogContent w={"410px"}>
         <DialogHeader flexDirection={"column"} gap={0}>
-          <DialogTitle>Deletar empresa</DialogTitle>
+          <DialogTitle>Deletar construtor de fluxo</DialogTitle>
           <DialogDescription color={"#f86363"}>
-            Essa ação não pode ser desfeita.
+            Essa ação não poderá ser desfeita.
           </DialogDescription>
         </DialogHeader>
         <DialogBody>
           <div className="flex flex-col gap-y-1.5">
             <p className="">
-              Tem certeza de que deseja deletar a empresa{" "}
+              Tem certeza de que deseja deletar o construtor{" "}
               <strong className="font-semibold text-lg">
                 {props.data?.name}
               </strong>
               ?
             </p>
             <p>
-              Todos os dados associados, incluindo conexões, fluxos e
-              automações... serão permanentemente removidos. Esta ação é
-              irreversível.
+              Construtor será deletado permanentemente e não poderá ser
+              recuperado.
             </p>
           </div>
         </DialogBody>
         <DialogFooter>
           <DialogActionTrigger>
-            <Button colorPalette={"red"} loading={load}>
-              Cancel
+            <Button colorPalette={"red"} disabled={isPending}>
+              Cancelar
             </Button>
           </DialogActionTrigger>
           <Button
             onClick={onDelete}
-            loading={load}
+            loading={isPending}
             loadingText={"Deletando, aguarde..."}
             variant="outline"
           >

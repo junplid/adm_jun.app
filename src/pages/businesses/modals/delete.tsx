@@ -64,7 +64,7 @@ export const ModalDeleteBusiness: React.FC<PropsModalDelete> = ({
         <DialogHeader flexDirection={"column"} gap={0}>
           <DialogTitle>Deletar empresa</DialogTitle>
           <DialogDescription color={"#f86363"}>
-            Essa ação não pode ser desfeita.
+            Essa ação não poderá ser desfeita.
           </DialogDescription>
         </DialogHeader>
         <DialogBody>
@@ -86,7 +86,7 @@ export const ModalDeleteBusiness: React.FC<PropsModalDelete> = ({
         <DialogFooter>
           <DialogActionTrigger>
             <Button colorPalette={"red"} disabled={isPending}>
-              Cancel
+              Cancelar
             </Button>
           </DialogActionTrigger>
           <Button

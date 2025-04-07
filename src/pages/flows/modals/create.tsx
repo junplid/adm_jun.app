@@ -1,5 +1,5 @@
-import { JSX, useCallback, useContext, useState } from "react";
-import { Button, Input, Mark, Text, VStack } from "@chakra-ui/react";
+import { JSX, useCallback, useState } from "react";
+import { Button, Input, Text, VStack } from "@chakra-ui/react";
 import { CloseButton } from "@components/ui/close-button";
 import {
   DialogContent,
@@ -16,17 +16,15 @@ import {
 import { Field } from "@components/ui/field";
 import { FlowRow } from "..";
 import { AxiosError } from "axios";
-import { ErrorResponse_I } from "../../../services/api/ErrorResponse";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { toaster } from "@components/ui/toaster";
-import { AuthContext } from "@contexts/auth.context";
-import { createFlow } from "../../../services/api/Flows";
 import SelectBusinesses from "@components/SelectBusinesses";
+import { useCreateFlow } from "../../../hooks/flow";
+import { useNavigate } from "react-router-dom";
 
 interface IProps {
-  onCreate(business: FlowRow): Promise<void>;
+  onCreate?(business: FlowRow): Promise<void>;
   trigger: JSX.Element;
   placement?: "top" | "bottom" | "center";
 }
@@ -36,52 +34,51 @@ const FormSchema = z.object({
   type: z.enum(["marketing", "chatbot", "universal"], {
     message: "Campo obrigatório.",
   }),
-  businessIds: z.array(z.number()),
+  businessIds: z.array(z.number()).optional(),
 });
 
 type Fields = z.infer<typeof FormSchema>;
 
-export function ModalCreateBusiness({
+export function ModalCreateFlow({
   placement = "bottom",
   ...props
 }: IProps): JSX.Element {
-  const { logout } = useContext(AuthContext);
   const {
     handleSubmit,
     register,
-    formState: { errors, isSubmitting },
+    control,
+    formState: { errors },
     setError,
+    setValue,
+    getValues,
     reset,
   } = useForm<Fields>({
     resolver: zodResolver(FormSchema),
-    defaultValues: {
-      type: "chatbot",
-    },
+    defaultValues: { type: "chatbot" },
   });
 
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+
+  const { mutateAsync: createFlow, isPending } = useCreateFlow({
+    setError,
+    async onSuccess(id) {
+      navigate(`/auth/flows/${id}`);
+      await new Promise((resolve) => setTimeout(resolve, 220));
+    },
+  });
 
   const create = useCallback(async (fields: Fields): Promise<void> => {
     try {
       const flow = await createFlow(fields);
       const { name } = fields;
-      setOpen(false);
-      await new Promise((resolve) => setTimeout(resolve, 220));
       reset();
-      props.onCreate({ ...flow, name, type: fields.type });
+      props.onCreate?.({ ...flow, name, type: fields.type });
     } catch (error) {
       if (error instanceof AxiosError) {
-        if (error.response?.status === 401) logout();
-        if (error.response?.status === 400) {
-          const dataError = error.response?.data as ErrorResponse_I;
-          if (dataError.toast.length) dataError.toast.forEach(toaster.create);
-          if (dataError.input.length) {
-            dataError.input.forEach(({ text, path }) =>
-              // @ts-expect-error
-              setError(path, { message: text })
-            );
-          }
-        }
+        console.log("Error-API", error);
+      } else {
+        console.log("Error-Client", error);
       }
     }
   }, []);
@@ -92,9 +89,12 @@ export function ModalCreateBusiness({
       onOpenChange={(e) => setOpen(e.open)}
       placement={placement}
       motionPreset="slide-in-bottom"
+      lazyMount
+      unmountOnExit
+      scrollBehavior={"outside"}
     >
       <DialogTrigger asChild>{props.trigger}</DialogTrigger>
-      <DialogContent as={"form"} onSubmit={handleSubmit(create)} w={"470px"}>
+      <DialogContent as={"form"} onSubmit={handleSubmit(create)} w={"348px"}>
         <DialogHeader flexDirection={"column"} gap={0}>
           <DialogTitle>Criar construtor de fluxo</DialogTitle>
           <DialogDescription>
@@ -120,41 +120,47 @@ export function ModalCreateBusiness({
               helperText={
                 <Text>
                   Se nenhuma empresa for selecionada, o construtor será anexado
-                  a todas as empresas existentes e as que forem criadas
-                  futuramente.
+                  a todas as empresas existentes e as que forem criadas no
+                  futuro.
                 </Text>
               }
               className="w-full"
             >
-              <SelectBusinesses />
-            </Field>
-            {/* 
-            o tipo padrão atualmente é apenas chatbot, mas futuramente
-            será adicionado o tipo marketing e universal
-            <Field
-              errorText={errors.name?.message}
-              invalid={!!errors.name}
-              label="Tipo do fluxo"
-              helperText="Se nenhum tipo for selecionado, o construtor será considerado <Mark>universal</Mark> e estará disponível para todos"
-            >
-              <Input
-                {...register("name")}
-                autoComplete="off"
-                autoFocus
-                placeholder="Digite o nome do construtor"
+              <Controller
+                name="businessIds"
+                control={control}
+                render={({ field }) => (
+                  <SelectBusinesses
+                    name={field.name}
+                    isMulti
+                    onBlur={field.onBlur}
+                    onChange={(e: any) => {
+                      field.onChange(e.map((item: any) => item.value));
+                    }}
+                    onCreate={(business) => {
+                      setValue("businessIds", [
+                        ...(getValues("businessIds") || []),
+                        business.id,
+                      ]);
+                    }}
+                    value={field.value}
+                  />
+                )}
               />
-            </Field> */}
+            </Field>
           </VStack>
         </DialogBody>
         <DialogFooter>
-          <DialogActionTrigger>
-            <Button variant="outline">Cancel</Button>
+          <DialogActionTrigger asChild>
+            <Button type="button" disabled={isPending} variant="outline">
+              Cancelar
+            </Button>
           </DialogActionTrigger>
-          <Button type="submit" loading={isSubmitting}>
+          <Button type="submit" loading={isPending}>
             Criar
           </Button>
         </DialogFooter>
-        <DialogCloseTrigger>
+        <DialogCloseTrigger asChild>
           <CloseButton size="sm" />
         </DialogCloseTrigger>
       </DialogContent>

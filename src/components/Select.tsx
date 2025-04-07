@@ -1,11 +1,6 @@
 import { forwardRef } from "react";
-import Select, {
-  Props as SelectProps,
-  MenuProps,
-  components as SelectComponents,
-} from "react-select";
+import Select, { Props as SelectProps } from "react-select";
 import { useColorModeValue } from "./ui/color-mode";
-import { motion } from "framer-motion";
 
 interface SelectInputProps extends SelectProps {}
 
@@ -51,7 +46,7 @@ const SelectComponent = forwardRef<any, SelectInputProps>(
             ...base,
             backgroundColor: "#4a4a4a59",
             margin: 2.7,
-            ":first-child": {
+            ":first-of-type": {
               marginLeft: "0 !important",
             },
           }),
@@ -92,29 +87,16 @@ const SelectComponent = forwardRef<any, SelectInputProps>(
           }),
           option: (base, props) => ({
             ...base,
-            backgroundColor: props.isSelected ? "#1F1E20" : "#111111",
+            backgroundColor: props.isFocused ? "#1F1E20" : "#111111",
             color: "#ffffff",
             cursor: "pointer",
             padding: "6px 8px",
             borderRadius: "0.125rem",
-            ":hover": {
-              backgroundColor: "#252425",
-              color: "#ffffff",
-            },
+            // ":hover": {
+            //   backgroundColor: "#252425",
+            //   color: "#ffffff",
+            // },
           }),
-        }}
-        components={{
-          Menu: (props: MenuProps) => (
-            <motion.div
-              initial={{ opacity: 0.5, y: -9 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -15 }}
-              transition={{ duration: 0.24 }}
-              style={{ position: "absolute", width: "100%", zIndex: 9999 }}
-            >
-              <SelectComponents.Menu {...props} />
-            </motion.div>
-          ),
         }}
         ref={ref}
         {...props}

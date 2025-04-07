@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import * as BusinessService from "../services/api/Business";
+import * as FlowService from "../services/api/Flow";
 import { toaster } from "@components/ui/toaster";
 import { AxiosError } from "axios";
 import { useContext } from "react";
@@ -7,13 +7,13 @@ import { AuthContext } from "@contexts/auth.context";
 import { ErrorResponse_I } from "../services/api/ErrorResponse";
 import { UseFormSetError } from "react-hook-form";
 
-export function useGetBusinessDetails(id: number) {
+export function useGetFlowDetails(id: number) {
   const { logout } = useContext(AuthContext);
   return useQuery({
-    queryKey: ["business-details", id],
+    queryKey: ["flow-details", id],
     queryFn: async () => {
       try {
-        return await BusinessService.getBusinessDetails(id);
+        return await FlowService.getFlowDetails(id);
       } catch (error) {
         if (error instanceof AxiosError) {
           if (error.response?.status === 401) logout();
@@ -28,13 +28,13 @@ export function useGetBusinessDetails(id: number) {
   });
 }
 
-export function useGetBusiness(id: number) {
+export function useGetFlow(id: number) {
   const { logout } = useContext(AuthContext);
   return useQuery({
-    queryKey: ["business", id],
+    queryKey: ["flow", id],
     queryFn: async () => {
       try {
-        return await BusinessService.getBusiness(id);
+        return await FlowService.getFlow(id);
       } catch (error) {
         if (error instanceof AxiosError) {
           if (error.response?.status === 401) logout();
@@ -49,13 +49,13 @@ export function useGetBusiness(id: number) {
   });
 }
 
-export function useGetBusinesses(params?: { name?: string; page?: number }) {
+export function useGetFlows(params?: { name?: string; page?: number }) {
   const { logout } = useContext(AuthContext);
   return useQuery({
-    queryKey: ["businesses", params],
+    queryKey: ["flows", params],
     queryFn: async () => {
       try {
-        return await BusinessService.getBusinesses(params || {});
+        return await FlowService.getFlows(params || {});
       } catch (error) {
         if (error instanceof AxiosError) {
           if (error.response?.status === 401) logout();
@@ -70,16 +70,17 @@ export function useGetBusinesses(params?: { name?: string; page?: number }) {
   });
 }
 
-export function useGetBusinessesOptions(params?: {
+export function useGetFlowsOptions(params?: {
   name?: string;
-  filterIds?: number[];
+  businessIds?: number[];
+  type?: ("marketing" | "chatbot" | "universal")[];
 }) {
   const { logout } = useContext(AuthContext);
   return useQuery({
-    queryKey: ["businesses-options", params],
+    queryKey: ["flows-options", params],
     queryFn: async () => {
       try {
-        return await BusinessService.getOptionsBusinesses(params || {});
+        return await FlowService.getOptionsFlows(params || {});
       } catch (error) {
         if (error instanceof AxiosError) {
           if (error.response?.status === 401) logout();
@@ -94,33 +95,37 @@ export function useGetBusinessesOptions(params?: {
   });
 }
 
-export function useCreateBusiness(props?: {
-  setError?: UseFormSetError<{ name: string; description?: string }>;
-  onSuccess?: () => Promise<void>;
+export function useCreateFlow(props?: {
+  setError?: UseFormSetError<{
+    name: string;
+    type: FlowService.FlowType;
+    businessIds?: number[];
+  }>;
+  onSuccess?: (id: number) => Promise<void>;
 }) {
   const { logout } = useContext(AuthContext);
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (body: { name: string; description?: string }) =>
-      BusinessService.createBusiness(body),
-    async onSuccess(data, { name, description }) {
-      if (props?.onSuccess) await props.onSuccess();
-      await queryClient.setQueryData(["business", data.id], () => ({
-        name,
-        description,
-      }));
+    mutationFn: (body: {
+      name: string;
+      type: FlowService.FlowType;
+      businessIds?: number[];
+    }) => FlowService.createFlow(body),
+    async onSuccess(data, body) {
+      if (props?.onSuccess) await props.onSuccess(data.id);
+      await queryClient.setQueryData(["flow", data.id], () => body);
 
-      if (queryClient.getQueryData<any>(["businesses", null])) {
-        queryClient.setQueryData(["businesses", null], (old: any) => {
+      if (queryClient.getQueryData<any>(["flows", null])) {
+        queryClient.setQueryData(["flows", null], (old: any) => {
           if (!old) return old;
-          return [...old, { ...data, name }];
+          return [...old, { ...data, name: body.name, type: body.type }];
         });
       }
 
-      if (queryClient.getQueryData<any>(["businesses-options", null])) {
-        queryClient.setQueryData(["businesses-options", null], (old: any) => [
+      if (queryClient.getQueryData<any>(["flows-options", null])) {
+        queryClient.setQueryData(["flows-options", null], (old: any) => [
           ...(old || []),
-          { id: data.id, name },
+          { id: data.id, name: body.name },
         ]);
       }
     },
@@ -142,8 +147,12 @@ export function useCreateBusiness(props?: {
   });
 }
 
-export function useUpdateBusiness(props?: {
-  setError?: UseFormSetError<{ name?: string; description?: string }>;
+export function useUpdateFlow(props?: {
+  setError?: UseFormSetError<{
+    name?: string;
+    type?: FlowService.FlowType;
+    businessIds?: number[];
+  }>;
   onSuccess?: () => Promise<void>;
 }) {
   const { logout } = useContext(AuthContext);
@@ -154,29 +163,35 @@ export function useUpdateBusiness(props?: {
       body,
     }: {
       id: number;
-      body: { name?: string; description?: string | null };
-    }) => BusinessService.updateBusiness(id, body),
-    async onSuccess({ updateAt }, { id, body }) {
+      body: {
+        name?: string;
+        type?: FlowService.FlowType;
+        businessIds?: number[];
+      };
+    }) => FlowService.updateFlow(id, body),
+    async onSuccess({ updateAt, businesses }, { id, body }) {
+      const { businessIds, ...bodyData } = body;
       if (props?.onSuccess) await props.onSuccess();
-      queryClient.setQueryData(["business-details", id], (old: any) => {
+      queryClient.setQueryData(["flow-details", id], (old: any) => {
         if (!old) return old;
-        return { ...old, ...body, updateAt };
+        return { ...old, ...body, updateAt, businesses };
       });
-      queryClient.setQueryData(["business", id], (old: any) => ({
+
+      queryClient.setQueryData(["flow", id], (old: any) => ({
         ...old,
         ...body,
       }));
 
-      if (queryClient.getQueryData<any>(["businesses", null])) {
-        queryClient.setQueryData(["businesses", null], (old: any) =>
+      if (queryClient.getQueryData<any>(["flows", null])) {
+        queryClient.setQueryData(["flows", null], (old: any) =>
           old?.map((b: any) => {
-            if (b.id === id) b = { ...b, ...body };
+            if (b.id === id) b = { ...b, ...bodyData, businesses, updateAt };
             return b;
           })
         );
       }
-      if (queryClient.getQueryData<any>(["businesses-options", null])) {
-        queryClient.setQueryData(["businesses-options", null], (old: any) =>
+      if (queryClient.getQueryData<any>(["flows-options", null])) {
+        queryClient.setQueryData(["flows-options", null], (old: any) =>
           old?.map((b: any) => {
             if (b.id === id) b = { ...b, name: body.name || b.name };
             return b;
@@ -202,20 +217,20 @@ export function useUpdateBusiness(props?: {
   });
 }
 
-export function useDeleteBusiness(props?: { onSuccess?: () => Promise<void> }) {
+export function useDeleteFlow(props?: { onSuccess?: () => Promise<void> }) {
   const queryClient = useQueryClient();
   const { logout } = useContext(AuthContext);
 
   return useMutation({
-    mutationFn: (id: number) => BusinessService.deleteBusiness(id),
+    mutationFn: (id: number) => FlowService.deleteFlow(id),
     async onSuccess(_, id) {
       if (props?.onSuccess) await props.onSuccess();
-      queryClient.removeQueries({ queryKey: ["business-details", id] });
-      queryClient.removeQueries({ queryKey: ["business", id] });
-      queryClient.setQueryData(["businesses", null], (old: any) =>
+      queryClient.removeQueries({ queryKey: ["flow-details", id] });
+      queryClient.removeQueries({ queryKey: ["flow", id] });
+      queryClient.setQueryData(["flows", null], (old: any) =>
         old?.filter((b: any) => b.id !== id)
       );
-      queryClient.setQueryData(["businesses-options", null], (old: any) =>
+      queryClient.setQueryData(["flows-options", null], (old: any) =>
         old?.filter((b: any) => b.id !== id)
       );
     },

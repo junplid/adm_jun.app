@@ -1,20 +1,18 @@
-import { AxiosError } from "axios";
-import { JSX, useContext, useEffect, useMemo, useState } from "react";
+import { JSX, useMemo } from "react";
 import moment from "moment";
 import { TableComponent } from "../../components/Table";
 import { Column } from "../../components/Table";
-import { ModalCreateBusiness } from "./modals/create";
-import { AuthContext } from "@contexts/auth.context";
-import { ErrorResponse_I } from "../../services/api/ErrorResponse";
-import { toaster } from "@components/ui/toaster";
-import { ModalDeleteBusiness } from "./modals/delete";
+import { ModalCreateFlow } from "./modals/create";
+import { ModalDeleteFlow } from "./modals/delete";
 import { Button } from "@chakra-ui/react";
 import { MdDeleteOutline, MdEdit } from "react-icons/md";
-import { ModalViewBusiness } from "./modals/view";
+import { ModalViewFlow } from "./modals/view";
 import { LuEye } from "react-icons/lu";
 import { IoAdd } from "react-icons/io5";
-import { ModalEditBusiness } from "./modals/edit";
-import { FlowType, getFlows } from "../../services/api/Flows";
+import { ModalEditFlow } from "./modals/edit";
+import { FlowType } from "../../services/api/Flow";
+import { useGetFlows } from "../../hooks/flow";
+import { Link } from "react-router-dom";
 
 export interface FlowRow {
   id: number;
@@ -26,21 +24,23 @@ export interface FlowRow {
 }
 
 export const FlowsPage: React.FC = (): JSX.Element => {
-  const { logout } = useContext(AuthContext);
-  const [flows, setFlows] = useState<FlowRow[]>([] as FlowRow[]);
-  const [load, setLoad] = useState<boolean>(false);
+  const { data: flows, isFetching, isPending } = useGetFlows();
 
   const renderColumns = useMemo(() => {
     const columns: Column[] = [
       {
-        key: "id",
-        name: "ID",
-        styles: { width: 170 },
-      },
-      {
         key: "name",
-        name: "Nome",
-        styles: { width: 170 },
+        name: "Nome do fluxo",
+        render(row) {
+          return (
+            <Link
+              to={`/auth/flows/${row.id}`}
+              className="text-blue-300 hover:text-blue-400 underline"
+            >
+              {row.name}
+            </Link>
+          );
+        },
       },
       {
         key: "createAt",
@@ -64,8 +64,7 @@ export const FlowsPage: React.FC = (): JSX.Element => {
         render(row) {
           return (
             <div className="flex h-full items-center justify-end gap-x-1.5">
-              <ModalViewBusiness
-                setBusinesses={setFlows}
+              <ModalViewFlow
                 id={row.id}
                 trigger={
                   <Button
@@ -78,23 +77,8 @@ export const FlowsPage: React.FC = (): JSX.Element => {
                   </Button>
                 }
               />
-              {/*  <ModalClone
-                setBusiness={setBusiness}
+              <ModalEditFlow
                 id={row.id}
-                buttonJSX={(open) => (
-                  <Button
-                    onClick={open}
-                    size={"sm"}
-                    bg={"#ebaf6039"}
-                    _hover={{ bg: "#ebb46062" }}
-                  >
-                    <FaRegClone size={16} color="#f39d4d" />
-                  </Button>
-                )}
-              />*/}
-              <ModalEditBusiness
-                id={row.id ?? 0}
-                setBusinesses={setFlows}
                 trigger={
                   <Button
                     size={"sm"}
@@ -106,7 +90,7 @@ export const FlowsPage: React.FC = (): JSX.Element => {
                   </Button>
                 }
               />
-              <ModalDeleteBusiness
+              <ModalDeleteFlow
                 trigger={
                   <Button
                     size={"sm"}
@@ -118,7 +102,6 @@ export const FlowsPage: React.FC = (): JSX.Element => {
                   </Button>
                 }
                 data={{ id: row.id, name: row.name }}
-                setBusinesses={setFlows}
               />
             </div>
           );
@@ -128,40 +111,12 @@ export const FlowsPage: React.FC = (): JSX.Element => {
     return columns;
   }, []);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const flowsList = await getFlows();
-        setFlows(flowsList);
-        setLoad(true);
-      } catch (error) {
-        setLoad(true);
-        if (error instanceof AxiosError) {
-          if (error.response?.status === 401) logout();
-          if (error.response?.status === 400) {
-            const dataError = error.response?.data as ErrorResponse_I;
-            if (dataError.toast.length) dataError.toast.forEach(toaster.create);
-            if (dataError.input.length) {
-              dataError.input.forEach(({ text, path }) =>
-                // @ts-expect-error
-                setError(path, { message: text })
-              );
-            }
-          }
-        }
-      }
-    })();
-  }, []);
-
   return (
     <div className="h-full gap-y-2 flex flex-col">
       <div className="flex flex-col gap-y-0.5">
         <div className="flex items-center gap-x-5">
           <h1 className="text-lg font-semibold">Construtores de fluxos</h1>
-          <ModalCreateBusiness
-            onCreate={async (newBusiness) =>
-              setFlows((s) => [newBusiness, ...s])
-            }
+          <ModalCreateFlow
             trigger={
               <Button variant="outline" size={"sm"}>
                 <IoAdd /> Adicionar
@@ -179,10 +134,10 @@ export const FlowsPage: React.FC = (): JSX.Element => {
         className="flex flex-col"
       >
         <TableComponent
-          rows={flows}
+          rows={flows || []}
           columns={renderColumns}
           textEmpity="Nenhum construtor de fluxo criado."
-          load={!load}
+          load={isFetching || isPending}
         />
       </div>
     </div>

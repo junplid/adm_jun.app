@@ -5,7 +5,7 @@ export type FlowType = "marketing" | "chatbot" | "universal";
 export async function createFlow(body: {
   name: string;
   type: FlowType;
-  businessIds: number[];
+  businessIds?: number[];
 }): Promise<{
   id: number;
   createAt: Date;
@@ -47,7 +47,7 @@ export async function getFlow(id: number): Promise<{
   businessIds: number[];
 }> {
   const { data } = await api.get(`/private/flows/${id}`);
-  return data.flow;
+  return data.flows;
 }
 
 export async function getFlows(params?: {
@@ -64,6 +64,21 @@ export async function getFlows(params?: {
   }[]
 > {
   const { data } = await api.get("/private/flows", { params });
+  return data.flows;
+}
+
+export async function getOptionsFlows(params?: {
+  name?: string;
+  businessIds?: number[];
+  type?: ("marketing" | "chatbot" | "universal")[];
+}): Promise<{ id: number; name: string }[]> {
+  const { data } = await api.get("/private/flows/options", {
+    params: {
+      ...params,
+      businessIds: params?.businessIds?.join("-"),
+      type: params?.type?.join("-"),
+    },
+  });
   return data.flows;
 }
 

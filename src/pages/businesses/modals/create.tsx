@@ -124,7 +124,7 @@ export function ModalCreateBusiness({
         <DialogFooter>
           <DialogActionTrigger asChild>
             <Button type="button" disabled={isPending} variant="outline">
-              Cancel
+              Cancelar
             </Button>
           </DialogActionTrigger>
           <Button type="submit" loading={isPending}>

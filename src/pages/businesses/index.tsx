@@ -68,20 +68,6 @@ export const BusinessesPage: React.FC = (): JSX.Element => {
                   </Button>
                 }
               />
-              {/*  <ModalClone
-                setBusiness={setBusiness}
-                id={row.id}
-                buttonJSX={(open) => (
-                  <Button
-                    onClick={open}
-                    size={"sm"}
-                    bg={"#ebaf6039"}
-                    _hover={{ bg: "#ebb46062" }}
-                  >
-                    <FaRegClone size={16} color="#f39d4d" />
-                  </Button>
-                )}
-              />*/}
               <ModalEditBusiness
                 id={row.id}
                 trigger={

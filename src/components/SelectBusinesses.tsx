@@ -1,13 +1,17 @@
-import { forwardRef, JSX, useEffect, useRef } from "react";
+import { forwardRef, JSX, useEffect, useRef, useState } from "react";
 import SelectComponent from "./Select";
 import { Props as SelectProps } from "react-select";
-import { useGetBusinessesOptions } from "../hooks/business";
+import { useCreateBusiness, useGetBusinessesOptions } from "../hooks/business";
 
-interface ISelectBusinessesProps extends SelectProps {}
+interface ISelectBusinessesProps extends SelectProps {
+  onCreate?: (business: { id: number; name: string }) => void;
+  value?: number[] | number | null;
+}
 
 const SelectBusinesses = forwardRef<any, ISelectBusinessesProps>(
-  ({ isMulti, ...props }, ref): JSX.Element => {
+  ({ isMulti, value, ...props }, ref): JSX.Element => {
     const canTriggerCreate = useRef(null);
+    const [newBusinessName, setNewBusinessName] = useState("");
 
     const {
       data: opt,
@@ -16,23 +20,24 @@ const SelectBusinesses = forwardRef<any, ISelectBusinessesProps>(
       isPending,
     } = useGetBusinessesOptions();
 
+    const { mutateAsync: createBusiness, isPending: isPendingCreate } =
+      useCreateBusiness();
+
     useEffect(() => {
-      const handleKey = (e: KeyboardEvent) => {
-        // if (canTriggerCreate.current && e.ctrlKey && e.key === "Enter") {
-        //   e.preventDefault();
-        //   alert("Criar empresa completa");
-        //   return;
-        // }
+      const handleKey = async (e: KeyboardEvent) => {
         if (canTriggerCreate.current && e.key === "Enter") {
           e.preventDefault();
-          alert("Criar empresa rápida");
+          const cloneName = structuredClone(newBusinessName);
+          const { id } = await createBusiness({ name: cloneName });
+          setNewBusinessName("");
+          props.onCreate?.({ id, name: cloneName });
           return;
         }
       };
 
       window.addEventListener("keydown", handleKey);
       return () => window.removeEventListener("keydown", handleKey);
-    }, []);
+    }, [newBusinessName]);
 
     return (
       <SelectComponent
@@ -43,6 +48,10 @@ const SelectBusinesses = forwardRef<any, ISelectBusinessesProps>(
           label: item.name,
           value: item.id,
         }))}
+        isDisabled={isLoading || isFetching || isPending || isPendingCreate}
+        onInputChange={(newValue) => {
+          setNewBusinessName(newValue);
+        }}
         noOptionsMessage={({ inputValue }) => {
           return (
             <div className="flex  text-sm flex-col gap-1 pointer-events-auto">
@@ -59,21 +68,36 @@ const SelectBusinesses = forwardRef<any, ISelectBusinessesProps>(
                   ref={canTriggerCreate}
                   className="flex flex-col gap-1 items-center"
                 >
-                  <a className="text-xs">
-                    <strong className="text-white/80">ENTER</strong> para
-                    adicionar rapidamente
-                  </a>
-                  {/* <a className="text-xs">
-                            <strong className="text-white/80">CTRL</strong> +{" "}
-                            <strong className="text-white/80">ENTER</strong>{" "}
-                            para adição completa
-                          </a> */}
+                  {isPendingCreate ? (
+                    <span className="text-white/60">
+                      Criando nova empresa...
+                    </span>
+                  ) : (
+                    <span className="text-xs">
+                      <strong className="text-white/80">ENTER</strong> para
+                      adicionar rapidamente
+                    </span>
+                  )}
                 </div>
               )}
             </div>
           );
         }}
         isMulti={isMulti}
+        {...(value !== null && value !== undefined
+          ? typeof value === "number"
+            ? {
+                value: [
+                  { label: opt?.find((i) => i.id === value)?.name, value },
+                ],
+              }
+            : {
+                value: value.map((item) => ({
+                  label: opt?.find((i) => i.id === item)?.name,
+                  value: item,
+                })),
+              }
+          : { value: null })}
         {...props}
       />
     );
