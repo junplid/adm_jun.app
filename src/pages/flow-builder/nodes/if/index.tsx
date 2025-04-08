@@ -4,7 +4,7 @@ import { FaCheck, FaTimes } from "react-icons/fa";
 import { useColorModeValue } from "@components/ui/color-mode";
 import useStore from "../../flowStore";
 import { ReactNode, useEffect, useState } from "react";
-import { v4 } from "uuid";
+import { nanoid } from "nanoid";
 import {
   createListCollection,
   Highlight,
@@ -96,7 +96,7 @@ export const NodeIF: React.FC<Node<DataNode>> = ({ data, id }) => {
 
   useEffect(() => {
     if (!data.list?.length) {
-      updateNode(id, { data: { list: [{ key: v4(), type: "entity" }] } });
+      updateNode(id, { data: { list: [{ key: nanoid(), type: "entity" }] } });
     }
   }, [id]);
 
@@ -288,7 +288,10 @@ export const NodeIF: React.FC<Node<DataNode>> = ({ data, id }) => {
                     // });
                     updateNode(id, {
                       data: {
-                        list: [...data.list!, { key: v4(), type: "entity" }],
+                        list: [
+                          ...data.list!,
+                          { key: nanoid(), type: "entity" },
+                        ],
                       },
                     });
                   }}

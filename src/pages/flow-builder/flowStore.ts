@@ -1,60 +1,56 @@
 import { create } from "zustand";
 import { addEdge, applyNodeChanges, applyEdgeChanges } from "@xyflow/react";
-
 import { type AppState } from "./types";
-
 import { type AppNode } from "./types";
-import { v4 } from "uuid";
+import { nanoid } from "nanoid";
+import { db } from "../../db";
+import { throttle } from "lodash";
 
-export const initialNodes = [
-  {
-    id: "0",
-    type: "nodeInitial",
-    position: { x: 100, y: 200 },
-    data: {},
-    deletable: false,
-  },
-  { id: "1", type: "nodeMessage", position: { x: 100, y: 100 }, data: {} },
-  { id: "2", type: "nodeReply", position: { x: 185, y: 100 }, data: {} },
-  // { id: "3", type: "nodeAddTags", position: { x: 280, y: 100 }, data: {} },
-  // { id: "4", type: "nodeRemoveTags", position: { x: 370, y: 100 }, data: {} },
-  // { id: "5", type: "nodeAddVariables", position: { x: 460, y: 100 }, data: {} },
-  // {
-  //   id: "6",
-  //   type: "nodeRemoveVariables",
-  //   position: { x: 550, y: 100 },
-  //   data: {},
-  // },
-  {
-    id: "7",
-    type: "nodeIF",
-    position: { x: 635, y: 100 },
-    data: {},
-  },
-  {
-    id: "8",
-    type: "nodeSendFlow",
-    position: { x: 730, y: 100 },
-    data: {},
-  },
-
-  //   { id: "2", type: "nodeMessage", position: { x: 190, y: 100 }, data: {} },
-  //   { id: "3", type: "nodeMessage", position: { x: 280, y: 100 }, data: {} },
-  //   { id: "5", type: "nodeMessage", position: { x: 370, y: 100 }, data: {} },
-  //   { id: "6", type: "nodeMessage", position: { x: 460, y: 100 }, data: {} },
-  //   { id: "7", type: "nodeMessage", position: { x: 550, y: 100 }, data: {} },
-  //   { id: "8", type: "nodeMessage", position: { x: 640, y: 100 }, data: {} },
-] as AppNode[];
-
-// this is our useStore hook that we can use in our components to get parts of the store and call actions
 const useStore = create<AppState>((set, get) => ({
   nodes: [],
   edges: [],
-  onNodesChange: (changes) => {
+  changes: { edges: [], nodes: [] },
+  setChange: (
+    type: "nodes" | "edges",
+    change: { type: "upset" | "delete"; id: string }
+  ) => {
+    const changes = get().changes[type];
+    const isChange = changes.find((s) => s.id === change.id);
+    if (isChange) {
+      set({
+        changes: {
+          ...get().changes,
+          [type]: changes.map((s) => {
+            if (s.id === change.id) s.type = change.type;
+            return s;
+          }),
+        },
+      });
+    } else {
+      set({
+        changes: { ...get().changes, [type]: [...changes, change] },
+      });
+    }
+  },
+  resetChanges: () => {
+    set({ changes: { edges: [], nodes: [] } });
+  },
+  onNodesChange: throttle((changes) => {
+    if (changes[0].type === "add") {
+      get().setChange("nodes", {
+        type: "upset",
+        id: changes[0].item.id,
+      });
+    } else if (changes[0].type !== "dimensions") {
+      get().setChange("nodes", {
+        type: "upset",
+        id: changes[0].id,
+      });
+    }
     set({
       nodes: applyNodeChanges(changes, get().nodes),
     });
-  },
+  }, 10),
   onEdgesChange: (changes) => {
     set({
       edges: applyEdgeChanges(changes, get().edges),
@@ -83,14 +79,24 @@ const useStore = create<AppState>((set, get) => ({
   setNodes: (nodes) => {
     set({ nodes });
   },
+  onNodesDelete: (nodesToDelete) => {
+    set({
+      nodes: get().nodes.filter(
+        (s) => !nodesToDelete.find((n) => s.id === n.id)?.deletable
+      ),
+    });
+  },
   setEdges: (edges) => {
     set({ edges });
   },
-  updateNode: (nodeId: string, node: Node) => {
+  updateNode: (nodeId: string, node: AppNode) => {
+    get().setChange("nodes", { type: "upset", id: nodeId });
+    const { data, ...rest } = node;
+    db.nodes.update(nodeId, { data: { ...data } });
     set({
       nodes: get().nodes.map((nodeX) => {
         if (nodeX.id === nodeId) {
-          return { ...nodeX, ...node };
+          return { ...nodeX, ...rest };
         }
         return nodeX;
       }),
@@ -103,7 +109,9 @@ const useStore = create<AppState>((set, get) => ({
     return edges;
   },
   addNode: (node: Omit<AppNode, "id">) => {
-    set({ nodes: [...get().nodes, { ...node, id: v4() }] });
+    const newNode = { ...node, id: nanoid() };
+    get().setChange("nodes", { type: "upset", id: newNode.id });
+    set({ nodes: [...get().nodes, newNode] });
   },
 }));
 

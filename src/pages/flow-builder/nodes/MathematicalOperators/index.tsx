@@ -3,7 +3,7 @@ import { useContext, useEffect, useMemo, useState } from "react";
 import { AiOutlineCalculator, AiOutlineDelete } from "react-icons/ai";
 import { IoMdAdd } from "react-icons/io";
 import { Handle, Node, Position, useReactFlow, useStoreApi } from "reactflow";
-import { v4 } from "uuid";
+import { nanoid } from "nanoid";
 import SelectComponent from "../../../../components/Select";
 import { CustomHandle } from "../../customs/node";
 import { PatternNode } from "../Pattern";
@@ -277,12 +277,20 @@ export const NodeMathematicalOperators: React.FC<Node> = ({
                           ? {
                               aggregation: [
                                 ...dataN.aggregation,
-                                { key: v4(), type: "mathematics", formula: "" },
+                                {
+                                  key: nanoid(),
+                                  type: "mathematics",
+                                  formula: "",
+                                },
                               ],
                             }
                           : {
                               aggregation: [
-                                { key: v4(), type: "mathematics", formula: "" },
+                                {
+                                  key: nanoid(),
+                                  type: "mathematics",
+                                  formula: "",
+                                },
                               ],
                             }),
                       } as DataNode;

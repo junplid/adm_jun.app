@@ -29,6 +29,20 @@ export async function updateFlow(
   return data.flow;
 }
 
+export async function updateFlowData(
+  id: number,
+  body: {
+    nodes?: { type: "upset" | "delete"; node: any }[];
+    edges?: { type: "upset" | "delete"; node: any }[];
+  }
+): Promise<{
+  updateAt: Date;
+  businesses: { id: number; name: string }[];
+}> {
+  const { data } = await api.put(`/private/flows/${id}/data`, body);
+  return data.flow;
+}
+
 export async function getFlowDetails(id: number): Promise<{
   name: string;
   id: number;

@@ -1,7 +1,7 @@
 import { useMemo, JSX } from "react";
 import { ViewBottomTableComponent } from "./ViewBottom";
 import "./styles.css";
-import { v4 } from "uuid";
+import { nanoid } from "nanoid";
 import { Spinner } from "@chakra-ui/react";
 
 export interface Column {
@@ -41,7 +41,7 @@ export const TableComponent = (props: Props): JSX.Element => {
           const [key, value] = rowObj;
           if (column.render) {
             return (objRow = {
-              key: v4(),
+              key: nanoid(),
               value: column.render(row),
             });
           }

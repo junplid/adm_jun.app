@@ -1,3 +1,4 @@
+import "react-autocomplete-input/dist/bundle.css";
 import "@xyflow/react/dist/style.css";
 import "./styles.css";
 
@@ -13,8 +14,6 @@ import {
 import { useColorModeValue, ColorModeButton } from "@components/ui/color-mode";
 import { LayoutPrivateContext } from "@contexts/layout-private.context";
 import { useShallow } from "zustand/react/shallow";
-
-import "react-autocomplete-input/dist/bundle.css";
 import useStore from "./flowStore";
 import { NodeInitial } from "./nodes/Initial";
 import { NodeMessage } from "./nodes/Message";
@@ -34,8 +33,9 @@ import { IoSaveOutline } from "react-icons/io5";
 import { RiErrorWarningLine } from "react-icons/ri";
 import { useParams } from "react-router-dom";
 import { getVariables } from "../../services/api/Variable";
-import { db, useDBNodes } from "../../db";
-import { useGetFlowData } from "../../hooks/flow";
+import { db } from "../../db";
+import { useGetFlowData, useUpdateFlowData } from "../../hooks/flow";
+import { nanoid } from "nanoid";
 
 type NodeTypesGeneric = {
   [x in TypesNodes]: any;
@@ -52,14 +52,6 @@ export type TypesNodes =
   | "nodeSendFlow"
   | "nodeRemoveTags";
 
-const selector = (state: any) => ({
-  nodes: state.nodes,
-  edges: state.edges,
-  onNodesChange: state.onNodesChange,
-  onEdgesChange: state.onEdgesChange,
-  onConnect: state.onConnect,
-});
-
 export function FlowBuilderPage() {
   const params = useParams<{ id: string }>();
   const { type } = useContext(DnDContext);
@@ -69,35 +61,36 @@ export function FlowBuilderPage() {
     isError,
   } = useGetFlowData(Number(params.id));
 
-  const { nodes, edges, onNodesChange, onEdgesChange, onConnect } = useStore(
+  const {
+    nodes,
+    changes,
+    edges,
+    setNodes,
+    onNodesChange,
+    onEdgesChange,
+    onConnect,
+    resetChanges,
+    onNodesDelete,
+  } = useStore(
     useShallow((s) => ({
-      nodes: [
-        {
-          id: "0",
-          type: "nodeInitial",
-          position: { x: 100, y: 200 },
-          data: {},
-          deletable: false,
-        },
-      ],
+      nodes: s.nodes,
       edges: s.edges,
       onNodesChange: s.onNodesChange,
       onEdgesChange: s.onEdgesChange,
       onConnect: s.onConnect,
+      setNodes: s.setNodes,
+      changes: s.changes,
+      setChange: s.setChange,
+      resetChanges: s.resetChanges,
+      onNodesDelete: s.onNodesDelete,
     }))
   );
-  const addNode = useStore((s) => s.addNode);
+
   const { screenToFlowPosition } = useReactFlow();
   const { ToggleMenu } = useContext(LayoutPrivateContext);
   const reactFlowWrapper = useRef(null);
-  // const nodes = useDBNodes();
-
   const colorDotFlow = useColorModeValue("#c6c6c6", "#373737");
-
-  const {
-    load: syncLoad,
-    // setLoad
-  } = useSyncLoadStore((s) => s);
+  const { load: syncLoad, setLoad } = useSyncLoadStore((s) => s);
 
   const nodeTypes: NodeTypesGeneric = useMemo(
     () => ({
@@ -127,41 +120,57 @@ export function FlowBuilderPage() {
         x: event.clientX,
         y: event.clientY,
       });
-      const newNode: Omit<AppNode, "id"> = {
+      const newNode: AppNode = {
+        id: nanoid(),
         type,
         position: { x: x - 25, y: y - 25 },
-        data: { label: `${type} node` },
+        data: {},
+        deletable: true,
       };
-
-      addNode(newNode);
+      db.nodes.add({
+        id: newNode.id,
+        data: newNode.data,
+      });
+      onNodesChange([{ type: "add", item: newNode }]);
     },
     [screenToFlowPosition, type]
   );
 
-  // useEffect(() => {
-  //   const syncdebause = setTimeout(() => {
-  //     setLoad("load");
-  //     setTimeout(() => {
-  //       setLoad("save");
-  //     }, 2000);
-  //   }, 1000);
-  //   return () => {
-  //     clearInterval(syncdebause);
-  //     setLoad("hidden");
-  //   };
-  // }, [nodes, edges]);
+  const {
+    mutateAsync: updateFlowData,
+    isPending,
+    isError: isErrorSync,
+  } = useUpdateFlowData({
+    async onSuccess() {
+      setLoad("save");
+      setTimeout(() => {
+        setLoad("hidden");
+      }, 2000);
+      resetChanges();
+    },
+  });
 
   useEffect(() => {
     if (flowData?.name) {
       (async () => {
-        // await db.nodes.clear();
-        // await db.edges.clear();
-        // db.nodes.bulkAdd(
-        //   flowData.nodes.map((n: any) => ({
-        //     id: n.id,
-        //     data: n.data,
-        //   }))
-        // );
+        await db.nodes.clear();
+
+        db.nodes.bulkAdd(
+          flowData.nodes.map((n: any) => ({
+            id: n.id,
+            data: n.data,
+          }))
+        );
+
+        setNodes(
+          flowData.nodes.map((n: any) => ({
+            id: n.id,
+            type: n.type,
+            data: {},
+            position: n.position,
+            deletable: n.deletable,
+          }))
+        );
 
         await db.variables.clear();
         const variables = await getVariables({
@@ -173,6 +182,38 @@ export function FlowBuilderPage() {
       })();
     }
   }, [flowData?.name]);
+
+  const isSave = useMemo(() => {
+    return !!(changes.nodes.length || changes.edges.length);
+  }, [changes.edges, changes.nodes]);
+
+  useEffect(() => {
+    const handleKey = async (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+        e.preventDefault();
+        setLoad("load");
+        const nodesxx = await Promise.all(
+          changes.nodes.map(async (n) => {
+            const { position, type } = nodes.find((node) => node.id === n.id)!;
+            return {
+              type: n.type,
+              node: {
+                position,
+                type,
+                id: n.id,
+                data: (await db.nodes.get(n.id))?.data,
+              },
+            };
+          })
+        );
+        console.log({ nodesxx });
+        return;
+      }
+    };
+
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [changes]);
 
   return (
     <Box as={"div"} className="dndflow" h={"100svh"}>
@@ -209,11 +250,13 @@ export function FlowBuilderPage() {
             edges={edges}
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
+            onNodesDelete={onNodesDelete}
             onConnect={onConnect}
             nodeTypes={nodeTypes}
             onDrop={onDrop}
             onDragOver={onDragOver}
             attributionPosition="top-right"
+            fitView
           >
             <MiniMap
               style={{ width: 180, height: 100 }}
@@ -242,7 +285,7 @@ export function FlowBuilderPage() {
                         _closed: "slide-to-top, fade-out",
                       }}
                       animationDuration="moderate"
-                      present={syncLoad === "load"}
+                      present={isPending}
                       top={"2px"}
                       position={"absolute"}
                     >
@@ -267,7 +310,7 @@ export function FlowBuilderPage() {
                         _closed: "slide-to-top, fade-out",
                       }}
                       animationDuration="moderate"
-                      present={syncLoad === "error"}
+                      present={isErrorSync}
                       top={"1px"}
                       position={"absolute"}
                       w={"full"}
@@ -289,6 +332,20 @@ export function FlowBuilderPage() {
               </HStack>
             </Panel>
             <Panel
+              hidden={!isSave}
+              position="bottom-left"
+              style={{
+                margin: 0,
+                padding: "10px 20px",
+                pointerEvents: "none",
+              }}
+            >
+              <span className="text-sm text-white/60">
+                Pressione <strong className="text-white">CTRL</strong> +{" "}
+                <strong className="text-white">S</strong> para salvar
+              </span>
+            </Panel>
+            <Panel
               position="bottom-center"
               style={{
                 margin: 0,
@@ -296,7 +353,10 @@ export function FlowBuilderPage() {
                 pointerEvents: "none",
               }}
             >
-              <span className="text-sm font-medium">{flowData.name}</span>
+              <span className="text-sm font-medium">
+                {flowData.name}{" "}
+                {isSave && <strong className="text-blue-500">*</strong>}
+              </span>
             </Panel>
             <Background color={colorDotFlow} gap={9} size={0.8} />
           </ReactFlow>

@@ -3,7 +3,7 @@ import { useContext, useEffect, useMemo, useState } from "react";
 import { Handle, Node, Position, useReactFlow, useStoreApi } from "reactflow";
 import { CustomHandle } from "";
 import { PatternNode } from "../Pattern";
-import { v4 } from "uuid";
+import { nanoid } from "nanoid";
 import { AiOutlineApi, AiOutlineDelete } from "react-icons/ai";
 import SelectComponent from "../../../../components/Select";
 import { FlowContext } from "../../../../contexts/flow.context";
@@ -174,7 +174,7 @@ export const NodeWebhook: React.FC<Node> = ({ id }) => {
                       ...dataN,
                       isHeaders: target.checked,
                       headers: target.checked
-                        ? [...dataN.headers, { id: v4() }]
+                        ? [...dataN.headers, { id: nanoid() }]
                         : [],
                     } as DataNode;
                   }
@@ -273,7 +273,7 @@ export const NodeWebhook: React.FC<Node> = ({ id }) => {
                         const dataN: DataNode = node.data;
                         node.data = {
                           ...dataN,
-                          headers: [...dataN.headers, { id: v4() }],
+                          headers: [...dataN.headers, { id: nanoid() }],
                         } as DataNode;
                       }
                       return node;

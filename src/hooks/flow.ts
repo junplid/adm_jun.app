@@ -238,6 +238,46 @@ export function useUpdateFlow(props?: {
   });
 }
 
+export function useUpdateFlowData(props?: {
+  setError?: UseFormSetError<{
+    nodes?: any[];
+    edges?: any[];
+  }>;
+  onSuccess?: () => Promise<void>;
+}) {
+  const { logout } = useContext(AuthContext);
+  return useMutation({
+    mutationFn: ({
+      id,
+      body,
+    }: {
+      id: number;
+      body: {
+        nodes?: { type: "upset" | "delete"; node: any }[];
+        edges?: { type: "upset" | "delete"; node: any }[];
+      };
+    }) => FlowService.updateFlowData(id, body),
+    async onSuccess() {
+      if (props?.onSuccess) await props.onSuccess();
+    },
+    onError(error: unknown) {
+      if (error instanceof AxiosError) {
+        if (error.response?.status === 401) logout();
+        if (error.response?.status === 400) {
+          const dataError = error.response?.data as ErrorResponse_I;
+          if (dataError.toast.length) dataError.toast.forEach(toaster.create);
+          if (dataError.input.length) {
+            dataError.input.forEach(({ text, path }) =>
+              // @ts-expect-error
+              props?.setError?.(path, { message: text })
+            );
+          }
+        }
+      }
+    },
+  });
+}
+
 export function useDeleteFlow(props?: { onSuccess?: () => Promise<void> }) {
   const queryClient = useQueryClient();
   const { logout } = useContext(AuthContext);

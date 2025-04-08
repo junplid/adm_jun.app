@@ -1,7 +1,7 @@
 import { useContext, useMemo } from "react";
 import { IoMdAdd, IoMdClose } from "react-icons/io";
 import { Handle, Node, Position, useReactFlow, useStoreApi } from "reactflow";
-import { v4 } from "uuid";
+import { nanoid } from "nanoid";
 import { InputWhatsAppNumberComponent } from "../../../../components/InputWhatsAppNumber";
 import { CustomHandle } from "../../customs/node";
 import { PatternNode } from "../Pattern";
@@ -198,7 +198,7 @@ export const NodeNotifyNumber: React.FC<Node> = ({ id }) => {
               return nodes?.map((node) => {
                 if (node.id === id) {
                   const dataN: DataNode = node.data;
-                  const itemId = v4();
+                  const itemId = nanoid();
 
                   const newItems = dataN.numbers?.length
                     ? [...dataN.numbers, { key: itemId, number: "" }]

@@ -2,7 +2,7 @@ import { Input } from "@chakra-ui/react";
 import { useContext, useMemo } from "react";
 import { IoMdAdd, IoMdClose } from "react-icons/io";
 import { Handle, Node, Position, useReactFlow, useStoreApi } from "reactflow";
-import { v4 } from "uuid";
+import { nanoid } from "nanoid";
 import SelectComponent from "../../../../components/Select";
 import { CustomHandle } from "../../customs/node";
 import { PatternNode } from "../Pattern";
@@ -250,8 +250,8 @@ export const NodeDistributeFlow: React.FC<Node> = ({ id }): JSX.Element => {
                       node.data = {
                         ...dataN,
                         ...(dataN.exits?.length
-                          ? { exits: [...data.exits, { key: v4() }] }
-                          : { exits: [{ key: v4() }] }),
+                          ? { exits: [...data.exits, { key: nanoid() }] }
+                          : { exits: [{ key: nanoid() }] }),
                       } as DataNode;
                     }
                   }

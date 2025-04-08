@@ -2,7 +2,7 @@ import { Button, Input } from "@chakra-ui/react";
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { IoMdAdd, IoMdClose } from "react-icons/io";
 import { Handle, Node, Position, useReactFlow, useStoreApi } from "reactflow";
-import { v4 } from "uuid";
+import { nanoid } from "nanoid";
 import SelectComponent from "../../../../components/Select";
 import { PatternNode } from "../Pattern";
 import { FlowContext } from "../../../../contexts/flow.context";
@@ -305,8 +305,8 @@ export const NodeEmailSending: React.FC<Node> = ({ id }): JSX.Element => {
                       node.data = {
                         ...dataN,
                         recipients: dataN.recipients?.length
-                          ? [...dataN.recipients, { email: "", key: v4() }]
-                          : [{ email: "", key: v4() }],
+                          ? [...dataN.recipients, { email: "", key: nanoid() }]
+                          : [{ email: "", key: nanoid() }],
                       } as DataNode;
                     }
                     return node;

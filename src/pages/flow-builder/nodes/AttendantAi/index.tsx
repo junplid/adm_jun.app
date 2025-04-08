@@ -8,7 +8,7 @@ import { AutoCompleteTextarea } from "../../../../components/TextareaAutoComplet
 import { Button, Input } from "@chakra-ui/react";
 import { TbRobot } from "react-icons/tb";
 import { CustomHandle } from "../../customs/node";
-import { v4 } from "uuid";
+import { nanoid } from "nanoid";
 import { IoClose } from "react-icons/io5";
 
 type DataNode = {
@@ -427,7 +427,7 @@ export const NodeAttendantAIService: React.FC<Node> = ({ id }): JSX.Element => {
                 nodes.map((node) => {
                   if (node.id === id) {
                     const newItem = {
-                      key: v4(),
+                      key: nanoid(),
                       type: "variable",
                       prompt: "",
                     };

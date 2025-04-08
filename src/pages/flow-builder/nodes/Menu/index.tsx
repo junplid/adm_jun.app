@@ -5,7 +5,7 @@ import { IoMdAdd, IoMdClose } from "react-icons/io";
 import { MdOutlineAdd } from "react-icons/md";
 import { TfiMenuAlt } from "react-icons/tfi";
 import { Handle, Node, Position, useReactFlow, useStoreApi } from "reactflow";
-import { v4 } from "uuid";
+import { nanoid } from "nanoid";
 import SelectComponent from "../../../../components/Select";
 import { CustomHandle } from "../../customs/node";
 import { PatternNode } from "../Pattern";
@@ -210,7 +210,7 @@ export const NodeMenu: React.FC<Node> = ({ id }): JSX.Element => {
                                   ni.activators.shift();
                                   const activator = String(indice + 1);
                                   const newActivadors = [
-                                    { value: activator, key: v4() },
+                                    { value: activator, key: nanoid() },
                                     ...ni.activators,
                                   ];
                                   return { ...ni, activators: newActivadors };
@@ -327,7 +327,7 @@ export const NodeMenu: React.FC<Node> = ({ id }): JSX.Element => {
                                       );
                                       if (!isAlreadyExist) {
                                         it.activators.push({
-                                          key: v4(),
+                                          key: nanoid(),
                                           value: fieldsActivator[item.key],
                                         });
                                       } else {
@@ -391,7 +391,7 @@ export const NodeMenu: React.FC<Node> = ({ id }): JSX.Element => {
                     return nodes?.map((node) => {
                       if (node.id === id) {
                         const dataN: DataNode = node.data;
-                        const itemId = v4();
+                        const itemId = nanoid();
                         const activator = String(
                           (node.data?.items?.length ?? 0) + 1
                         );
@@ -402,14 +402,18 @@ export const NodeMenu: React.FC<Node> = ({ id }): JSX.Element => {
                               {
                                 key: itemId,
                                 value: "",
-                                activators: [{ value: activator, key: v4() }],
+                                activators: [
+                                  { value: activator, key: nanoid() },
+                                ],
                               },
                             ]
                           : [
                               {
                                 key: itemId,
                                 value: "",
-                                activators: [{ value: activator, key: v4() }],
+                                activators: [
+                                  { value: activator, key: nanoid() },
+                                ],
                               },
                             ];
 

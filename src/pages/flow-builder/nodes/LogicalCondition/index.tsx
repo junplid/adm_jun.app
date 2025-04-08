@@ -1,7 +1,7 @@
 import { Input } from "@chakra-ui/react";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { Handle, Node, Position, useReactFlow, useStoreApi } from "reactflow";
-import { v4 } from "uuid";
+import { nanoid } from "nanoid";
 import SelectComponent from "../../../../components/Select";
 import { CustomHandle } from "../../customs/node";
 import { PatternNode } from "../Pattern";
@@ -1164,7 +1164,7 @@ export const NodeLogicalCondition: React.FC<Node> = ({ id }): JSX.Element => {
                               nodes.map((node) => {
                                 const dataN: DataNode = node.data;
                                 if (node.id === id) {
-                                  const nextKey = v4();
+                                  const nextKey = nanoid();
                                   const currentMiddle =
                                     data.middlewares?.find(
                                       (mdd) => mdd.target === con.key
@@ -1231,7 +1231,7 @@ export const NodeLogicalCondition: React.FC<Node> = ({ id }): JSX.Element => {
                                     nodes.map((node) => {
                                       const dataN: DataNode = node.data;
                                       if (node.id === id) {
-                                        const nextKey = v4();
+                                        const nextKey = nanoid();
                                         const currentMiddle =
                                           data.middlewares?.find(
                                             (mdd) => mdd.target === con.key
@@ -1308,7 +1308,7 @@ export const NodeLogicalCondition: React.FC<Node> = ({ id }): JSX.Element => {
                   return nodes?.map((node) => {
                     if (node.id === id) {
                       const dataN: DataNode = node.data;
-                      const key = v4();
+                      const key = nanoid();
                       node.data = {
                         ...dataN,
                         ...(dataN?.conditions?.length

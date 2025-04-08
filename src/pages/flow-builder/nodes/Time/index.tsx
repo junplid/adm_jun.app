@@ -3,7 +3,7 @@ import moment from "moment";
 import { useContext, useMemo, useState } from "react";
 import { IoMdAdd, IoMdClose } from "react-icons/io";
 import { Handle, Node, Position, useReactFlow, useStoreApi } from "reactflow";
-import { v4 } from "uuid";
+import { nanoid } from "nanoid";
 import SelectComponent from "../../../../components/Select";
 import { CustomHandle } from "../../customs/node";
 import { PatternNode } from "../Pattern";
@@ -434,7 +434,7 @@ export const NodeTime: React.FC<Node> = ({ id }) => {
                             setNodes((nodes) => {
                               return nodes?.map((node) => {
                                 if (node.id === id) {
-                                  const k = v4();
+                                  const k = nanoid();
                                   const activators = (data.data as any)
                                     .activators?.length
                                     ? [

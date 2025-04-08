@@ -1,7 +1,7 @@
 import { useContext, useEffect, useMemo, useState } from "react";
 import { IoMdAdd, IoMdClose } from "react-icons/io";
 import { Handle, Node, Position, useReactFlow, useStoreApi } from "reactflow";
-import { v4 } from "uuid";
+import { nanoid } from "nanoid";
 import SelectComponent from "../../../../components/Select";
 import { CustomHandle } from "../../customs/node";
 import { PatternNode } from "../Pattern";
@@ -233,14 +233,14 @@ export const NodeSwitch: React.FC<Node> = ({ id }): JSX.Element => {
                         ? [
                             ...data.possibleTags,
                             {
-                              key: v4(),
+                              key: nanoid(),
                               tagId: Number(propsV.value),
                               value: propsV.label,
                             },
                           ]
                         : [
                             {
-                              key: v4(),
+                              key: nanoid(),
                               tagId: Number(propsV.value),
                               value: propsV.label,
                             },
@@ -424,7 +424,7 @@ export const NodeSwitch: React.FC<Node> = ({ id }): JSX.Element => {
                     setNodes((nodes) => {
                       return nodes?.map((node) => {
                         if (node.id === id) {
-                          const key = v4();
+                          const key = nanoid();
                           const possibleValues = data.possibleValues?.length
                             ? [...data.possibleValues, { key, value: "" }]
                             : [{ key, value: "" }];
