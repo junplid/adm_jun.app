@@ -143,35 +143,29 @@ export function FlowBuilderPage() {
   } = useUpdateFlowData({
     async onSuccess() {
       setLoad("save");
-      setTimeout(() => {
-        setLoad("hidden");
-      }, 2000);
       resetChanges();
     },
   });
 
   useEffect(() => {
     if (flowData?.name) {
+      setNodes(
+        flowData.nodes.map((n: any) => ({
+          id: n.id,
+          type: n.type,
+          data: {},
+          position: n.position,
+          deletable: n.deletable,
+        }))
+      );
       (async () => {
         await db.nodes.clear();
-
-        db.nodes.bulkAdd(
+        await db.nodes.bulkAdd(
           flowData.nodes.map((n: any) => ({
             id: n.id,
             data: n.data,
           }))
         );
-
-        setNodes(
-          flowData.nodes.map((n: any) => ({
-            id: n.id,
-            type: n.type,
-            data: {},
-            position: n.position,
-            deletable: n.deletable,
-          }))
-        );
-
         await db.variables.clear();
         const variables = await getVariables({
           businessIds: flowData.businessIds,
@@ -194,19 +188,25 @@ export function FlowBuilderPage() {
         setLoad("load");
         const nodesxx = await Promise.all(
           changes.nodes.map(async (n) => {
-            const { position, type } = nodes.find((node) => node.id === n.id)!;
+            const { position, type, deletable } = nodes.find(
+              (node) => node.id === n.id
+            )!;
             return {
               type: n.type,
               node: {
                 position,
                 type,
                 id: n.id,
+                deletable,
                 data: (await db.nodes.get(n.id))?.data,
               },
             };
           })
         );
-        console.log({ nodesxx });
+        updateFlowData({
+          id: Number(params.id),
+          body: { nodes: nodesxx },
+        });
         return;
       }
     };

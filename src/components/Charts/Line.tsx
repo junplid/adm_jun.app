@@ -36,6 +36,11 @@ type Atividades =
   | "Escovar os dentes de manha"
   | "Escovar os dentes a tarde"
   | "Escovar os dentes a noite"
+  | "Tomar café da noite"
+  | "Arrumar a casa"
+  | "Pia dormido limpa"
+  | "Fogão dormido limpo"
+  | "Comer fruta"
   | "Almoçar meio dia";
 
 const atividades: { [x in Atividades]: [number, number] } = {
@@ -49,11 +54,16 @@ const atividades: { [x in Atividades]: [number, number] } = {
   "Hitratar-se ao dia": [1, -1],
   "Ler durante 2hr": [1, -1],
   "Tomar café da manha": [1, -1],
+  "Tomar café da noite": [1, -1],
   "Trabalhar 2-4hr no projeto pessoal": [1, -1],
   "Trabalhar 7hr Botstudio": [1, -1],
   "Escovar os dentes de manha": [1, -1],
   "Escovar os dentes a tarde": [1, -1],
   "Escovar os dentes a noite": [1, -1],
+  "Arrumar a casa": [1, -1],
+  "Pia dormido limpa": [1, -1],
+  "Fogão dormido limpo": [1, -1],
+  "Comer fruta": [1, -1],
 };
 
 const calculeteAtividades = (list: Atividades[], type: 1 | 2): number => {
@@ -114,7 +124,7 @@ export default function FourLineCharts(): JSX.Element {
               "Escovar os dentes de manha",
               "Escovar os dentes a tarde",
             ],
-            2
+            1
           ),
         ],
         borderColor: "#c93333",
@@ -122,14 +132,26 @@ export default function FourLineCharts(): JSX.Element {
         tension: 0.3,
       },
       {
-        label: "Disciplina",
+        label: "Coisas feitas",
         data: [
           calculeteAtividades(
-            ["Trabalhar 2-4hr no projeto pessoal", "Almoçar meio dia"],
+            [
+              "Trabalhar 2-4hr no projeto pessoal",
+              "Almoçar meio dia",
+              "Tomar café da noite",
+              "Comer fruta",
+            ],
             1
           ),
         ],
         borderColor: "#5dc04b",
+        fill: false,
+        tension: 0.3,
+      },
+      {
+        label: "Meio",
+        data: [0],
+        borderColor: "#fff",
         fill: false,
         tension: 0.3,
       },
