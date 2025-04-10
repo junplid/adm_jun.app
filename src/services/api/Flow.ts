@@ -33,7 +33,7 @@ export async function updateFlowData(
   id: number,
   body: {
     nodes?: { type: "upset" | "delete"; node: any }[];
-    edges?: { type: "upset" | "delete"; node: any }[];
+    edges?: { type: "upset" | "delete"; edge: any }[];
   }
 ): Promise<{
   updateAt: Date;

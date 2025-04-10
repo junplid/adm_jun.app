@@ -4,7 +4,6 @@ import { type AppState } from "./types";
 import { type AppNode } from "./types";
 import { nanoid } from "nanoid";
 import { db } from "../../db";
-import { throttle } from "lodash";
 
 const useStore = create<AppState>((set, get) => ({
   nodes: [],
@@ -35,13 +34,32 @@ const useStore = create<AppState>((set, get) => ({
   resetChanges: () => {
     set({ changes: { edges: [], nodes: [] } });
   },
-  onNodesChange: throttle((changes) => {
+  onNodesChange: (changes) => {
     if (changes[0].type === "add") {
       get().setChange("nodes", {
         type: "upset",
         id: changes[0].item.id,
       });
-    } else if (changes[0].type !== "dimensions") {
+    }
+    if (changes[0].type === "remove") {
+      get().setChange("nodes", {
+        type: "delete",
+        id: changes[0].id,
+      });
+    }
+    if (changes[0].type === "dimensions") {
+      get().setChange("nodes", {
+        type: "upset",
+        id: changes[0].id,
+      });
+    }
+    if (changes[0].type === "position") {
+      get().setChange("nodes", {
+        type: "upset",
+        id: changes[0].id,
+      });
+    }
+    if (changes[0].type === "replace") {
       get().setChange("nodes", {
         type: "upset",
         id: changes[0].id,
@@ -50,7 +68,7 @@ const useStore = create<AppState>((set, get) => ({
     set({
       nodes: applyNodeChanges(changes, get().nodes),
     });
-  }, 10),
+  },
   onEdgesChange: (changes) => {
     set({
       edges: applyEdgeChanges(changes, get().edges),
@@ -58,13 +76,11 @@ const useStore = create<AppState>((set, get) => ({
   },
   onConnect: (connection) => {
     const isColor = /\s/.test(connection.sourceHandle ?? "");
-
     set({
       edges: addEdge(
         {
           ...connection,
-          // type: ConnectionLineType.SmoothStep,
-          // animated: isColor,
+          type: "customedge",
           style: {
             stroke: isColor
               ? connection.sourceHandle?.split(/\s/)[0]
@@ -75,6 +91,9 @@ const useStore = create<AppState>((set, get) => ({
         get().edges
       ),
     });
+
+    const lastEdgeId = get().edges[get().edges.length - 1]?.id;
+    get().setChange("edges", { type: "upset", id: lastEdgeId });
   },
   setNodes: (nodes) => {
     set({ nodes });
@@ -112,6 +131,11 @@ const useStore = create<AppState>((set, get) => ({
     const newNode = { ...node, id: nanoid() };
     get().setChange("nodes", { type: "upset", id: newNode.id });
     set({ nodes: [...get().nodes, newNode] });
+  },
+  onEdgeClick: (event, edge) => {
+    event.stopPropagation();
+    get().setChange("edges", { type: "delete", id: edge.id });
+    set({ edges: get().edges.filter((e) => e.id !== edge.id) });
   },
 }));
 

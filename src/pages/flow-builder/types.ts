@@ -6,6 +6,7 @@ import {
   type OnConnect,
   OnNodesDelete,
 } from "@xyflow/react";
+import { MouseEvent } from "react";
 
 export type AppNode = Node;
 
@@ -30,4 +31,5 @@ export type AppState = {
   getEdgesNode: (nodeId: string) => Edge[];
   addNode: (node: Omit<AppNode, "id">) => void;
   resetChanges: () => void;
+  onEdgeClick: (event: MouseEvent, edge: Edge) => void;
 };

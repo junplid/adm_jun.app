@@ -41,6 +41,7 @@ type Atividades =
   | "Pia dormido limpa"
   | "Fogão dormido limpo"
   | "Comer fruta"
+  | "Planejar o dia"
   | "Almoçar meio dia";
 
 const atividades: { [x in Atividades]: [number, number] } = {
@@ -64,6 +65,7 @@ const atividades: { [x in Atividades]: [number, number] } = {
   "Pia dormido limpa": [1, -1],
   "Fogão dormido limpo": [1, -1],
   "Comer fruta": [1, -1],
+  "Planejar o dia": [1, -1],
 };
 
 const calculeteAtividades = (list: Atividades[], type: 1 | 2): number => {
@@ -81,34 +83,12 @@ export default function FourLineCharts(): JSX.Element {
   };
 
   const data1 = {
-    labels: [
-      "08/04",
-      "09/04",
-      "10/04",
-      "11/04",
-      "12/04",
-      "13/04",
-      "14/04",
-      "15/04",
-      "16/04",
-      "17/04",
-      "18/04",
-      "19/04",
-      "20/04",
-      "21/04",
-      "22/04",
-      "23/04",
-      "24/04",
-      "25/04",
-      "26/04",
-      "27/04",
-      "28/04",
-      "29/04",
-    ],
+    labels: ["08/04", "09/04"],
     datasets: [
       {
         label: "Procrastinação",
         data: [
+          14,
           calculeteAtividades(
             [
               "Acordar as 6hr da manhã",
@@ -122,7 +102,10 @@ export default function FourLineCharts(): JSX.Element {
               "Trabalhar 7hr Botstudio",
               "Dormir durante 7hr",
               "Escovar os dentes de manha",
-              "Escovar os dentes a tarde",
+              "Trabalhar 2-4hr no projeto pessoal",
+              "Pia dormido limpa",
+              "Fogão dormido limpo",
+              "Planejar o dia",
             ],
             1
           ),
@@ -132,11 +115,12 @@ export default function FourLineCharts(): JSX.Element {
         tension: 0.3,
       },
       {
-        label: "Coisas feitas",
+        label: "Eu",
         data: [
+          4,
           calculeteAtividades(
             [
-              "Trabalhar 2-4hr no projeto pessoal",
+              "Escovar os dentes a noite",
               "Almoçar meio dia",
               "Tomar café da noite",
               "Comer fruta",
@@ -150,7 +134,7 @@ export default function FourLineCharts(): JSX.Element {
       },
       {
         label: "Meio",
-        data: [0],
+        data: [0, 0],
         borderColor: "#fff",
         fill: false,
         tension: 0.3,

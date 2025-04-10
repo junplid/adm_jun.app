@@ -254,7 +254,7 @@ export function useUpdateFlowData(props?: {
       id: number;
       body: {
         nodes?: { type: "upset" | "delete"; node: any }[];
-        edges?: { type: "upset" | "delete"; node: any }[];
+        edges?: { type: "upset" | "delete"; edge: any }[];
       };
     }) => FlowService.updateFlowData(id, body),
     async onSuccess() {

@@ -36,6 +36,7 @@ import { getVariables } from "../../services/api/Variable";
 import { db } from "../../db";
 import { useGetFlowData, useUpdateFlowData } from "../../hooks/flow";
 import { nanoid } from "nanoid";
+import CustomEdge from "./customs/edge";
 
 type NodeTypesGeneric = {
   [x in TypesNodes]: any;
@@ -52,6 +53,10 @@ export type TypesNodes =
   | "nodeSendFlow"
   | "nodeRemoveTags";
 
+const edgeTypes = {
+  customedge: CustomEdge,
+};
+
 export function FlowBuilderPage() {
   const params = useParams<{ id: string }>();
   const { type } = useContext(DnDContext);
@@ -66,11 +71,13 @@ export function FlowBuilderPage() {
     changes,
     edges,
     setNodes,
+    setEdges,
     onNodesChange,
     onEdgesChange,
     onConnect,
     resetChanges,
     onNodesDelete,
+    onEdgeClick,
   } = useStore(
     useShallow((s) => ({
       nodes: s.nodes,
@@ -83,6 +90,8 @@ export function FlowBuilderPage() {
       setChange: s.setChange,
       resetChanges: s.resetChanges,
       onNodesDelete: s.onNodesDelete,
+      setEdges: s.setEdges,
+      onEdgeClick: s.onEdgeClick,
     }))
   );
 
@@ -147,6 +156,7 @@ export function FlowBuilderPage() {
     },
   });
 
+  // primeiro pull do fluxo
   useEffect(() => {
     if (flowData?.name) {
       setNodes(
@@ -158,6 +168,17 @@ export function FlowBuilderPage() {
           deletable: n.deletable,
         }))
       );
+
+      setEdges(
+        flowData.edges.map((e: any) => ({
+          id: e.id,
+          source: e.source,
+          target: e.target,
+          sourceHandle: e.sourceHandle,
+          targetHandle: e.targetHandle,
+        }))
+      );
+
       (async () => {
         await db.nodes.clear();
         await db.nodes.bulkAdd(
@@ -175,19 +196,32 @@ export function FlowBuilderPage() {
         );
       })();
     }
+
+    return () => {
+      setNodes([]);
+      setEdges([]);
+      resetChanges();
+      // db.nodes.clear();
+      // db.variables.clear();
+    };
   }, [flowData?.name]);
 
-  const isSave = useMemo(() => {
-    return !!(changes.nodes.length || changes.edges.length);
-  }, [changes.edges, changes.nodes]);
-
+  // sincroniza o fluxo
   useEffect(() => {
     const handleKey = async (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === "s") {
         e.preventDefault();
         setLoad("load");
+
+        if (!changes.nodes.length && !changes.edges.length) {
+          return;
+        }
+
         const nodesxx = await Promise.all(
           changes.nodes.map(async (n) => {
+            if (n.type === "delete") {
+              return { type: n.type, node: { id: n.id } };
+            }
             const { position, type, deletable } = nodes.find(
               (node) => node.id === n.id
             )!;
@@ -203,9 +237,29 @@ export function FlowBuilderPage() {
             };
           })
         );
+
+        const edgesxx = await Promise.all(
+          changes.edges.map(async (ed) => {
+            if (ed.type === "delete") {
+              return { type: ed.type, edge: { id: ed.id } };
+            }
+            const findEdge = edges.find((node) => node.id === ed.id)!;
+            return {
+              type: ed.type,
+              edge: {
+                id: ed.id,
+                source: findEdge.source,
+                target: findEdge.target,
+                sourceHandle: findEdge.sourceHandle,
+                targetHandle: findEdge.targetHandle,
+              },
+            };
+          })
+        );
+
         updateFlowData({
           id: Number(params.id),
-          body: { nodes: nodesxx },
+          body: { nodes: nodesxx, edges: edgesxx },
         });
         return;
       }
@@ -214,6 +268,10 @@ export function FlowBuilderPage() {
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
   }, [changes]);
+
+  const isSave = useMemo(() => {
+    return !!(changes.nodes.length || changes.edges.length);
+  }, [changes.edges, changes.nodes]);
 
   return (
     <Box as={"div"} className="dndflow" h={"100svh"}>
@@ -253,6 +311,10 @@ export function FlowBuilderPage() {
             onNodesDelete={onNodesDelete}
             onConnect={onConnect}
             nodeTypes={nodeTypes}
+            snapToGrid={true}
+            // snapGrid={[60, 80]}
+            edgeTypes={edgeTypes}
+            onEdgeClick={onEdgeClick}
             onDrop={onDrop}
             onDragOver={onDragOver}
             attributionPosition="top-right"
@@ -302,7 +364,10 @@ export function FlowBuilderPage() {
                       top={"2px"}
                       position={"absolute"}
                     >
-                      <IoSaveOutline size={20} color="#1db4e7" />
+                      <div className="flex items-center gap-x-2 text-white/70">
+                        <IoSaveOutline size={20} color="#1db4e7" />
+                        <span>Salvo</span>
+                      </div>
                     </Presence>
                     <Presence
                       animationName={{
@@ -332,7 +397,6 @@ export function FlowBuilderPage() {
               </HStack>
             </Panel>
             <Panel
-              hidden={!isSave}
               position="bottom-left"
               style={{
                 margin: 0,
@@ -340,10 +404,19 @@ export function FlowBuilderPage() {
                 pointerEvents: "none",
               }}
             >
-              <span className="text-sm text-white/60">
-                Pressione <strong className="text-white">CTRL</strong> +{" "}
-                <strong className="text-white">S</strong> para salvar
-              </span>
+              <Presence
+                animationName={{
+                  _open: "slide-from-bottom, fade-in",
+                  _closed: "slide-to-bottom, fade-out",
+                }}
+                animationDuration="moderate"
+                present={isSave}
+              >
+                <span className="text-sm text-white/60">
+                  Pressione <strong className="text-white">CTRL</strong> +{" "}
+                  <strong className="text-white">S</strong> para salvar
+                </span>
+              </Presence>
             </Panel>
             <Panel
               position="bottom-center"
@@ -353,9 +426,13 @@ export function FlowBuilderPage() {
                 pointerEvents: "none",
               }}
             >
-              <span className="text-sm font-medium">
-                {flowData.name}{" "}
-                {isSave && <strong className="text-blue-500">*</strong>}
+              <span className="block relative text-sm font-medium">
+                {flowData.name}
+                {isSave && (
+                  <strong className="text-blue-500 absolute -right-3 text-xl -top-2">
+                    *
+                  </strong>
+                )}
               </span>
             </Panel>
             <Background color={colorDotFlow} gap={9} size={0.8} />
