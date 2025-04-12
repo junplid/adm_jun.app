@@ -11,6 +11,7 @@ import { SignupPage } from "./pages/signup";
 import { AuthProvider } from "@contexts/auth.context";
 import { BusinessesPage } from "./pages/businesses";
 import { FlowsPage } from "./pages/flows";
+import { VariablesPage } from "./pages/variables";
 
 // import { NodeMessage } from "./flow-lib/nodes/Message";
 // import { NodeReply } from "./flow-lib/nodes/Reply";
@@ -73,6 +74,7 @@ export default function App() {
               element={<BusinessesPage />}
             />
             <Route path="flows" caseSensitive element={<FlowsPage />} />
+            <Route path="variables" caseSensitive element={<VariablesPage />} />
           </Route>
 
           <Route

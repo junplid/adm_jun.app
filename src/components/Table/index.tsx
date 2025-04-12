@@ -58,7 +58,7 @@ export const TableComponent = (props: Props): JSX.Element => {
       <table className="min-w-full table-auto">
         <thead
           style={{ height: 50 }}
-          className="head-table bg-[#f5f5f5] dark:bg-[#141314] sticky top-0"
+          className="head-table bg-[#f5f5f5] dark:bg-[#141314] sticky top-0 z-20"
         >
           <tr>
             {props.columns.map((column) => (

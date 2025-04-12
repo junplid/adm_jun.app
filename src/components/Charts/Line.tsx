@@ -83,29 +83,28 @@ export default function FourLineCharts(): JSX.Element {
   };
 
   const data1 = {
-    labels: ["08/04", "09/04"],
+    labels: ["09/04", "10/04", "11/04"],
     datasets: [
       {
         label: "Procrastinação",
         data: [
           14,
+          15,
           calculeteAtividades(
             [
-              "Acordar as 6hr da manhã",
               "Comer a tarde",
               "Dormir as 21hr da noite",
               "Estudar 2hr",
               "Exercitar",
               "Hitratar-se ao dia",
               "Ler durante 2hr",
-              "Tomar café da manha",
               "Trabalhar 7hr Botstudio",
               "Dormir durante 7hr",
               "Escovar os dentes de manha",
-              "Trabalhar 2-4hr no projeto pessoal",
               "Pia dormido limpa",
               "Fogão dormido limpo",
               "Planejar o dia",
+              "Comer fruta",
             ],
             1
           ),
@@ -118,12 +117,15 @@ export default function FourLineCharts(): JSX.Element {
         label: "Eu",
         data: [
           4,
+          4,
           calculeteAtividades(
             [
+              "Acordar as 6hr da manhã",
+              "Tomar café da manha",
+              "Trabalhar 2-4hr no projeto pessoal",
               "Escovar os dentes a noite",
               "Almoçar meio dia",
               "Tomar café da noite",
-              "Comer fruta",
             ],
             1
           ),
@@ -134,8 +136,8 @@ export default function FourLineCharts(): JSX.Element {
       },
       {
         label: "Meio",
-        data: [0, 0],
-        borderColor: "#fff",
+        data: [0, 0, 0],
+        borderColor: "#ffffff30",
         fill: false,
         tension: 0.3,
       },

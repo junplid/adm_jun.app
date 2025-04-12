@@ -1,7 +1,9 @@
 import { api } from "./index";
 
+export type VariableType = "dynamics" | "constant" | "system";
+
 export async function getVariables(params: {
-  type?: "dynamics" | "constant" | "system";
+  type?: VariableType;
   name?: string;
   businessIds?: number[];
 }): Promise<
@@ -10,10 +12,10 @@ export async function getVariables(params: {
     name: string;
     business: { name: string; id: number }[];
     value: string | null;
-    type: "dynamics" | "constant" | "system";
+    type: VariableType;
   }[]
 > {
-  const { data } = await api.get("/private/variable", {
+  const { data } = await api.get("/private/variables", {
     params: {
       ...params,
       ...(params.businessIds?.length && {
@@ -24,18 +26,75 @@ export async function getVariables(params: {
   return data.variables;
 }
 
+export async function getOptionsVariables(params: {
+  type?: VariableType[];
+  name?: string;
+  businessIds?: number[];
+}): Promise<
+  {
+    id: number;
+    name: string;
+    business: { name: string; id: number }[];
+    value: string | null;
+    type: VariableType;
+  }[]
+> {
+  const { data } = await api.get("/private/variables/options", { params });
+  return data.variables;
+}
+
 export async function createVariable(body: {
   name: string;
   value?: string;
   targetId?: number;
-  businessIds: number[];
+  businessIds?: number[];
   type: "dynamics" | "constant";
 }): Promise<{
   id: number;
-  business: string;
-  value: string | null;
   targetId: number | undefined;
+  business: { name: string; id: number }[];
+  value: string | null;
 }> {
-  const { data } = await api.post("/private/variable", body);
+  const { data } = await api.post("/private/variables", body);
+  return data.variable;
+}
+
+export async function getVariableDetails(id: number): Promise<{
+  id: number;
+  name: string;
+  business: { name: string; id: number }[];
+  value: string | null;
+  type: VariableType;
+}> {
+  const { data } = await api.get(`/private/variables/${id}/details`);
+  return data.variable;
+}
+
+export async function getVariable(id: number): Promise<{
+  id: number;
+  name: string;
+  business: number[];
+  value: string | null;
+  type: VariableType;
+}> {
+  const { data } = await api.get(`/private/variables/${id}`);
+  return data.variable;
+}
+
+export async function updateVariable(
+  id: number,
+  body: {
+    name?: string;
+    value?: string;
+    businessIds?: number[];
+    type?: "dynamics" | "constant";
+  }
+): Promise<void> {
+  const { data } = await api.put(`/private/variables/${id}`, body);
+  return data.variable;
+}
+
+export async function deleteVariable(id: number): Promise<void> {
+  const { data } = await api.delete(`/private/variables/${id}`);
   return data.variable;
 }

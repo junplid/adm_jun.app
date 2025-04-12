@@ -212,17 +212,8 @@ export function LayoutPrivateProvider(): JSX.Element {
               </MenuItem>
               <MenuItem
                 icon={<PiBracketsCurlyBold size={19} />}
-                component={
-                  <Link
-                    to={
-                      "/auth/production-settings/customization-variable/user/dynamics"
-                    }
-                  />
-                }
-                active={
-                  pathname ===
-                  "/auth/production-settings/customization-variable/user/dynamics"
-                }
+                component={<Link to={"/auth/variables"} />}
+                active={pathname === "/auth/variables"}
               >
                 Variáveis
               </MenuItem>
