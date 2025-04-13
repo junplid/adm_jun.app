@@ -20,7 +20,6 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import SelectBusinesses from "@components/SelectBusinesses";
-import { useNavigate } from "react-router-dom";
 import { useCreateVariable } from "../../../hooks/variable";
 import SelectComponent from "@components/Select";
 
@@ -64,13 +63,12 @@ export function ModalCreateFlow({
     resolver: zodResolver(FormSchema),
   });
 
-  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
 
   const { mutateAsync: createVariable, isPending } = useCreateVariable({
     setError,
-    async onSuccess(id) {
-      navigate(`/auth/flows/${id}`);
+    async onSuccess() {
+      setOpen(false);
       await new Promise((resolve) => setTimeout(resolve, 220));
     },
   });

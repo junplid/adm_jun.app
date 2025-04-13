@@ -1,5 +1,4 @@
-import { JSX, useMemo } from "react";
-import moment from "moment";
+import { JSX, useContext, useEffect, useMemo, useState } from "react";
 import { TableComponent } from "../../components/Table";
 import { Column } from "../../components/Table";
 import { ModalCreateFlow } from "./modals/create";
@@ -11,6 +10,7 @@ import { LuEye } from "react-icons/lu";
 import { IoAdd } from "react-icons/io5";
 import { ModalEditFlow } from "./modals/edit";
 import { useGetVariables } from "../../hooks/variable";
+import { DialogContext } from "@contexts/dialog.context";
 
 export type TypeVariable = "dynamics" | "constant" | "system";
 
@@ -31,27 +31,15 @@ const translateType: {
 };
 
 export const VariablesPage: React.FC = (): JSX.Element => {
+  const { onOpen, close } = useContext(DialogContext);
   const { data: variables, isFetching, isPending } = useGetVariables();
 
   const renderColumns = useMemo(() => {
     const columns: Column[] = [
       {
-        key: "name",
-        name: "Nome da variável",
-        render(row) {
-          return (
-            <div className="flex items-start flex-col">
-              <span>{row.name}</span>
-              {row.value && (
-                <small className="text-white/45">= {row.value}</small>
-              )}
-            </div>
-          );
-        },
-      },
-      {
         key: "type",
         name: "Tipo",
+        styles: { width: 100 },
         render(row) {
           const type = row.type as TypeVariable;
           return (
@@ -70,16 +58,15 @@ export const VariablesPage: React.FC = (): JSX.Element => {
         },
       },
       {
-        key: "createAt",
-        name: "Data de criação",
-        styles: { width: 200 },
+        key: "name",
+        name: "Nome da variável",
         render(row) {
           return (
-            <div className="flex flex-col">
-              <span>{moment(row.createAt).format("D/M/YY")}</span>
-              <span className="text-xs text-white/50">
-                {moment(row.createAt).format("HH:mm")}
-              </span>
+            <div className="flex items-start flex-col">
+              <span>{row.name}</span>
+              {row.value && (
+                <small className="text-white/45">= {row.value}</small>
+              )}
             </div>
           );
         },
@@ -91,33 +78,34 @@ export const VariablesPage: React.FC = (): JSX.Element => {
         render(row) {
           return (
             <div className="flex h-full items-center justify-end gap-x-1.5">
-              <ModalViewFlow
-                id={row.id}
-                trigger={
-                  <Button
-                    size={"sm"}
-                    bg={"#f0f0f016"}
-                    _hover={{ bg: "#ffffff21" }}
-                    _icon={{ width: "20px", height: "20px" }}
-                  >
-                    <LuEye color={"#dbdbdb"} />
-                  </Button>
+              <Button
+                onClick={() =>
+                  onOpen({
+                    content: <ModalViewFlow id={row.id} />,
+                  })
                 }
-              />
-              <ModalEditFlow
-                id={row.id}
-                trigger={
-                  <Button
-                    size={"sm"}
-                    bg={"#60d6eb13"}
-                    _hover={{ bg: "#30c9e422" }}
-                    _icon={{ width: "20px", height: "20px" }}
-                  >
-                    <MdEdit size={18} color={"#9ec9fa"} />
-                  </Button>
-                }
-              />
-              <ModalDeleteFlow
+                size={"sm"}
+                bg={"#f0f0f016"}
+                _hover={{ bg: "#ffffff21" }}
+                _icon={{ width: "20px", height: "20px" }}
+              >
+                <LuEye color={"#dbdbdb"} />
+              </Button>
+
+              <Button
+                onClick={() => {
+                  onOpen({
+                    content: <ModalEditFlow close={close} id={row.id} />,
+                  });
+                }}
+                size={"sm"}
+                bg={"#60d6eb13"}
+                _hover={{ bg: "#30c9e422" }}
+                _icon={{ width: "20px", height: "20px" }}
+              >
+                <MdEdit size={18} color={"#9ec9fa"} />
+              </Button>
+              {/* <ModalDeleteFlow
                 trigger={
                   <Button
                     size={"sm"}
@@ -129,7 +117,7 @@ export const VariablesPage: React.FC = (): JSX.Element => {
                   </Button>
                 }
                 data={{ id: row.id, name: row.name }}
-              />
+              /> */}
             </div>
           );
         },

@@ -12,6 +12,7 @@ import { AuthProvider } from "@contexts/auth.context";
 import { BusinessesPage } from "./pages/businesses";
 import { FlowsPage } from "./pages/flows";
 import { VariablesPage } from "./pages/variables";
+import { DialogProvider } from "@contexts/dialog.context";
 
 // import { NodeMessage } from "./flow-lib/nodes/Message";
 // import { NodeReply } from "./flow-lib/nodes/Reply";
@@ -55,9 +56,11 @@ export default function App() {
         <Route
           caseSensitive
           element={
-            <AuthProvider>
-              <LayoutPrivateProvider />
-            </AuthProvider>
+            <DialogProvider>
+              <AuthProvider>
+                <LayoutPrivateProvider />
+              </AuthProvider>
+            </DialogProvider>
           }
           path="auth"
         >

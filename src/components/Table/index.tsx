@@ -1,8 +1,7 @@
 import { useMemo, JSX } from "react";
-import { ViewBottomTableComponent } from "./ViewBottom";
 import "./styles.css";
 import { nanoid } from "nanoid";
-import { Spinner } from "@chakra-ui/react";
+import { TableVirtuoso } from "react-virtuoso";
 
 export interface Column {
   name: string;
@@ -55,7 +54,45 @@ export const TableComponent = (props: Props): JSX.Element => {
 
   return (
     <div className="scroll-custom-table overflow-hidden overflow-y-scroll">
-      <table className="min-w-full table-auto">
+      <TableVirtuoso
+        style={{ height: 300 }}
+        data={rows}
+        fixedHeaderContent={() => (
+          <tr>
+            {props.columns.map((column) => (
+              <th
+                key={column.key}
+                align="left"
+                className="select-none font-semibold px-4 py-2 text-sm"
+                style={{ width: column.styles?.width }}
+              >
+                {column.name}
+              </th>
+            ))}
+          </tr>
+        )}
+        itemContent={(index, row) =>
+          row.columns.map((column) => {
+            if (column !== null) {
+              return (
+                <td
+                  key={row.id + column.key}
+                  aria-details=""
+                  className="cursor-default px-4 py-2"
+                  style={{ fontSize: 13 }}
+                >
+                  {column.value === typeof "string" ? (
+                    <span className="line-clamp-1">{column.value}</span>
+                  ) : (
+                    column.value
+                  )}
+                </td>
+              );
+            }
+          })
+        }
+      />
+      {/* <table className="min-w-full table-auto">
         <thead
           style={{ height: 50 }}
           className="head-table bg-[#f5f5f5] dark:bg-[#141314] sticky top-0 z-20"
@@ -127,7 +164,7 @@ export const TableComponent = (props: Props): JSX.Element => {
             </tr>
           )}
         </tbody>
-      </table>
+      </table> */}
     </div>
   );
 };

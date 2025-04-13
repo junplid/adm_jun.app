@@ -1,7 +1,5 @@
 import {
   DialogContent,
-  DialogRoot,
-  DialogTrigger,
   DialogHeader,
   DialogTitle,
   DialogBody,
@@ -9,20 +7,18 @@ import {
   DialogFooter,
   DialogActionTrigger,
 } from "@components/ui/dialog";
-import moment from "moment";
 import { JSX } from "react";
 import { CloseButton } from "@components/ui/close-button";
 import { Button, Spinner } from "@chakra-ui/react";
 import { ModalDeleteFlow } from "./delete";
-import { useGetFlowDetails } from "../../../hooks/flow";
+import { useGetVariableDetails } from "../../../hooks/variable";
 
 interface IProps {
   id: number;
-  trigger: JSX.Element;
 }
 
 function Content({ id }: { id: number }) {
-  const { data, isFetching, status } = useGetFlowDetails(id);
+  const { data, isFetching, status } = useGetVariableDetails(id);
 
   const footer = (
     <DialogFooter>
@@ -91,26 +87,6 @@ function Content({ id }: { id: number }) {
               <span>{data.type}</span>
             </div>
           )} */}
-          <div className="flex items-start gap-3">
-            <strong>Data de criação:</strong>
-            <div className="flex items-center gap-2">
-              <span>{moment(data.createAt).format("DD/MM/YYYY")}</span>
-              <span className="text-xs text-white/50">
-                {moment(data.createAt).format("HH:mm")}
-              </span>
-            </div>
-          </div>
-          {data.createAt !== data.updateAt && (
-            <div className="flex items-start gap-3">
-              <strong>Ultima atualização:</strong>
-              <div className="flex items-center gap-2">
-                <span>{moment(data.updateAt).format("DD/MM/YYYY")}</span>
-                <span className="text-xs text-white/50">
-                  {moment(data.updateAt).format("HH:mm")}
-                </span>
-              </div>
-            </div>
-          )}
         </div>
       </DialogBody>
       {footer}
@@ -118,28 +94,16 @@ function Content({ id }: { id: number }) {
   );
 }
 
-export const ModalViewFlow: React.FC<IProps> = ({
-  id,
-  ...props
-}): JSX.Element => {
+export const ModalViewFlow: React.FC<IProps> = ({ id }): JSX.Element => {
   return (
-    <DialogRoot
-      defaultOpen={false}
-      placement={"bottom"}
-      motionPreset="slide-in-bottom"
-      lazyMount
-      unmountOnExit
-    >
-      <DialogTrigger asChild>{props.trigger}</DialogTrigger>
-      <DialogContent w={"410px"} minH={"400px"}>
-        <DialogHeader flexDirection={"column"} gap={0}>
-          <DialogTitle>Vizualizar detalhes da empresa</DialogTitle>
-        </DialogHeader>
-        <Content id={id} />
-        <DialogCloseTrigger>
-          <CloseButton size="sm" />
-        </DialogCloseTrigger>
-      </DialogContent>
-    </DialogRoot>
+    <DialogContent w={"410px"} minH={"400px"}>
+      <DialogHeader flexDirection={"column"} gap={0}>
+        <DialogTitle>Vizualizar detalhes da empresa</DialogTitle>
+      </DialogHeader>
+      <Content id={id} />
+      <DialogCloseTrigger>
+        <CloseButton size="sm" />
+      </DialogCloseTrigger>
+    </DialogContent>
   );
 };

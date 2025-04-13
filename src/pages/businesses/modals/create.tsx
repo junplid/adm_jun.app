@@ -55,7 +55,6 @@ export function ModalCreateBusiness({
     setError,
     async onSuccess() {
       setOpen(false);
-      await new Promise((resolve) => setTimeout(resolve, 220));
     },
   });
 

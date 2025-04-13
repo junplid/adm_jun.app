@@ -52,7 +52,7 @@ export function useGetVariable(id: number) {
 export function useGetVariables(params?: { name?: string; page?: number }) {
   const { logout } = useContext(AuthContext);
   return useQuery({
-    queryKey: ["variable", params],
+    queryKey: ["variables", params],
     queryFn: async () => {
       try {
         return await VariableService.getVariables(params || {});
@@ -116,12 +116,10 @@ export function useCreateVariable(props?: {
     }) => VariableService.createVariable(body),
     async onSuccess(data, body) {
       if (props?.onSuccess) await props.onSuccess(data.id);
-      await queryClient.setQueryData(["variable", data.id], () => body);
-
       if (queryClient.getQueryData<any>(["variables", null])) {
         queryClient.setQueryData(["variables", null], (old: any) => {
           if (!old) return old;
-          return [...old, { ...data, name: body.name, type: body.type }];
+          return [{ ...data, name: body.name, type: body.type }, ...old];
         });
       }
 

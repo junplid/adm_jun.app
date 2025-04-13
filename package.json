@@ -50,6 +50,7 @@
     "react-select": "^5.10.1",
     "react-tag-input": "^6.10.6",
     "react-textarea-autosize": "^8.5.8",
+    "react-virtuoso": "^4.12.6",
     "reactflow": "^11.11.4",
     "remove-accents": "^0.5.0",
     "scroll-into-view-if-needed": "^3.1.0",
