@@ -1,6 +1,5 @@
 .scroll-custom-table {
   resize: none !important;
-  padding-right: 5px;
 }
 
 .scroll-custom-table::-webkit-scrollbar {

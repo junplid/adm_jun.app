@@ -3,8 +3,6 @@ import { AxiosError } from "axios";
 import { useCallback, useMemo, useState, JSX, useEffect } from "react";
 import {
   DialogContent,
-  DialogRoot,
-  DialogTrigger,
   DialogHeader,
   DialogTitle,
   DialogBody,
@@ -24,8 +22,7 @@ import { useGetBusiness, useUpdateBusiness } from "../../../hooks/business";
 
 interface PropsModalEdit {
   id: number;
-  trigger: JSX.Element;
-  placement?: "top" | "bottom" | "center";
+  close: () => void;
 }
 
 const FormSchema = z.object({
@@ -157,33 +154,20 @@ function Content({
 
 export const ModalEditBusiness: React.FC<PropsModalEdit> = ({
   id,
-  placement = "bottom",
-  ...props
+  close,
 }): JSX.Element => {
-  const [open, setOpen] = useState(false);
-
   return (
-    <DialogRoot
-      open={open}
-      onOpenChange={(e) => setOpen(e.open)}
-      placement={placement}
-      motionPreset="slide-in-bottom"
-      lazyMount
-      unmountOnExit
-    >
-      <DialogTrigger asChild>{props.trigger}</DialogTrigger>
-      <DialogContent w={"470px"}>
-        <DialogHeader flexDirection={"column"} gap={0}>
-          <DialogTitle>Editar empresa</DialogTitle>
-          <DialogDescription>
-            Edite as informações do seu workspace.
-          </DialogDescription>
-        </DialogHeader>
-        <Content id={id} onClose={() => setOpen(false)} />
-        <DialogCloseTrigger asChild>
-          <CloseButton size="sm" />
-        </DialogCloseTrigger>
-      </DialogContent>
-    </DialogRoot>
+    <DialogContent w={"470px"}>
+      <DialogHeader flexDirection={"column"} gap={0}>
+        <DialogTitle>Editar empresa</DialogTitle>
+        <DialogDescription>
+          Edite as informações do seu workspace.
+        </DialogDescription>
+      </DialogHeader>
+      <Content id={id} onClose={close} />
+      <DialogCloseTrigger asChild>
+        <CloseButton size="sm" />
+      </DialogCloseTrigger>
+    </DialogContent>
   );
 };

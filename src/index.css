@@ -35,3 +35,43 @@
   width: 8px;
   height: 8px;
 }
+
+.container__virtuoso div {
+  padding-right: 8px;
+}
+
+.container__virtuoso table {
+  width: 100% !important;
+}
+
+.container__virtuoso thead {
+  height: 50px;
+  background: #f5f5f5;
+}
+.dark .container__virtuoso thead {
+  background: #141314;
+}
+
+.container__virtuoso tbody tr:hover {
+  background: #ffffff;
+}
+
+.container__virtuoso tbody tr:nth-child(even) {
+  background: #e0e0e04d;
+}
+
+.container__virtuoso tbody tr:nth-child(odd) {
+  background: #f5f5f569;
+}
+
+.dark .container__virtuoso tbody tr:hover {
+  background: #9292920a !important;
+}
+
+.dark .container__virtuoso tbody tr:nth-child(even) {
+  background: #6b6b6b0a;
+}
+
+.dark .container__virtuoso tbody tr:nth-child(odd) {
+  background: #55555507;
+}

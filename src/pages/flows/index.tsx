@@ -13,6 +13,7 @@ import { ModalEditFlow } from "./modals/edit";
 import { FlowType } from "../../services/api/Flow";
 import { useGetFlows } from "../../hooks/flow";
 import { Link } from "react-router-dom";
+import { useDialogModal } from "../../hooks/dialog.modal";
 
 export interface FlowRow {
   id: number;
@@ -25,6 +26,7 @@ export interface FlowRow {
 
 export const FlowsPage: React.FC = (): JSX.Element => {
   const { data: flows, isFetching, isPending } = useGetFlows();
+  const { dialog: DialogModal, close, onOpen } = useDialogModal({});
 
   const renderColumns = useMemo(() => {
     const columns: Column[] = [
@@ -64,45 +66,50 @@ export const FlowsPage: React.FC = (): JSX.Element => {
         render(row) {
           return (
             <div className="flex h-full items-center justify-end gap-x-1.5">
-              <ModalViewFlow
-                id={row.id}
-                trigger={
-                  <Button
-                    size={"sm"}
-                    bg={"#f0f0f016"}
-                    _hover={{ bg: "#ffffff21" }}
-                    _icon={{ width: "20px", height: "20px" }}
-                  >
-                    <LuEye color={"#dbdbdb"} />
-                  </Button>
+              <Button
+                size={"sm"}
+                bg={"#f0f0f016"}
+                _hover={{ bg: "#ffffff21" }}
+                _icon={{ width: "20px", height: "20px" }}
+                onClick={() =>
+                  onOpen({
+                    content: <ModalViewFlow id={row.id} />,
+                  })
                 }
-              />
-              <ModalEditFlow
-                id={row.id}
-                trigger={
-                  <Button
-                    size={"sm"}
-                    bg={"#60d6eb13"}
-                    _hover={{ bg: "#30c9e422" }}
-                    _icon={{ width: "20px", height: "20px" }}
-                  >
-                    <MdEdit size={18} color={"#9ec9fa"} />
-                  </Button>
+              >
+                <LuEye color={"#dbdbdb"} />
+              </Button>
+              <Button
+                size={"sm"}
+                bg={"#60d6eb13"}
+                _hover={{ bg: "#30c9e422" }}
+                _icon={{ width: "20px", height: "20px" }}
+                onClick={() =>
+                  onOpen({
+                    content: <ModalEditFlow close={close} id={row.id} />,
+                  })
                 }
-              />
-              <ModalDeleteFlow
-                trigger={
-                  <Button
-                    size={"sm"}
-                    bg={"#eb606013"}
-                    _hover={{ bg: "#eb606028" }}
-                    _icon={{ width: "20px", height: "20px" }}
-                  >
-                    <MdDeleteOutline color={"#f75050"} />
-                  </Button>
-                }
-                data={{ id: row.id, name: row.name }}
-              />
+              >
+                <MdEdit size={18} color={"#9ec9fa"} />
+              </Button>
+              <Button
+                size={"sm"}
+                bg={"#eb606013"}
+                _hover={{ bg: "#eb606028" }}
+                _icon={{ width: "20px", height: "20px" }}
+                onClick={() => {
+                  onOpen({
+                    content: (
+                      <ModalDeleteFlow
+                        data={{ id: row.id, name: row.name }}
+                        close={close}
+                      />
+                    ),
+                  });
+                }}
+              >
+                <MdDeleteOutline color={"#f75050"} />
+              </Button>
             </div>
           );
         },
@@ -129,10 +136,7 @@ export const FlowsPage: React.FC = (): JSX.Element => {
           intuitiva.
         </p>
       </div>
-      <div
-        style={{ maxHeight: "calc(100vh - 180px)" }}
-        className="flex flex-col"
-      >
+      <div style={{ maxHeight: "calc(100vh - 180px)" }} className="grid flex-1">
         <TableComponent
           rows={flows || []}
           columns={renderColumns}
@@ -140,6 +144,7 @@ export const FlowsPage: React.FC = (): JSX.Element => {
           load={isFetching || isPending}
         />
       </div>
+      {DialogModal}
     </div>
   );
 };

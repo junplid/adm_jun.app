@@ -17,8 +17,9 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import SelectBusinesses from "@components/SelectBusinesses";
-import { useGetFlow, useUpdateFlow } from "../../../hooks/flow";
 import deepEqual from "fast-deep-equal";
+import { useGetVariable, useUpdateVariable } from "../../../hooks/variable";
+import SelectComponent from "@components/Select";
 
 interface IProps {
   id: number;
@@ -27,13 +28,19 @@ interface IProps {
 
 const FormSchema = z.object({
   name: z.string().min(1, "Campo obrigatório."),
-  type: z.enum(["marketing", "chatbot", "universal"], {
+  type: z.enum(["dynamics", "constant"], {
     message: "Campo obrigatório.",
   }),
-  businessIds: z.array(z.number()),
+  businessIds: z.array(z.number()).optional(),
+  value: z.string().optional().nullable(),
 });
 
 type Fields = z.infer<typeof FormSchema>;
+
+const optionsType = [
+  { label: "Mutável", value: "dynamics" },
+  { label: "Imutável", value: "constant" },
+];
 
 function Content({
   id,
@@ -57,19 +64,25 @@ function Content({
     resolver: zodResolver(FormSchema),
   });
 
-  const { mutateAsync: updateBusiness, isPending } = useUpdateFlow({
+  const { mutateAsync: updateVariable, isPending } = useUpdateVariable({
     setError,
     async onSuccess() {
       props.onClose();
       await new Promise((resolve) => setTimeout(resolve, 220));
     },
   });
-  const { data, isFetching } = useGetFlow(id);
+  const { data, isFetching } = useGetVariable(id);
 
   useEffect(() => {
     if (data) {
-      setFieldsDraft(data);
+      setFieldsDraft({
+        name: data.name,
+        type: data.type,
+        value: data.value,
+        businessIds: data.businessIds,
+      });
       setValue("name", data.name);
+      setValue("value", data.value);
       setValue("type", data.type);
       setValue("businessIds", data.businessIds);
     }
@@ -78,7 +91,7 @@ function Content({
   const edit = useCallback(
     async (fields: Fields): Promise<void> => {
       try {
-        await updateBusiness({ id, body: fields });
+        await updateVariable({ id, body: fields });
       } catch (error) {
         if (error instanceof AxiosError) {
           console.log("Error-API", error);
@@ -100,22 +113,10 @@ function Content({
       <DialogBody>
         <VStack gap={4}>
           <Field
-            errorText={errors.name?.message}
-            invalid={!!errors.name}
-            label="Nome"
-          >
-            <Input
-              {...register("name")}
-              autoComplete="off"
-              autoFocus
-              placeholder="Digite o nome do construtor"
-            />
-          </Field>
-          <Field
             label="Anexe empresas"
             helperText={
               <Text>
-                Se nenhuma empresa for selecionada, o construtor será anexado a
+                Se nenhuma empresa for selecionada, a variável será anexada a
                 todas as empresas existentes e as que forem criadas no futuro.
               </Text>
             }
@@ -143,6 +144,71 @@ function Content({
               )}
             />
           </Field>
+          <Field
+            errorText={errors.name?.message}
+            invalid={!!errors.name}
+            label="Nome"
+          >
+            <Input
+              {...register("name")}
+              autoComplete="off"
+              placeholder="Digite o nome da variável"
+            />
+          </Field>
+          <Field
+            label="Tipo da variável"
+            errorText={errors.type?.message}
+            invalid={!!errors.type}
+            helperText="Variaveis imutáveis não podem ser alteradas em construtores de fluxos."
+            className="w-full"
+          >
+            <Controller
+              name="type"
+              control={control}
+              render={({ field }) => (
+                <SelectComponent
+                  name={field.name}
+                  onBlur={field.onBlur}
+                  onChange={(e: any) => {
+                    if (e?.value) {
+                      field.onChange(e.value);
+                    } else {
+                      field.onChange(null);
+                    }
+                  }}
+                  options={optionsType}
+                  isClearable
+                  value={
+                    field.value
+                      ? [
+                          {
+                            label:
+                              optionsType.find(
+                                (item) => item.value === field.value
+                              )?.label || "",
+                            value: field.value,
+                          },
+                        ]
+                      : null
+                  }
+                  placeholder="Selecione o tipo da variável"
+                />
+              )}
+            />
+          </Field>
+          {fields.type === "constant" && (
+            <Field
+              errorText={errors.value?.message}
+              invalid={!!errors.value}
+              label="Valor"
+            >
+              <Input
+                {...register("value")}
+                autoComplete="off"
+                placeholder="Digite o valor da variável"
+              />
+            </Field>
+          )}
         </VStack>
       </DialogBody>
       <DialogFooter>
@@ -164,13 +230,13 @@ function Content({
   );
 }
 
-export function ModalEditFlow({ id, ...props }: IProps): JSX.Element {
+export function ModalEditVariable({ id, ...props }: IProps): JSX.Element {
   return (
     <DialogContent w={"348px"}>
       <DialogHeader flexDirection={"column"} gap={0}>
-        <DialogTitle>Criar construtor de fluxo</DialogTitle>
+        <DialogTitle>Editar variável</DialogTitle>
         <DialogDescription>
-          Imagine e construa fluxos de conversa de forma visual e intuitiva.
+          Guarde e personalize informações dos seus contatos.
         </DialogDescription>
       </DialogHeader>
       <Content id={id} onClose={props.close} />

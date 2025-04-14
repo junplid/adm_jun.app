@@ -11,6 +11,7 @@ import { LuEye } from "react-icons/lu";
 import { IoAdd } from "react-icons/io5";
 import { ModalEditBusiness } from "./modals/edit";
 import { useGetBusinesses } from "../../hooks/business";
+import { useDialogModal } from "../../hooks/dialog.modal";
 
 export interface BusinessRow {
   id: number;
@@ -21,22 +22,24 @@ export interface BusinessRow {
 export const BusinessesPage: React.FC = (): JSX.Element => {
   const { data: businesses, isFetching, isPending } = useGetBusinesses();
 
+  const { dialog: DialogModal, close, onOpen } = useDialogModal({});
+
   const renderColumns = useMemo(() => {
     const columns: Column[] = [
       {
         key: "id",
         name: "ID",
-        styles: { width: 170 },
+        styles: { width: 10 },
       },
       {
         key: "name",
         name: "Nome",
-        styles: { width: 170 },
+        styles: { width: 800 },
       },
       {
         key: "createAt",
         name: "Data de criação",
-        styles: { width: 200 },
+        styles: { width: 170 },
         render(row) {
           return (
             <div className="flex flex-col">
@@ -55,45 +58,50 @@ export const BusinessesPage: React.FC = (): JSX.Element => {
         render(row) {
           return (
             <div className="flex h-full items-center justify-end gap-x-1.5">
-              <ModalViewBusiness
-                id={row.id}
-                trigger={
-                  <Button
-                    size={"sm"}
-                    bg={"#f0f0f016"}
-                    _hover={{ bg: "#ffffff21" }}
-                    _icon={{ width: "20px", height: "20px" }}
-                  >
-                    <LuEye color={"#dbdbdb"} />
-                  </Button>
+              <Button
+                size={"sm"}
+                bg={"#f0f0f016"}
+                _hover={{ bg: "#ffffff21" }}
+                _icon={{ width: "20px", height: "20px" }}
+                onClick={() =>
+                  onOpen({
+                    content: <ModalViewBusiness close={close} id={row.id} />,
+                  })
                 }
-              />
-              <ModalEditBusiness
-                id={row.id}
-                trigger={
-                  <Button
-                    size={"sm"}
-                    bg={"#60d6eb13"}
-                    _hover={{ bg: "#30c9e422" }}
-                    _icon={{ width: "20px", height: "20px" }}
-                  >
-                    <MdEdit size={18} color={"#9ec9fa"} />
-                  </Button>
+              >
+                <LuEye color={"#dbdbdb"} />
+              </Button>
+              <Button
+                size={"sm"}
+                bg={"#60d6eb13"}
+                _hover={{ bg: "#30c9e422" }}
+                _icon={{ width: "20px", height: "20px" }}
+                onClick={() =>
+                  onOpen({
+                    content: <ModalEditBusiness close={close} id={row.id} />,
+                  })
                 }
-              />
-              <ModalDeleteBusiness
-                trigger={
-                  <Button
-                    size={"sm"}
-                    bg={"#eb606013"}
-                    _hover={{ bg: "#eb606028" }}
-                    _icon={{ width: "20px", height: "20px" }}
-                  >
-                    <MdDeleteOutline color={"#f75050"} />
-                  </Button>
-                }
-                data={{ id: row.id, name: row.name }}
-              />
+              >
+                <MdEdit size={18} color={"#9ec9fa"} />
+              </Button>
+              <Button
+                size={"sm"}
+                bg={"#eb606013"}
+                _hover={{ bg: "#eb606028" }}
+                _icon={{ width: "20px", height: "20px" }}
+                onClick={() => {
+                  onOpen({
+                    content: (
+                      <ModalDeleteBusiness
+                        data={{ id: row.id, name: row.name }}
+                        close={close}
+                      />
+                    ),
+                  });
+                }}
+              >
+                <MdDeleteOutline color={"#f75050"} />
+              </Button>
             </div>
           );
         },
@@ -120,10 +128,7 @@ export const BusinessesPage: React.FC = (): JSX.Element => {
           eficiente.
         </p>
       </div>
-      <div
-        style={{ maxHeight: "calc(100vh - 180px)" }}
-        className="flex flex-col"
-      >
+      <div style={{ maxHeight: "calc(100vh - 180px)" }} className="grid flex-1">
         <TableComponent
           rows={businesses || []}
           columns={renderColumns}
@@ -131,6 +136,7 @@ export const BusinessesPage: React.FC = (): JSX.Element => {
           load={isFetching || isPending}
         />
       </div>
+      {DialogModal}
     </div>
   );
 };

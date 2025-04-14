@@ -1,16 +1,16 @@
-import { JSX, useContext, useEffect, useMemo, useState } from "react";
+import { JSX, useMemo } from "react";
 import { TableComponent } from "../../components/Table";
 import { Column } from "../../components/Table";
 import { ModalCreateFlow } from "./modals/create";
-import { ModalDeleteFlow } from "./modals/delete";
+import { ModalDeleteVariable } from "./modals/delete";
 import { Button } from "@chakra-ui/react";
 import { MdDeleteOutline, MdEdit } from "react-icons/md";
-import { ModalViewFlow } from "./modals/view";
+import { ModalViewVariable } from "./modals/view";
 import { LuEye } from "react-icons/lu";
 import { IoAdd } from "react-icons/io5";
-import { ModalEditFlow } from "./modals/edit";
+import { ModalEditVariable } from "./modals/edit";
 import { useGetVariables } from "../../hooks/variable";
-import { DialogContext } from "@contexts/dialog.context";
+import { useDialogModal } from "../../hooks/dialog.modal";
 
 export type TypeVariable = "dynamics" | "constant" | "system";
 
@@ -31,15 +31,15 @@ const translateType: {
 };
 
 export const VariablesPage: React.FC = (): JSX.Element => {
-  const { onOpen, close } = useContext(DialogContext);
   const { data: variables, isFetching, isPending } = useGetVariables();
+  const { dialog: DialogModal, close, onOpen } = useDialogModal({});
 
   const renderColumns = useMemo(() => {
     const columns: Column[] = [
       {
         key: "type",
         name: "Tipo",
-        styles: { width: 100 },
+        styles: { width: 120 },
         render(row) {
           const type = row.type as TypeVariable;
           return (
@@ -81,7 +81,13 @@ export const VariablesPage: React.FC = (): JSX.Element => {
               <Button
                 onClick={() =>
                   onOpen({
-                    content: <ModalViewFlow id={row.id} />,
+                    content: (
+                      <ModalViewVariable
+                        isDelete={row.type !== "system"}
+                        close={close}
+                        id={row.id}
+                      />
+                    ),
                   })
                 }
                 size={"sm"}
@@ -91,33 +97,39 @@ export const VariablesPage: React.FC = (): JSX.Element => {
               >
                 <LuEye color={"#dbdbdb"} />
               </Button>
-
               <Button
                 onClick={() => {
                   onOpen({
-                    content: <ModalEditFlow close={close} id={row.id} />,
+                    content: <ModalEditVariable close={close} id={row.id} />,
                   });
                 }}
                 size={"sm"}
                 bg={"#60d6eb13"}
                 _hover={{ bg: "#30c9e422" }}
                 _icon={{ width: "20px", height: "20px" }}
+                disabled={row.type === "system"}
               >
                 <MdEdit size={18} color={"#9ec9fa"} />
               </Button>
-              {/* <ModalDeleteFlow
-                trigger={
-                  <Button
-                    size={"sm"}
-                    bg={"#eb606013"}
-                    _hover={{ bg: "#eb606028" }}
-                    _icon={{ width: "20px", height: "20px" }}
-                  >
-                    <MdDeleteOutline color={"#f75050"} />
-                  </Button>
-                }
-                data={{ id: row.id, name: row.name }}
-              /> */}
+              <Button
+                size={"sm"}
+                bg={"#eb606013"}
+                _hover={{ bg: "#eb606028" }}
+                _icon={{ width: "20px", height: "20px" }}
+                disabled={row.type === "system"}
+                onClick={() => {
+                  onOpen({
+                    content: (
+                      <ModalDeleteVariable
+                        data={{ id: row.id, name: row.name }}
+                        close={close}
+                      />
+                    ),
+                  });
+                }}
+              >
+                <MdDeleteOutline color={"#f75050"} />
+              </Button>
             </div>
           );
         },
@@ -144,10 +156,7 @@ export const VariablesPage: React.FC = (): JSX.Element => {
           contatos, como nome, e-mail, etc.
         </p>
       </div>
-      <div
-        style={{ maxHeight: "calc(100vh - 180px)" }}
-        className="flex flex-col"
-      >
+      <div style={{ maxHeight: "calc(100vh - 180px)" }} className="flex-1 grid">
         <TableComponent
           rows={variables || []}
           columns={renderColumns}
@@ -155,6 +164,7 @@ export const VariablesPage: React.FC = (): JSX.Element => {
           load={isFetching || isPending}
         />
       </div>
+      {DialogModal}
     </div>
   );
 };

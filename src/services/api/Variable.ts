@@ -73,9 +73,9 @@ export async function getVariableDetails(id: number): Promise<{
 export async function getVariable(id: number): Promise<{
   id: number;
   name: string;
-  business: number[];
+  businessIds: number[];
   value: string | null;
-  type: VariableType;
+  type: "dynamics" | "constant";
 }> {
   const { data } = await api.get(`/private/variables/${id}`);
   return data.variable;
@@ -83,14 +83,16 @@ export async function getVariable(id: number): Promise<{
 
 export async function updateVariable(
   id: number,
-  body: {
+  params: {
     name?: string;
-    value?: string;
+    value?: string | null;
     businessIds?: number[];
     type?: "dynamics" | "constant";
   }
 ): Promise<void> {
-  const { data } = await api.put(`/private/variables/${id}`, body);
+  const { data } = await api.put(`/private/variables/${id}`, undefined, {
+    params,
+  });
   return data.variable;
 }
 

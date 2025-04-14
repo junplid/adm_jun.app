@@ -1,7 +1,5 @@
 import {
   DialogContent,
-  DialogRoot,
-  DialogTrigger,
   DialogHeader,
   DialogTitle,
   DialogBody,
@@ -11,33 +9,30 @@ import {
   DialogDescription,
 } from "@components/ui/dialog";
 import { AxiosError } from "axios";
-import { useCallback, useState, JSX } from "react";
+import { useCallback, JSX } from "react";
 import { Button } from "@chakra-ui/react";
 import { CloseButton } from "@components/ui/close-button";
-import { useDeleteFlow } from "../../../hooks/flow";
+import { useDeleteVariable } from "../../../hooks/variable";
 
 interface PropsModalDelete {
   data: { id: number; name: string } | null;
-  trigger: JSX.Element;
-  placement?: "top" | "bottom" | "center";
+  close: () => void;
 }
 
-export const ModalDeleteFlow: React.FC<PropsModalDelete> = ({
-  placement = "bottom",
+export const ModalDeleteVariable: React.FC<PropsModalDelete> = ({
+  data,
   ...props
 }): JSX.Element => {
-  const [open, setOpen] = useState(false);
-
-  const { mutateAsync: deleteFlow, isPending } = useDeleteFlow({
+  const { mutateAsync: deleteVariable, isPending } = useDeleteVariable({
     async onSuccess() {
-      setOpen(false);
+      props.close();
       await new Promise((resolve) => setTimeout(resolve, 220));
     },
   });
 
   const onDelete = useCallback(async (): Promise<void> => {
     try {
-      if (props.data?.id) await deleteFlow(props.data?.id);
+      if (data?.id) await deleteVariable(data?.id);
     } catch (error) {
       if (error instanceof AxiosError) {
         console.log("Error-API", error);
@@ -45,62 +40,45 @@ export const ModalDeleteFlow: React.FC<PropsModalDelete> = ({
         console.log("Error-Client", error);
       }
     }
-  }, [props.data?.id]);
+  }, [data?.id]);
 
   return (
-    <DialogRoot
-      open={open}
-      onOpenChange={(details) => setOpen(details.open)}
-      defaultOpen={false}
-      placement={placement}
-      motionPreset="slide-in-bottom"
-      lazyMount
-      unmountOnExit
-      closeOnEscape={false}
-      closeOnInteractOutside={false}
-    >
-      <DialogTrigger asChild>{props.trigger}</DialogTrigger>
-      <DialogContent w={"410px"}>
-        <DialogHeader flexDirection={"column"} gap={0}>
-          <DialogTitle>Deletar construtor de fluxo</DialogTitle>
-          <DialogDescription color={"#f86363"}>
-            Essa ação não poderá ser desfeita.
-          </DialogDescription>
-        </DialogHeader>
-        <DialogBody>
-          <div className="flex flex-col gap-y-1.5">
-            <p className="">
-              Tem certeza de que deseja deletar o construtor{" "}
-              <strong className="font-semibold text-lg">
-                {props.data?.name}
-              </strong>
-              ?
-            </p>
-            <p>
-              Construtor será deletado permanentemente e não poderá ser
-              recuperado.
-            </p>
-          </div>
-        </DialogBody>
-        <DialogFooter>
-          <DialogActionTrigger>
-            <Button colorPalette={"red"} disabled={isPending}>
-              Cancelar
-            </Button>
-          </DialogActionTrigger>
-          <Button
-            onClick={onDelete}
-            loading={isPending}
-            loadingText={"Deletando, aguarde..."}
-            variant="outline"
-          >
-            Deletar permanentemente.
+    <DialogContent w={"370px"}>
+      <DialogHeader flexDirection={"column"} gap={0}>
+        <DialogTitle>Deletar variável</DialogTitle>
+        <DialogDescription color={"#f86363"}>
+          Essa ação não poderá ser desfeita.
+        </DialogDescription>
+      </DialogHeader>
+      <DialogBody>
+        <div className="flex flex-col gap-y-1.5">
+          <p className="">
+            Tem certeza de que deseja deletar a variável{" "}
+            <strong className="font-semibold text-lg">{data?.name}</strong>?
+          </p>
+          <p>
+            Variável será deletada permanentemente e não poderá ser recuperada.
+          </p>
+        </div>
+      </DialogBody>
+      <DialogFooter>
+        <DialogActionTrigger>
+          <Button colorPalette={"red"} disabled={isPending}>
+            Cancelar
           </Button>
-        </DialogFooter>
-        <DialogCloseTrigger>
-          <CloseButton size="sm" />
-        </DialogCloseTrigger>
-      </DialogContent>
-    </DialogRoot>
+        </DialogActionTrigger>
+        <Button
+          onClick={onDelete}
+          loading={isPending}
+          loadingText={"Deletando, aguarde..."}
+          variant="outline"
+        >
+          Deletar permanentemente.
+        </Button>
+      </DialogFooter>
+      <DialogCloseTrigger>
+        <CloseButton size="sm" />
+      </DialogCloseTrigger>
+    </DialogContent>
   );
 };

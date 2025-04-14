@@ -152,6 +152,7 @@ export function useUpdateVariable(props?: {
   setError?: UseFormSetError<{
     name?: string;
     type?: "dynamics" | "constant";
+    value?: string | null;
     businessIds?: number[];
   }>;
   onSuccess?: () => Promise<void>;
@@ -166,7 +167,7 @@ export function useUpdateVariable(props?: {
       id: number;
       body: {
         name?: string;
-        value?: string;
+        value?: string | null;
         type?: "dynamics" | "constant";
         businessIds?: number[];
       };

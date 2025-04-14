@@ -113,7 +113,7 @@ export function useCreateBusiness(props?: {
       if (queryClient.getQueryData<any>(["businesses", null])) {
         queryClient.setQueryData(["businesses", null], (old: any) => {
           if (!old) return old;
-          return [...old, { ...data, name }];
+          return [{ ...data, name }, ...old];
         });
       }
 

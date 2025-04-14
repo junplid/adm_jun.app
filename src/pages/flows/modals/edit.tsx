@@ -3,8 +3,6 @@ import { Button, Input, Text, VStack } from "@chakra-ui/react";
 import { CloseButton } from "@components/ui/close-button";
 import {
   DialogContent,
-  DialogRoot,
-  DialogTrigger,
   DialogHeader,
   DialogTitle,
   DialogBody,
@@ -24,8 +22,7 @@ import deepEqual from "fast-deep-equal";
 
 interface IProps {
   id: number;
-  trigger: JSX.Element;
-  placement?: "top" | "bottom" | "center";
+  close: () => void;
 }
 
 const FormSchema = z.object({
@@ -167,36 +164,19 @@ function Content({
   );
 }
 
-export function ModalEditFlow({
-  placement = "bottom",
-  id,
-  ...props
-}: IProps): JSX.Element {
-  const [open, setOpen] = useState(false);
-
+export function ModalEditFlow({ id, close }: IProps): JSX.Element {
   return (
-    <DialogRoot
-      open={open}
-      onOpenChange={(e) => setOpen(e.open)}
-      placement={placement}
-      motionPreset="slide-in-bottom"
-      lazyMount
-      unmountOnExit
-      scrollBehavior={"outside"}
-    >
-      <DialogTrigger asChild>{props.trigger}</DialogTrigger>
-      <DialogContent w={"348px"}>
-        <DialogHeader flexDirection={"column"} gap={0}>
-          <DialogTitle>Criar construtor de fluxo</DialogTitle>
-          <DialogDescription>
-            Imagine e construa fluxos de conversa de forma visual e intuitiva.
-          </DialogDescription>
-        </DialogHeader>
-        <Content id={id} onClose={() => setOpen(false)} />
-        <DialogCloseTrigger asChild>
-          <CloseButton size="sm" />
-        </DialogCloseTrigger>
-      </DialogContent>
-    </DialogRoot>
+    <DialogContent w={"348px"}>
+      <DialogHeader flexDirection={"column"} gap={0}>
+        <DialogTitle>Editar construtor de fluxo</DialogTitle>
+        <DialogDescription>
+          Imagine e construa fluxos de conversa de forma visual e intuitiva.
+        </DialogDescription>
+      </DialogHeader>
+      <Content id={id} onClose={close} />
+      <DialogCloseTrigger asChild>
+        <CloseButton size="sm" />
+      </DialogCloseTrigger>
+    </DialogContent>
   );
 }

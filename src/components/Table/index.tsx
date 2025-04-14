@@ -53,9 +53,10 @@ export const TableComponent = (props: Props): JSX.Element => {
   }, [props.columns, props.rows]);
 
   return (
-    <div className="scroll-custom-table overflow-hidden overflow-y-scroll">
+    <div className="">
       <TableVirtuoso
-        style={{ height: 300 }}
+        className="scroll-custom-table container__virtuoso"
+        style={{ height: "100%", width: "100%" }}
         data={rows}
         fixedHeaderContent={() => (
           <tr>
@@ -71,7 +72,7 @@ export const TableComponent = (props: Props): JSX.Element => {
             ))}
           </tr>
         )}
-        itemContent={(index, row) =>
+        itemContent={(_index, row) =>
           row.columns.map((column) => {
             if (column !== null) {
               return (
@@ -95,7 +96,7 @@ export const TableComponent = (props: Props): JSX.Element => {
       {/* <table className="min-w-full table-auto">
         <thead
           style={{ height: 50 }}
-          className="head-table bg-[#f5f5f5] dark:bg-[#141314] sticky top-0 z-20"
+          className="head-table  sticky top-0 z-20"
         >
           <tr>
             {props.columns.map((column) => (

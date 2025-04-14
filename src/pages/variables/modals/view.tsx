@@ -10,15 +10,19 @@ import {
 import { JSX } from "react";
 import { CloseButton } from "@components/ui/close-button";
 import { Button, Spinner } from "@chakra-ui/react";
-import { ModalDeleteFlow } from "./delete";
+import { ModalDeleteVariable } from "./delete";
 import { useGetVariableDetails } from "../../../hooks/variable";
+import { useDialogModal } from "../../../hooks/dialog.modal";
 
 interface IProps {
   id: number;
+  close: () => void;
+  isDelete?: boolean;
 }
 
-function Content({ id }: { id: number }) {
+function Content({ id, close, isDelete }: IProps) {
   const { data, isFetching, status } = useGetVariableDetails(id);
+  const { dialog, onOpen } = useDialogModal({});
 
   const footer = (
     <DialogFooter>
@@ -26,20 +30,25 @@ function Content({ id }: { id: number }) {
         <Button colorPalette={"red"}>Fechar</Button>
       </DialogActionTrigger>
       {id && (
-        <ModalDeleteFlow
-          data={data ? { id, name: data.name } : null}
-          trigger={
-            <Button
-              loading={isFetching}
-              disabled={!data?.name}
-              variant="outline"
-            >
-              Deletar
-            </Button>
-          }
-          placement="top"
-        />
+        <Button
+          loading={isFetching}
+          disabled={!isDelete}
+          variant="outline"
+          onClick={() => {
+            onOpen({
+              content: (
+                <ModalDeleteVariable
+                  close={close}
+                  data={data ? { id, name: data.name } : null}
+                />
+              ),
+            });
+          }}
+        >
+          Deletar
+        </Button>
       )}
+      {dialog}
     </DialogFooter>
   );
 
@@ -94,13 +103,17 @@ function Content({ id }: { id: number }) {
   );
 }
 
-export const ModalViewFlow: React.FC<IProps> = ({ id }): JSX.Element => {
+export const ModalViewVariable: React.FC<IProps> = ({
+  id,
+  close,
+  isDelete = false,
+}): JSX.Element => {
   return (
     <DialogContent w={"410px"} minH={"400px"}>
       <DialogHeader flexDirection={"column"} gap={0}>
-        <DialogTitle>Vizualizar detalhes da empresa</DialogTitle>
+        <DialogTitle>Vizualizar detalhes da variável</DialogTitle>
       </DialogHeader>
-      <Content id={id} />
+      <Content id={id} close={close} isDelete={isDelete} />
       <DialogCloseTrigger>
         <CloseButton size="sm" />
       </DialogCloseTrigger>

@@ -1,7 +1,5 @@
 import {
   DialogContent,
-  DialogRoot,
-  DialogTrigger,
   DialogHeader,
   DialogTitle,
   DialogBody,
@@ -15,14 +13,15 @@ import { CloseButton } from "@components/ui/close-button";
 import { Button, Spinner } from "@chakra-ui/react";
 import { ModalDeleteFlow } from "./delete";
 import { useGetFlowDetails } from "../../../hooks/flow";
+import { useDialogModal } from "../../../hooks/dialog.modal";
 
 interface IProps {
   id: number;
-  trigger: JSX.Element;
 }
 
 function Content({ id }: { id: number }) {
   const { data, isFetching, status } = useGetFlowDetails(id);
+  const { close, dialog, onOpen } = useDialogModal({});
 
   const footer = (
     <DialogFooter>
@@ -30,20 +29,25 @@ function Content({ id }: { id: number }) {
         <Button colorPalette={"red"}>Fechar</Button>
       </DialogActionTrigger>
       {id && (
-        <ModalDeleteFlow
-          data={data ? { id, name: data.name } : null}
-          trigger={
-            <Button
-              loading={isFetching}
-              disabled={!data?.name}
-              variant="outline"
-            >
-              Deletar
-            </Button>
-          }
-          placement="top"
-        />
+        <Button
+          loading={isFetching}
+          disabled={!data?.name}
+          variant="outline"
+          onClick={() => {
+            onOpen({
+              content: (
+                <ModalDeleteFlow
+                  close={close}
+                  data={data ? { id, name: data.name } : null}
+                />
+              ),
+            });
+          }}
+        >
+          Deletar
+        </Button>
       )}
+      {dialog}
     </DialogFooter>
   );
 
@@ -118,28 +122,16 @@ function Content({ id }: { id: number }) {
   );
 }
 
-export const ModalViewFlow: React.FC<IProps> = ({
-  id,
-  ...props
-}): JSX.Element => {
+export const ModalViewFlow: React.FC<IProps> = ({ id }): JSX.Element => {
   return (
-    <DialogRoot
-      defaultOpen={false}
-      placement={"bottom"}
-      motionPreset="slide-in-bottom"
-      lazyMount
-      unmountOnExit
-    >
-      <DialogTrigger asChild>{props.trigger}</DialogTrigger>
-      <DialogContent w={"410px"} minH={"400px"}>
-        <DialogHeader flexDirection={"column"} gap={0}>
-          <DialogTitle>Vizualizar detalhes da empresa</DialogTitle>
-        </DialogHeader>
-        <Content id={id} />
-        <DialogCloseTrigger>
-          <CloseButton size="sm" />
-        </DialogCloseTrigger>
-      </DialogContent>
-    </DialogRoot>
+    <DialogContent w={"410px"} minH={"400px"}>
+      <DialogHeader flexDirection={"column"} gap={0}>
+        <DialogTitle>Vizualizar detalhes da empresa</DialogTitle>
+      </DialogHeader>
+      <Content id={id} />
+      <DialogCloseTrigger>
+        <CloseButton size="sm" />
+      </DialogCloseTrigger>
+    </DialogContent>
   );
 };
