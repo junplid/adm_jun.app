@@ -2,6 +2,7 @@ import { useMemo, JSX } from "react";
 import "./styles.css";
 import { nanoid } from "nanoid";
 import { TableVirtuoso } from "react-virtuoso";
+import { Spinner } from "@chakra-ui/react";
 
 export interface Column {
   name: string;
@@ -53,7 +54,7 @@ export const TableComponent = (props: Props): JSX.Element => {
   }, [props.columns, props.rows]);
 
   return (
-    <div className="">
+    <div className="relative">
       <TableVirtuoso
         className="scroll-custom-table container__virtuoso"
         style={{ height: "100%", width: "100%" }}
@@ -93,6 +94,17 @@ export const TableComponent = (props: Props): JSX.Element => {
           })
         }
       />
+      {!rows.length && props.textEmpity && !props.load && (
+        <div className="cursor-default absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 px-4 py-2 text-sm dark:text-white/30 text-black/50">
+          {props.textEmpity}
+        </div>
+      )}
+      {props.load && (
+        <div className="cursor-default absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 px-4 py-2 text-sm dark:text-white/30 text-black/50">
+          <Spinner size={"md"} />
+        </div>
+      )}
+
       {/* <table className="min-w-full table-auto">
         <thead
           style={{ height: 50 }}

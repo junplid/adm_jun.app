@@ -150,7 +150,15 @@ function Content({
             label="Nome"
           >
             <Input
-              {...register("name")}
+              {...register("name", {
+                onChange(event) {
+                  setValue(
+                    "name",
+                    event.target.value.replace(/\s/g, "_")
+                    // .replace(/[^a-zA-Z0-9-.-ç_]/g, "")
+                  );
+                },
+              })}
               autoComplete="off"
               placeholder="Digite o nome da variável"
             />
