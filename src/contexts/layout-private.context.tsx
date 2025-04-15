@@ -201,12 +201,8 @@ export function LayoutPrivateProvider(): JSX.Element {
               </MenuItem>
               <MenuItem
                 icon={<TbTags size={21} />}
-                component={
-                  <Link to={"/auth/production-settings/customization-tag"} />
-                }
-                active={
-                  pathname === "/auth/production-settings/customization-tag"
-                }
+                component={<Link to={"/auth/tags"} />}
+                active={pathname === "/auth/tags"}
               >
                 Etiquetas
               </MenuItem>

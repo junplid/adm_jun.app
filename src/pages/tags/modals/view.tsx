@@ -10,9 +10,9 @@ import {
 import { JSX } from "react";
 import { CloseButton } from "@components/ui/close-button";
 import { Button, Spinner } from "@chakra-ui/react";
-import { ModalDeleteVariable } from "./delete";
-import { useGetVariableDetails } from "../../../hooks/variable";
+import { ModalDeleteTag } from "./delete";
 import { useDialogModal } from "../../../hooks/dialog.modal";
+import { useGetTagDetails } from "../../../hooks/tag";
 
 interface IProps {
   id: number;
@@ -21,7 +21,7 @@ interface IProps {
 }
 
 function Content({ id, close, isDelete }: IProps) {
-  const { data, isFetching, status } = useGetVariableDetails(id);
+  const { data, isFetching, status } = useGetTagDetails(id);
   const { dialog, onOpen } = useDialogModal({});
 
   const footer = (
@@ -37,7 +37,7 @@ function Content({ id, close, isDelete }: IProps) {
           onClick={() => {
             onOpen({
               content: (
-                <ModalDeleteVariable
+                <ModalDeleteTag
                   close={close}
                   data={data ? { id, name: data.name } : null}
                 />
@@ -103,7 +103,7 @@ function Content({ id, close, isDelete }: IProps) {
   );
 }
 
-export const ModalViewVariable: React.FC<IProps> = ({
+export const ModalViewTag: React.FC<IProps> = ({
   id,
   close,
   isDelete = false,
@@ -111,7 +111,7 @@ export const ModalViewVariable: React.FC<IProps> = ({
   return (
     <DialogContent w={"410px"} minH={"400px"}>
       <DialogHeader flexDirection={"column"} gap={0}>
-        <DialogTitle>Vizualizar detalhes da variável</DialogTitle>
+        <DialogTitle>Vizualizar detalhes da etiqueta</DialogTitle>
       </DialogHeader>
       <Content id={id} close={close} isDelete={isDelete} />
       <DialogCloseTrigger>

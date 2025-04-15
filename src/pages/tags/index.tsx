@@ -2,74 +2,45 @@ import { JSX, useMemo } from "react";
 import { TableComponent } from "../../components/Table";
 import { Column } from "../../components/Table";
 import { ModalCreateFlow } from "./modals/create";
-import { ModalDeleteVariable } from "./modals/delete";
+import { ModalDeleteTag } from "./modals/delete";
 import { Button } from "@chakra-ui/react";
 import { MdDeleteOutline, MdEdit } from "react-icons/md";
-import { ModalViewVariable } from "./modals/view";
+import { ModalViewTag } from "./modals/view";
 import { LuEye } from "react-icons/lu";
 import { IoAdd } from "react-icons/io5";
-import { ModalEditVariable } from "./modals/edit";
-import { useGetVariables } from "../../hooks/variable";
+import { ModalEditTag } from "./modals/edit";
 import { useDialogModal } from "../../hooks/dialog.modal";
+import { useGetTags } from "../../hooks/tag";
+import { TagType } from "../../services/api/Tag";
 
-export type TypeVariable = "dynamics" | "constant" | "system";
-
-export interface VariableRow {
-  business: { name: string; id: number }[];
-  type: TypeVariable;
-  name: string;
+export interface TagRow {
   id: number;
-  value: string | null;
+  name: string;
+  type: TagType;
+  records: number;
+  businesses: { id: number; name: string }[];
 }
 
-const translateType: {
-  [x in TypeVariable]: { label: string; cb: string; ct: string };
-} = {
-  dynamics: { label: "Mutável", cb: "#294d6e", ct: "#dcf4ff" },
-  constant: { label: "Imutável", cb: "#836e21", ct: "#fff" },
-  system: { label: "Sistema", cb: "#373a3d", ct: "#cfcfcf" },
-};
+// const translateType: {
+//   [x in TagType]: { label: string; cb: string; ct: string };
+// } = {
+//   audience: { label: "Público", cb: "#294d6e", ct: "#dcf4ff" },
+//   contact: { label: "Lead", cb: "#836e21", ct: "#fff" },
+// };
 
-export const VariablesPage: React.FC = (): JSX.Element => {
-  const { data: variables, isFetching, isPending } = useGetVariables();
+export const TagsPage: React.FC = (): JSX.Element => {
+  const { data: tags, isFetching, isPending } = useGetTags();
   const { dialog: DialogModal, close, onOpen } = useDialogModal({});
 
   const renderColumns = useMemo(() => {
     const columns: Column[] = [
       {
-        key: "type",
-        name: "Tipo",
-        styles: { width: 120 },
-        render(row) {
-          const type = row.type as TypeVariable;
-          return (
-            <div className="flex">
-              <span
-                style={{
-                  background: translateType[type].cb,
-                  color: translateType[type].ct,
-                }}
-                className="flex p-0.5 px-2 gap-x-2 text-sm tracking-wide select-none items-center font-semibold rounded-sm"
-              >
-                {translateType[type].label}
-              </span>
-            </div>
-          );
-        },
+        key: "name",
+        name: "Nome da etiqueta",
       },
       {
-        key: "name",
-        name: "Nome da variável",
-        render(row) {
-          return (
-            <div className="flex items-start flex-col">
-              <span>{row.name}</span>
-              {row.value && (
-                <small className="text-white/45">= {row.value}</small>
-              )}
-            </div>
-          );
-        },
+        key: "records",
+        name: "Registros",
       },
       {
         key: "actions",
@@ -82,7 +53,7 @@ export const VariablesPage: React.FC = (): JSX.Element => {
                 onClick={() =>
                   onOpen({
                     content: (
-                      <ModalViewVariable
+                      <ModalViewTag
                         isDelete={row.type !== "system"}
                         close={close}
                         id={row.id}
@@ -100,7 +71,7 @@ export const VariablesPage: React.FC = (): JSX.Element => {
               <Button
                 onClick={() => {
                   onOpen({
-                    content: <ModalEditVariable close={close} id={row.id} />,
+                    content: <ModalEditTag close={close} id={row.id} />,
                   });
                 }}
                 size={"sm"}
@@ -120,7 +91,7 @@ export const VariablesPage: React.FC = (): JSX.Element => {
                 onClick={() => {
                   onOpen({
                     content: (
-                      <ModalDeleteVariable
+                      <ModalDeleteTag
                         data={{ id: row.id, name: row.name }}
                         close={close}
                       />
@@ -142,7 +113,7 @@ export const VariablesPage: React.FC = (): JSX.Element => {
     <div className="h-full gap-y-2 flex flex-col">
       <div className="flex flex-col gap-y-0.5">
         <div className="flex items-center gap-x-5">
-          <h1 className="text-lg font-semibold">Variáveis</h1>
+          <h1 className="text-lg font-semibold">Etiquetas</h1>
           <ModalCreateFlow
             trigger={
               <Button variant="outline" size={"sm"}>
@@ -152,15 +123,15 @@ export const VariablesPage: React.FC = (): JSX.Element => {
           />
         </div>
         <p className="text-white/60 font-light">
-          Variáveis servem para guardar informações personalizadas dos seus
-          contatos, como nome, e-mail, etc.
+          Classifique e organize seus leads por interesses, ações e
+          comportamentos para tomar decisões mais estratégicas.
         </p>
       </div>
       <div style={{ maxHeight: "calc(100vh - 180px)" }} className="flex-1 grid">
         <TableComponent
-          rows={variables || []}
+          rows={tags || []}
           columns={renderColumns}
-          textEmpity="Nenhuma variável criada."
+          textEmpity="Nenhuma etiqueta criada."
           load={isFetching || isPending}
         />
       </div>

@@ -14,36 +14,32 @@ import {
   DialogDescription,
 } from "@components/ui/dialog";
 import { Field } from "@components/ui/field";
-import { VariableRow } from "..";
+import { TagRow } from "..";
 import { AxiosError } from "axios";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import SelectBusinesses from "@components/SelectBusinesses";
-import { useCreateVariable } from "../../../hooks/variable";
-import SelectComponent from "@components/Select";
+import { useCreateTag } from "../../../hooks/tag";
 
 interface IProps {
-  onCreate?(business: VariableRow): Promise<void>;
+  onCreate?(business: TagRow): Promise<void>;
   trigger: JSX.Element;
   placement?: "top" | "bottom" | "center";
 }
 
 const FormSchema = z.object({
   name: z.string().min(1, "Campo obrigatório."),
-  type: z.enum(["dynamics", "constant"], {
-    message: "Campo obrigatório.",
-  }),
+  type: z.enum(["contact", "audience"], { message: "Campo obrigatório." }),
   businessIds: z.array(z.number()).optional(),
-  value: z.string().optional(),
 });
 
 type Fields = z.infer<typeof FormSchema>;
 
-const optionsType = [
-  { label: "Mutável", value: "dynamics" },
-  { label: "Imutável", value: "constant" },
-];
+// const optionsType = [
+//   { label: "Lead", value: "contact" },
+//   { label: "Público", value: "audience" },
+// ];
 
 export function ModalCreateFlow({
   placement = "bottom",
@@ -57,15 +53,15 @@ export function ModalCreateFlow({
     setError,
     setValue,
     getValues,
-    watch,
     reset,
   } = useForm<Fields>({
     resolver: zodResolver(FormSchema),
+    defaultValues: { type: "contact" },
   });
 
   const [open, setOpen] = useState(false);
 
-  const { mutateAsync: createVariable, isPending } = useCreateVariable({
+  const { mutateAsync: createTag, isPending } = useCreateTag({
     setError,
     async onSuccess() {
       setOpen(false);
@@ -75,10 +71,10 @@ export function ModalCreateFlow({
 
   const create = useCallback(async (fields: Fields): Promise<void> => {
     try {
-      const flow = await createVariable(fields);
+      const tag = await createTag(fields);
       const { businessIds, ...rest } = fields;
       reset();
-      props.onCreate?.({ ...flow, ...rest });
+      props.onCreate?.({ ...tag, ...rest, records: 0 });
     } catch (error) {
       if (error instanceof AxiosError) {
         console.log("Error-API", error);
@@ -87,8 +83,6 @@ export function ModalCreateFlow({
       }
     }
   }, []);
-
-  const type = watch("type");
 
   return (
     <DialogRoot
@@ -108,10 +102,8 @@ export function ModalCreateFlow({
         w={"348px"}
       >
         <DialogHeader flexDirection={"column"} gap={0}>
-          <DialogTitle>Criar variável</DialogTitle>
-          <DialogDescription>
-            Guarde e personalize informações dos seus contatos.
-          </DialogDescription>
+          <DialogTitle>Criar etiqueta</DialogTitle>
+          <DialogDescription>O limite é a sua imaginação.</DialogDescription>
         </DialogHeader>
         <DialogBody>
           <VStack gap={4}>
@@ -119,7 +111,7 @@ export function ModalCreateFlow({
               label="Anexe empresas"
               helperText={
                 <Text>
-                  Se nenhuma empresa for selecionada, a variável será anexada a
+                  Se nenhuma empresa for selecionada, a etiqueta será anexada a
                   todas as empresas existentes e as que forem criadas no futuro.
                 </Text>
               }
@@ -164,15 +156,16 @@ export function ModalCreateFlow({
                 })}
                 autoFocus
                 autoComplete="off"
-                placeholder="Digite o nome da variável"
+                placeholder="Digite o nome da etiqueta"
               />
             </Field>
-            <Field
-              label="Tipo da variável"
+            {/* <Field
+              label="Tipo da etiqueta"
               errorText={errors.type?.message}
               invalid={!!errors.type}
               helperText="Variaveis imutáveis não podem ser alteradas em construtores de fluxos."
               className="w-full"
+              hidden
             >
               <Controller
                 name="type"
@@ -207,20 +200,7 @@ export function ModalCreateFlow({
                   />
                 )}
               />
-            </Field>
-            {type === "constant" && (
-              <Field
-                errorText={errors.value?.message}
-                invalid={!!errors.value}
-                label="Valor"
-              >
-                <Input
-                  {...register("value")}
-                  autoComplete="off"
-                  placeholder="Digite o valor da variável"
-                />
-              </Field>
-            )}
+            </Field> */}
           </VStack>
         </DialogBody>
         <DialogFooter>

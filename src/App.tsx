@@ -13,6 +13,7 @@ import { BusinessesPage } from "./pages/businesses";
 import { FlowsPage } from "./pages/flows";
 import { VariablesPage } from "./pages/variables";
 import { DialogProvider } from "@contexts/dialog.context";
+import { TagsPage } from "./pages/tags";
 
 // import { NodeMessage } from "./flow-lib/nodes/Message";
 // import { NodeReply } from "./flow-lib/nodes/Reply";
@@ -78,6 +79,7 @@ export default function App() {
             />
             <Route path="flows" caseSensitive element={<FlowsPage />} />
             <Route path="variables" caseSensitive element={<VariablesPage />} />
+            <Route path="tags" caseSensitive element={<TagsPage />} />
           </Route>
 
           <Route
