@@ -30,7 +30,12 @@ export function LayoutMain(): JSX.Element {
       </div>
       <footer className="text-white/50 text-xs p-0.5 text-end flex items-center justify-between px-3">
         <span>Última atualização: 24/03/2025</span>
-        <span className="font-medium">Versão 0.1.03-alpha</span>
+        <div className="flex items-center gap-x-3">
+          <span className="font-light">
+            Este produto está longe de representar a versão final.
+          </span>
+          <span className="font-medium text-white">v0.1.03-alpha</span>
+        </div>
       </footer>
     </div>
   );

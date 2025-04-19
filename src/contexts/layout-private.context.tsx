@@ -7,11 +7,10 @@ import {
   useMemo,
   useState,
 } from "react";
-import { BsChatLeftDots, BsDiscord } from "react-icons/bs";
-import { IoMdHelpCircle } from "react-icons/io";
-import { IoClose } from "react-icons/io5";
-import { MdBusiness, MdMonitorHeart } from "react-icons/md";
-import { PiBracketsCurlyBold, PiPlugsConnectedFill } from "react-icons/pi";
+import { BsDiscord } from "react-icons/bs";
+import { IoClose, IoHelpCircleOutline } from "react-icons/io5";
+import { PiBracketsCurlyBold, PiProjectorScreenBold } from "react-icons/pi";
+import { GrConnect } from "react-icons/gr";
 import { Menu, MenuItem, Sidebar, SubMenu } from "react-pro-sidebar";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { InViewComponent } from "@components/InView";
@@ -21,6 +20,7 @@ import { useColorModeValue } from "@components/ui/color-mode";
 import { Tooltip } from "@components/ui/tooltip";
 import { TbDoorExit, TbTags } from "react-icons/tb";
 import { GoWorkflow } from "react-icons/go";
+import { LuBotMessageSquare, LuChartNoAxesCombined } from "react-icons/lu";
 
 export const ShadowTopMemoComponent = memo(() => {
   const [showShadowTop, setShowShadowTop] = useState(true);
@@ -172,23 +172,23 @@ export function LayoutPrivateProvider(): JSX.Element {
               }}
             >
               <MenuItem
-                icon={<MdMonitorHeart size={20} />}
+                icon={<LuChartNoAxesCombined size={20} />}
                 active={pathname === "/auth/dashboard"}
                 component={<Link to={"/auth/dashboard"} />}
               >
-                Dashboard
+                Visão geral
               </MenuItem>
               <MenuItem
-                icon={<MdBusiness size={20} />}
+                icon={<PiProjectorScreenBold size={20} />}
                 component={<Link to={"/auth/businesses"} />}
                 active={pathname === "/auth/businesses"}
               >
-                Empresas
+                Projetos
               </MenuItem>
               <MenuItem
-                icon={<PiPlugsConnectedFill size={20} />}
-                component={<Link to={"/auth/connections"} />}
-                active={pathname === "/auth/connections"}
+                icon={<GrConnect size={20} />}
+                component={<Link to={"/auth/connectionswa"} />}
+                active={pathname === "/auth/connectionswa"}
               >
                 Conexões WA
               </MenuItem>
@@ -215,11 +215,11 @@ export function LayoutPrivateProvider(): JSX.Element {
               </MenuItem>
 
               <MenuItem
-                icon={<BsChatLeftDots size={19} />}
+                icon={<LuBotMessageSquare size={22} />}
                 active={pathname === "/auth/receiving-automation/chatbot"}
                 component={<Link to={"/auth/receiving-automation/chatbot"} />}
               >
-                Robô de recebimento
+                Recepção bot
               </MenuItem>
               {/* <MenuItem
                 icon={<BsChatRightDotsFill size={25} />}
@@ -232,8 +232,8 @@ export function LayoutPrivateProvider(): JSX.Element {
               <SubMenu
                 className="remove-scaped"
                 active={pathname.includes("/auth/help")}
-                icon={<IoMdHelpCircle size={21} />}
-                label="Ajuda"
+                icon={<IoHelpCircleOutline size={35} />}
+                label="Ajuda+"
                 onClick={() => {
                   if (!toggledMenu) {
                     setToggledMenu(true);

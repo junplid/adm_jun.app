@@ -1,6 +1,6 @@
 import { api } from "./index";
 
-export type TagType = "contact" | "audience";
+export type TagType = "contactwa" | "audience";
 
 export async function getTags(params: {
   type?: TagType;

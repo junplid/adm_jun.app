@@ -117,7 +117,10 @@ export function useCreateTag(props?: {
       if (queryClient.getQueryData<any>(["tags", null])) {
         queryClient.setQueryData(["tags", null], (old: any) => {
           if (!old) return old;
-          return [{ ...data, name: body.name, type: body.type }, ...old];
+          return [
+            { ...data, name: body.name, type: body.type, records: 0 },
+            ...old,
+          ];
         });
       }
 

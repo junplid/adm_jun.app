@@ -30,7 +30,7 @@ interface IProps {
 
 const FormSchema = z.object({
   name: z.string().min(1, "Campo obrigatório."),
-  type: z.enum(["contact", "audience"], { message: "Campo obrigatório." }),
+  type: z.enum(["contactwa", "audience"], { message: "Campo obrigatório." }),
   businessIds: z.array(z.number()).optional(),
 });
 
@@ -56,7 +56,7 @@ export function ModalCreateFlow({
     reset,
   } = useForm<Fields>({
     resolver: zodResolver(FormSchema),
-    defaultValues: { type: "contact" },
+    defaultValues: { type: "contactwa" },
   });
 
   const [open, setOpen] = useState(false);

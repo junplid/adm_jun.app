@@ -18,7 +18,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import SelectBusinesses from "@components/SelectBusinesses";
 import deepEqual from "fast-deep-equal";
-import { useGetTag, useUpdateTag } from "../../../hooks/tag";
+import { useGetVariable, useUpdateVariable } from "../../../hooks/variable";
+import SelectComponent from "@components/Select";
 
 interface IProps {
   id: number;
@@ -27,16 +28,19 @@ interface IProps {
 
 const FormSchema = z.object({
   name: z.string().min(1, "Campo obrigatório."),
-  type: z.enum(["contactwa", "audience"], { message: "Campo obrigatório." }),
+  type: z.enum(["dynamics", "constant"], {
+    message: "Campo obrigatório.",
+  }),
   businessIds: z.array(z.number()).optional(),
+  value: z.string().optional().nullable(),
 });
 
 type Fields = z.infer<typeof FormSchema>;
 
-// const optionsType = [
-//   { label: "Lead", value: "contact" },
-//   { label: "Público", value: "audience" },
-// ];
+const optionsType = [
+  { label: "Mutável", value: "dynamics" },
+  { label: "Imutável", value: "constant" },
+];
 
 function Content({
   id,
@@ -60,23 +64,25 @@ function Content({
     resolver: zodResolver(FormSchema),
   });
 
-  const { mutateAsync: updateTag, isPending } = useUpdateTag({
+  const { mutateAsync: updateVariable, isPending } = useUpdateVariable({
     setError,
     async onSuccess() {
       props.onClose();
       await new Promise((resolve) => setTimeout(resolve, 220));
     },
   });
-  const { data, isFetching } = useGetTag(id);
+  const { data, isFetching } = useGetVariable(id);
 
   useEffect(() => {
     if (data) {
       setFieldsDraft({
         name: data.name,
         type: data.type,
+        value: data.value,
         businessIds: data.businessIds,
       });
       setValue("name", data.name);
+      setValue("value", data.value);
       setValue("type", data.type);
       setValue("businessIds", data.businessIds);
     }
@@ -85,7 +91,7 @@ function Content({
   const edit = useCallback(
     async (fields: Fields): Promise<void> => {
       try {
-        await updateTag({ id, body: fields });
+        await updateVariable({ id, body: fields });
       } catch (error) {
         if (error instanceof AxiosError) {
           console.log("Error-API", error);
@@ -110,7 +116,7 @@ function Content({
             label="Anexe empresas"
             helperText={
               <Text>
-                Se nenhuma empresa for selecionada, a etiqueta será anexada a
+                Se nenhuma empresa for selecionada, a variável será anexada a
                 todas as empresas existentes e as que forem criadas no futuro.
               </Text>
             }
@@ -153,53 +159,64 @@ function Content({
                   );
                 },
               })}
-              autoFocus
               autoComplete="off"
-              placeholder="Digite o nome da etiqueta"
+              placeholder="Digite o nome da variável"
             />
           </Field>
-          {/* <Field
-              label="Tipo da etiqueta"
-              errorText={errors.type?.message}
-              invalid={!!errors.type}
-              helperText="Variaveis imutáveis não podem ser alteradas em construtores de fluxos."
-              className="w-full"
-              hidden
-            >
-              <Controller
-                name="type"
-                control={control}
-                render={({ field }) => (
-                  <SelectComponent
-                    name={field.name}
-                    onBlur={field.onBlur}
-                    onChange={(e: any) => {
-                      if (e?.value) {
-                        field.onChange(e.value);
-                      } else {
-                        field.onChange(null);
-                      }
-                    }}
-                    options={optionsType}
-                    isClearable
-                    value={
-                      field.value
-                        ? [
-                            {
-                              label:
-                                optionsType.find(
-                                  (item) => item.value === field.value
-                                )?.label || "",
-                              value: field.value,
-                            },
-                          ]
-                        : null
+          <Field
+            label="Tipo da variável"
+            errorText={errors.type?.message}
+            invalid={!!errors.type}
+            helperText="Variaveis imutáveis não podem ser alteradas em construtores de fluxos."
+            className="w-full"
+          >
+            <Controller
+              name="type"
+              control={control}
+              render={({ field }) => (
+                <SelectComponent
+                  name={field.name}
+                  onBlur={field.onBlur}
+                  onChange={(e: any) => {
+                    if (e?.value) {
+                      field.onChange(e.value);
+                    } else {
+                      field.onChange(null);
                     }
-                    placeholder="Selecione o tipo da variável"
-                  />
-                )}
+                  }}
+                  options={optionsType}
+                  isClearable
+                  value={
+                    field.value
+                      ? [
+                          {
+                            label:
+                              optionsType.find(
+                                (item) => item.value === field.value
+                              )?.label || "",
+                            value: field.value,
+                          },
+                        ]
+                      : null
+                  }
+                  placeholder="Selecione o tipo da variável"
+                />
+              )}
+            />
+          </Field>
+          {fields.type === "constant" && (
+            <Field
+              errorText={errors.value?.message}
+              invalid={!!errors.value}
+              label="Valor"
+            >
+              <Input
+                {...register("value")}
+                autoComplete="off"
+                placeholder="Digite o valor da variável"
               />
-            </Field> */}
+            </Field>
+          )}
         </VStack>
       </DialogBody>
       <DialogFooter>
@@ -221,12 +238,14 @@ function Content({
   );
 }
 
-export function ModalEditTag({ id, ...props }: IProps): JSX.Element {
+export function ModalEditVariable({ id, ...props }: IProps): JSX.Element {
   return (
     <DialogContent w={"348px"}>
       <DialogHeader flexDirection={"column"} gap={0}>
-        <DialogTitle>Editar etiqueta</DialogTitle>
-        <DialogDescription>O limite é a sua imaginação.</DialogDescription>
+        <DialogTitle>Editar variável</DialogTitle>
+        <DialogDescription>
+          Guarde e personalize informações dos seus contatos.
+        </DialogDescription>
       </DialogHeader>
       <Content id={id} onClose={props.close} />
       <DialogCloseTrigger asChild>

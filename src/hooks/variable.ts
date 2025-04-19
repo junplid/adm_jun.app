@@ -178,12 +178,18 @@ export function useUpdateVariable(props?: {
       queryClient.setQueryData(["variable", id], (old: any) => ({
         ...old,
         ...body,
+        ...(body.type === "dynamics" && { value: null }),
       }));
 
       if (queryClient.getQueryData<any>(["variables", null])) {
         queryClient.setQueryData(["variables", null], (old: any) =>
           old?.map((b: any) => {
-            if (b.id === id) b = { ...b, ...bodyData };
+            if (b.id === id)
+              b = {
+                ...b,
+                ...bodyData,
+                ...(bodyData.type === "dynamics" && { value: null }),
+              };
             return b;
           })
         );

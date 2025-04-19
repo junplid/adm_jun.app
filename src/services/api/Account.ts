@@ -10,7 +10,7 @@ export async function getAccount(token: string): Promise<{
   number: string;
   Plan: { type: "paid" | "free" } | null;
 }> {
-  const { data } = await api.get("/private/account-user", {
+  const { data } = await api.get("/private/account", {
     headers: { Authorization: token },
   });
   return data.account;

@@ -34,7 +34,7 @@ export const TableComponent = (props: Props): JSX.Element => {
       const columns = props.columns.map((column) => {
         let objRow: {
           key: string;
-          value: JSX.Element | string;
+          value: JSX.Element | string | number;
         } | null = null;
 
         for (const rowObj of Object.entries(row)) {
@@ -47,9 +47,14 @@ export const TableComponent = (props: Props): JSX.Element => {
           }
           if (key === column.key) return (objRow = { key, value });
         }
+
+        console.log({ objRow });
         return objRow;
       });
-      return { id: row.id, columns: columns.filter((s) => s) };
+      return {
+        id: row.id,
+        columns: columns.filter((s) => s !== null || s !== undefined),
+      };
     });
   }, [props.columns, props.rows]);
 
