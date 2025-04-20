@@ -9,8 +9,8 @@ import { ModalViewVariable } from "./modals/view";
 import { LuEye } from "react-icons/lu";
 import { IoAdd } from "react-icons/io5";
 import { ModalEditVariable } from "./modals/edit";
-import { useGetVariables } from "../../hooks/variable";
 import { useDialogModal } from "../../hooks/dialog.modal";
+import { useGetConnectionsWA } from "../../hooks/connectionWA";
 
 export type TypeConnectionWA = "chatbot" | "marketing";
 
@@ -30,7 +30,7 @@ const translateType: {
 };
 
 export const ConnectionsWAPage: React.FC = (): JSX.Element => {
-  const { data: variables, isFetching, isPending } = useGetVariables();
+  const { data: connectionsWA, isFetching, isPending } = useGetConnectionsWA();
   const { dialog: DialogModal, close, onOpen } = useDialogModal({});
 
   const renderColumns = useMemo(() => {
@@ -141,7 +141,7 @@ export const ConnectionsWAPage: React.FC = (): JSX.Element => {
       </div>
       <div style={{ maxHeight: "calc(100vh - 180px)" }} className="flex-1 grid">
         <TableComponent
-          rows={[]}
+          rows={connectionsWA || []}
           columns={renderColumns}
           textEmpity="Nenhuma conexão WA criada."
           load={isFetching || isPending}

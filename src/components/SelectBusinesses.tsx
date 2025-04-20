@@ -43,7 +43,7 @@ const SelectBusinesses = forwardRef<any, ISelectBusinessesProps>(
       <SelectComponent
         ref={ref}
         isLoading={isLoading || isFetching || isPending}
-        placeholder={`Selecione ${isMulti ? "as empresas" : "a empresa"}`}
+        placeholder={`Selecione ${isMulti ? "os projetos" : "o projeto"}`}
         options={(opt || []).map((item) => ({
           label: item.name,
           value: item.id,
@@ -56,11 +56,11 @@ const SelectBusinesses = forwardRef<any, ISelectBusinessesProps>(
           return (
             <div className="flex  text-sm flex-col gap-1 pointer-events-auto">
               <span className="text-white/60">
-                Nenhuma empresa {inputValue && `"${inputValue}"`} encontrada
+                Nenhum projeto {inputValue && `"${inputValue}"`} encontrado
               </span>
               {!inputValue && (
                 <span className="text-sm text-white/80">
-                  Digite o nome da empresa que quer adicionar
+                  Digite o nome do projeto que quer adicionar
                 </span>
               )}
               {inputValue && (
@@ -70,7 +70,7 @@ const SelectBusinesses = forwardRef<any, ISelectBusinessesProps>(
                 >
                   {isPendingCreate ? (
                     <span className="text-white/60">
-                      Criando nova empresa...
+                      Criando novo projeto...
                     </span>
                   ) : (
                     <span className="text-xs">
