@@ -17,10 +17,9 @@ import { useDialogModal } from "../../../hooks/dialog.modal";
 interface IProps {
   id: number;
   close: () => void;
-  isDelete?: boolean;
 }
 
-function Content({ id, close, isDelete }: IProps) {
+function Content({ id, close }: IProps) {
   const { data, isFetching, status } = useGetVariableDetails(id);
   const { dialog, onOpen } = useDialogModal({});
 
@@ -32,7 +31,6 @@ function Content({ id, close, isDelete }: IProps) {
       {id && (
         <Button
           loading={isFetching}
-          disabled={!isDelete}
           variant="outline"
           onClick={() => {
             onOpen({
@@ -106,14 +104,13 @@ function Content({ id, close, isDelete }: IProps) {
 export const ModalViewVariable: React.FC<IProps> = ({
   id,
   close,
-  isDelete = false,
 }): JSX.Element => {
   return (
     <DialogContent w={"410px"} minH={"400px"}>
       <DialogHeader flexDirection={"column"} gap={0}>
         <DialogTitle>Vizualizar detalhes da variável</DialogTitle>
       </DialogHeader>
-      <Content id={id} close={close} isDelete={isDelete} />
+      <Content id={id} close={close} />
       <DialogCloseTrigger>
         <CloseButton size="sm" />
       </DialogCloseTrigger>

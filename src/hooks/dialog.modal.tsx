@@ -18,10 +18,14 @@ export const useDialogModal = ({
 }: IDialogModal) => {
   const [dialog, setDialog] = useState<{
     content: ReactNode;
+    size?: "sm" | "md" | "lg" | "xl";
   } | null>(null);
   const [open, setOpen] = useState<boolean>(false);
 
-  const onOpen = (props: { content: ReactNode }) => {
+  const onOpen = (props: {
+    content: ReactNode;
+    size?: "sm" | "md" | "lg" | "xl";
+  }) => {
     setDialog(props);
     setOpen(true);
   };
@@ -43,6 +47,7 @@ export const useDialogModal = ({
         motionPreset={motionPreset}
         lazyMount
         unmountOnExit
+        size={dialog?.size}
       >
         {dialog?.content}
       </DialogRoot>

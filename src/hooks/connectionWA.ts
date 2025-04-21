@@ -28,26 +28,26 @@ import { UseFormSetError } from "react-hook-form";
 //   });
 // }
 
-// export function useGetVariable(id: number) {
-//   const { logout } = useContext(AuthContext);
-//   return useQuery({
-//     queryKey: ["variable", id],
-//     queryFn: async () => {
-//       try {
-//         return await VariableService.getVariable(id);
-//       } catch (error) {
-//         if (error instanceof AxiosError) {
-//           if (error.response?.status === 401) logout();
-//           if (error.response?.status === 400) {
-//             const dataError = error.response?.data as ErrorResponse_I;
-//             if (dataError.toast.length) dataError.toast.forEach(toaster.create);
-//           }
-//         }
-//         throw error;
-//       }
-//     },
-//   });
-// }
+export function useGetConnectionWA(id: number) {
+  const { logout } = useContext(AuthContext);
+  return useQuery({
+    queryKey: ["connection-wa", id],
+    queryFn: async () => {
+      try {
+        return await ConnectionWAService.getConnectionWA(id);
+      } catch (error) {
+        if (error instanceof AxiosError) {
+          if (error.response?.status === 401) logout();
+          if (error.response?.status === 400) {
+            const dataError = error.response?.data as ErrorResponse_I;
+            if (dataError.toast.length) dataError.toast.forEach(toaster.create);
+          }
+        }
+        throw error;
+      }
+    },
+  });
+}
 
 export function useGetConnectionsWA(params?: { name?: string; page?: number }) {
   const { logout } = useContext(AuthContext);
@@ -136,7 +136,10 @@ export function useCreateConnectionWA(props?: {
       if (queryClient.getQueryData<any>(["connections-wa", null])) {
         queryClient.setQueryData(["connections-wa", null], (old: any) => {
           if (!old) return old;
-          return [{ ...data, name: body.name, type: body.type }, ...old];
+          return [
+            { ...data, name: body.name, type: body.type, status: "close" },
+            ...old,
+          ];
         });
       }
 
@@ -165,78 +168,112 @@ export function useCreateConnectionWA(props?: {
   });
 }
 
-// export function useUpdateVariable(props?: {
-//   setError?: UseFormSetError<{
-//     name?: string;
-//     type?: "dynamics" | "constant";
-//     value?: string | null;
-//     businessIds?: number[];
-//   }>;
-//   onSuccess?: () => Promise<void>;
-// }) {
-//   const { logout } = useContext(AuthContext);
-//   const queryClient = useQueryClient();
-//   return useMutation({
-//     mutationFn: ({
-//       id,
-//       body,
-//     }: {
-//       id: number;
-//       body: {
-//         name?: string;
-//         value?: string | null;
-//         type?: "dynamics" | "constant";
-//         businessIds?: number[];
-//       };
-//     }) => VariableService.updateVariable(id, body),
-//     async onSuccess(_, { id, body }) {
-//       const { businessIds, ...bodyData } = body;
-//       if (props?.onSuccess) await props.onSuccess();
-//       queryClient.setQueryData(["variable", id], (old: any) => ({
-//         ...old,
-//         ...body,
-//         ...(body.type === "dynamics" && { value: null }),
-//       }));
+export function useUpdateConnectionWA(props?: {
+  setError?: UseFormSetError<{
+    name?: string;
+    description?: string | null;
+    type?: ConnectionWAService.ConnectionWAType;
+    businessId?: number;
+    profileName?: string | null;
+    profileStatus?: string | null;
+    lastSeenPrivacy?: "all" | "contacts" | "contact_blacklist" | "none";
+    onlinePrivacy?: "all" | "match_last_seen";
+    imgPerfilPrivacy?: "all" | "contacts" | "contact_blacklist" | "none";
+    statusPrivacy?: "all" | "contacts" | "contact_blacklist" | "none";
+    groupsAddPrivacy?: "all" | "contacts" | "contact_blacklist";
+    readReceiptsPrivacy?: "all" | "none";
+    fileImage?: string | null;
+  }>;
+  onSuccess?: () => Promise<void>;
+}) {
+  const { logout } = useContext(AuthContext);
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      id,
+      body,
+    }: {
+      id: number;
+      body: {
+        name?: string;
+        description?: string | null;
+        type?: ConnectionWAService.ConnectionWAType;
+        businessId?: number;
+        profileName?: string | null;
+        profileStatus?: string | null;
+        lastSeenPrivacy?:
+          | "all"
+          | "contacts"
+          | "contact_blacklist"
+          | "none"
+          | null;
+        onlinePrivacy?: "all" | "match_last_seen" | null;
+        imgPerfilPrivacy?:
+          | "all"
+          | "contacts"
+          | "contact_blacklist"
+          | "none"
+          | null;
+        statusPrivacy?:
+          | "all"
+          | "contacts"
+          | "contact_blacklist"
+          | "none"
+          | null;
+        groupsAddPrivacy?: "all" | "contacts" | "contact_blacklist" | null;
+        readReceiptsPrivacy?: "all" | "none" | null;
+        fileImage?: File | null;
+      };
+    }) => ConnectionWAService.updateConnectionWA(id, body),
+    async onSuccess(data, { id, body }) {
+      const { businessId, fileImage, ...bodyData } = body;
+      if (props?.onSuccess) await props.onSuccess();
+      queryClient.setQueryData(["connection-wa", id], (old: any) => ({
+        ...old,
+        ...body,
+        fileImage: data.fileImage || old.fileImage,
+      }));
 
-//       if (queryClient.getQueryData<any>(["variables", null])) {
-//         queryClient.setQueryData(["variables", null], (old: any) =>
-//           old?.map((b: any) => {
-//             if (b.id === id)
-//               b = {
-//                 ...b,
-//                 ...bodyData,
-//                 ...(bodyData.type === "dynamics" && { value: null }),
-//               };
-//             return b;
-//           })
-//         );
-//       }
-//       if (queryClient.getQueryData<any>(["variables-options", null])) {
-//         queryClient.setQueryData(["variables-options", null], (old: any) =>
-//           old?.map((b: any) => {
-//             if (b.id === id) b = { ...b, name: body.name || b.name };
-//             return b;
-//           })
-//         );
-//       }
-//     },
-//     onError(error: unknown) {
-//       if (error instanceof AxiosError) {
-//         if (error.response?.status === 401) logout();
-//         if (error.response?.status === 400) {
-//           const dataError = error.response?.data as ErrorResponse_I;
-//           if (dataError.toast.length) dataError.toast.forEach(toaster.create);
-//           if (dataError.input.length) {
-//             dataError.input.forEach(({ text, path }) =>
-//               // @ts-expect-error
-//               props?.setError?.(path, { message: text })
-//             );
-//           }
-//         }
-//       }
-//     },
-//   });
-// }
+      if (queryClient.getQueryData<any>(["connections-wa", null])) {
+        queryClient.setQueryData(["connections-wa", null], (old: any) =>
+          old?.map((b: any) => {
+            if (b.id === id)
+              b = {
+                ...b,
+                name: bodyData.name || b.name,
+                type: bodyData.type || b.type,
+                business: data.business,
+              };
+            return b;
+          })
+        );
+      }
+      if (queryClient.getQueryData<any>(["connections-wa-options", null])) {
+        queryClient.setQueryData(["connections-wa-options", null], (old: any) =>
+          old?.map((b: any) => {
+            if (b.id === id) b = { ...b, name: body.name || b.name };
+            return b;
+          })
+        );
+      }
+    },
+    onError(error: unknown) {
+      if (error instanceof AxiosError) {
+        if (error.response?.status === 401) logout();
+        if (error.response?.status === 400) {
+          const dataError = error.response?.data as ErrorResponse_I;
+          if (dataError.toast.length) dataError.toast.forEach(toaster.create);
+          if (dataError.input.length) {
+            dataError.input.forEach(({ text, path }) =>
+              // @ts-expect-error
+              props?.setError?.(path, { message: text })
+            );
+          }
+        }
+      }
+    },
+  });
+}
 
 // export function useDeleteVariable(props?: { onSuccess?: () => Promise<void> }) {
 //   const queryClient = useQueryClient();

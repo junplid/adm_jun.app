@@ -89,7 +89,7 @@ const optionsReadReceiptsValue = [
   { label: "Ninguém", value: "none" },
 ];
 
-export function ModalCreateFlow({
+export function ModalCreateConnectionWA({
   placement = "bottom",
   ...props
 }: IProps): JSX.Element {

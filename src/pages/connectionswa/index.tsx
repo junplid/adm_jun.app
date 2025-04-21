@@ -1,16 +1,24 @@
 import { JSX, useMemo } from "react";
 import { TableComponent } from "../../components/Table";
 import { Column } from "../../components/Table";
-import { ModalCreateFlow } from "./modals/create";
+import { ModalCreateConnectionWA } from "./modals/create";
 import { ModalDeleteVariable } from "./modals/delete";
 import { Button } from "@chakra-ui/react";
-import { MdDeleteOutline, MdEdit } from "react-icons/md";
+import {
+  MdDeleteOutline,
+  MdEdit,
+  MdOutlineSync,
+  MdSignalWifiConnectedNoInternet0,
+} from "react-icons/md";
 import { ModalViewVariable } from "./modals/view";
 import { LuEye } from "react-icons/lu";
 import { IoAdd } from "react-icons/io5";
-import { ModalEditVariable } from "./modals/edit";
+import { ModalEditConnectionWA } from "./modals/edit";
 import { useDialogModal } from "../../hooks/dialog.modal";
 import { useGetConnectionsWA } from "../../hooks/connectionWA";
+import { ImConnection } from "react-icons/im";
+import { TbPlugConnected } from "react-icons/tb";
+import { ModalConnectConnectionWA } from "./modals/connect";
 
 export type TypeConnectionWA = "chatbot" | "marketing";
 
@@ -38,7 +46,26 @@ export const ConnectionsWAPage: React.FC = (): JSX.Element => {
       {
         key: "status",
         name: "Status",
-        styles: { width: 40 },
+        styles: { width: 70 },
+        render(row) {
+          return (
+            <div className="w-full flex items-center justify-center">
+              {row.status == "sync" && (
+                <MdOutlineSync
+                  size={27}
+                  color={"#7bb4f1"}
+                  style={{ transform: "rotate(70deg)" }}
+                />
+              )}
+              {row.status == "close" && (
+                <MdSignalWifiConnectedNoInternet0 color={"#f17b7b"} size={28} />
+              )}
+              {row.status === "open" && (
+                <ImConnection color={"#7bf1a8e2"} size={25} />
+              )}
+            </div>
+          );
+        },
       },
       {
         key: "name",
@@ -64,13 +91,24 @@ export const ConnectionsWAPage: React.FC = (): JSX.Element => {
               <Button
                 onClick={() =>
                   onOpen({
+                    size: "lg",
                     content: (
-                      <ModalViewVariable
-                        isDelete={row.type !== "system"}
-                        close={close}
-                        id={row.id}
-                      />
+                      <ModalConnectConnectionWA close={close} id={row.id} />
                     ),
+                  })
+                }
+                size={"sm"}
+                bg={"#def5cf17"}
+                color={"#9cc989"}
+                _hover={{ bg: "#def5cf2b" }}
+                _icon={{ width: "20px", height: "22px" }}
+              >
+                <TbPlugConnected size={30} />
+              </Button>
+              <Button
+                onClick={() =>
+                  onOpen({
+                    content: <ModalViewVariable close={close} id={row.id} />,
                   })
                 }
                 size={"sm"}
@@ -83,7 +121,10 @@ export const ConnectionsWAPage: React.FC = (): JSX.Element => {
               <Button
                 onClick={() => {
                   onOpen({
-                    content: <ModalEditVariable close={close} id={row.id} />,
+                    size: "sm",
+                    content: (
+                      <ModalEditConnectionWA close={close} id={row.id} />
+                    ),
                   });
                 }}
                 size={"sm"}
@@ -126,7 +167,7 @@ export const ConnectionsWAPage: React.FC = (): JSX.Element => {
       <div className="flex flex-col gap-y-0.5">
         <div className="flex items-center gap-x-5">
           <h1 className="text-lg font-semibold">Conexões WA</h1>
-          <ModalCreateFlow
+          <ModalCreateConnectionWA
             trigger={
               <Button variant="outline" size={"sm"}>
                 <IoAdd /> Adicionar
