@@ -8,7 +8,7 @@ export async function getConnectionsWA(params: {
   businessIds?: number[];
 }): Promise<
   {
-    status: string;
+    status: "open" | "close" | "sync" | "connecting";
     name: string;
     business: { name: string; id: number }[];
     type: ConnectionWAType;
@@ -136,6 +136,16 @@ export async function updateConnectionWA(
   const { data } = await api.put(`/private/connections-wa/${id}`, formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
+  return data.connectionWA;
+}
+
+export async function disconnectConnectionWA(
+  id: number
+): Promise<{ status: "close" }> {
+  const { data } = await api.put(
+    `/private/disconnect-connection-whatsapp/${id}`,
+    undefined
+  );
   return data.connectionWA;
 }
 

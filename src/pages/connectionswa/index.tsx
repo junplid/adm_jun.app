@@ -1,8 +1,8 @@
-import { JSX, useMemo } from "react";
+import { JSX, useCallback, useContext, useEffect, useMemo } from "react";
 import { TableComponent } from "../../components/Table";
 import { Column } from "../../components/Table";
 import { ModalCreateConnectionWA } from "./modals/create";
-import { ModalDeleteVariable } from "./modals/delete";
+import { ModalDeleteConnectionWA } from "./modals/delete";
 import { Button } from "@chakra-ui/react";
 import {
   MdDeleteOutline,
@@ -15,10 +15,17 @@ import { LuEye } from "react-icons/lu";
 import { IoAdd } from "react-icons/io5";
 import { ModalEditConnectionWA } from "./modals/edit";
 import { useDialogModal } from "../../hooks/dialog.modal";
-import { useGetConnectionsWA } from "../../hooks/connectionWA";
+import {
+  useDisconnectConnectionWA,
+  useGetConnectionsWA,
+} from "../../hooks/connectionWA";
 import { ImConnection } from "react-icons/im";
 import { TbPlugConnected } from "react-icons/tb";
 import { ModalConnectConnectionWA } from "./modals/connect";
+import { SocketContext } from "@contexts/socket.context";
+import { useQueryClient } from "@tanstack/react-query";
+import { AiOutlinePoweroff } from "react-icons/ai";
+import { motion } from "framer-motion";
 
 export type TypeConnectionWA = "chatbot" | "marketing";
 
@@ -28,18 +35,34 @@ export interface ConnectionWARow {
   name: string;
   id: number;
   value: string | null;
+  status: "open" | "close" | "connecting" | "sync";
 }
 
-const translateType: {
-  [x in TypeConnectionWA]: { label: string; cb: string; ct: string };
-} = {
-  chatbot: { label: "Recepção bot", cb: "#294d6e", ct: "#dcf4ff" },
-  marketing: { label: "Imutável", cb: "#836e21", ct: "#fff" },
-};
+const MotionIcon = motion(MdOutlineSync);
+
+// const translateType: {
+//   [x in TypeConnectionWA]: { label: string; cb: string; ct: string };
+// } = {
+//   chatbot: { label: "Recepção bot", cb: "#294d6e", ct: "#dcf4ff" },
+//   marketing: { label: "Imutável", cb: "#836e21", ct: "#fff" },
+// };
 
 export const ConnectionsWAPage: React.FC = (): JSX.Element => {
+  const queryClient = useQueryClient();
   const { data: connectionsWA, isFetching, isPending } = useGetConnectionsWA();
   const { dialog: DialogModal, close, onOpen } = useDialogModal({});
+
+  const { socket } = useContext(SocketContext);
+
+  const { mutateAsync: disconnectWA } = useDisconnectConnectionWA();
+
+  const disconnectWhatsapp = useCallback(async (id: number) => {
+    try {
+      await disconnectWA({ id });
+    } catch (error) {
+      console.log(error);
+    }
+  }, []);
 
   const renderColumns = useMemo(() => {
     const columns: Column[] = [
@@ -50,14 +73,19 @@ export const ConnectionsWAPage: React.FC = (): JSX.Element => {
         render(row) {
           return (
             <div className="w-full flex items-center justify-center">
-              {row.status == "sync" && (
-                <MdOutlineSync
+              {row.status === "sync" && (
+                <MotionIcon
                   size={27}
-                  color={"#7bb4f1"}
-                  style={{ transform: "rotate(70deg)" }}
+                  color="#7bb4f1"
+                  animate={{ rotate: -360 }}
+                  transition={{
+                    repeat: Infinity,
+                    duration: 1.2,
+                    ease: "linear",
+                  }}
                 />
               )}
-              {row.status == "close" && (
+              {row.status === "close" && (
                 <MdSignalWifiConnectedNoInternet0 color={"#f17b7b"} size={28} />
               )}
               {row.status === "open" && (
@@ -88,23 +116,38 @@ export const ConnectionsWAPage: React.FC = (): JSX.Element => {
         render(row) {
           return (
             <div className="flex h-full items-center justify-end gap-x-1.5">
-              <Button
-                onClick={() =>
-                  onOpen({
-                    size: "lg",
-                    content: (
-                      <ModalConnectConnectionWA close={close} id={row.id} />
-                    ),
-                  })
-                }
-                size={"sm"}
-                bg={"#def5cf17"}
-                color={"#9cc989"}
-                _hover={{ bg: "#def5cf2b" }}
-                _icon={{ width: "20px", height: "22px" }}
-              >
-                <TbPlugConnected size={30} />
-              </Button>
+              {row.status === "close" && (
+                <Button
+                  onClick={() =>
+                    onOpen({
+                      size: "lg",
+                      content: (
+                        <ModalConnectConnectionWA close={close} id={row.id} />
+                      ),
+                    })
+                  }
+                  size={"sm"}
+                  bg={"#def5cf17"}
+                  color={"#9cc989"}
+                  _hover={{ bg: "#def5cf2b" }}
+                  _icon={{ width: "20px", height: "22px" }}
+                >
+                  <TbPlugConnected size={30} />
+                </Button>
+              )}
+              {(row.status === "open" || row.status === "sync") && (
+                <Button
+                  onClick={() => disconnectWhatsapp(row.id)}
+                  size={"sm"}
+                  bg={"#f2b5b51b"}
+                  disabled={row.status === "sync"}
+                  color={"#d77474"}
+                  _hover={{ bg: "#f5cfcf2b" }}
+                  _icon={{ width: "20px", height: "22px" }}
+                >
+                  <AiOutlinePoweroff size={30} />
+                </Button>
+              )}
               <Button
                 onClick={() =>
                   onOpen({
@@ -144,7 +187,7 @@ export const ConnectionsWAPage: React.FC = (): JSX.Element => {
                 onClick={() => {
                   onOpen({
                     content: (
-                      <ModalDeleteVariable
+                      <ModalDeleteConnectionWA
                         data={{ id: row.id, name: row.name }}
                         close={close}
                       />
@@ -160,6 +203,43 @@ export const ConnectionsWAPage: React.FC = (): JSX.Element => {
       },
     ];
     return columns;
+  }, []);
+
+  useEffect(() => {
+    socket.on(
+      "status-connection",
+      (data: {
+        connectionId: number;
+        connection?:
+          | "open"
+          | "close"
+          | "connecting"
+          | "sync"
+          | "connectionLost";
+      }) => {
+        if (data.connection) {
+          queryClient.setQueryData(["connections-wa", null], (oldData: any) => {
+            if (oldData) {
+              return oldData.map((conn: any) => {
+                if (conn.id === data.connectionId) {
+                  if (data.connection === "connectionLost") {
+                    conn = { ...conn, status: "close" };
+                  } else {
+                    conn = { ...conn, status: data.connection };
+                  }
+                }
+                return conn;
+              });
+            }
+            return oldData;
+          });
+        }
+      }
+    );
+
+    return () => {
+      socket.off("status-connection");
+    };
   }, []);
 
   return (

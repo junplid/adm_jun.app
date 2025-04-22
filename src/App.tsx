@@ -15,6 +15,7 @@ import { VariablesPage } from "./pages/variables";
 import { DialogProvider } from "@contexts/dialog.context";
 import { TagsPage } from "./pages/tags";
 import { ConnectionsWAPage } from "./pages/connectionswa";
+import { SocketProvider } from "@contexts/socket.context";
 
 // import { NodeMessage } from "./flow-lib/nodes/Message";
 // import { NodeReply } from "./flow-lib/nodes/Reply";
@@ -60,7 +61,9 @@ export default function App() {
           element={
             <DialogProvider>
               <AuthProvider>
-                <LayoutPrivateProvider />
+                <SocketProvider>
+                  <LayoutPrivateProvider />
+                </SocketProvider>
               </AuthProvider>
             </DialogProvider>
           }

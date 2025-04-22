@@ -275,31 +275,79 @@ export function useUpdateConnectionWA(props?: {
   });
 }
 
-// export function useDeleteVariable(props?: { onSuccess?: () => Promise<void> }) {
-//   const queryClient = useQueryClient();
-//   const { logout } = useContext(AuthContext);
+export function useDisconnectConnectionWA(props?: {
+  onSuccess?: () => Promise<void>;
+}) {
+  const { logout } = useContext(AuthContext);
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id }: { id: number }) =>
+      ConnectionWAService.disconnectConnectionWA(id),
+    async onSuccess(data, { id }) {
+      if (props?.onSuccess) await props.onSuccess();
 
-//   return useMutation({
-//     mutationFn: (id: number) => VariableService.deleteVariable(id),
-//     async onSuccess(_, id) {
-//       if (props?.onSuccess) await props.onSuccess();
-//       queryClient.removeQueries({ queryKey: ["variable-details", id] });
-//       queryClient.removeQueries({ queryKey: ["variable", id] });
-//       queryClient.setQueryData(["variables", null], (old: any) =>
-//         old?.filter((b: any) => b.id !== id)
-//       );
-//       queryClient.setQueryData(["variables-options", null], (old: any) =>
-//         old?.filter((b: any) => b.id !== id)
-//       );
-//     },
-//     onError(error: unknown) {
-//       if (error instanceof AxiosError) {
-//         if (error.response?.status === 401) logout();
-//         if (error.response?.status === 400) {
-//           const dataError = error.response?.data as ErrorResponse_I;
-//           if (dataError.toast.length) dataError.toast.forEach(toaster.create);
-//         }
-//       }
-//     },
-//   });
-// }
+      if (queryClient.getQueryData<any>(["connections-wa", null])) {
+        queryClient.setQueryData(["connections-wa", null], (old: any) =>
+          old?.map((b: any) => {
+            if (b.id === id) b = { ...b, ...data };
+            return b;
+          })
+        );
+      }
+      // if (queryClient.getQueryData<any>(["connections-wa-options", null])) {
+      //   queryClient.setQueryData(["connections-wa-options", null], (old: any) =>
+      //     old?.map((b: any) => {
+      //       if (b.id === id) b = { ...b, name: body.name || b.name };
+      //       return b;
+      //     })
+      //   );
+      // }
+    },
+    onError(error: unknown) {
+      if (error instanceof AxiosError) {
+        if (error.response?.status === 401) logout();
+        if (error.response?.status === 400) {
+          const dataError = error.response?.data as ErrorResponse_I;
+          if (dataError.toast.length) dataError.toast.forEach(toaster.create);
+          if (dataError.input.length) {
+            dataError.input.forEach(({ text, path }) =>
+              // @ts-expect-error
+              props?.setError?.(path, { message: text })
+            );
+          }
+        }
+      }
+    },
+  });
+}
+
+export function useDeleteConnectionWA(props?: {
+  onSuccess?: () => Promise<void>;
+}) {
+  const queryClient = useQueryClient();
+  const { logout } = useContext(AuthContext);
+
+  return useMutation({
+    mutationFn: (id: number) => ConnectionWAService.deleteConnectionWA(id),
+    async onSuccess(_, id) {
+      if (props?.onSuccess) await props.onSuccess();
+      queryClient.removeQueries({ queryKey: ["connection-wa-details", id] });
+      queryClient.removeQueries({ queryKey: ["connection-wa", id] });
+      queryClient.setQueryData(["connections-wa", null], (old: any) =>
+        old?.filter((b: any) => b.id !== id)
+      );
+      queryClient.setQueryData(["connections-wa-options", null], (old: any) =>
+        old?.filter((b: any) => b.id !== id)
+      );
+    },
+    onError(error: unknown) {
+      if (error instanceof AxiosError) {
+        if (error.response?.status === 401) logout();
+        if (error.response?.status === 400) {
+          const dataError = error.response?.data as ErrorResponse_I;
+          if (dataError.toast.length) dataError.toast.forEach(toaster.create);
+        }
+      }
+    },
+  });
+}

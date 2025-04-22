@@ -1,6 +1,5 @@
 import "./index.css";
 
-import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { Provider } from "@components/ui/provider.tsx";
 import App from "./App.tsx";
@@ -14,15 +13,13 @@ const queryClient = new QueryClient({
 });
 
 createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <CookiesProvider>
-      <Provider>
-        <QueryClientProvider client={queryClient}>
-          <App />
-          <ReactQueryDevtools />
-        </QueryClientProvider>
-        <Toaster />
-      </Provider>
-    </CookiesProvider>
-  </StrictMode>
+  <CookiesProvider>
+    <Provider>
+      <QueryClientProvider client={queryClient}>
+        <App />
+        <ReactQueryDevtools />
+      </QueryClientProvider>
+      <Toaster />
+    </Provider>
+  </CookiesProvider>
 );
