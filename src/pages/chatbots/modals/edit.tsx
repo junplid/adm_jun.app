@@ -520,7 +520,7 @@ export function ModalEditConnectionWA({ id, ...props }: IProps): JSX.Element {
       <DialogHeader flexDirection={"column"} gap={0}>
         <DialogTitle>Editar conexão WA</DialogTitle>
         <DialogDescription>
-          80% das empresas usam WhatsApp para o marketing e vendas.
+          Guarde e personalize informações dos seus contatos.
         </DialogDescription>
       </DialogHeader>
       <Content id={id} onClose={props.close} />

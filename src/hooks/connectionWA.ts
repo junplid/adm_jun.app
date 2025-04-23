@@ -7,26 +7,26 @@ import { AuthContext } from "@contexts/auth.context";
 import { ErrorResponse_I } from "../services/api/ErrorResponse";
 import { UseFormSetError } from "react-hook-form";
 
-// export function useGetVariableDetails(id: number) {
-//   const { logout } = useContext(AuthContext);
-//   return useQuery({
-//     queryKey: ["variable-details", id],
-//     queryFn: async () => {
-//       try {
-//         return await VariableService.getVariableDetails(id);
-//       } catch (error) {
-//         if (error instanceof AxiosError) {
-//           if (error.response?.status === 401) logout();
-//           if (error.response?.status === 400) {
-//             const dataError = error.response?.data as ErrorResponse_I;
-//             if (dataError.toast.length) dataError.toast.forEach(toaster.create);
-//           }
-//         }
-//         throw error;
-//       }
-//     },
-//   });
-// }
+export function useGetConnectionWADetails(id: number) {
+  const { logout } = useContext(AuthContext);
+  return useQuery({
+    queryKey: ["connection-wa-details", id],
+    queryFn: async () => {
+      try {
+        return await ConnectionWAService.getConnectionWADetails(id);
+      } catch (error) {
+        if (error instanceof AxiosError) {
+          if (error.response?.status === 401) logout();
+          if (error.response?.status === 400) {
+            const dataError = error.response?.data as ErrorResponse_I;
+            if (dataError.toast.length) dataError.toast.forEach(toaster.create);
+          }
+        }
+        throw error;
+      }
+    },
+  });
+}
 
 export function useGetConnectionWA(id: number) {
   const { logout } = useContext(AuthContext);

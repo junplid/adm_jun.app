@@ -216,10 +216,10 @@ export function LayoutPrivateProvider(): JSX.Element {
 
               <MenuItem
                 icon={<LuBotMessageSquare size={22} />}
-                active={pathname === "/auth/receiving-automation/chatbot"}
-                component={<Link to={"/auth/receiving-automation/chatbot"} />}
+                active={pathname === "/auth/chatbots"}
+                component={<Link to={"/auth/chatbots"} />}
               >
-                Recepção bot
+                Bots de recepção
               </MenuItem>
               {/* <MenuItem
                 icon={<BsChatRightDotsFill size={25} />}

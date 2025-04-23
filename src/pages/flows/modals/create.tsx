@@ -116,12 +116,11 @@ export function ModalCreateFlow({
               />
             </Field>
             <Field
-              label="Anexe empresas"
+              label="Anexe projetos"
               helperText={
                 <Text>
-                  Se nenhuma empresa for selecionada, o construtor será anexado
-                  a todas as empresas existentes e as que forem criadas no
-                  futuro.
+                  Se nenhum projeto for selecionado, o construtor será anexado a
+                  todos os projetos existentes e os que forem criados no futuro.
                 </Text>
               }
               className="w-full"

@@ -113,7 +113,7 @@ function Content({
             <Input
               {...register("name")}
               autoComplete="off"
-              placeholder="Digite o nome da empresa"
+              placeholder="Digite o nome do projeto"
             />
           </Field>
           <Field
@@ -159,7 +159,7 @@ export const ModalEditBusiness: React.FC<PropsModalEdit> = ({
   return (
     <DialogContent w={"470px"}>
       <DialogHeader flexDirection={"column"} gap={0}>
-        <DialogTitle>Editar empresa</DialogTitle>
+        <DialogTitle>Editar projeto</DialogTitle>
         <DialogDescription>
           Edite as informações do seu workspace.
         </DialogDescription>

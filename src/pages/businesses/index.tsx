@@ -114,7 +114,7 @@ export const BusinessesPage: React.FC = (): JSX.Element => {
     <div className="h-full gap-y-2 flex flex-col">
       <div className="flex flex-col gap-y-0.5">
         <div className="flex items-center gap-x-5">
-          <h1 className="text-lg font-semibold">Empresas</h1>
+          <h1 className="text-lg font-semibold">Projetos</h1>
           <ModalCreateBusiness
             trigger={
               <Button variant="outline" size={"sm"}>

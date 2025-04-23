@@ -85,7 +85,7 @@ export function ModalCreateBusiness({
       <DialogTrigger asChild>{props.trigger}</DialogTrigger>
       <DialogContent as={"form"} onSubmit={handleSubmit(create)} w={"470px"}>
         <DialogHeader flexDirection={"column"} gap={0}>
-          <DialogTitle>Criar empresa</DialogTitle>
+          <DialogTitle>Criar projeto</DialogTitle>
           <DialogDescription>
             Crie um workspace para organizar e gerenciar sua operações.
           </DialogDescription>
@@ -101,7 +101,7 @@ export function ModalCreateBusiness({
                 {...register("name")}
                 autoComplete="off"
                 autoFocus
-                placeholder="Digite o nome da empresa"
+                placeholder="Digite o nome do projeto"
               />
             </Field>
             <Field

@@ -16,6 +16,7 @@ import { DialogProvider } from "@contexts/dialog.context";
 import { TagsPage } from "./pages/tags";
 import { ConnectionsWAPage } from "./pages/connectionswa";
 import { SocketProvider } from "@contexts/socket.context";
+import { ChatbotsPage } from "./pages/chatbots";
 
 // import { NodeMessage } from "./flow-lib/nodes/Message";
 // import { NodeReply } from "./flow-lib/nodes/Reply";
@@ -89,6 +90,7 @@ export default function App() {
               caseSensitive
               element={<ConnectionsWAPage />}
             />
+            <Route path="chatbots" caseSensitive element={<ChatbotsPage />} />
           </Route>
 
           <Route

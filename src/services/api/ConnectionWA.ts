@@ -72,7 +72,7 @@ export async function getConnectionWADetails(id: number): Promise<{
   value: string | null;
   type: ConnectionWAType;
 }> {
-  const { data } = await api.get(`/private/connection-wa/${id}/details`);
+  const { data } = await api.get(`/private/connections-wa/${id}/details`);
   return data.connectionWA;
 }
 

@@ -126,7 +126,7 @@ export const ModalViewFlow: React.FC<IProps> = ({ id }): JSX.Element => {
   return (
     <DialogContent w={"410px"} minH={"400px"}>
       <DialogHeader flexDirection={"column"} gap={0}>
-        <DialogTitle>Vizualizar detalhes da empresa</DialogTitle>
+        <DialogTitle>Vizualizar detalhes do projeto</DialogTitle>
       </DialogHeader>
       <Content id={id} />
       <DialogCloseTrigger>

@@ -12,16 +12,18 @@ import { AxiosError } from "axios";
 import { useCallback, JSX } from "react";
 import { Button } from "@chakra-ui/react";
 import { CloseButton } from "@components/ui/close-button";
-import { useDeleteBusiness } from "../../../hooks/business";
+import { useDeleteConnectionWA } from "../../../hooks/connectionWA";
 
 interface PropsModalDelete {
   data: { id: number; name: string } | null;
   close: () => void;
 }
-export const ModalDeleteBusiness: React.FC<PropsModalDelete> = ({
+
+export const ModalDeleteConnectionWA: React.FC<PropsModalDelete> = ({
+  data,
   ...props
 }): JSX.Element => {
-  const { mutateAsync: deleteBusiness, isPending } = useDeleteBusiness({
+  const { mutateAsync: deleteConnectionWA, isPending } = useDeleteConnectionWA({
     async onSuccess() {
       props.close();
       await new Promise((resolve) => setTimeout(resolve, 220));
@@ -30,7 +32,7 @@ export const ModalDeleteBusiness: React.FC<PropsModalDelete> = ({
 
   const onDelete = useCallback(async (): Promise<void> => {
     try {
-      if (props.data?.id) await deleteBusiness(props.data?.id);
+      if (data?.id) await deleteConnectionWA(data?.id);
     } catch (error) {
       if (error instanceof AxiosError) {
         console.log("Error-API", error);
@@ -38,12 +40,12 @@ export const ModalDeleteBusiness: React.FC<PropsModalDelete> = ({
         console.log("Error-Client", error);
       }
     }
-  }, [props.data?.id]);
+  }, [data?.id]);
 
   return (
     <DialogContent w={"370px"}>
       <DialogHeader flexDirection={"column"} gap={0}>
-        <DialogTitle>Deletar projeto</DialogTitle>
+        <DialogTitle>Deletar conexão WA</DialogTitle>
         <DialogDescription color={"#f86363"}>
           Essa ação não poderá ser desfeita.
         </DialogDescription>
@@ -51,15 +53,11 @@ export const ModalDeleteBusiness: React.FC<PropsModalDelete> = ({
       <DialogBody>
         <div className="flex flex-col gap-y-1.5">
           <p className="">
-            Tem certeza de que deseja deletar o projeto{" "}
-            <strong className="font-semibold text-lg">
-              {props.data?.name}
-            </strong>
-            ?
+            Tem certeza de que deseja deletar a conexão{" "}
+            <strong className="font-semibold text-lg">{data?.name}</strong>?
           </p>
           <p>
-            Todos os dados associados, incluindo conexões, fluxos e
-            automações... serão removidos permanentemente.
+            Conexão será deletada permanentemente e não poderá ser recuperada.
           </p>
         </div>
       </DialogBody>

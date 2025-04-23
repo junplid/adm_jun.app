@@ -107,11 +107,11 @@ function Content({
       <DialogBody>
         <VStack gap={4}>
           <Field
-            label="Anexe empresas"
+            label="Anexe projetos"
             helperText={
               <Text>
-                Se nenhuma empresa for selecionada, a etiqueta será anexada a
-                todas as empresas existentes e as que forem criadas no futuro.
+                Se nenhum projeto for selecionado, a etiqueta será anexada a
+                todos os projetos existentes e os que forem criados no futuro.
               </Text>
             }
             className="w-full"

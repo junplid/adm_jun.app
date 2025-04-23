@@ -1,31 +1,17 @@
-import { JSX, useCallback, useContext, useEffect, useMemo } from "react";
+import { JSX, useMemo } from "react";
 import { TableComponent } from "../../components/Table";
 import { Column } from "../../components/Table";
 import { ModalCreateConnectionWA } from "./modals/create";
 import { ModalDeleteConnectionWA } from "./modals/delete";
 import { Button } from "@chakra-ui/react";
-import {
-  MdDeleteOutline,
-  MdEdit,
-  MdOutlineSync,
-  MdSignalWifiConnectedNoInternet0,
-} from "react-icons/md";
+import { MdDeleteOutline, MdEdit } from "react-icons/md";
 import { ModalViewConnectionWA } from "./modals/view";
 import { LuEye } from "react-icons/lu";
 import { IoAdd } from "react-icons/io5";
 import { ModalEditConnectionWA } from "./modals/edit";
 import { useDialogModal } from "../../hooks/dialog.modal";
-import {
-  useDisconnectConnectionWA,
-  useGetConnectionsWA,
-} from "../../hooks/connectionWA";
-import { ImConnection } from "react-icons/im";
-import { TbPlugConnected } from "react-icons/tb";
-import { ModalConnectConnectionWA } from "./modals/connect";
-import { SocketContext } from "@contexts/socket.context";
-import { useQueryClient } from "@tanstack/react-query";
-import { AiOutlinePoweroff } from "react-icons/ai";
-import { motion } from "framer-motion";
+import { useGetConnectionsWA } from "../../hooks/connectionWA";
+import { IoMdRadioButtonOff, IoMdRadioButtonOn } from "react-icons/io";
 
 export type TypeConnectionWA = "chatbot" | "marketing";
 
@@ -38,8 +24,6 @@ export interface ConnectionWARow {
   status: "open" | "close" | "connecting" | "sync";
 }
 
-const MotionIcon = motion(MdOutlineSync);
-
 // const translateType: {
 //   [x in TypeConnectionWA]: { label: string; cb: string; ct: string };
 // } = {
@@ -47,22 +31,9 @@ const MotionIcon = motion(MdOutlineSync);
 //   marketing: { label: "Imutável", cb: "#836e21", ct: "#fff" },
 // };
 
-export const ConnectionsWAPage: React.FC = (): JSX.Element => {
-  const queryClient = useQueryClient();
+export const ChatbotsPage: React.FC = (): JSX.Element => {
   const { data: connectionsWA, isFetching, isPending } = useGetConnectionsWA();
   const { dialog: DialogModal, close, onOpen } = useDialogModal({});
-
-  const { socket } = useContext(SocketContext);
-
-  const { mutateAsync: disconnectWA } = useDisconnectConnectionWA();
-
-  const disconnectWhatsapp = useCallback(async (id: number) => {
-    try {
-      await disconnectWA({ id });
-    } catch (error) {
-      console.log(error);
-    }
-  }, []);
 
   const renderColumns = useMemo(() => {
     const columns: Column[] = [
@@ -73,23 +44,11 @@ export const ConnectionsWAPage: React.FC = (): JSX.Element => {
         render(row) {
           return (
             <div className="w-full flex items-center justify-center">
-              {row.status === "sync" && (
-                <MotionIcon
-                  size={27}
-                  color="#7bb4f1"
-                  animate={{ rotate: -360 }}
-                  transition={{
-                    repeat: Infinity,
-                    duration: 1.2,
-                    ease: "linear",
-                  }}
-                />
+              {!row.status && (
+                <IoMdRadioButtonOff color={"#f17b7b"} size={20} />
               )}
-              {row.status === "close" && (
-                <MdSignalWifiConnectedNoInternet0 color={"#f17b7b"} size={28} />
-              )}
-              {row.status === "open" && (
-                <ImConnection color={"#7bf1a8e2"} size={25} />
+              {row.status && (
+                <IoMdRadioButtonOn color={"#7bf1a8e2"} size={24} />
               )}
             </div>
           );
@@ -97,14 +56,11 @@ export const ConnectionsWAPage: React.FC = (): JSX.Element => {
       },
       {
         key: "name",
-        name: "Nome da conexão",
+        name: "Nome do bot de recepção",
         render(row) {
           return (
             <div className="flex items-start flex-col">
               <span>{row.name}</span>
-              {row.value && (
-                <small className="text-white/45">= {row.value}</small>
-              )}
             </div>
           );
         },
@@ -116,38 +72,6 @@ export const ConnectionsWAPage: React.FC = (): JSX.Element => {
         render(row) {
           return (
             <div className="flex h-full items-center justify-end gap-x-1.5">
-              {row.status === "close" && (
-                <Button
-                  onClick={() =>
-                    onOpen({
-                      size: "lg",
-                      content: (
-                        <ModalConnectConnectionWA close={close} id={row.id} />
-                      ),
-                    })
-                  }
-                  size={"sm"}
-                  bg={"#def5cf17"}
-                  color={"#9cc989"}
-                  _hover={{ bg: "#def5cf2b" }}
-                  _icon={{ width: "20px", height: "22px" }}
-                >
-                  <TbPlugConnected size={30} />
-                </Button>
-              )}
-              {(row.status === "open" || row.status === "sync") && (
-                <Button
-                  onClick={() => disconnectWhatsapp(row.id)}
-                  size={"sm"}
-                  bg={"#f2b5b51b"}
-                  disabled={row.status === "sync"}
-                  color={"#d77474"}
-                  _hover={{ bg: "#f5cfcf2b" }}
-                  _icon={{ width: "20px", height: "22px" }}
-                >
-                  <AiOutlinePoweroff size={30} />
-                </Button>
-              )}
               <Button
                 onClick={() =>
                   onOpen({
@@ -207,48 +131,11 @@ export const ConnectionsWAPage: React.FC = (): JSX.Element => {
     return columns;
   }, []);
 
-  useEffect(() => {
-    socket.on(
-      "status-connection",
-      (data: {
-        connectionId: number;
-        connection?:
-          | "open"
-          | "close"
-          | "connecting"
-          | "sync"
-          | "connectionLost";
-      }) => {
-        if (data.connection) {
-          queryClient.setQueryData(["connections-wa", null], (oldData: any) => {
-            if (oldData) {
-              return oldData.map((conn: any) => {
-                if (conn.id === data.connectionId) {
-                  if (data.connection === "connectionLost") {
-                    conn = { ...conn, status: "close" };
-                  } else {
-                    conn = { ...conn, status: data.connection };
-                  }
-                }
-                return conn;
-              });
-            }
-            return oldData;
-          });
-        }
-      }
-    );
-
-    return () => {
-      socket.off("status-connection");
-    };
-  }, []);
-
   return (
     <div className="h-full gap-y-2 flex flex-col">
       <div className="flex flex-col gap-y-0.5">
         <div className="flex items-center gap-x-5">
-          <h1 className="text-lg font-semibold">Conexões WA</h1>
+          <h1 className="text-lg font-semibold">Bots de recepção</h1>
           <ModalCreateConnectionWA
             trigger={
               <Button variant="outline" size={"sm"}>
@@ -258,15 +145,15 @@ export const ConnectionsWAPage: React.FC = (): JSX.Element => {
           />
         </div>
         <p className="text-white/60 font-light">
-          Cerca de 80% das empresas utilizam o WhatsApp para impulsionar suas
-          vendas e estratégias de marketing.
+          Atenda seus clientes 24 horas por dia, 7 dias por semana, de forma
+          contínua e integrada.
         </p>
       </div>
       <div style={{ maxHeight: "calc(100vh - 180px)" }} className="flex-1 grid">
         <TableComponent
           rows={connectionsWA || []}
           columns={renderColumns}
-          textEmpity="Nenhuma conexão WA criada."
+          textEmpity="Nenhum bot de recepção criado."
           load={isFetching || isPending}
         />
       </div>

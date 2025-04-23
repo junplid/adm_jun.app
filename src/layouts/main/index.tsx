@@ -32,7 +32,7 @@ export function LayoutMain(): JSX.Element {
         <span>Última atualização: 24/03/2025</span>
         <div className="flex items-center gap-x-3">
           <span className="font-light">
-            Este produto está longe de representar a versão final.
+            Este produto não representa a sua versão final.
           </span>
           <span className="font-medium text-white">v0.1.03-alpha</span>
         </div>
