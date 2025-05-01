@@ -1,7 +1,7 @@
 import { JSX, useMemo } from "react";
 import { TableComponent } from "../../components/Table";
 import { Column } from "../../components/Table";
-import { ModalCreateConnectionWA } from "./modals/create";
+import { ModalCreateChatbot } from "./modals/create";
 import { ModalDeleteConnectionWA } from "./modals/delete";
 import { Button } from "@chakra-ui/react";
 import { MdDeleteOutline, MdEdit } from "react-icons/md";
@@ -136,7 +136,7 @@ export const ChatbotsPage: React.FC = (): JSX.Element => {
       <div className="flex flex-col gap-y-0.5">
         <div className="flex items-center gap-x-5">
           <h1 className="text-lg font-semibold">Bots de recepção</h1>
-          <ModalCreateConnectionWA
+          <ModalCreateChatbot
             trigger={
               <Button variant="outline" size={"sm"}>
                 <IoAdd /> Adicionar

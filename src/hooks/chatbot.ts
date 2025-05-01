@@ -10,7 +10,7 @@ import { UseFormSetError } from "react-hook-form";
 export function useGetConnectionWADetails(id: number) {
   const { logout } = useContext(AuthContext);
   return useQuery({
-    queryKey: ["connection-wa-details", id],
+    queryKey: ["chatbot-details", id],
     queryFn: async () => {
       try {
         return await ConnectionWAService.getConnectionWADetails(id);
@@ -31,7 +31,7 @@ export function useGetConnectionWADetails(id: number) {
 export function useGetConnectionWA(id: number) {
   const { logout } = useContext(AuthContext);
   return useQuery({
-    queryKey: ["connection-wa", id],
+    queryKey: ["chatbot", id],
     queryFn: async () => {
       try {
         return await ConnectionWAService.getConnectionWA(id);
@@ -52,7 +52,7 @@ export function useGetConnectionWA(id: number) {
 export function useGetConnectionsWA(params?: { name?: string; page?: number }) {
   const { logout } = useContext(AuthContext);
   return useQuery({
-    queryKey: ["connections-wa", params],
+    queryKey: ["chatbot", params],
     queryFn: async () => {
       try {
         return await ConnectionWAService.getConnectionsWA(params || {});
@@ -77,7 +77,7 @@ export function useGetConnectionsWAOptions(params?: {
 }) {
   const { logout } = useContext(AuthContext);
   return useQuery({
-    queryKey: ["connections-wa-options", params],
+    queryKey: ["chatbot-options", params],
     queryFn: async () => {
       try {
         return await ConnectionWAService.getOptionsConnectionsWA(params || {});
@@ -133,8 +133,8 @@ export function useCreateConnectionWA(props?: {
     }) => ConnectionWAService.createConnectionWA(body),
     async onSuccess(data, body) {
       if (props?.onSuccess) await props.onSuccess(data.id);
-      if (queryClient.getQueryData<any>(["connections-wa", null])) {
-        queryClient.setQueryData(["connections-wa", null], (old: any) => {
+      if (queryClient.getQueryData<any>(["chatbot", null])) {
+        queryClient.setQueryData(["chatbot", null], (old: any) => {
           if (!old) return old;
           return [
             { ...data, name: body.name, type: body.type, status: "close" },
@@ -143,9 +143,9 @@ export function useCreateConnectionWA(props?: {
         });
       }
 
-      if (queryClient.getQueryData<any>(["connections-wa-options", null])) {
+      if (queryClient.getQueryData<any>(["chatbot-options", null])) {
         queryClient.setQueryData(
-          ["connections-wa-options", null],
+          ["chatbot-options", null],
           (old: any) => [...(old || []), { id: data.id, name: body.name }]
         );
       }
@@ -228,14 +228,14 @@ export function useUpdateConnectionWA(props?: {
     async onSuccess(data, { id, body }) {
       const { businessId, fileImage, ...bodyData } = body;
       if (props?.onSuccess) await props.onSuccess();
-      queryClient.setQueryData(["connection-wa", id], (old: any) => ({
+      queryClient.setQueryData(["chatbot", id], (old: any) => ({
         ...old,
         ...body,
         fileImage: data.fileImage || old.fileImage,
       }));
 
-      if (queryClient.getQueryData<any>(["connections-wa", null])) {
-        queryClient.setQueryData(["connections-wa", null], (old: any) =>
+      if (queryClient.getQueryData<any>(["chatbot", null])) {
+        queryClient.setQueryData(["chatbot", null], (old: any) =>
           old?.map((b: any) => {
             if (b.id === id)
               b = {
@@ -248,8 +248,8 @@ export function useUpdateConnectionWA(props?: {
           })
         );
       }
-      if (queryClient.getQueryData<any>(["connections-wa-options", null])) {
-        queryClient.setQueryData(["connections-wa-options", null], (old: any) =>
+      if (queryClient.getQueryData<any>(["chatbot-options", null])) {
+        queryClient.setQueryData(["chatbot-options", null], (old: any) =>
           old?.map((b: any) => {
             if (b.id === id) b = { ...b, name: body.name || b.name };
             return b;
@@ -286,16 +286,16 @@ export function useDisconnectConnectionWA(props?: {
     async onSuccess(data, { id }) {
       if (props?.onSuccess) await props.onSuccess();
 
-      if (queryClient.getQueryData<any>(["connections-wa", null])) {
-        queryClient.setQueryData(["connections-wa", null], (old: any) =>
+      if (queryClient.getQueryData<any>(["chatbot", null])) {
+        queryClient.setQueryData(["chatbot", null], (old: any) =>
           old?.map((b: any) => {
             if (b.id === id) b = { ...b, ...data };
             return b;
           })
         );
       }
-      // if (queryClient.getQueryData<any>(["connections-wa-options", null])) {
-      //   queryClient.setQueryData(["connections-wa-options", null], (old: any) =>
+      // if (queryClient.getQueryData<any>(["chatbot-options", null])) {
+      //   queryClient.setQueryData(["chatbot-options", null], (old: any) =>
       //     old?.map((b: any) => {
       //       if (b.id === id) b = { ...b, name: data.name || b.name };
       //       return b;
@@ -331,12 +331,12 @@ export function useDeleteConnectionWA(props?: {
     mutationFn: (id: number) => ConnectionWAService.deleteConnectionWA(id),
     async onSuccess(_, id) {
       if (props?.onSuccess) await props.onSuccess();
-      queryClient.removeQueries({ queryKey: ["connection-wa-details", id] });
-      queryClient.removeQueries({ queryKey: ["connection-wa", id] });
-      queryClient.setQueryData(["connections-wa", null], (old: any) =>
+      queryClient.removeQueries({ queryKey: ["chatbot-details", id] });
+      queryClient.removeQueries({ queryKey: ["chatbot", id] });
+      queryClient.setQueryData(["chatbot", null], (old: any) =>
         old?.filter((b: any) => b.id !== id)
       );
-      queryClient.setQueryData(["connections-wa-options", null], (old: any) =>
+      queryClient.setQueryData(["chatbot-options", null], (old: any) =>
         old?.filter((b: any) => b.id !== id)
       );
     },

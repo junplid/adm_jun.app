@@ -1,5 +1,15 @@
 import { JSX, useCallback, useMemo, useRef, useState } from "react";
-import { Button, Center, HStack, Input, Text, VStack } from "@chakra-ui/react";
+import {
+  Button,
+  Center,
+  HStack,
+  IconButton,
+  Input,
+  NumberInput,
+  Separator,
+  Text,
+  VStack,
+} from "@chakra-ui/react";
 import { CloseButton } from "@components/ui/close-button";
 import {
   DialogContent,
@@ -28,10 +38,19 @@ import {
   TabsTrigger,
   TabsContent,
 } from "@components/ui/tabs";
-import { Avatar } from "@components/ui/avatar";
 import { Tooltip } from "@components/ui/tooltip";
-import { MdOutlineModeEdit } from "react-icons/md";
+import {
+  MdHorizontalRule,
+  MdOutlineDeleteOutline,
+  MdOutlineModeEdit,
+} from "react-icons/md";
 import SelectComponent from "@components/Select";
+import { GrClose } from "react-icons/gr";
+import SelectFlows from "@components/SelectFlows";
+import SelectConnectionsWA from "@components/SelectConnectionsWA";
+import SelectTags from "@components/SelectTags";
+
+type TypeChatbotInactivity = "seconds" | "minutes" | "hours" | "days";
 
 interface IProps {
   onCreate?(business: ConnectionWARow): Promise<void>;
@@ -41,55 +60,62 @@ interface IProps {
 
 const FormSchema = z.object({
   name: z.string().min(1, "Campo obrigatório."),
-  description: z.string().optional(),
   businessId: z.number({ message: "Campo obrigatório." }),
-  type: z.enum(["chatbot", "marketing"], {
-    message: "Campo obrigatório.",
-  }),
-  profileName: z.string().optional(),
-  profileStatus: z.string().optional(),
-  lastSeenPrivacy: z
-    .enum(["all", "contacts", "contact_blacklist", "none"])
+  status: z.boolean().default(true).optional(),
+  description: z.string().optional(),
+
+  flowId: z.number({ message: "Campo obrigatório." }),
+  connectionWAId: z.number({ message: "Campo obrigatório." }),
+  addLeadToAudiencesIds: z.array(z.number()).optional(),
+  addToLeadTagsIds: z.array(z.number()).optional(),
+
+  timeToRestart: z
+    .object({
+      value: z.string().optional(),
+      type: z.enum(["seconds", "minutes", "hours", "days"]).optional(),
+    })
+    .nullish(),
+
+  operatingDays: z
+    .array(
+      z.object({
+        dayOfWeek: z.number(),
+        workingTimes: z
+          .array(z.object({ start: z.string(), end: z.string() }))
+          .optional(),
+      })
+    )
     .optional(),
-  onlinePrivacy: z.enum(["all", "match_last_seen"]).optional(),
-  imgPerfilPrivacy: z
-    .enum(["all", "contacts", "contact_blacklist", "none"])
-    .optional(),
-  statusPrivacy: z
-    .enum(["all", "contacts", "contact_blacklist", "none"])
-    .optional(),
-  groupsAddPrivacy: z.enum(["all", "contacts", "contact_blacklist"]).optional(),
-  readReceiptsPrivacy: z.enum(["all", "none"]).optional(),
-  fileImage: z.instanceof(File).optional(),
 });
 
 type Fields = z.infer<typeof FormSchema>;
 
-const optionsPrivacyValue = [
-  { label: "Todos", value: "all" },
-  { label: "Meus contatos", value: "contacts" },
-  // { label: "Todos", value: "contact_blacklist" },
-  { label: "Ninguém", value: "none" },
+const optionsStatus = [
+  { label: "Ativo", value: true },
+  { label: "Inativo", value: false },
 ];
 
-const optionsOnlinePrivacy = [
-  { label: "Todos", value: "all" },
-  { label: 'Mesmo que "visto por último"', value: "match_last_seen" },
+const optionsOpertaingDays = [
+  { label: "Domingo", value: 0 },
+  { label: "Segunda-feira", value: 1 },
+  { label: "Terça-feira", value: 2 },
+  { label: "Quarta-feira", value: 3 },
+  { label: "Quinta-feira", value: 4 },
+  { label: "Sexta-feira", value: 5 },
+  { label: "Sábado-feira", value: 6 },
 ];
 
-const optionsPrivacyGroupValue = [
-  { label: "Todos", value: "all" },
-  { label: "Meus contatos", value: "contacts" },
-  // { label: "Todos", value: "contact_blacklist" },
-  // { label: "Ninguém", value: "none" },
+const typeDurationOffLeadOptions: {
+  label: string;
+  value: TypeChatbotInactivity;
+}[] = [
+  { label: "Segundos", value: "seconds" },
+  { label: "Minutos", value: "minutes" },
+  { label: "Horas", value: "hours" },
+  { label: "Dias", value: "days" },
 ];
 
-const optionsReadReceiptsValue = [
-  { label: "Todos", value: "all" },
-  { label: "Ninguém", value: "none" },
-];
-
-export function ModalCreateConnectionWA({
+export function ModalCreateChatbot({
   placement = "bottom",
   ...props
 }: IProps): JSX.Element {
@@ -97,22 +123,22 @@ export function ModalCreateConnectionWA({
     handleSubmit,
     register,
     control,
-    formState: { errors, isValid },
+    formState: { errors },
     setError,
+    getValues,
     setValue,
     watch,
     reset,
   } = useForm<Fields>({
     resolver: zodResolver(FormSchema),
-    defaultValues: { type: "chatbot" },
+    defaultValues: { status: true },
   });
-  const imgProfileRef = useRef<HTMLInputElement>(null);
 
   const [currentTab, setCurrentTab] = useState("start-config");
   const [open, setOpen] = useState(false);
 
   const { mutateAsync: createConnectionWA, isPending } = useCreateConnectionWA({
-    setError,
+    // setError,
     async onSuccess() {
       setOpen(false);
       await new Promise((resolve) => setTimeout(resolve, 220));
@@ -121,7 +147,8 @@ export function ModalCreateConnectionWA({
 
   const create = useCallback(async (fields: Fields): Promise<void> => {
     try {
-      await createConnectionWA(fields);
+      console.log(fields);
+      // await createConnectionWA(fields);
       // const { name, ...rest } = fields;
       reset();
       // props.onCreate?.({ ...connectionWA, name, ...rest });
@@ -134,13 +161,15 @@ export function ModalCreateConnectionWA({
     }
   }, []);
 
-  const fileImage = watch("fileImage");
+  const operatingDays = watch("operatingDays");
 
-  const imgPreviewUrl = useMemo(() => {
-    if (fileImage) {
-      return URL.createObjectURL(fileImage);
-    }
-  }, [fileImage]);
+  const optionsOpertaingDaysMemo = useMemo(() => {
+    if (!operatingDays?.length) return optionsOpertaingDays;
+    const selectedDays = operatingDays.map((day) => day.dayOfWeek);
+    return optionsOpertaingDays.filter((s) => !selectedDays.includes(s.value));
+  }, [operatingDays?.length]);
+
+  console.log(errors);
 
   return (
     <DialogRoot
@@ -199,7 +228,12 @@ export function ModalCreateConnectionWA({
             </Center>
             <TabsContent value="start-config">
               <VStack gap={4}>
-                <Field label="Anexe o projeto" required className="w-full">
+                <Field
+                  invalid={!!errors.businessId}
+                  label="Anexe o projeto"
+                  className="w-full"
+                  required
+                >
                   <Controller
                     name="businessId"
                     control={control}
@@ -234,6 +268,36 @@ export function ModalCreateConnectionWA({
                   />
                 </Field>
                 <Field
+                  errorText={errors.status?.message}
+                  invalid={!!errors.status}
+                  label="Status do chatbot"
+                >
+                  <Controller
+                    name="status"
+                    control={control}
+                    render={({ field }) => (
+                      <SelectComponent
+                        name={field.name}
+                        isMulti={false}
+                        onBlur={field.onBlur}
+                        onChange={(e: any) => field.onChange(e.value)}
+                        options={optionsStatus}
+                        value={
+                          field.value
+                            ? {
+                                label:
+                                  optionsStatus.find(
+                                    (s) => s.value === field.value
+                                  )?.label || "",
+                                value: field.value,
+                              }
+                            : null
+                        }
+                      />
+                    )}
+                  />
+                </Field>
+                <Field
                   label="Descrição"
                   errorText={errors.description?.message}
                   invalid={!!errors.description}
@@ -252,275 +316,341 @@ export function ModalCreateConnectionWA({
             </TabsContent>
             <TabsContent value="activation-rules">
               <VStack gap={4}>
-                <Field label="Anexe o projeto" required className="w-full">
+                <Field
+                  errorText={errors.flowId?.message}
+                  invalid={!!errors.flowId}
+                  label="Fluxo de conversa"
+                  required
+                >
                   <Controller
-                    name="businessId"
+                    name="flowId"
                     control={control}
                     render={({ field }) => (
-                      <SelectBusinesses
+                      <SelectFlows
                         name={field.name}
                         isMulti={false}
                         onBlur={field.onBlur}
                         onChange={(e: any) => field.onChange(e.value)}
-                        onCreate={(business) => {
-                          setValue("businessId", business.id);
-                        }}
                         value={field.value}
                       />
                     )}
                   />
                 </Field>
                 <Field
-                  errorText={errors.name?.message}
-                  invalid={!!errors.name}
-                  label="Nome"
-                  helperText="Não é o nome que será exibido no perfil do WhatsApp."
+                  errorText={errors.connectionWAId?.message}
+                  invalid={!!errors.connectionWAId}
+                  label="Conexão WA"
+                  required
                 >
-                  <Input
-                    {...register("name", {
-                      onChange(event) {
-                        setValue("name", event.target.value);
-                      },
-                    })}
-                    autoFocus
-                    autoComplete="off"
-                    placeholder="Digite o nome da conexão"
+                  <Controller
+                    name="connectionWAId"
+                    control={control}
+                    render={({ field }) => (
+                      <SelectConnectionsWA
+                        name={field.name}
+                        isMulti={false}
+                        onBlur={field.onBlur}
+                        onChange={(e: any) => field.onChange(e.value)}
+                        value={field.value}
+                      />
+                    )}
                   />
                 </Field>
+                {/* <Field
+                    errorText={errors.connectionWAId?.message}
+                    invalid={!!errors.connectionWAId}
+                    label="Adicionar o lead aos públicos"
+                    required
+                  >
+                    <Controller
+                      name="connectionWAId"
+                      control={control}
+                      render={({ field }) => (
+                        <SelectComponent
+                          name={field.name}
+                          isMulti={false} 
+                          onBlur={field.onBlur}
+                          placeholder="Selecione a conexão WA"
+                          onChange={(e: any) => field.onChange(e.value)}
+                          options={optionsStatus}
+                          // value={
+                          //   field.value
+                          //     ? {
+                          //         label:
+                          //           optionsStatus.find(
+                          //             (s) => s.value === field.value
+                          //           )?.label || "",
+                          //         value: field.value,
+                          //       }
+                          //     : null
+                          // }
+                        />
+                      )}
+                    />
+                  </Field> */}
+
                 <Field
-                  label="Descrição"
-                  errorText={errors.description?.message}
-                  invalid={!!errors.description}
-                  className="w-full"
+                  errorText={errors.addToLeadTagsIds?.message}
+                  invalid={!!errors.addToLeadTagsIds}
+                  label="Associar etiquetas ao contato"
                 >
-                  <TextareaAutosize
-                    placeholder=""
-                    style={{ resize: "none" }}
-                    minRows={2}
-                    maxRows={6}
-                    className="p-3 py-2.5 rounded-sm w-full border-black/10 dark:border-white/10 border"
-                    {...register("description")}
+                  <Controller
+                    name="addToLeadTagsIds"
+                    control={control}
+                    render={({ field }) => (
+                      <SelectTags
+                        name={field.name}
+                        isMulti={true}
+                        onBlur={field.onBlur}
+                        onChange={(e: any) => {
+                          field.onChange(e.map((item: any) => item.value));
+                        }}
+                        onCreate={(business) => {
+                          setValue("addToLeadTagsIds", [
+                            ...(getValues("addToLeadTagsIds") || []),
+                            business.id,
+                          ]);
+                        }}
+                        value={field.value}
+                      />
+                    )}
                   />
                 </Field>
+                <span className="block w-full h-[1px] my-2 bg-white/25"></span>
+                <div className="grid gap-y-1">
+                  <span className="font-semibold mb-0.5">
+                    Intervalo para reativação automática do bot
+                  </span>
+                  <div className="grid grid-cols-[80px_1fr] gap-x-2">
+                    <Field
+                      errorText={errors.timeToRestart?.value?.message}
+                      invalid={!!errors.timeToRestart?.value}
+                    >
+                      <NumberInput.Root
+                        maxWidth={"28"}
+                        min={0}
+                        max={60}
+                        size={"md"}
+                      >
+                        <NumberInput.Input
+                          w={"100%"}
+                          {...register(`timeToRestart.value`)}
+                          placeholder="Número"
+                        />
+                      </NumberInput.Root>
+                      {/* <Input
+                        maxWidth={"28"}
+                        
+                        max={60}
+                        autoComplete="off"
+                        min={0}
+                        type="number"
+                        
+                      /> */}
+                    </Field>
+                    <Field
+                      // @ts-expect-error
+                      errorText={errors.timeToRestart?.type?.message}
+                      invalid={!!errors.timeToRestart?.type}
+                    >
+                      <Controller
+                        name={`timeToRestart.type`}
+                        control={control}
+                        render={({ field }) => (
+                          <SelectComponent
+                            value={
+                              field?.value
+                                ? {
+                                    label:
+                                      typeDurationOffLeadOptions.find(
+                                        (dd) => dd.value === field.value
+                                      )?.label ?? "",
+                                    value: field.value,
+                                  }
+                                : null
+                            }
+                            ref={field.ref}
+                            name={field.name}
+                            isMulti={false}
+                            onChange={(p: any) => field.onChange(p.value)}
+                            options={typeDurationOffLeadOptions}
+                            placeholder="Unidade"
+                          />
+                        )}
+                      />
+                    </Field>
+                  </div>
+                  <span className="text-white/70">
+                    Após o atendimento, o bot será reativado automaticamente
+                    para o lead após o intervalo definido.
+                  </span>
+                </div>
               </VStack>
             </TabsContent>
-            <TabsContent value="opening-hours">
-              <VStack gap={4}>
-                <HStack w={"full"} mb={2} gap={3}>
-                  <Tooltip content="Atualizar foto de perfil">
-                    <div
-                      className="relative cursor-pointer"
-                      onClick={() => imgProfileRef.current?.click()}
-                    >
-                      <input
-                        type="file"
-                        ref={imgProfileRef}
-                        hidden
-                        className="hidden"
-                        accept="image/jpeg, image/png, image/jpg"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) setValue("fileImage", file);
+            <TabsContent value="opening-hours" className="min-h-[260px]">
+              <div className="-mt-1 flex flex-col gap-4">
+                {!operatingDays?.length && (
+                  <span className="text-yellow-600 font-semibold text-center">
+                    Funciona 24 horas por dia, 7 dias por semana.
+                  </span>
+                )}
+                {!!operatingDays?.length && (
+                  <ul className="flex flex-col gap-1.5">
+                    {/* Dias de funcionamento */}
+                    {operatingDays.map((day, dayIndex) => (
+                      <li
+                        key={dayIndex}
+                        className="flex w-full flex-col"
+                        style={{
+                          gap: day.workingTimes?.length ? "2px" : "0px",
                         }}
-                      />
-                      <Avatar
-                        size={"2xl"}
-                        width={"90px"}
-                        height={"90px"}
-                        src={imgPreviewUrl}
                       >
-                        <Center className="absolute -bottom-0.5 right-0.5 w-8 h-8 rounded-full bg-emerald-800">
-                          <MdOutlineModeEdit size={17} />
-                        </Center>
-                      </Avatar>
-                    </div>
-                  </Tooltip>
-                  <VStack w={"full"} gap={2}>
-                    <Field
-                      errorText={errors.profileName?.message}
-                      invalid={!!errors.profileName}
-                      w={"full"}
-                    >
-                      <Input
-                        w={"full"}
-                        {...register("profileName")}
-                        autoComplete="off"
-                        placeholder="Nome do perfil"
-                      />
-                    </Field>
-                    <Field
-                      errorText={errors.profileStatus?.message}
-                      invalid={!!errors.profileStatus}
-                      w={"full"}
-                    >
-                      <Input
-                        w={"full"}
-                        {...register("profileStatus")}
-                        autoComplete="off"
-                        placeholder="Recado"
-                      />
-                    </Field>
-                  </VStack>
-                </HStack>
-                <Text fontWeight={"medium"}>Privacidade</Text>
-                <HStack w={"full"}>
-                  <Field
-                    errorText={errors.lastSeenPrivacy?.message}
-                    invalid={!!errors.lastSeenPrivacy}
-                    label="Visto por último"
-                    disabled
-                  >
-                    <Controller
-                      name="lastSeenPrivacy"
-                      control={control}
-                      render={({ field }) => (
-                        <SelectComponent
-                          name={field.name}
-                          isMulti={false}
-                          isDisabled
-                          onBlur={field.onBlur}
-                          placeholder="Ninguém"
-                          onChange={(e: any) => field.onChange(e.value)}
-                          // options={optionsPrivacyValue}
-                        />
-                      )}
-                    />
-                  </Field>
-                  <Field
-                    errorText={errors.onlinePrivacy?.message}
-                    invalid={!!errors.onlinePrivacy}
-                    label="Online"
-                    disabled
-                  >
-                    <Controller
-                      name="onlinePrivacy"
-                      control={control}
-                      render={({ field }) => (
-                        <SelectComponent
-                          name={field.name}
-                          isMulti={false}
-                          onBlur={field.onBlur}
-                          isDisabled
-                          placeholder={'Igual ao "visto por último"'}
-                          options={optionsOnlinePrivacy}
-                          onChange={(e: any) => field.onChange(e.value)}
-                          // value={field.value}
-                        />
-                      )}
-                    />
-                  </Field>
-                </HStack>
-                <HStack w={"full"}>
-                  <Field
-                    errorText={errors.imgPerfilPrivacy?.message}
-                    invalid={!!errors.imgPerfilPrivacy}
-                    label="Foto do perfil"
-                  >
-                    <Controller
-                      name="imgPerfilPrivacy"
-                      control={control}
-                      render={({ field }) => (
-                        <SelectComponent
-                          name={field.name}
-                          isMulti={false}
-                          placeholder="Todos"
-                          onBlur={field.onBlur}
-                          options={optionsPrivacyValue}
-                          onChange={(e: any) => field.onChange(e.value)}
-                          value={
-                            field.value
-                              ? {
-                                  label:
-                                    optionsPrivacyValue.find(
-                                      (s) => s.value === field.value
-                                    )?.label || "",
-                                  value: field.value,
-                                }
-                              : null
+                        <div className="flex items-center">
+                          <IconButton
+                            size={"xs"}
+                            variant={"ghost"}
+                            type="button"
+                            color={"red.100"}
+                            _hover={{ color: "red.400" }}
+                            onClick={() => {
+                              setValue(
+                                "operatingDays",
+                                operatingDays.filter(
+                                  (o) => o.dayOfWeek !== day.dayOfWeek
+                                )
+                              );
+                            }}
+                          >
+                            <MdOutlineDeleteOutline />
+                          </IconButton>
+                          <div className="flex items-center gap-2 pl-1.5">
+                            <span className="font-medium block">
+                              {optionsOpertaingDays.find(
+                                (op) => op.value === day.dayOfWeek
+                              )?.label || ""}
+                            </span>
+                            {!day.workingTimes?.length && (
+                              <span className="font-light text-yellow-600">
+                                Funciona 24 horas
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <ul className="flex flex-col gap-1">
+                          {day.workingTimes?.map((_, timeIndex) => (
+                            <li
+                              key={timeIndex}
+                              className="flex items-center gap-2"
+                            >
+                              <Input
+                                type="time"
+                                size={"2xs"}
+                                {...register(
+                                  `operatingDays.${dayIndex}.workingTimes.${timeIndex}.start`
+                                )}
+                              />
+                              <MdHorizontalRule size={33} />
+                              <Input
+                                size={"2xs"}
+                                {...register(
+                                  `operatingDays.${dayIndex}.workingTimes.${timeIndex}.end`
+                                )}
+                                type="time"
+                              />
+                              <IconButton
+                                size={"xs"}
+                                variant={"ghost"}
+                                type="button"
+                                color={"red.100"}
+                                _hover={{ color: "red.400" }}
+                                onClick={() => {
+                                  setValue(
+                                    "operatingDays",
+                                    operatingDays.map((o) => {
+                                      if (o.dayOfWeek === day.dayOfWeek) {
+                                        o.workingTimes = o.workingTimes?.filter(
+                                          (__, i) => i !== timeIndex
+                                        );
+                                      }
+                                      return o;
+                                    })
+                                  );
+                                }}
+                              >
+                                <GrClose />
+                              </IconButton>
+                            </li>
+                          ))}
+                        </ul>
+                        <div
+                          className={
+                            day.workingTimes?.length
+                              ? "flex justify-center mr-9"
+                              : ""
                           }
-                        />
-                      )}
+                        >
+                          <Button
+                            variant={"plain"}
+                            color={"blue.400"}
+                            _hover={{ color: "blue.300" }}
+                            size={"xs"}
+                            className="w-fit"
+                            onClick={() => {
+                              setValue(
+                                "operatingDays",
+                                operatingDays.map((o) => {
+                                  if (o.dayOfWeek === day.dayOfWeek) {
+                                    if (o.workingTimes?.length) {
+                                      o.workingTimes?.push({
+                                        start: "",
+                                        end: "",
+                                      });
+                                    } else {
+                                      o.workingTimes = [{ start: "", end: "" }];
+                                    }
+                                  }
+                                  return o;
+                                })
+                              );
+                            }}
+                          >
+                            Adicionar horário
+                          </Button>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                <Controller
+                  control={control}
+                  name="operatingDays"
+                  render={({ field }) => (
+                    <SelectComponent
+                      isMulti={false}
+                      onBlur={() => {}}
+                      name={field.name}
+                      isDisabled={field.disabled}
+                      ref={field.ref}
+                      placeholder="Selecione os dias de funcionamento"
+                      onChange={(e: any) => {
+                        if (!operatingDays?.length) {
+                          field.onChange([
+                            { dayOfWeek: e.value, workingTimes: [] },
+                          ]);
+                        } else {
+                          operatingDays?.splice(e.value, 0, {
+                            dayOfWeek: e.value,
+                            workingTimes: [],
+                          });
+                          field.onChange(operatingDays);
+                        }
+                      }}
+                      options={optionsOpertaingDaysMemo}
+                      value={null}
                     />
-                  </Field>
-                  <Field
-                    errorText={errors.statusPrivacy?.message}
-                    invalid={!!errors.statusPrivacy}
-                    label="Status"
-                    disabled
-                  >
-                    <Controller
-                      name="statusPrivacy"
-                      control={control}
-                      render={({ field }) => (
-                        <SelectComponent
-                          name={field.name}
-                          isMulti={false}
-                          isDisabled
-                          onBlur={field.onBlur}
-                          placeholder="Meus contatos"
-                          onChange={(e: any) => field.onChange(e.value)}
-                        />
-                      )}
-                    />
-                  </Field>
-                </HStack>
-                <HStack w={"full"}>
-                  <Field
-                    errorText={errors.groupsAddPrivacy?.message}
-                    invalid={!!errors.groupsAddPrivacy}
-                    label="Adicionar aos grupos"
-                  >
-                    <Controller
-                      name="groupsAddPrivacy"
-                      control={control}
-                      render={({ field }) => (
-                        <SelectComponent
-                          name={field.name}
-                          isMulti={false}
-                          onBlur={field.onBlur}
-                          placeholder="Meus contatos"
-                          options={optionsPrivacyGroupValue}
-                          onChange={(e: any) => field.onChange(e.value)}
-                          value={
-                            field.value
-                              ? {
-                                  label:
-                                    optionsPrivacyGroupValue.find(
-                                      (s) => s.value === field.value
-                                    )?.label || "",
-                                  value: field.value,
-                                }
-                              : null
-                          }
-                        />
-                      )}
-                    />
-                  </Field>
-
-                  <Field
-                    errorText={errors.readReceiptsPrivacy?.message}
-                    invalid={!!errors.readReceiptsPrivacy}
-                    label="Confirmação de leitura"
-                    disabled
-                  >
-                    <Controller
-                      name="readReceiptsPrivacy"
-                      control={control}
-                      render={({ field }) => (
-                        <SelectComponent
-                          name={field.name}
-                          isMulti={false}
-                          isDisabled
-                          onBlur={field.onBlur}
-                          options={optionsReadReceiptsValue}
-                          placeholder="Ninguém"
-                          onChange={(e: any) => field.onChange(e.value)}
-                        />
-                      )}
-                    />
-                  </Field>
-                </HStack>
-              </VStack>
+                  )}
+                />
+              </div>
             </TabsContent>
           </TabsRoot>
         </DialogBody>
@@ -557,7 +687,7 @@ export function ModalCreateConnectionWA({
               Voltar
             </Button>
           )}
-          <Button type="submit" disabled={!isValid} loading={isPending}>
+          <Button type="submit" loading={isPending}>
             Criar
           </Button>
         </DialogFooter>
