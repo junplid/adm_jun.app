@@ -51,7 +51,7 @@ export async function getChatbots(params: {
 }
 
 export async function getOptionsChatbots(params: {
-  type?: ChatbotType[];
+  // type?: ChatbotType[];
   name?: string;
   businessIds?: number[];
 }): Promise<
@@ -60,7 +60,7 @@ export async function getOptionsChatbots(params: {
     name: string;
     business: { name: string; id: number }[];
     value: string | null;
-    type: ChatbotType;
+    // type: ChatbotType;
   }[]
 > {
   const { data } = await api.get("/private/chatbots/options", { params });
@@ -72,7 +72,7 @@ export async function getChatbotDetails(id: number): Promise<{
   name: string;
   business: { name: string; id: number }[];
   value: string | null;
-  type: ChatbotType;
+  // type: ChatbotType;
 }> {
   const { data } = await api.get(`/private/chatbots/${id}/details`);
   return data.Chatbot;

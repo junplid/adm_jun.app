@@ -12,6 +12,7 @@ import { ModalEditConnectionWA } from "./modals/edit";
 import { useDialogModal } from "../../hooks/dialog.modal";
 import { useGetConnectionsWA } from "../../hooks/connectionWA";
 import { IoMdRadioButtonOff, IoMdRadioButtonOn } from "react-icons/io";
+import { useGetChatbots } from "../../hooks/chatbot";
 
 export type TypeConnectionWA = "chatbot" | "marketing";
 
@@ -32,7 +33,7 @@ export interface ConnectionWARow {
 // };
 
 export const ChatbotsPage: React.FC = (): JSX.Element => {
-  const { data: connectionsWA, isFetching, isPending } = useGetConnectionsWA();
+  const { data: chatbots, isFetching, isPending } = useGetChatbots();
   const { dialog: DialogModal, close, onOpen } = useDialogModal({});
 
   const renderColumns = useMemo(() => {
@@ -151,7 +152,7 @@ export const ChatbotsPage: React.FC = (): JSX.Element => {
       </div>
       <div style={{ maxHeight: "calc(100vh - 180px)" }} className="flex-1 grid">
         <TableComponent
-          rows={connectionsWA || []}
+          rows={chatbots || []}
           columns={renderColumns}
           textEmpity="Nenhum bot de recepção criado."
           load={isFetching || isPending}
