@@ -10,9 +10,9 @@ import {
 import { JSX } from "react";
 import { CloseButton } from "@components/ui/close-button";
 import { Button, Spinner } from "@chakra-ui/react";
-import { ModalDeleteConnectionWA } from "./delete";
+import { ModalDeleteChatbot } from "./delete";
 import { useDialogModal } from "../../../hooks/dialog.modal";
-import { useGetConnectionWADetails } from "../../../hooks/connectionWA";
+import { useGetChatbotDetails } from "../../../hooks/chatbot";
 
 interface IProps {
   id: number;
@@ -20,7 +20,7 @@ interface IProps {
 }
 
 function Content({ id, close }: IProps) {
-  const { data, isFetching, status } = useGetConnectionWADetails(id);
+  const { data, isFetching, status } = useGetChatbotDetails(id);
   const { dialog, onOpen } = useDialogModal({});
 
   const footer = (
@@ -35,7 +35,7 @@ function Content({ id, close }: IProps) {
           onClick={() => {
             onOpen({
               content: (
-                <ModalDeleteConnectionWA
+                <ModalDeleteChatbot
                   close={close}
                   data={data ? { id, name: data.name } : null}
                 />
@@ -101,14 +101,14 @@ function Content({ id, close }: IProps) {
   );
 }
 
-export const ModalViewConnectionWA: React.FC<IProps> = ({
+export const ModalViewChatbot: React.FC<IProps> = ({
   id,
   close,
 }): JSX.Element => {
   return (
     <DialogContent w={"410px"} minH={"400px"}>
       <DialogHeader flexDirection={"column"} gap={0}>
-        <DialogTitle>Vizualizar detalhes da conexão WA</DialogTitle>
+        <DialogTitle>Vizualizar detalhes do bot de recepção</DialogTitle>
       </DialogHeader>
       <Content id={id} close={close} />
       <DialogCloseTrigger>

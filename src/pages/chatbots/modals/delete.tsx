@@ -12,18 +12,18 @@ import { AxiosError } from "axios";
 import { useCallback, JSX } from "react";
 import { Button } from "@chakra-ui/react";
 import { CloseButton } from "@components/ui/close-button";
-import { useDeleteConnectionWA } from "../../../hooks/connectionWA";
+import { useDeleteChatbot } from "../../../hooks/chatbot";
 
 interface PropsModalDelete {
   data: { id: number; name: string } | null;
   close: () => void;
 }
 
-export const ModalDeleteConnectionWA: React.FC<PropsModalDelete> = ({
+export const ModalDeleteChatbot: React.FC<PropsModalDelete> = ({
   data,
   ...props
 }): JSX.Element => {
-  const { mutateAsync: deleteConnectionWA, isPending } = useDeleteConnectionWA({
+  const { mutateAsync: deleteConnectionWA, isPending } = useDeleteChatbot({
     async onSuccess() {
       props.close();
       await new Promise((resolve) => setTimeout(resolve, 220));
@@ -45,7 +45,7 @@ export const ModalDeleteConnectionWA: React.FC<PropsModalDelete> = ({
   return (
     <DialogContent w={"370px"}>
       <DialogHeader flexDirection={"column"} gap={0}>
-        <DialogTitle>Deletar conexão WA</DialogTitle>
+        <DialogTitle>Deletar bot de recepção</DialogTitle>
         <DialogDescription color={"#f86363"}>
           Essa ação não poderá ser desfeita.
         </DialogDescription>
@@ -53,11 +53,12 @@ export const ModalDeleteConnectionWA: React.FC<PropsModalDelete> = ({
       <DialogBody>
         <div className="flex flex-col gap-y-1.5">
           <p className="">
-            Tem certeza de que deseja deletar a conexão{" "}
+            Tem certeza de que deseja deletar o bot de recepção{" "}
             <strong className="font-semibold text-lg">{data?.name}</strong>?
           </p>
           <p>
-            Conexão será deletada permanentemente e não poderá ser recuperada.
+            Bot de recepção será deletado permanentemente e não poderá ser
+            recuperado.
           </p>
         </div>
       </DialogBody>

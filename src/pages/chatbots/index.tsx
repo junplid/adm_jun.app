@@ -2,27 +2,25 @@ import { JSX, useMemo } from "react";
 import { TableComponent } from "../../components/Table";
 import { Column } from "../../components/Table";
 import { ModalCreateChatbot } from "./modals/create";
-import { ModalDeleteConnectionWA } from "./modals/delete";
+import { ModalDeleteChatbot } from "./modals/delete";
 import { Button } from "@chakra-ui/react";
 import { MdDeleteOutline, MdEdit } from "react-icons/md";
-import { ModalViewConnectionWA } from "./modals/view";
+import { ModalViewChatbot } from "./modals/view";
 import { LuEye } from "react-icons/lu";
 import { IoAdd } from "react-icons/io5";
-import { ModalEditConnectionWA } from "./modals/edit";
+import { ModalEditChatbot } from "./modals/edit";
 import { useDialogModal } from "../../hooks/dialog.modal";
-import { useGetConnectionsWA } from "../../hooks/connectionWA";
 import { IoMdRadioButtonOff, IoMdRadioButtonOn } from "react-icons/io";
 import { useGetChatbots } from "../../hooks/chatbot";
 
 export type TypeConnectionWA = "chatbot" | "marketing";
 
-export interface ConnectionWARow {
-  business: { name: string; id: number }[];
-  type: TypeConnectionWA;
+export interface ChatbotRow {
+  business: { name: string; id: number };
   name: string;
   id: number;
-  value: string | null;
-  status: "open" | "close" | "connecting" | "sync";
+  status: boolean;
+  createAt: Date;
 }
 
 // const translateType: {
@@ -76,9 +74,7 @@ export const ChatbotsPage: React.FC = (): JSX.Element => {
               <Button
                 onClick={() =>
                   onOpen({
-                    content: (
-                      <ModalViewConnectionWA close={close} id={row.id} />
-                    ),
+                    content: <ModalViewChatbot close={close} id={row.id} />,
                   })
                 }
                 size={"sm"}
@@ -92,9 +88,7 @@ export const ChatbotsPage: React.FC = (): JSX.Element => {
                 onClick={() => {
                   onOpen({
                     size: "sm",
-                    content: (
-                      <ModalEditConnectionWA close={close} id={row.id} />
-                    ),
+                    content: <ModalEditChatbot close={close} id={row.id} />,
                   });
                 }}
                 size={"sm"}
@@ -114,7 +108,7 @@ export const ChatbotsPage: React.FC = (): JSX.Element => {
                 onClick={() => {
                   onOpen({
                     content: (
-                      <ModalDeleteConnectionWA
+                      <ModalDeleteChatbot
                         data={{ id: row.id, name: row.name }}
                         close={close}
                       />

@@ -1,13 +1,10 @@
-import { JSX, useCallback, useMemo, useRef, useState } from "react";
+import { JSX, useCallback, useEffect, useMemo, useState } from "react";
 import {
   Button,
   Center,
-  HStack,
   IconButton,
   Input,
   NumberInput,
-  Separator,
-  Text,
   VStack,
 } from "@chakra-ui/react";
 import { CloseButton } from "@components/ui/close-button";
@@ -24,13 +21,12 @@ import {
   DialogDescription,
 } from "@components/ui/dialog";
 import { Field } from "@components/ui/field";
-import { ConnectionWARow } from "..";
+import { ChatbotRow } from "..";
 import { AxiosError } from "axios";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import SelectBusinesses from "@components/SelectBusinesses";
-import { useCreateConnectionWA } from "../../../hooks/connectionWA";
 import TextareaAutosize from "react-textarea-autosize";
 import {
   TabsList,
@@ -38,22 +34,18 @@ import {
   TabsTrigger,
   TabsContent,
 } from "@components/ui/tabs";
-import { Tooltip } from "@components/ui/tooltip";
-import {
-  MdHorizontalRule,
-  MdOutlineDeleteOutline,
-  MdOutlineModeEdit,
-} from "react-icons/md";
+import { MdHorizontalRule, MdOutlineDeleteOutline } from "react-icons/md";
 import SelectComponent from "@components/Select";
 import { GrClose } from "react-icons/gr";
 import SelectFlows from "@components/SelectFlows";
 import SelectConnectionsWA from "@components/SelectConnectionsWA";
 import SelectTags from "@components/SelectTags";
+import { useCreateChatbot } from "../../../hooks/chatbot";
 
 type TypeChatbotInactivity = "seconds" | "minutes" | "hours" | "days";
 
 interface IProps {
-  onCreate?(business: ConnectionWARow): Promise<void>;
+  onCreate?(business: ChatbotRow): Promise<void>;
   trigger: JSX.Element;
   placement?: "top" | "bottom" | "center";
 }
@@ -62,19 +54,28 @@ const FormSchema = z.object({
   name: z.string().min(1, "Campo obrigatório."),
   businessId: z.number({ message: "Campo obrigatório." }),
   status: z.boolean().default(true).optional(),
-  description: z.string().optional(),
+  description: z
+    .string()
+    .optional()
+    .transform((v) => v || undefined),
 
   flowId: z.number({ message: "Campo obrigatório." }),
-  connectionWAId: z.number({ message: "Campo obrigatório." }),
-  addLeadToAudiencesIds: z.array(z.number()).optional(),
-  addToLeadTagsIds: z.array(z.number()).optional(),
+  connectionWAId: z.number().optional(),
+  addLeadToAudiencesIds: z
+    .array(z.number())
+    .optional()
+    .transform((v) => v || undefined),
+  addToLeadTagsIds: z
+    .array(z.number())
+    .optional()
+    .transform((v) => v || undefined),
 
   timeToRestart: z
     .object({
-      value: z.string().optional(),
-      type: z.enum(["seconds", "minutes", "hours", "days"]).optional(),
+      value: z.number(),
+      type: z.enum(["seconds", "minutes", "hours", "days"]),
     })
-    .nullish(),
+    .optional(),
 
   operatingDays: z
     .array(
@@ -124,21 +125,26 @@ export function ModalCreateChatbot({
     register,
     control,
     formState: { errors },
-    setError,
     getValues,
     setValue,
+    setError,
     watch,
     reset,
   } = useForm<Fields>({
     resolver: zodResolver(FormSchema),
-    defaultValues: { status: true },
+    defaultValues: {
+      status: true,
+      timeToRestart: { value: 3, type: "minutes" },
+    },
   });
 
-  const [currentTab, setCurrentTab] = useState("start-config");
+  const [currentTab, setCurrentTab] = useState<
+    "start-config" | "activation-rules" | "opening-hours"
+  >("start-config");
   const [open, setOpen] = useState(false);
 
-  const { mutateAsync: createConnectionWA, isPending } = useCreateConnectionWA({
-    // setError,
+  const { mutateAsync: createChatbot, isPending } = useCreateChatbot({
+    setError,
     async onSuccess() {
       setOpen(false);
       await new Promise((resolve) => setTimeout(resolve, 220));
@@ -147,11 +153,10 @@ export function ModalCreateChatbot({
 
   const create = useCallback(async (fields: Fields): Promise<void> => {
     try {
-      console.log(fields);
-      // await createConnectionWA(fields);
-      // const { name, ...rest } = fields;
+      const chatbot = await createChatbot(fields);
+      const { name, ...rest } = fields;
       reset();
-      // props.onCreate?.({ ...connectionWA, name, ...rest });
+      props.onCreate?.({ ...chatbot, name, ...rest });
     } catch (error) {
       if (error instanceof AxiosError) {
         console.log("Error-API", error);
@@ -169,7 +174,35 @@ export function ModalCreateChatbot({
     return optionsOpertaingDays.filter((s) => !selectedDays.includes(s.value));
   }, [operatingDays?.length]);
 
-  console.log(errors);
+  useEffect(() => {
+    if (
+      !!errors.name ||
+      !!errors.businessId ||
+      !!errors.status ||
+      !!errors.description
+    ) {
+      setCurrentTab("start-config");
+    } else if (
+      !!errors.flowId ||
+      !!errors.connectionWAId ||
+      !!errors.addLeadToAudiencesIds ||
+      !!errors.addToLeadTagsIds
+    ) {
+      setCurrentTab("activation-rules");
+    } else if (errors.operatingDays) {
+      setCurrentTab("opening-hours");
+    }
+  }, [
+    errors.name,
+    errors.businessId,
+    errors.status,
+    errors.description,
+    errors.flowId,
+    errors.connectionWAId,
+    errors.addLeadToAudiencesIds,
+    errors.addToLeadTagsIds,
+    errors.operatingDays,
+  ]);
 
   return (
     <DialogRoot
@@ -193,7 +226,7 @@ export function ModalCreateChatbot({
         <DialogBody mt={"-5px"}>
           <TabsRoot
             value={currentTab}
-            onValueChange={(s) => setCurrentTab(s.value)}
+            onValueChange={(s) => setCurrentTab(s.value as any)}
             lazyMount
             unmountOnExit
             variant={"enclosed"}
@@ -264,7 +297,7 @@ export function ModalCreateChatbot({
                     })}
                     autoFocus
                     autoComplete="off"
-                    placeholder="Digite o nome do bot receptivo"
+                    placeholder="Digite o nome do bot de recepção"
                   />
                 </Field>
                 <Field
@@ -277,6 +310,7 @@ export function ModalCreateChatbot({
                     control={control}
                     render={({ field }) => (
                       <SelectComponent
+                        isClearable={false}
                         name={field.name}
                         isMulti={false}
                         onBlur={field.onBlur}
@@ -340,7 +374,6 @@ export function ModalCreateChatbot({
                   errorText={errors.connectionWAId?.message}
                   invalid={!!errors.connectionWAId}
                   label="Conexão WA"
-                  required
                 >
                   <Controller
                     name="connectionWAId"
@@ -434,7 +467,9 @@ export function ModalCreateChatbot({
                       >
                         <NumberInput.Input
                           w={"100%"}
-                          {...register(`timeToRestart.value`)}
+                          {...register(`timeToRestart.value`, {
+                            valueAsNumber: true,
+                          })}
                           placeholder="Número"
                         />
                       </NumberInput.Root>
@@ -458,6 +493,7 @@ export function ModalCreateChatbot({
                         control={control}
                         render={({ field }) => (
                           <SelectComponent
+                            isClearable={false}
                             value={
                               field?.value
                                 ? {

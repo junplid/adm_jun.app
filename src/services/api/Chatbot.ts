@@ -5,13 +5,13 @@ export async function createChatbot(body: {
   businessId: number;
   flowId: number;
   connectionWAId?: number;
-  status?: boolean | undefined;
-  description?: string | undefined;
-  addLeadToAudiencesIds?: number[] | undefined;
-  addToLeadTagsIds?: number[] | undefined;
+  status?: boolean;
+  description?: string;
+  addLeadToAudiencesIds?: number[];
+  addToLeadTagsIds?: number[];
   timeToRestart?: {
-    value?: string;
-    type?: "seconds" | "minutes" | "hours" | "days";
+    value: number;
+    type: "seconds" | "minutes" | "hours" | "days";
   };
   operatingDays?: {
     dayOfWeek: number;
@@ -67,23 +67,38 @@ export async function getOptionsChatbots(params: {
   return data.chatbots;
 }
 
-export async function getChatbotDetails(id: number): Promise<{
+export async function getChatbotDetails({ id }: { id: number }): Promise<{
   id: number;
   name: string;
-  business: { name: string; id: number }[];
-  value: string | null;
-  // type: ChatbotType;
+  createAt: Date;
+  updateAt: Date;
+  description: string | null;
+  status: boolean;
+  business: { id: number; name: string };
+  connection: { name: string; id: number; number: string | null };
 }> {
   const { data } = await api.get(`/private/chatbots/${id}/details`);
-  return data.Chatbot;
+  return data.chatbot;
 }
 
 export async function getChatbot(id: number): Promise<{
   id: number;
   name: string;
-  businessIds: number[];
-  value: string | null;
-  type: "dynamics" | "constant";
+  businessId: number;
+  flowId: number;
+  connectionWAId?: number;
+  status?: boolean;
+  description?: string;
+  addLeadToAudiencesIds?: number[];
+  addToLeadTagsIds?: number[];
+  timeToRestart?: {
+    value: number;
+    type: "seconds" | "minutes" | "hours" | "days";
+  };
+  operatingDays?: {
+    dayOfWeek: number;
+    workingTimes?: { start: string; end: string }[];
+  }[];
 }> {
   const { data } = await api.get(`/private/chatbots/${id}`);
   return data.chatbot;
@@ -97,7 +112,10 @@ export async function updateChatbot(
     businessIds?: number[];
     type?: "dynamics" | "constant";
   }
-): Promise<void> {
+): Promise<{
+  business: { id: number; name: string };
+  status: boolean;
+}> {
   const { data } = await api.put(`/private/chatbots/${id}`, undefined, {
     params,
   });
