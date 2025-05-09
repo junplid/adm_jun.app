@@ -1,13 +1,13 @@
+import { JSX, useEffect, useMemo } from "react";
 import { Handle, Node, Position } from "@xyflow/react";
 import { PatternNode } from "../Pattern";
-import { PiBracketsCurlyBold } from "react-icons/pi";
-import { WithContext as ReactTags, SEPARATORS, Tag } from "react-tag-input";
+import { TbTags } from "react-icons/tb";
 import useStore from "../../flowStore";
-import { JSX, useEffect, useMemo } from "react";
-import { Highlight } from "@chakra-ui/react";
+import { WithContext as ReactTags, SEPARATORS, Tag } from "react-tag-input";
+import { Highlight, Presence, Spinner } from "@chakra-ui/react";
 import { useColorModeValue } from "@components/ui/color-mode";
-import { useDBNodes, useVariables } from "../../../../db";
-import { GrClose } from "react-icons/gr";
+import { db, useDBNodes, useTags } from "../../../../db";
+import { useCreateTag } from "../../../../hooks/tag";
 
 type DataNode = {
   list: number[];
@@ -16,22 +16,38 @@ type DataNode = {
 function BodyNode({ id }: { id: string }): JSX.Element {
   const nodes = useDBNodes();
   const colorQuery = useColorModeValue("#000000", "#ffffff");
-  const variables = useVariables();
+  const tags = useTags();
 
-  const { updateNode } = useStore((s) => ({ updateNode: s.updateNode }));
+  const { updateNode, businessIds } = useStore((s) => ({
+    updateNode: s.updateNode,
+    businessIds: s.businessIds,
+  }));
   const node = nodes.find((s) => s.id === id) as Node<DataNode> | undefined;
 
+  const { mutateAsync: createTag, status } = useCreateTag({});
+
   const suggestions = useMemo(() => {
-    return variables
+    return tags
       .filter(
-        (s) => s.type === "dynamics" && !node?.data.list.some((v) => v === s.id)
+        (s) =>
+          s.type === "contactwa" && !node?.data.list.some((v) => v === s.id)
       )
       .map((s) => ({
         id: String(s.id),
         text: s.name,
         className: "",
       }));
-  }, [variables, node?.data.list]);
+  }, [tags, node?.data.list]);
+
+  const selecteds = useMemo(() => {
+    return node?.data.list
+      ?.map((id) => {
+        const exist = tags.find((v) => v.id === id);
+        if (!exist) return null;
+        return { id: String(id), text: exist?.name, className: "" };
+      })
+      .filter((s) => s !== null);
+  }, [node?.data.list, tags]);
 
   if (!node) {
     return <span>Não encontrado</span>;
@@ -50,38 +66,55 @@ function BodyNode({ id }: { id: string }): JSX.Element {
   };
 
   const handleAddition = async (tag: Tag) => {
-    updateNode(id, { data: { list: [...node.data.list, Number(tag.id)] } });
+    const nextName = tag.text.trim().replace(/\s/g, "_");
+    const exist = tags.find((s) => s.name === nextName);
+
+    if (!exist) {
+      const vv = await db.tags.add({ name: nextName, type: "contactwa" });
+      const tag = await createTag({
+        targetId: vv,
+        name: nextName,
+        businessIds,
+        type: "contactwa",
+      });
+      await db.tags.update(vv, { id: tag.id });
+      updateNode(id, { data: { list: [...node.data.list, Number(tag.id)] } });
+      return;
+    }
+
+    updateNode(id, {
+      data: {
+        list: [...node.data.list, Number(tag.id)],
+      },
+    });
+    updateNode(id, { data: { list: [...node.data.list] } });
   };
 
   return (
-    <div className="flex flex-col gap-y-3 -mt-3">
-      {!node.data.list.length ? (
-        <span className="text-white/70">*Nenhuma variável selecionada</span>
-      ) : (
-        <div className="flex flex-col gap-y-1.5 mt-1">
-          {node.data.list.map((idItem, index) => (
-            <div key={idItem} className="flex items-center gap-x-1">
-              <button
-                className="hover:bg-white/5 duration-200 rounded-sm p-1.5 cursor-pointer"
-                type="button"
-                onClick={() => handleDelete(index)}
-              >
-                <GrClose size={15} color="#d36060" />
-              </button>
-              <span>
-                {`{{${variables.find((s) => s.id === idItem)?.name || "..."}}}`}
-              </span>
-            </div>
-          ))}
-        </div>
-      )}
+    <div className="flex flex-col gap-y-5 -mt-3 ">
+      <Presence
+        animationName={{
+          _open: "slide-from-top, fade-in",
+          _closed: "slide-to-top, fade-out",
+        }}
+        animationDuration="moderate"
+        present={status === "pending"}
+        top={0}
+        left={0}
+        zIndex={99999}
+        className="bg-white/5 flex items-center justify-center rounded-sm"
+      >
+        <Spinner size={"sm"} />
+      </Presence>
       <ReactTags
-        tags={[]}
+        tags={selecteds}
         suggestions={suggestions}
         separators={[SEPARATORS.ENTER]}
         handleAddition={handleAddition}
+        handleDelete={handleDelete}
         placeholder="Digite e pressione `ENTER`"
         allowDragDrop={false}
+        handleTagClick={handleDelete}
         renderSuggestion={(item, query) => (
           <div
             key={item.id}
@@ -107,18 +140,17 @@ function BodyNode({ id }: { id: string }): JSX.Element {
           remove: "hidden",
           tag: "hover:bg-red-500 duration-300 !cursor-pointer dark:bg-white/15 bg-black/15 px-1",
           tagInput: "w-full",
-          tags: "w-full relative",
           suggestions:
             "absolute z-50 dark:bg-[#111111] bg-white w-full translate-y-2 shadow-xl p-1 border dark:border-white/10 border-black/10 rounded-sm",
         }}
       />
-      <div className="mt-20"></div>
     </div>
   );
 }
 
-export const NodeRemoveVariables: React.FC<Node<DataNode>> = ({ data, id }) => {
+export const NodeAddTags: React.FC<Node<DataNode>> = ({ data, id }) => {
   const updateNode = useStore((s) => s.updateNode);
+
   useEffect(() => {
     if (!data.list?.length) {
       updateNode(id, { data: { list: [] } });
@@ -128,19 +160,19 @@ export const NodeRemoveVariables: React.FC<Node<DataNode>> = ({ data, id }) => {
   return (
     <div>
       <PatternNode.PatternPopover
-        title="Node de variáveis"
-        description="Remove várias variáveis do lead"
+        title="Node adicionar etiquetas"
+        description="Adiciona várias etiquetas/tags ao lead"
         node={{
           children: (
             <div className="p-1">
-              <PiBracketsCurlyBold
-                className="dark:text-red-300 text-red-800"
+              <TbTags
+                className="dark:text-green-300 text-green-800"
                 size={26.8}
               />
             </div>
           ),
-          name: "Variáveis",
-          description: "Remover",
+          name: "Etiquetas",
+          description: "Adiciona",
         }}
       >
         <BodyNode id={id} />

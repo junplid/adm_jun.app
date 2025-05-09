@@ -95,14 +95,10 @@ export async function getFlows(params?: {
 export async function getOptionsFlows(params?: {
   name?: string;
   businessIds?: number[];
-  type?: ("marketing" | "chatbot" | "universal")[];
-}): Promise<{ id: number; name: string }[]> {
+  type?: FlowType[];
+}): Promise<{ id: number; name: string; type: FlowType }[]> {
   const { data } = await api.get("/private/flows/options", {
-    params: {
-      ...params,
-      businessIds: params?.businessIds?.join("-"),
-      type: params?.type?.join("-"),
-    },
+    params,
   });
   return data.flows;
 }

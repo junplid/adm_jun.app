@@ -3,7 +3,14 @@ import "@xyflow/react/dist/style.css";
 import "./styles.css";
 
 import { Box, HStack, Presence, Spinner } from "@chakra-ui/react";
-import { useCallback, useContext, useEffect, useMemo, useRef } from "react";
+import {
+  JSX,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+} from "react";
 import {
   Background,
   MiniMap,
@@ -18,8 +25,8 @@ import useStore from "./flowStore";
 import { NodeInitial } from "./nodes/Initial";
 import { NodeMessage } from "./nodes/Message";
 import { NodeReply } from "./nodes/Reply";
-import { NodeAddTags } from "./nodes/AddTag";
-import { NodeRemoveTags } from "./nodes/RemoveTag";
+import { NodeAddTags } from "./nodes/AddTags";
+import { NodeRemoveTags } from "./nodes/RemoveTags";
 import { NodeAddVariables } from "./nodes/AddVariables";
 import { NodeRemoveVariables } from "./nodes/RemoveVariables";
 import { NodeIF } from "./nodes/if";
@@ -29,14 +36,16 @@ import { DnDContext } from "@contexts/DnD.context";
 import { AppNode } from "./types";
 import { FeedbackComponent } from "./components/feedback";
 import useSyncLoadStore from "./syncLoadStore";
-import { IoSaveOutline } from "react-icons/io5";
+import { IoSave } from "react-icons/io5";
 import { RiErrorWarningLine } from "react-icons/ri";
 import { useParams } from "react-router-dom";
-import { getVariables } from "../../services/api/Variable";
+import { getOptionsVariables } from "../../services/api/Variable";
 import { db } from "../../db";
 import { useGetFlowData, useUpdateFlowData } from "../../hooks/flow";
 import { nanoid } from "nanoid";
 import CustomEdge from "./customs/edge";
+import { FlowType, getOptionsFlows } from "../../services/api/Flow";
+import { getOptionsTags } from "../../services/api/Tag";
 
 type NodeTypesGeneric = {
   [x in TypesNodes]: any;
@@ -57,15 +66,18 @@ const edgeTypes = {
   customedge: CustomEdge,
 };
 
-export function FlowBuilderPage() {
-  const params = useParams<{ id: string }>();
-  const { type } = useContext(DnDContext);
-  const {
-    data: flowData,
-    isFetching,
-    isError,
-  } = useGetFlowData(Number(params.id));
+interface IBody {
+  id: number;
+  flowData: {
+    name: string;
+    type: FlowType;
+    businessIds: number[];
+    nodes: any[];
+    edges: any[];
+  };
+}
 
+function Body(props: IBody): JSX.Element {
   const {
     nodes,
     changes,
@@ -78,6 +90,7 @@ export function FlowBuilderPage() {
     resetChanges,
     onNodesDelete,
     onEdgeClick,
+    setBusinessIds,
   } = useStore(
     useShallow((s) => ({
       nodes: s.nodes,
@@ -92,58 +105,16 @@ export function FlowBuilderPage() {
       onNodesDelete: s.onNodesDelete,
       setEdges: s.setEdges,
       onEdgeClick: s.onEdgeClick,
+      setBusinessIds: s.setBusinessIds,
     }))
   );
 
+  const reactFlowWrapper = useRef(null);
+  const { type } = useContext(DnDContext);
   const { screenToFlowPosition } = useReactFlow();
   const { ToggleMenu } = useContext(LayoutPrivateContext);
-  const reactFlowWrapper = useRef(null);
   const colorDotFlow = useColorModeValue("#c6c6c6", "#373737");
   const { load: syncLoad, setLoad } = useSyncLoadStore((s) => s);
-
-  const nodeTypes: NodeTypesGeneric = useMemo(
-    () => ({
-      nodeInitial: NodeInitial,
-      nodeMessage: NodeMessage,
-      nodeReply: NodeReply,
-      nodeAddTags: NodeAddTags,
-      nodeRemoveTags: NodeRemoveTags,
-      nodeAddVariables: NodeAddVariables,
-      nodeRemoveVariables: NodeRemoveVariables,
-      nodeIF: NodeIF,
-      nodeSendFlow: NodeSendFlow,
-    }),
-    []
-  );
-
-  const onDragOver = useCallback((event: any) => {
-    event.preventDefault();
-    event.dataTransfer.dropEffect = "move";
-  }, []);
-
-  const onDrop = useCallback(
-    (event: any) => {
-      event.preventDefault();
-      if (!type) return;
-      const { x, y } = screenToFlowPosition({
-        x: event.clientX,
-        y: event.clientY,
-      });
-      const newNode: AppNode = {
-        id: nanoid(),
-        type,
-        position: { x: x - 25, y: y - 25 },
-        data: {},
-        deletable: true,
-      };
-      db.nodes.add({
-        id: newNode.id,
-        data: newNode.data,
-      });
-      onNodesChange([{ type: "add", item: newNode }]);
-    },
-    [screenToFlowPosition, type]
-  );
 
   const {
     mutateAsync: updateFlowData,
@@ -158,44 +129,60 @@ export function FlowBuilderPage() {
 
   // primeiro pull do fluxo
   useEffect(() => {
-    if (flowData?.name) {
-      setNodes(
-        flowData.nodes.map((n: any) => ({
+    setBusinessIds(props.flowData.businessIds);
+    setNodes(
+      props.flowData.nodes.map((n: any) => ({
+        id: n.id,
+        type: n.type,
+        data: {},
+        position: n.position,
+        deletable: n.deletable,
+      }))
+    );
+
+    setEdges(
+      props.flowData.edges.map((e: any) => ({
+        id: e.id,
+        source: e.source,
+        target: e.target,
+        sourceHandle: e.sourceHandle,
+        targetHandle: e.targetHandle,
+      }))
+    );
+
+    (async () => {
+      await db.nodes.clear();
+      await db.nodes.bulkAdd(
+        props.flowData.nodes.map((n: any) => ({
           id: n.id,
-          type: n.type,
-          data: {},
-          position: n.position,
-          deletable: n.deletable,
+          data: n.data,
         }))
       );
-
-      setEdges(
-        flowData.edges.map((e: any) => ({
-          id: e.id,
-          source: e.source,
-          target: e.target,
-          sourceHandle: e.sourceHandle,
-          targetHandle: e.targetHandle,
-        }))
+      await db.variables.clear();
+      const variables = await getOptionsVariables({
+        businessIds: props.flowData.businessIds,
+      });
+      db.variables.bulkAdd(
+        variables.map((v) => ({ name: v.name, id: v.id, type: v.type }))
       );
 
-      (async () => {
-        await db.nodes.clear();
-        await db.nodes.bulkAdd(
-          flowData.nodes.map((n: any) => ({
-            id: n.id,
-            data: n.data,
-          }))
-        );
-        await db.variables.clear();
-        const variables = await getVariables({
-          businessIds: flowData.businessIds,
-        });
-        db.variables.bulkAdd(
-          variables.map((v) => ({ name: v.name, id: v.id }))
-        );
-      })();
-    }
+      await db.tags.clear();
+      const tags = await getOptionsTags({
+        businessIds: props.flowData.businessIds,
+        type: "contactwa",
+      });
+      db.tags.bulkAdd(
+        tags.map((v) => ({ name: v.name, id: v.id, type: v.type }))
+      );
+
+      await db.flows.clear();
+      const flows = await getOptionsFlows({
+        businessIds: props.flowData.businessIds,
+      });
+      db.flows.bulkAdd(
+        flows.map((v) => ({ name: v.name, id: v.id, type: v.type }))
+      );
+    })();
 
     return () => {
       setNodes([]);
@@ -204,7 +191,7 @@ export function FlowBuilderPage() {
       // db.nodes.clear();
       // db.variables.clear();
     };
-  }, [flowData?.name]);
+  }, [props.flowData.name]);
 
   // sincroniza o fluxo
   useEffect(() => {
@@ -258,7 +245,7 @@ export function FlowBuilderPage() {
         );
 
         updateFlowData({
-          id: Number(params.id),
+          id: props.id,
           body: { nodes: nodesxx, edges: edgesxx },
         });
         return;
@@ -272,6 +259,198 @@ export function FlowBuilderPage() {
   const isSave = useMemo(() => {
     return !!(changes.nodes.length || changes.edges.length);
   }, [changes.edges, changes.nodes]);
+
+  const nodeTypes: NodeTypesGeneric = useMemo(
+    () => ({
+      nodeInitial: NodeInitial,
+      nodeMessage: NodeMessage,
+      nodeReply: NodeReply,
+      nodeAddTags: NodeAddTags,
+      nodeRemoveTags: NodeRemoveTags,
+      nodeAddVariables: NodeAddVariables,
+      nodeRemoveVariables: NodeRemoveVariables,
+      nodeIF: NodeIF,
+      nodeSendFlow: NodeSendFlow,
+    }),
+    []
+  );
+
+  const onDragOver = useCallback((event: any) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "move";
+  }, []);
+
+  const onDrop = useCallback(
+    (event: any) => {
+      event.preventDefault();
+      if (!type) return;
+      const { x, y } = screenToFlowPosition({
+        x: event.clientX,
+        y: event.clientY,
+      });
+      const newNode: AppNode = {
+        id: nanoid(),
+        type,
+        position: { x: x - 25, y: y - 25 },
+        data: {},
+        deletable: true,
+      };
+      db.nodes.add({
+        id: newNode.id,
+        data: newNode.data,
+      });
+      onNodesChange([{ type: "add", item: newNode }]);
+    },
+    [screenToFlowPosition, type]
+  );
+
+  return (
+    <div className="reactflow-wrapper w-full h-full" ref={reactFlowWrapper}>
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onNodesDelete={onNodesDelete}
+        onConnect={onConnect}
+        nodeTypes={nodeTypes}
+        snapToGrid={true}
+        // snapGrid={[60, 80]}
+        edgeTypes={edgeTypes}
+        onEdgeClick={onEdgeClick}
+        onDrop={onDrop}
+        onDragOver={onDragOver}
+        attributionPosition="top-right"
+        fitView
+      >
+        <MiniMap
+          style={{ width: 180, height: 100 }}
+          className="dark:!bg-[#37373791] !bg-[#47484971]"
+        />
+        <Panel
+          position="top-left"
+          style={{
+            margin: 0,
+            width: "100%",
+            padding: "10px 20px",
+            pointerEvents: "none",
+          }}
+        >
+          <HStack
+            pointerEvents={"none"}
+            justifyContent={"space-between"}
+            w={"100%"}
+          >
+            <HStack className="w-full relative">
+              {ToggleMenu}
+              <div className=" w-full">
+                <Presence
+                  animationName={{
+                    _open: "slide-from-top, fade-in",
+                    // _closed: "slide-to-top, fade-out",
+                  }}
+                  animationDuration="moderate"
+                  present={isPending}
+                  top={"2px"}
+                  position={"absolute"}
+                >
+                  <Spinner color={"whiteAlpha.700"} />
+                </Presence>
+
+                <Presence
+                  animationName={{
+                    // _open: "slide-from-top, fade-in",
+                    _closed: "slide-to-top, fade-out",
+                  }}
+                  animationDuration="moderate"
+                  present={syncLoad === "save"}
+                  top={"2px"}
+                  position={"absolute"}
+                >
+                  <div className="flex select-none justify-end gap-x-2 text-white/70">
+                    <IoSave size={20} color="#78a5ec" />
+                    <span>Salvo</span>
+                  </div>
+                </Presence>
+                <Presence
+                  animationName={{
+                    _open: "slide-from-top, fade-in",
+                    _closed: "slide-to-top, fade-out",
+                  }}
+                  animationDuration="moderate"
+                  present={isErrorSync}
+                  top={"1px"}
+                  position={"absolute"}
+                  w={"full"}
+                  className="gap-x-2 text-red-500 flex items-center w-full"
+                >
+                  <RiErrorWarningLine size={22} />
+                  <span className="text-base select-none">
+                    Erro de sincronização! Se o erro persistir, contate o
+                    suporte.
+                  </span>
+                </Presence>
+              </div>
+            </HStack>
+            <HStack className="pointer-events-auto">
+              <FeedbackComponent />
+              <SearchNodesComponents />
+              <ColorModeButton />
+            </HStack>
+          </HStack>
+        </Panel>
+        <Panel
+          position="bottom-left"
+          style={{
+            margin: 0,
+            padding: "10px 20px",
+            pointerEvents: "none",
+          }}
+        >
+          <Presence
+            animationName={{
+              _open: "slide-from-bottom, fade-in",
+              _closed: "slide-to-bottom, fade-out",
+            }}
+            animationDuration="moderate"
+            present={isSave}
+          >
+            <span className="text-sm text-white/60 select-none">
+              Pressione <strong className="text-white">CTRL</strong> +{" "}
+              <strong className="text-white">S</strong> para salvar
+            </span>
+          </Presence>
+        </Panel>
+        <Panel
+          position="bottom-center"
+          style={{
+            margin: 0,
+            padding: "10px 20px",
+            pointerEvents: "none",
+          }}
+        >
+          <span className="block relative text-sm font-medium select-none">
+            {props.flowData.name}
+            {isSave && (
+              <strong className="text-[#78a5ec] absolute -right-3 text-xl -top-2">
+                *
+              </strong>
+            )}
+          </span>
+        </Panel>
+        <Background color={colorDotFlow} gap={9} size={0.8} />
+      </ReactFlow>
+    </div>
+  );
+}
+
+export function FlowBuilderPage() {
+  const params = useParams<{ id: string }>();
+  const {
+    data: flowData,
+    isFetching,
+    isError,
+  } = useGetFlowData(Number(params.id));
 
   return (
     <Box as={"div"} className="dndflow" h={"100svh"}>
@@ -302,142 +481,7 @@ export function FlowBuilderPage() {
       </Presence>
 
       {!isFetching && !isError && flowData?.name && (
-        <div className="reactflow-wrapper w-full h-full" ref={reactFlowWrapper}>
-          <ReactFlow
-            nodes={nodes}
-            edges={edges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            onNodesDelete={onNodesDelete}
-            onConnect={onConnect}
-            nodeTypes={nodeTypes}
-            snapToGrid={true}
-            // snapGrid={[60, 80]}
-            edgeTypes={edgeTypes}
-            onEdgeClick={onEdgeClick}
-            onDrop={onDrop}
-            onDragOver={onDragOver}
-            attributionPosition="top-right"
-            fitView
-          >
-            <MiniMap
-              style={{ width: 180, height: 100 }}
-              className="dark:!bg-[#37373791] !bg-[#47484971]"
-            />
-            <Panel
-              position="top-left"
-              style={{
-                margin: 0,
-                width: "100%",
-                padding: "10px 20px",
-                pointerEvents: "none",
-              }}
-            >
-              <HStack
-                pointerEvents={"none"}
-                justifyContent={"space-between"}
-                w={"100%"}
-              >
-                <HStack className="w-full relative">
-                  {ToggleMenu}
-                  <div className=" w-full">
-                    <Presence
-                      animationName={{
-                        // _open: "slide-from-top, fade-in",
-                        _closed: "slide-to-top, fade-out",
-                      }}
-                      animationDuration="moderate"
-                      present={isPending}
-                      top={"2px"}
-                      position={"absolute"}
-                    >
-                      <Spinner color={"whiteAlpha.700"} />
-                    </Presence>
-
-                    <Presence
-                      animationName={{
-                        _open: "slide-from-top, fade-in",
-                        _closed: "slide-to-top, fade-out",
-                      }}
-                      animationDuration="moderate"
-                      present={syncLoad === "save"}
-                      top={"2px"}
-                      position={"absolute"}
-                    >
-                      <div className="flex items-center gap-x-2 text-white/70">
-                        <IoSaveOutline size={20} color="#1db4e7" />
-                        <span>Salvo</span>
-                      </div>
-                    </Presence>
-                    <Presence
-                      animationName={{
-                        _open: "slide-from-top, fade-in",
-                        _closed: "slide-to-top, fade-out",
-                      }}
-                      animationDuration="moderate"
-                      present={isErrorSync}
-                      top={"1px"}
-                      position={"absolute"}
-                      w={"full"}
-                      className="gap-x-2 text-red-500 flex items-center w-full"
-                    >
-                      <RiErrorWarningLine size={22} />
-                      <span className="text-base">
-                        Erro de sincronização! Se o erro persistir, contate o
-                        suporte.
-                      </span>
-                    </Presence>
-                  </div>
-                </HStack>
-                <HStack className="pointer-events-auto">
-                  <FeedbackComponent />
-                  <SearchNodesComponents />
-                  <ColorModeButton />
-                </HStack>
-              </HStack>
-            </Panel>
-            <Panel
-              position="bottom-left"
-              style={{
-                margin: 0,
-                padding: "10px 20px",
-                pointerEvents: "none",
-              }}
-            >
-              <Presence
-                animationName={{
-                  _open: "slide-from-bottom, fade-in",
-                  _closed: "slide-to-bottom, fade-out",
-                }}
-                animationDuration="moderate"
-                present={isSave}
-              >
-                <span className="text-sm text-white/60">
-                  Pressione <strong className="text-white">CTRL</strong> +{" "}
-                  <strong className="text-white">S</strong> para salvar
-                </span>
-              </Presence>
-            </Panel>
-            <Panel
-              position="bottom-center"
-              style={{
-                margin: 0,
-                padding: "10px 20px",
-                pointerEvents: "none",
-              }}
-            >
-              <span className="block relative text-sm font-medium">
-                {flowData.name}
-                {isSave && (
-                  <strong className="text-blue-500 absolute -right-3 text-xl -top-2">
-                    *
-                  </strong>
-                )}
-              </span>
-            </Panel>
-            <Background color={colorDotFlow} gap={9} size={0.8} />
-          </ReactFlow>
-        </div>
+        <Body id={Number(params.id)} flowData={flowData} />
       )}
 
       <Presence

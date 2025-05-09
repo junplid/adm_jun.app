@@ -19,7 +19,7 @@ export async function getTags(params: {
 }
 
 export async function getOptionsTags(params: {
-  type?: TagType[];
+  type?: TagType;
   name?: string;
   businessIds?: number[];
 }): Promise<

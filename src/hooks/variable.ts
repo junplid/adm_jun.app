@@ -70,10 +70,14 @@ export function useGetVariables(params?: { name?: string; page?: number }) {
   });
 }
 
-export function useGetVariablesOptions(params?: {
+export function useGetVariablesOptions({
+  enabled,
+  ...params
+}: {
   name?: string;
   businessIds?: number[];
   type?: VariableService.VariableType[];
+  enabled?: boolean;
 }) {
   const { logout } = useContext(AuthContext);
   return useQuery({
@@ -92,6 +96,7 @@ export function useGetVariablesOptions(params?: {
         throw error;
       }
     },
+    enabled,
   });
 }
 

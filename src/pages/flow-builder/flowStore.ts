@@ -8,7 +8,11 @@ import { db } from "../../db";
 const useStore = create<AppState>((set, get) => ({
   nodes: [],
   edges: [],
+  businessIds: [],
   changes: { edges: [], nodes: [] },
+  setBusinessIds: (businessIds: number[]) => {
+    set({ businessIds });
+  },
   setChange: (
     type: "nodes" | "edges",
     change: { type: "upset" | "delete"; id: string }

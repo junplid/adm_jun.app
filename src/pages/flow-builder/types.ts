@@ -17,6 +17,8 @@ export type AppState = {
   };
   nodes: AppNode[];
   edges: Edge[];
+  businessIds: number[];
+  setBusinessIds: (businessIds: number[]) => void;
   setChange: (
     type: "nodes" | "edges",
     change: { type: "upset" | "delete"; id: string }

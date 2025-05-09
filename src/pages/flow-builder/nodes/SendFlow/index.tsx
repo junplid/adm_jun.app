@@ -8,42 +8,73 @@ import {
   SelectRoot,
   SelectTrigger,
   SelectValueText,
+  // SelectValueText,
 } from "@components/ui/select";
 import { createListCollection, Select, Span, Stack } from "@chakra-ui/react";
 import useStore from "../../flowStore";
-import { useEffect } from "react";
+import { JSX } from "react";
+import { useDBNodes, useFlows } from "../../../../db";
 
 type DataNode = {
   id: number;
 };
 
-const timesList = createListCollection({
-  items: [
-    {
-      label: "Seg",
-      value: "seg",
-      description: "Segundos",
-    },
-    {
-      label: "Min",
-      value: "min",
-      description: "Minutos",
-    },
-    {
-      label: "Hor",
-      value: "hor",
-      description: "Horas",
-    },
-  ],
-});
+function BodyNode({ id }: { id: string }): JSX.Element {
+  const nodes = useDBNodes();
+  const node = nodes.find((s) => s.id === id) as Node<DataNode> | undefined;
+  const flows = useFlows();
 
-export const NodeSendFlow: React.FC<Node<DataNode>> = ({ data, id }) => {
-  const updateNode = useStore((s) => s.updateNode);
+  const { updateNode } = useStore((s) => ({ updateNode: s.updateNode }));
 
-  useEffect(() => {
-    // caso tenho apenas um fluxo, então auto selecione ele!
-  }, []);
+  const collection = createListCollection({
+    items: flows.map((s) => ({
+      label: s.name,
+      value: String(s.id),
+    })),
+  });
 
+  if (!node) {
+    return <span>Não encontrado</span>;
+  }
+
+  return (
+    <div className="flex flex-col -mt-3">
+      <SelectRoot
+        defaultValue={[String(node.data.id)]}
+        onValueChange={(e) => {
+          updateNode(id, {
+            data: { id: Number(e.value[0]) },
+          });
+        }}
+        collection={collection}
+        className="!gap-1"
+      >
+        <SelectLabel className="p-0 m-0">Selecione o fluxo</SelectLabel>
+        <SelectTrigger>
+          <SelectValueText placeholder="Selecione o" />
+        </SelectTrigger>
+        <SelectContent>
+          {collection.items.map((time) => (
+            <SelectItem item={time} key={time.value}>
+              <Stack gap="0">
+                <Select.ItemText>{time.label}</Select.ItemText>
+              </Stack>
+            </SelectItem>
+          ))}
+          {!collection.items.length && (
+            <div className="flex items-center justify-center w-full h-12">
+              <Span color="fg.muted" textStyle="xs">
+                Nenhum fluxo encontrado
+              </Span>
+            </div>
+          )}
+        </SelectContent>
+      </SelectRoot>
+    </div>
+  );
+}
+
+export const NodeSendFlow: React.FC<Node<DataNode>> = ({ id }) => {
   return (
     <div>
       <PatternNode.PatternPopover
@@ -62,37 +93,7 @@ export const NodeSendFlow: React.FC<Node<DataNode>> = ({ data, id }) => {
           description: "Enviar",
         }}
       >
-        <div className="flex flex-col -mt-3">
-          <SelectRoot
-            // @ts-expect-error
-            value={data.id}
-            defaultValue={["min"]}
-            onValueChange={(e) => {
-              updateNode(id, {
-                data: { id: e.value },
-              });
-            }}
-            collection={timesList}
-            className="!gap-1"
-          >
-            <SelectLabel className="p-0 m-0">Selecione o fluxo</SelectLabel>
-            <SelectTrigger>
-              <SelectValueText placeholder="Tipo" />
-            </SelectTrigger>
-            <SelectContent>
-              {timesList.items.map((time) => (
-                <SelectItem item={time} key={time.value}>
-                  <Stack gap="0">
-                    <Select.ItemText>{time.label}</Select.ItemText>
-                    <Span color="fg.muted" textStyle="xs">
-                      {time.description}
-                    </Span>
-                  </Stack>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </SelectRoot>
-        </div>
+        <BodyNode id={id} />
       </PatternNode.PatternPopover>
 
       <Handle type="target" position={Position.Left} style={{ left: -8 }} />
