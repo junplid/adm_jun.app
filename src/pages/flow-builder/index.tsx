@@ -36,8 +36,7 @@ import { DnDContext } from "@contexts/DnD.context";
 import { AppNode } from "./types";
 import { FeedbackComponent } from "./components/feedback";
 import useSyncLoadStore from "./syncLoadStore";
-import { IoSave } from "react-icons/io5";
-import { RiErrorWarningLine } from "react-icons/ri";
+import { RiErrorWarningLine, RiSaveFill } from "react-icons/ri";
 import { useParams } from "react-router-dom";
 import { getOptionsVariables } from "../../services/api/Variable";
 import { db } from "../../db";
@@ -368,7 +367,7 @@ function Body(props: IBody): JSX.Element {
                   position={"absolute"}
                 >
                   <div className="flex select-none justify-end gap-x-2 text-white/70">
-                    <IoSave size={20} color="#78a5ec" />
+                    <RiSaveFill size={20} color="#78a5ec" />
                     <span>Salvo</span>
                   </div>
                 </Presence>

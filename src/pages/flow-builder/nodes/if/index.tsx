@@ -3,16 +3,9 @@ import { PatternNode } from "../Pattern";
 import { FaCheck, FaTimes } from "react-icons/fa";
 import { useColorModeValue } from "@components/ui/color-mode";
 import useStore from "../../flowStore";
-import { ReactNode, useEffect, useState } from "react";
+import { JSX, useEffect } from "react";
 import { nanoid } from "nanoid";
-import {
-  createListCollection,
-  Highlight,
-  Input,
-  Select,
-  Span,
-  Stack,
-} from "@chakra-ui/react";
+import { createListCollection, Select, Span, Stack } from "@chakra-ui/react";
 import {
   SelectContent,
   SelectItem,
@@ -20,15 +13,17 @@ import {
   SelectTrigger,
   SelectValueText,
 } from "@components/ui/select";
-import { WithContext as ReactTags, SEPARATORS, Tag } from "react-tag-input";
+import { useDBNodes, useVariables } from "../../../../db";
+import {
+  TabsContent,
+  TabsList,
+  TabsRoot,
+  TabsTrigger,
+} from "@components/ui/tabs";
+import AutocompleteTextField from "@components/Autocomplete";
+import SelectTags from "@components/SelectTags";
 
-const entityList = createListCollection({
-  items: [
-    { label: "Entidade: Tem as tags", value: "has-tags" },
-    { label: "Entidade: Não tem as tags", value: "no-tags" },
-    { label: "Entidade: Variável", value: "var" },
-  ],
-});
+type NameEntity = "has-tags" | "no-tags" | "var";
 
 const operatorComparisonList = createListCollection({
   items: [
@@ -53,8 +48,7 @@ const operatorLogicList = createListCollection({
 type DataNode = {
   list?: {
     key: string;
-    type: "entity";
-    name: "has-tags" | "no-tags" | "var";
+    name: NameEntity;
     operatorComparison:
       | "==="
       | "!=="
@@ -65,45 +59,251 @@ type DataNode = {
       | "regex"
       | "[...]";
     operatorLogic: "&&" | "||";
-    id: number;
+    tagIds: number[];
+    value1: string;
+    value2: string;
   }[];
 };
 
-export const NodeIF: React.FC<Node<DataNode>> = ({ data, id }) => {
+function BodyNode({ id }: { id: string }): JSX.Element {
+  const nodes = useDBNodes();
+  const node = nodes.find((s) => s.id === id) as Node<DataNode> | undefined;
   const updateNode = useStore((s) => s.updateNode);
-  const [tags, setTags] = useState<Array<Tag>>([]);
+  const variables = useVariables();
 
-  const colorTrue = useColorModeValue("#00CE6B", "#179952");
-  const colorFalse = useColorModeValue("#FB4F6A", "#FB4F6A");
-  const colorQuery = useColorModeValue("#000000", "#ffffff");
+  if (!node) {
+    return <span>Não encontrado</span>;
+  }
 
-  const handleDelete = (index: number) => {
-    if (!index && tags.length === 1) {
-      setTags(tags.filter((_, i) => i !== index));
-    } else {
-      setTags(tags.filter((_, i) => i !== index));
-    }
-  };
+  return (
+    <div className="flex flex-col -mt-3 gap-y-4">
+      {node.data.list?.map((item, index) => {
+        let isDisabled = false;
+        if (item.name === "var") {
+          isDisabled = !item.value1 || !item.value2 || !item.operatorComparison;
+        } else if (item.name === "has-tags" || item.name === "no-tags") {
+          isDisabled = !item.tagIds.length;
+        }
 
-  const handleAddition = (tag: Tag) => {
-    setTags((prevTags) => {
-      return [
-        ...prevTags,
-        { ...tag, text: tag.text.trim().replace(/\s/g, "_") },
-      ];
-    });
-  };
+        return (
+          <div key={item.key}>
+            <div className="flex flex-col gap-y-2">
+              <TabsRoot
+                lazyMount
+                unmountOnExit
+                variant={"enclosed"}
+                value={item.name}
+                onValueChange={(e) => {
+                  node.data.list![index].name = e.value as NameEntity;
+                  updateNode(id, { data: { list: node.data.list } });
+                }}
+              >
+                <TabsList minW={"100%"} bg="#1c1c1c" rounded="l3" p="1.5">
+                  <TabsTrigger
+                    _selected={{ bg: "bg.subtle", color: "#fff" }}
+                    color={"#757575"}
+                    value="has-tags"
+                    w={"100%"}
+                  >
+                    <div className="flex flex-col items-center">
+                      <span className="text-xs leading-3">Tem as</span>
+                      <span className="leading-4">Etiquetas</span>
+                    </div>
+                  </TabsTrigger>
+                  <TabsTrigger
+                    _selected={{ bg: "bg.subtle", color: "#fff" }}
+                    color={"#757575"}
+                    value="no-tags"
+                    w={"100%"}
+                  >
+                    <div className="flex flex-col items-center">
+                      <span className="text-xs leading-3">Não tem as</span>
+                      <span className="leading-4">Etiquetas</span>
+                    </div>
+                  </TabsTrigger>
+                  <TabsTrigger
+                    _selected={{ bg: "bg.subtle", color: "#fff" }}
+                    color={"#757575"}
+                    value="var"
+                    w={"100%"}
+                  >
+                    <div className="flex flex-col items-center">
+                      <span className="text-xs leading-3">Lógica de</span>
+                      <span className="leading-4">Variável</span>
+                    </div>
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="has-tags">
+                  <div className="-mt-2">
+                    <SelectTags
+                      isMulti={true}
+                      isClearable
+                      value={node.data.list![index].tagIds}
+                      onChange={(e: any) => {
+                        node.data.list![index].tagIds = e.map(
+                          (item: any) => item.value
+                        );
+                        updateNode(id, {
+                          data: { list: node.data.list },
+                        });
+                      }}
+                    />
+                  </div>
+                </TabsContent>
+                <TabsContent value="no-tags">
+                  <div className="-mt-2">
+                    <SelectTags
+                      isMulti={true}
+                      isClearable
+                      value={node.data.list![index].tagIds}
+                      onChange={(e: any) => {
+                        node.data.list![index].tagIds = e.map(
+                          (item: any) => item.value
+                        );
+                        updateNode(id, {
+                          data: { list: node.data.list },
+                        });
+                      }}
+                    />
+                  </div>
+                </TabsContent>
+                <TabsContent value="var">
+                  <div className="flex flex-col w-full -mt-2">
+                    <AutocompleteTextField
+                      // @ts-expect-error
+                      trigger={["{{"]}
+                      options={{ "{{": variables.map((s) => s.name) }}
+                      spacer={"}}"}
+                      placeholder="Definir valor 1 ou {{variável_1}}"
+                      defaultValue={item.value1 || ""}
+                      // @ts-expect-error
+                      onBlur={({ target }) => {
+                        console.log(target.value);
+                        const nextList = node.data.list!.map((it) => {
+                          if (it.key === item.key) it.value1 = target.value;
+                          return it;
+                        });
+                        updateNode(id, { data: { list: nextList } });
+                      }}
+                    />
+
+                    <div className="w-full flex gap-1 mt-1">
+                      <SelectRoot
+                        value={[item.operatorComparison || ""]}
+                        disabled={!item.name}
+                        onValueChange={(e) => {
+                          node.data.list![index].operatorComparison = e
+                            .value[0] as any;
+                          updateNode(id, { data: { list: node.data.list } });
+                        }}
+                        collection={operatorComparisonList}
+                        style={{ maxWidth: 90 }}
+                      >
+                        <SelectTrigger>
+                          <SelectValueText
+                            placeholder="Testar"
+                            className="text-center -translate-x-0.5 w-full absolute"
+                          />
+                        </SelectTrigger>
+                        <SelectContent className="scroll-hidden">
+                          {operatorComparisonList.items.map((time) => (
+                            <SelectItem item={time} key={time.value}>
+                              <Stack gap="0">
+                                <Select.ItemText textStyle={"md"}>
+                                  {time.label}
+                                </Select.ItemText>
+                                {time.description && (
+                                  <Span color="fg.muted" textStyle="xs">
+                                    {time.description}
+                                  </Span>
+                                )}
+                              </Stack>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </SelectRoot>
+                      <AutocompleteTextField
+                        // @ts-expect-error
+                        trigger={["{{"]}
+                        options={{ "{{": variables.map((s) => s.name) }}
+                        spacer={"}}"}
+                        placeholder="Definir valor 2 ou {{variável_2}}"
+                        defaultValue={item.value2 || ""}
+                        // @ts-expect-error
+                        onBlur={({ target }) => {
+                          node.data.list![index].value2 = target.value;
+                          updateNode(id, { data: { list: node.data.list } });
+                        }}
+                      />
+                    </div>
+                  </div>
+                </TabsContent>
+              </TabsRoot>
+            </div>
+            <div className="w-full flex flex-col items-center mt-3">
+              <SelectRoot
+                value={[item.operatorLogic || ""]}
+                disabled={isDisabled}
+                onValueChange={(e) => {
+                  node.data.list![index].operatorLogic = e.value[0] as any;
+                  updateNode(id, {
+                    data: { list: [...node.data.list!, { key: nanoid() }] },
+                  });
+                }}
+                collection={operatorLogicList}
+                className="!gap-"
+                style={{ maxWidth: 100 }}
+              >
+                <SelectTrigger>
+                  <SelectValueText
+                    placeholder="OP lógico"
+                    className="text-center -translate-x-0.5 w-full absolute"
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  {operatorLogicList.items.map((time) => (
+                    <SelectItem item={time} key={time.value}>
+                      <Stack direction={"row"} alignItems={"center"} gap="2">
+                        <Select.ItemText textStyle={"md"}>
+                          {time.label}
+                        </Select.ItemText>
+                        {time.description && (
+                          <Span color="fg.muted" textStyle="xs">
+                            {time.description}
+                          </Span>
+                        )}
+                      </Stack>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </SelectRoot>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+export const NodeIF: React.FC<Node<DataNode>> = ({ id }) => {
+  const nodes = useDBNodes();
+  const node = nodes.find((s) => s.id === id) as Node<DataNode> | undefined;
+  const updateNode = useStore((s) => s.updateNode);
 
   useEffect(() => {
-    if (!data.list?.length) {
+    if (!node?.data.list?.length) {
       updateNode(id, { data: { list: [{ key: nanoid(), type: "entity" }] } });
     }
   }, [id]);
 
+  const colorTrue = useColorModeValue("#00CE6B", "#179952");
+  const colorFalse = useColorModeValue("#FB4F6A", "#FB4F6A");
+
   return (
     <div>
       <PatternNode.PatternPopover
-        size="300px"
+        size="350px"
         title="Node de condição IF"
         description="Verifica e executa regras lógicas"
         node={{
@@ -116,217 +316,7 @@ export const NodeIF: React.FC<Node<DataNode>> = ({ data, id }) => {
           description: "Condição",
         }}
       >
-        <div className="flex flex-col -mt-3 gap-y-4">
-          {data.list?.map((item) => {
-            const elements: ReactNode[] = [];
-            elements.push(
-              <div className="flex flex-col gap-y-2">
-                <SelectRoot
-                  // @ts-expect-error
-                  value={data.id}
-                  onValueChange={(e) => {
-                    const nextList = data.list!.map((it) => {
-                      // @ts-expect-error
-                      if (it.key === item.key) it.name = e.value[0];
-                      return it;
-                    });
-                    updateNode(id, { data: { list: nextList } });
-                  }}
-                  collection={entityList}
-                >
-                  <SelectTrigger>
-                    <SelectValueText placeholder="Selecione a entidade" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {entityList.items.map((time) => (
-                      <SelectItem item={time} key={time.value}>
-                        <Select.ItemText>{time.label}</Select.ItemText>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </SelectRoot>
-              </div>
-            );
-            if (item.name === "has-tags" || item.name === "no-tags") {
-              elements.push(
-                <div className="mt-2">
-                  <ReactTags
-                    tags={tags}
-                    suggestions={[]}
-                    separators={[SEPARATORS.ENTER]}
-                    handleAddition={handleAddition}
-                    handleDelete={handleDelete}
-                    placeholder="Digite e pressione `ENTER`"
-                    allowDragDrop={false}
-                    handleTagClick={handleDelete}
-                    renderSuggestion={(item, query) => (
-                      <div
-                        key={item.id}
-                        className="p-2 dark:text-white/50 text-black/40 py-1.5 cursor-pointer"
-                        style={{ borderRadius: 20 }}
-                      >
-                        <Highlight
-                          styles={{
-                            // px: "0.5",
-                            // bg: "#ea5c0a",
-                            color: colorQuery,
-                            fontWeight: 600,
-                          }}
-                          query={query}
-                        >
-                          {item.text}
-                        </Highlight>
-                      </div>
-                    )}
-                    classNames={{
-                      selected: `flex flex-wrap border gap-1.5 gap-y-2 w-full border-none`,
-                      tagInputField: `p-2.5 rounded-sm w-full border dark:border-white/10 border-black/10`,
-                      remove: "hidden",
-                      tag: "hover:bg-red-500 duration-300 !cursor-pointer dark:bg-white/15 bg-black/15 px-1",
-                      tagInput: "w-full",
-                      suggestions:
-                        "absolute z-50 dark:bg-[#111111] bg-white w-full translate-y-2 shadow-xl p-1 border dark:border-white/10 border-black/10 rounded-sm",
-                    }}
-                  />
-                </div>
-              );
-            }
-            if (item.name === "var") {
-              elements.push(
-                <div className="flex flex-col w-full mt-1">
-                  <SelectRoot
-                    // @ts-expect-error
-                    value={data.id}
-                    disabled={!item.name}
-                    onValueChange={(e) => {
-                      // const nextList = data.list!.map((it) => {
-                      //   // @ts-expect-error
-                      //   if (it.key === item.key) it.name = e.value[0];
-                      //   return it;
-                      // });
-                      // updateNode(id, { data: { list: nextList } });
-                    }}
-                    collection={operatorComparisonList}
-                    className="!gap-"
-                  >
-                    <SelectTrigger>
-                      <SelectValueText placeholder="Selecione a variável" />
-                    </SelectTrigger>
-                    <SelectContent className="scroll-hidden">
-                      {operatorComparisonList.items.map((time) => (
-                        <SelectItem item={time} key={time.value}>
-                          <Stack gap="0">
-                            <Select.ItemText textStyle={"md"}>
-                              {time.label}
-                            </Select.ItemText>
-                            {time.description && (
-                              <Span color="fg.muted" textStyle="xs">
-                                {time.description}
-                              </Span>
-                            )}
-                          </Stack>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </SelectRoot>
-                  <div className="w-full flex gap-1 mt-1">
-                    <SelectRoot
-                      // @ts-expect-error
-                      value={data.id}
-                      disabled={!item.name}
-                      onValueChange={(e) => {
-                        // const nextList = data.list!.map((it) => {
-                        //   // @ts-expect-error
-                        //   if (it.key === item.key) it.name = e.value[0];
-                        //   return it;
-                        // });
-                        // updateNode(id, { data: { list: nextList } });
-                      }}
-                      collection={operatorComparisonList}
-                      className="!gap-"
-                      style={{ maxWidth: 90 }}
-                    >
-                      <SelectTrigger>
-                        <SelectValueText
-                          placeholder="Testar"
-                          className="text-center -translate-x-0.5 w-full absolute"
-                        />
-                      </SelectTrigger>
-                      <SelectContent className="scroll-hidden">
-                        {operatorComparisonList.items.map((time) => (
-                          <SelectItem item={time} key={time.value}>
-                            <Stack gap="0">
-                              <Select.ItemText textStyle={"md"}>
-                                {time.label}
-                              </Select.ItemText>
-                              {time.description && (
-                                <Span color="fg.muted" textStyle="xs">
-                                  {time.description}
-                                </Span>
-                              )}
-                            </Stack>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </SelectRoot>
-                    <Input placeholder="Valor" />
-                  </div>
-                </div>
-              );
-            }
-            elements.push(
-              <div className="w-full flex flex-col items-center mt-3">
-                <SelectRoot
-                  // @ts-expect-error
-                  value={data.id}
-                  disabled={!item.name}
-                  onValueChange={(e) => {
-                    // const nextList = data.list!.map((it) => {
-                    //   // @ts-expect-error
-                    //   if (it.key === item.key) it.name = e.value[0];
-                    //   return it;
-                    // });
-                    updateNode(id, {
-                      data: {
-                        list: [
-                          ...data.list!,
-                          { key: nanoid(), type: "entity" },
-                        ],
-                      },
-                    });
-                  }}
-                  collection={operatorLogicList}
-                  className="!gap-"
-                  style={{ maxWidth: 100 }}
-                >
-                  <SelectTrigger>
-                    <SelectValueText
-                      placeholder="OP lógico"
-                      className="text-center -translate-x-0.5 w-full absolute"
-                    />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {operatorLogicList.items.map((time) => (
-                      <SelectItem item={time} key={time.value}>
-                        <Stack direction={"row"} alignItems={"center"} gap="2">
-                          <Select.ItemText textStyle={"md"}>
-                            {time.label}
-                          </Select.ItemText>
-                          {time.description && (
-                            <Span color="fg.muted" textStyle="xs">
-                              {time.description}
-                            </Span>
-                          )}
-                        </Stack>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </SelectRoot>
-              </div>
-            );
-            return <div key={item.key}>{elements}</div>;
-          })}
-        </div>
+        <BodyNode id={id} />
       </PatternNode.PatternPopover>
 
       <Handle type="target" position={Position.Left} style={{ left: -8 }} />

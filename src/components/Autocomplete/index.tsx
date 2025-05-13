@@ -6,7 +6,7 @@ import isEqual from "lodash.isequal";
 import scrollIntoView from "scroll-into-view-if-needed";
 import "./styles.css";
 import { createPortal } from "react-dom";
-import { Presence } from "@chakra-ui/react";
+import { Input, Presence } from "@chakra-ui/react";
 import TextareaAutosize from "react-textarea-autosize";
 
 const KEY_UP = 38;
@@ -83,7 +83,6 @@ const defaultProps = {
 class AutocompleteTextField extends React.Component {
   constructor(props) {
     super(props);
-
     this.isTrigger = this.isTrigger.bind(this);
     this.arrayTriggerMatch = this.arrayTriggerMatch.bind(this);
     this.getMatch = this.getMatch.bind(this);
@@ -114,6 +113,7 @@ class AutocompleteTextField extends React.Component {
     this.refInput = createRef();
     this.refCurrent = createRef();
     this.refParent = createRef();
+    this.type = props.type;
   }
 
   componentDidMount() {
@@ -577,30 +577,43 @@ class AutocompleteTextField extends React.Component {
       delete propagated[k];
     });
 
-    let val = "";
+    let val = undefined;
 
     if (typeof value !== "undefined" && value !== null) {
       val = value;
     } else if (stateValue) {
       val = stateValue;
-    } else if (defaultValue) {
-      val = defaultValue;
     }
 
     return (
       <>
-        <TextareaAutosize
-          minRows={2}
-          maxRows={6}
-          className="p-3 py-2.5 rounded-sm resize-none dark:border-white/10 border-black/10 border"
-          disabled={disabled}
-          onBlur={this.handleBlur}
-          onChange={this.handleChange}
-          onKeyDown={this.handleKeyDown}
-          ref={this.refInput}
-          value={val}
-          {...propagated}
-        />
+        {this.type === "textarea" ? (
+          <TextareaAutosize
+            minRows={2}
+            maxRows={6}
+            className="p-3 py-2.5 rounded-sm resize-none dark:border-white/10 border-black/10 border"
+            disabled={disabled}
+            onBlur={this.handleBlur}
+            onChange={this.handleChange}
+            onKeyDown={this.handleKeyDown}
+            ref={this.refInput}
+            value={val}
+            defaultValue={defaultValue}
+            {...propagated}
+          />
+        ) : (
+          <Input
+            className="p-3 py-2.5 rounded-sm resize-none dark:border-white/10 border-black/10 border"
+            disabled={disabled}
+            onBlur={this.handleBlur}
+            onChange={this.handleChange}
+            onKeyDown={this.handleKeyDown}
+            ref={this.refInput}
+            value={val}
+            defaultValue={defaultValue}
+            {...propagated}
+          />
+        )}
         {this.renderAutocompleteList()}
       </>
     );
