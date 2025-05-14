@@ -34,7 +34,7 @@ const operatorComparisonList = createListCollection({
     { label: "<=", value: "<=", description: "Menor/igual" },
     { label: ">", value: ">", description: "Maior que" },
     { label: ">=", value: ">=", description: "Maior/igual" },
-    { label: "Regex", value: "regex", description: "/^(\\D)$/g" },
+    // { label: "Regex", value: "regex", description: "/^(\\D)$/g" },
   ],
 });
 
@@ -62,6 +62,7 @@ type DataNode = {
     tagIds: number[];
     value1: string;
     value2: string;
+    flags?: string[];
   }[];
 };
 
@@ -223,19 +224,21 @@ function BodyNode({ id }: { id: string }): JSX.Element {
                           ))}
                         </SelectContent>
                       </SelectRoot>
-                      <AutocompleteTextField
-                        // @ts-expect-error
-                        trigger={["{{"]}
-                        options={{ "{{": variables.map((s) => s.name) }}
-                        spacer={"}}"}
-                        placeholder="Definir valor 2 ou {{variável_2}}"
-                        defaultValue={item.value2 || ""}
-                        // @ts-expect-error
-                        onBlur={({ target }) => {
-                          node.data.list![index].value2 = target.value;
-                          updateNode(id, { data: { list: node.data.list } });
-                        }}
-                      />
+                      {item.operatorComparison !== "regex" && (
+                        <AutocompleteTextField
+                          // @ts-expect-error
+                          trigger={["{{"]}
+                          options={{ "{{": variables.map((s) => s.name) }}
+                          spacer={"}}"}
+                          placeholder="Definir valor 2 ou {{variável_2}}"
+                          defaultValue={item.value2 || ""}
+                          // @ts-expect-error
+                          onBlur={({ target }) => {
+                            node.data.list![index].value2 = target.value;
+                            updateNode(id, { data: { list: node.data.list } });
+                          }}
+                        />
+                      )}
                     </div>
                   </div>
                 </TabsContent>
