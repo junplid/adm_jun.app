@@ -5,8 +5,8 @@ import { JSX } from "react";
 export function DashboardPage(): JSX.Element {
   return (
     <div>
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(230px,1fr))] gap-4">
-        <div className="flex flex-col dark:bg-[#2e2b2b85] overflow-hidden rounded-xl shadow-lg shadow-black/50">
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(230px,1fr))] gap-2.5">
+        <div className="flex flex-col dark:bg-[#2e2b2b85] overflow-hidden rounded-xl shadow-lg shadow-black/30">
           <div className="flex items-center justify-between p-3 pb-0 gap-2">
             <div className="">
               <h1 className="text-xs text-white/70 font-medium">
@@ -86,7 +86,7 @@ export function DashboardPage(): JSX.Element {
             />
           </div>
         </div>
-        <div className="flex flex-col dark:bg-[#2e2b2b85] overflow-hidden rounded-xl shadow-lg shadow-black/50">
+        <div className="flex flex-col dark:bg-[#2e2b2b85] overflow-hidden rounded-xl shadow-lg shadow-black/30">
           <div className="flex items-center justify-between p-3 pb-0 gap-2">
             <div className="">
               <h1 className="text-xs text-white/70 font-medium">
@@ -166,55 +166,51 @@ export function DashboardPage(): JSX.Element {
             />
           </div>
         </div>
-      </div>
-      <div className="flex flex-col dark:bg-[#2e2b2b85] overflow-hidden rounded-xl shadow-lg shadow-black/50">
-        <div className="flex items-center justify-between p-3 pb-0 gap-2">
-          <div className="">
+        <div className="flex flex-col gap-y-2 dark:bg-[#2e2b2b85] overflow-hidden rounded-xl shadow-lg shadow-black/30">
+          <div className="flex items-center justify-between p-3 pb-0 gap-2">
             <h1 className="text-xs text-white/70 font-medium">
-              Novos contatos
+              Top 4 Etiquetas
             </h1>
-            <span className="font-medium text-3xl">10</span>
           </div>
-          <span className="text-[#addb98] font-bold text-xl">+0.45%</span>
+          <div>
+            <RadarCharts
+              data={{
+                labels: ["COMPRADOR", "VENDEDOR", "CLIENTE", "FORNECEDOR"],
+                datasets: [
+                  {
+                    data: [59, 40, 18, 20],
+                    fill: true,
+                    backgroundColor: "rgba(224, 221, 221, 0.438)",
+                    pointRadius: 4,
+                    borderColor: "rgba(255, 255, 255, 0.514)",
+                    tension: 0.4,
+                    borderWidth: 2,
+                    pointBorderWidth: 1,
+                    borderJoinStyle: "round",
+                  },
+                ],
+              }}
+              options={{
+                plugins: {
+                  legend: { display: false },
+                  title: { display: false },
+                },
+                scales: {
+                  r: {
+                    pointLabels: {
+                      color: "#c5c5c5",
+                      font: { weight: "bold", size: 9 },
+                    },
+                    ticks: { display: false },
+                    grid: { color: "rgba(255, 255, 255, 0.247)", lineWidth: 1 },
+                  },
+                },
+              }}
+            />
+          </div>
         </div>
-        <div></div>
-        <RadarCharts
-          data={{
-            labels: [
-              "COMPRADOR",
-              "VENDEDOR",
-              "CLIENTE",
-              "OUTROS",
-              "FORNECEDOR",
-            ],
-            datasets: [
-              {
-                label: "Teste1",
-                data: [59, 40, 18, 70, 17],
-                fill: true,
-                backgroundColor: "rgba(255, 255, 255, 0.24)",
-                pointRadius: 0,
-                borderColor: "rgba(255, 255, 255, 0.514)",
-                tension: 0.4,
-                borderWidth: 2,
-              },
-            ],
-          }}
-          options={{
-            plugins: {
-              legend: { display: false },
-              title: { display: false },
-            },
-            scales: {
-              r: {
-                pointLabels: { color: "#c5c5c5", font: { weight: "bold" } },
-                ticks: { display: false },
-                grid: { color: "rgba(255, 255, 255, 0.247)", lineWidth: 1 },
-              },
-            },
-          }}
-        />
       </div>
+
       <div className="mt-20 flex flex-col text-sm text-center text-white/70">
         <span>Estamos construindo algo melhor.</span>
         <span className="text-white text-base">
