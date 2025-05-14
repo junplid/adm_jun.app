@@ -1,11 +1,226 @@
 import LineChart from "@components/Charts/Line";
+import RadarCharts from "@components/Charts/Radar";
 import { JSX } from "react";
 
 export function DashboardPage(): JSX.Element {
   return (
     <div>
-      <p>pagina home</p>
-      <LineChart />
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(230px,1fr))] gap-4">
+        <div className="flex flex-col dark:bg-[#2e2b2b85] overflow-hidden rounded-xl shadow-lg shadow-black/50">
+          <div className="flex items-center justify-between p-3 pb-0 gap-2">
+            <div className="">
+              <h1 className="text-xs text-white/70 font-medium">
+                Novos contatos
+              </h1>
+              <span className="font-medium text-3xl">10</span>
+            </div>
+            <span className="text-[#f08a8a] font-bold text-xl">-0.45%</span>
+          </div>
+          <div
+            style={{
+              height: "125px",
+              width: "calc(100% + 10px)",
+              transform: "translateX(-5px) translateY(-6px)",
+            }}
+          >
+            <LineChart
+              data={{
+                labels: [
+                  "07/05/2023",
+                  "08/05/2023",
+                  "09/05/2023",
+                  "10/05/2023",
+                  "11/05/2023",
+                  "12/05/2023",
+                  "13/05/2023",
+                  "14/05/2023",
+                  "15/05/2023",
+                ],
+                datasets: [
+                  {
+                    label: "",
+                    data: [100, 100, 50, 80, 100, 110, 60, 20, 10],
+                    borderColor: "rgba(255, 255, 255, 0.514)",
+                    fill: true,
+                    tension: 0.2,
+                    backgroundColor: (context) => {
+                      const chart = context.chart;
+                      const { ctx, chartArea } = chart;
+                      if (!chartArea) return;
+                      const gradient = ctx.createLinearGradient(
+                        0,
+                        chartArea.bottom,
+                        0,
+                        chartArea.top
+                      );
+                      gradient.addColorStop(1, "rgba(255, 255, 255, 0.219)");
+                      gradient.addColorStop(0, "rgba(255, 255, 255, 0)");
+
+                      return gradient;
+                    },
+                    pointRadius: 5,
+                  },
+                ],
+              }}
+              options={{
+                layout: { padding: 0 },
+                plugins: {
+                  legend: { display: false },
+                  title: { display: false },
+                },
+                scales: {
+                  y: {
+                    display: false,
+                    beginAtZero: false,
+                    grace: 0,
+                    ticks: { display: false },
+                    grid: { display: false },
+                  },
+                  x: {
+                    grid: { display: false },
+                    ticks: { display: false, color: "#ccc" },
+                    display: false,
+                  },
+                },
+              }}
+            />
+          </div>
+        </div>
+        <div className="flex flex-col dark:bg-[#2e2b2b85] overflow-hidden rounded-xl shadow-lg shadow-black/50">
+          <div className="flex items-center justify-between p-3 pb-0 gap-2">
+            <div className="">
+              <h1 className="text-xs text-white/70 font-medium">
+                Novos contatos
+              </h1>
+              <span className="font-medium text-3xl">10</span>
+            </div>
+            <span className="text-[#addb98] font-bold text-xl">+0.45%</span>
+          </div>
+          <div
+            style={{
+              height: "125px",
+              width: "calc(100% + 10px)",
+              transform: "translateX(-5px) translateY(-6px)",
+            }}
+          >
+            <LineChart
+              data={{
+                labels: [
+                  "07/05/2023",
+                  "08/05/2023",
+                  "09/05/2023",
+                  "10/05/2023",
+                  "11/05/2023",
+                  "12/05/2023",
+                  "13/05/2023",
+                  "14/05/2023",
+                  "15/05/2023",
+                ],
+                datasets: [
+                  {
+                    label: "",
+                    data: [100, 100, 50, 80, 100, 110, 60, 20, 10],
+                    borderColor: "rgba(255, 255, 255, 0.514)",
+                    fill: true,
+                    tension: 0.2,
+                    backgroundColor: (context) => {
+                      const chart = context.chart;
+                      const { ctx, chartArea } = chart;
+                      if (!chartArea) return;
+                      const gradient = ctx.createLinearGradient(
+                        0,
+                        chartArea.bottom,
+                        0,
+                        chartArea.top
+                      );
+                      gradient.addColorStop(1, "rgba(255, 255, 255, 0.219)");
+                      gradient.addColorStop(0, "rgba(255, 255, 255, 0)");
+
+                      return gradient;
+                    },
+                    pointRadius: 5,
+                  },
+                ],
+              }}
+              options={{
+                layout: { padding: 0 },
+                plugins: {
+                  legend: { display: false },
+                  title: { display: false },
+                },
+                scales: {
+                  y: {
+                    display: false,
+                    beginAtZero: false,
+                    grace: 0,
+                    ticks: { display: false },
+                    grid: { display: false },
+                  },
+                  x: {
+                    grid: { display: false },
+                    ticks: { display: false, color: "#ccc" },
+                    display: false,
+                  },
+                },
+              }}
+            />
+          </div>
+        </div>
+      </div>
+      <div className="flex flex-col dark:bg-[#2e2b2b85] overflow-hidden rounded-xl shadow-lg shadow-black/50">
+        <div className="flex items-center justify-between p-3 pb-0 gap-2">
+          <div className="">
+            <h1 className="text-xs text-white/70 font-medium">
+              Novos contatos
+            </h1>
+            <span className="font-medium text-3xl">10</span>
+          </div>
+          <span className="text-[#addb98] font-bold text-xl">+0.45%</span>
+        </div>
+        <div></div>
+        <RadarCharts
+          data={{
+            labels: [
+              "COMPRADOR",
+              "VENDEDOR",
+              "CLIENTE",
+              "OUTROS",
+              "FORNECEDOR",
+            ],
+            datasets: [
+              {
+                label: "Teste1",
+                data: [59, 40, 18, 70, 17],
+                fill: true,
+                backgroundColor: "rgba(255, 255, 255, 0.24)",
+                pointRadius: 0,
+                borderColor: "rgba(255, 255, 255, 0.514)",
+                tension: 0.4,
+                borderWidth: 2,
+              },
+            ],
+          }}
+          options={{
+            plugins: {
+              legend: { display: false },
+              title: { display: false },
+            },
+            scales: {
+              r: {
+                pointLabels: { color: "#c5c5c5", font: { weight: "bold" } },
+                ticks: { display: false },
+                grid: { color: "rgba(255, 255, 255, 0.247)", lineWidth: 1 },
+              },
+            },
+          }}
+        />
+      </div>
+      <div className="mt-20 flex flex-col text-sm text-center text-white/70">
+        <span>Estamos construindo algo melhor.</span>
+        <span className="text-white text-base">
+          Em breve, métricas profundas e mais inteligentes.
+        </span>
+      </div>
     </div>
   );
 }
