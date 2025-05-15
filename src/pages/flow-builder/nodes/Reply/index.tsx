@@ -297,6 +297,7 @@ export const NodeReply: React.FC<Node<DataNode>> = ({ data, id }) => {
 
       <Handle
         type="source"
+        id={"main"}
         position={Position.Right}
         style={{ right: -8, top: 12 }}
       />
