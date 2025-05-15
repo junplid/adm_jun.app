@@ -1,11 +1,11 @@
-import LineChart from "@components/Charts/Line";
-import RadarCharts from "@components/Charts/Radar";
+// import LineChart from "@components/Charts/Line";
+// import RadarCharts from "@components/Charts/Radar";
 import { JSX } from "react";
 
 export function DashboardPage(): JSX.Element {
   return (
     <div>
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(230px,1fr))] gap-2.5">
+      {/* <div className="grid grid-cols-[repeat(auto-fill,minmax(230px,1fr))] gap-2.5">
         <div className="flex flex-col dark:bg-[#2e2b2b85] overflow-hidden rounded-xl shadow-lg shadow-black/30">
           <div className="flex items-center justify-between p-3 pb-0 gap-2">
             <div className="">
@@ -209,7 +209,7 @@ export function DashboardPage(): JSX.Element {
             />
           </div>
         </div>
-      </div>
+      </div> */}
 
       <div className="mt-20 flex flex-col text-sm text-center text-white/70">
         <span>Estamos construindo algo melhor.</span>

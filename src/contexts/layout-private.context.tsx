@@ -4,6 +4,7 @@ import {
   memo,
   ReactNode,
   SetStateAction,
+  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -21,6 +22,8 @@ import { Tooltip } from "@components/ui/tooltip";
 import { TbDoorExit, TbTags } from "react-icons/tb";
 import { GoWorkflow } from "react-icons/go";
 import { LuBotMessageSquare, LuChartNoAxesCombined } from "react-icons/lu";
+import { QrCode } from "@components/ui/qr-code";
+import { Presence } from "@chakra-ui/react";
 
 export const ShadowTopMemoComponent = memo(() => {
   const [showShadowTop, setShowShadowTop] = useState(true);
@@ -114,6 +117,18 @@ export function LayoutPrivateProvider(): JSX.Element {
     [toggledMenu]
   );
 
+  const [showDonate, setShowDonate] = useState(false);
+  useEffect(() => {
+    if (toggledMenu) {
+      setTimeout(() => {
+        setShowDonate(true);
+      }, 180);
+    }
+    if (!toggledMenu) {
+      setShowDonate(false);
+    }
+  }, [toggledMenu]);
+
   return (
     <LayoutPrivateContext.Provider value={dataValue}>
       <div className="items-start duration-500 w-full flex">
@@ -137,6 +152,7 @@ export function LayoutPrivateProvider(): JSX.Element {
                 Junplid
               </span>
             </div>
+
             <Menu
               className="relative font-semibold flex-1"
               menuItemStyles={{
@@ -282,6 +298,32 @@ export function LayoutPrivateProvider(): JSX.Element {
                 </MenuItem>
               </SubMenu>
             </Menu>
+
+            {toggledMenu && (
+              <Presence
+                animationName={{
+                  _open: "slide-from-top, fade-in",
+                  _closed: "slide-to-top, fade-out",
+                }}
+                animationDuration="moderate"
+                present={showDonate}
+              >
+                <div className="p-4 text-center">
+                  <h3 className="text-lg font-bold text-white mb-1">
+                    Apoie nosso trabalho ❤️
+                  </h3>
+                  <p className="text-sm text-zinc-400 mb-1">
+                    Sua doação contribui e impulsiona nosso time de
+                    desenvolvedores.
+                  </p>
+                  <div className="flex justify-center">
+                    <QrCode value="QR Code para doação" />
+                  </div>
+                  <p className="text-xs text-zinc-200">Escaneie com o Pix</p>
+                </div>
+              </Presence>
+            )}
+
             <div
               style={{ background: bgSideBar }}
               className="sticky bottom-0 gap-y-1 z-50 pb-3 pt-3 flex flex-col w-full items-center justify-center p-1 px-2"
