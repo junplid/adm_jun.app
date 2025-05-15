@@ -40,18 +40,23 @@ const timesList = createListCollection({
   items: [
     {
       label: "Seg",
-      value: "seg",
+      value: "SECONDS",
       description: "Segundos",
     },
     {
       label: "Min",
-      value: "min",
+      value: "MINUTES",
       description: "Minutos",
     },
     {
       label: "Hor",
-      value: "hor",
+      value: "HOURS",
       description: "Horas",
+    },
+    {
+      label: "Dia",
+      value: "DAYS",
+      description: "Dias",
     },
   ],
 });
