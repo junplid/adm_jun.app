@@ -4,6 +4,7 @@ import {
   memo,
   ReactNode,
   SetStateAction,
+  useContext,
   useEffect,
   useMemo,
   useState,
@@ -24,6 +25,9 @@ import { GoWorkflow } from "react-icons/go";
 import { LuBotMessageSquare, LuChartNoAxesCombined } from "react-icons/lu";
 import { QrCode } from "@components/ui/qr-code";
 import { Presence } from "@chakra-ui/react";
+import { AuthContext } from "./auth.context";
+import { ModalOnboarded } from "./ModalOnboarded";
+import { updateAccount } from "../services/api/Account";
 
 export const ShadowTopMemoComponent = memo(() => {
   const [showShadowTop, setShowShadowTop] = useState(true);
@@ -99,6 +103,10 @@ const ToggleMenu = ({
 );
 
 export function LayoutPrivateProvider(): JSX.Element {
+  const {
+    account: { onboarded },
+    setAccount,
+  } = useContext(AuthContext);
   const [toggledMenu, setToggledMenu] = useState(false);
   const [toggledTo, setToggledTo] = useState<null | string>(null);
   const { pathname } = useLocation();
@@ -131,6 +139,16 @@ export function LayoutPrivateProvider(): JSX.Element {
 
   return (
     <LayoutPrivateContext.Provider value={dataValue}>
+      {!onboarded && (
+        <ModalOnboarded
+          onClose={async () => {
+            await updateAccount({ onboarded: true });
+            setTimeout(() => {
+              setAccount((s) => ({ ...s, onboarded: true }));
+            }, 300);
+          }}
+        />
+      )}
       <div className="items-start duration-500 w-full flex">
         <Sidebar
           collapsed={!toggledMenu}
@@ -307,6 +325,7 @@ export function LayoutPrivateProvider(): JSX.Element {
                 }}
                 animationDuration="moderate"
                 present={showDonate}
+                className="mb-3"
               >
                 <div className="p-4 text-center">
                   <h3 className="text-lg font-bold text-white mb-1">

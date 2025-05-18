@@ -1,6 +1,8 @@
 import {
   createContext,
+  Dispatch,
   JSX,
+  SetStateAction,
   useCallback,
   useEffect,
   useMemo,
@@ -17,17 +19,15 @@ import { Spinner } from "@chakra-ui/react";
 
 export interface Account {
   id: number;
-  email: string;
   name: string;
+  email: string;
   emailVerified: boolean;
-  isCustomer: boolean;
-  createAt: Date;
-  number: string;
-  Plan: { type: "paid" | "free" } | null;
+  onboarded: boolean;
 }
 
 interface IFlowContextProps {
   account: Account;
+  setAccount: Dispatch<SetStateAction<Account>>;
   logout(): void;
 }
 
@@ -84,6 +84,7 @@ export function AuthProvider(props: IProps): JSX.Element {
     () => ({
       account,
       logout,
+      setAccount,
     }),
     [account]
   );

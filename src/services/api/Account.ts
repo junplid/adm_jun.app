@@ -2,16 +2,22 @@ import { api } from "./index";
 
 export async function getAccount(token: string): Promise<{
   id: number;
-  email: string;
   name: string;
+  email: string;
   emailVerified: boolean;
-  isCustomer: boolean;
-  createAt: Date;
-  number: string;
-  Plan: { type: "paid" | "free" } | null;
+  onboarded: boolean;
 }> {
   const { data } = await api.get("/private/account", {
     headers: { Authorization: token },
   });
   return data.account;
+}
+
+export async function updateAccount(body?: {
+  onboarded?: boolean;
+  currentPassword?: string;
+  nextPassword?: string;
+  name?: string;
+}): Promise<void> {
+  await api.put("/private/account", body);
 }
