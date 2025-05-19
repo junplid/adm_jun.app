@@ -73,7 +73,7 @@ export function useGetTags(params?: { name?: string; page?: number }) {
 export function useGetTagsOptions(params?: {
   name?: string;
   businessIds?: number[];
-  type?: TagService.TagType[];
+  type?: TagService.TagType;
 }) {
   const { logout } = useContext(AuthContext);
   return useQuery({

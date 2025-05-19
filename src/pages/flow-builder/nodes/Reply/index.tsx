@@ -14,7 +14,7 @@ import { RxLapTimer } from "react-icons/rx";
 import { useColorModeValue } from "@components/ui/color-mode";
 
 import { WithContext as ReactTags, SEPARATORS, Tag } from "react-tag-input";
-import { JSX, useEffect, useMemo } from "react";
+import { JSX, useMemo } from "react";
 import useStore from "../../flowStore";
 import {
   SelectContent,
@@ -31,7 +31,7 @@ type DataNode = {
   isSave?: boolean;
   list: number[];
   timeout?: {
-    type: "sec" | "min" | "hor";
+    type: "SECONDS" | "MINUTES" | "HOURS" | "DAYS";
     value: number;
   };
 };
@@ -260,17 +260,8 @@ function BodyNode({ id }: { id: string }): JSX.Element {
   );
 }
 
-export const NodeReply: React.FC<Node<DataNode>> = ({ data, id }) => {
-  const updateNode = useStore((s) => s.updateNode);
+export const NodeReply: React.FC<Node<DataNode>> = ({ id }) => {
   const colorTimeout = useColorModeValue("#F94A65", "#B1474A");
-
-  useEffect(() => {
-    if (!data.timeout) {
-      updateNode(id, {
-        data: { timeout: { value: 30, type: "min" }, list: [] },
-      });
-    }
-  }, []);
 
   return (
     <div>

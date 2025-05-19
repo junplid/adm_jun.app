@@ -2,7 +2,6 @@ import { create } from "zustand";
 import { addEdge, applyNodeChanges, applyEdgeChanges } from "@xyflow/react";
 import { type AppState } from "./types";
 import { type AppNode } from "./types";
-import { nanoid } from "nanoid";
 import { db } from "../../db";
 
 const useStore = create<AppState>((set, get) => ({
@@ -10,6 +9,8 @@ const useStore = create<AppState>((set, get) => ({
   edges: [],
   businessIds: [],
   changes: { edges: [], nodes: [] },
+  isPull: false,
+  setIsPull: (v) => set({ isPull: v }),
   setBusinessIds: (businessIds: number[]) => {
     set({ businessIds });
   },
@@ -17,6 +18,7 @@ const useStore = create<AppState>((set, get) => ({
     type: "nodes" | "edges",
     change: { type: "upset" | "delete"; id: string }
   ) => {
+    if (!get().isPull) return;
     const changes = get().changes[type];
     const isChange = changes.find((s) => s.id === change.id);
     if (isChange) {
@@ -39,6 +41,7 @@ const useStore = create<AppState>((set, get) => ({
     set({ changes: { edges: [], nodes: [] } });
   },
   onNodesChange: (changes) => {
+    if (changes.length > 1) return;
     if (changes[0].type === "add") {
       get().setChange("nodes", {
         type: "upset",
@@ -131,11 +134,13 @@ const useStore = create<AppState>((set, get) => ({
     );
     return edges;
   },
-  addNode: (node: Omit<AppNode, "id">) => {
-    const newNode = { ...node, id: nanoid() };
-    get().setChange("nodes", { type: "upset", id: newNode.id });
-    set({ nodes: [...get().nodes, newNode] });
-  },
+  // addNode: (node: Omit<AppNode, "id">) => {
+  //   const newNode = { ...node, id: nanoid() };
+  //   if (node.type === "")
+
+  //   get().setChange("nodes", { type: "upset", id: newNode.id });
+  //   set({ nodes: [...get().nodes, newNode] });
+  // },
   onEdgeClick: (event, edge) => {
     event.stopPropagation();
     get().setChange("edges", { type: "delete", id: edge.id });

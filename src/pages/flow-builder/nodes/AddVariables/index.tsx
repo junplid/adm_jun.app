@@ -3,12 +3,12 @@ import { PatternNode } from "../Pattern";
 import { PiBracketsCurlyBold } from "react-icons/pi";
 import { WithContext as ReactTags, SEPARATORS, Tag } from "react-tag-input";
 import useStore from "../../flowStore";
-import { JSX, useEffect, useMemo } from "react";
+import { JSX, useMemo } from "react";
 import { Highlight, Input, Presence, Spinner } from "@chakra-ui/react";
-import { useColorModeValue } from "@components/ui/color-mode";
 import { db, useDBNodes, useVariables } from "../../../../db";
 import { useCreateVariable } from "../../../../hooks/variable";
 import { GrClose } from "react-icons/gr";
+import { useColorModeValue } from "@components/ui/color-mode";
 
 type DataNode = {
   list: {
@@ -77,18 +77,17 @@ function BodyNode({ id }: { id: string }): JSX.Element {
           list: [...node.data.list, { id: variable.id, value: "" }],
         },
       });
-      return;
+    } else {
+      updateNode(id, {
+        data: {
+          list: [...node.data.list, { id: Number(exist.id), value: "" }],
+        },
+      });
     }
-
-    updateNode(id, {
-      data: {
-        list: [...node.data.list, { id: Number(tag.id), value: "" }],
-      },
-    });
   };
 
   return (
-    <div className="flex flex-col gap-y-3 -mt-3 ">
+    <div className="flex flex-col gap-y-3 -mt-3">
       {!node.data.list.length ? (
         <span className="text-white/70">*Nenhuma variável selecionada</span>
       ) : (
@@ -144,6 +143,14 @@ function BodyNode({ id }: { id: string }): JSX.Element {
           handleAddition={handleAddition}
           placeholder="Digite e pressione `ENTER`"
           allowDragDrop={false}
+          shouldRenderSuggestions={(query) => {
+            return query.length > 0;
+          }}
+          handleFilterSuggestions={(query, suggestions) => {
+            return suggestions
+              .filter((s) => s.text.toLowerCase().includes(query.toLowerCase()))
+              .slice(0, 3);
+          }}
           renderSuggestion={(item, query) => (
             <div
               key={item.id}
@@ -175,19 +182,12 @@ function BodyNode({ id }: { id: string }): JSX.Element {
           }}
         />
       </div>
-      <div className="mt-20"></div>
+      <div className="mt-24"></div>
     </div>
   );
 }
 
-export const NodeAddVariables: React.FC<Node<DataNode>> = ({ data, id }) => {
-  const updateNode = useStore((s) => s.updateNode);
-  useEffect(() => {
-    if (!data.list?.length) {
-      updateNode(id, { data: { list: [] } });
-    }
-  }, [id]);
-
+export const NodeAddVariables: React.FC<Node<DataNode>> = ({ id }) => {
   return (
     <div>
       <PatternNode.PatternPopover

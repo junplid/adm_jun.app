@@ -87,7 +87,7 @@ export function ModalCreateBusiness({
         <DialogHeader flexDirection={"column"} gap={0}>
           <DialogTitle>Criar projeto</DialogTitle>
           <DialogDescription>
-            Crie um workspace para organizar e gerenciar sua operações.
+            Crie um workspace para organizar e gerenciar suas operações.
           </DialogDescription>
         </DialogHeader>
         <DialogBody>

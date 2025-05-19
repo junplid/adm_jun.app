@@ -9,14 +9,17 @@ import {
   PopoverTitle,
   PopoverDescription,
   PopoverHeader,
+  PopoverCloseTrigger,
 } from "@components/ui/popover";
 import { PatternNode } from ".";
+import { PositioningOptions } from "@zag-js/popper";
 
 interface PropsPatternNodeComponent {
   size?: string;
   title: string;
   description?: string;
   children: ReactNode;
+  positioning?: PositioningOptions;
   node: {
     clickable?: boolean;
     isConnectable?: boolean;
@@ -39,6 +42,7 @@ export const PatternNodePopoverComponent: FC<PropsPatternNodeComponent> = (
       open={open}
       portalled
       onOpenChange={(e) => setOpen(e.open)}
+      // closeOnInteractOutside={false}
     >
       <PopoverTrigger>
         <PatternNode.PatternContainer
@@ -72,6 +76,7 @@ export const PatternNodePopoverComponent: FC<PropsPatternNodeComponent> = (
             </PopoverDescription>
           )}
         </PopoverHeader>
+        {/* <PopoverCloseTrigger /> */}
         <PopoverBody paddingTop={"18px"}>{props.children}</PopoverBody>
       </PopoverContent>
     </PopoverRoot>

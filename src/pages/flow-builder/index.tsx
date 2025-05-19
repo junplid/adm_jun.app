@@ -90,6 +90,7 @@ function Body(props: IBody): JSX.Element {
     onNodesDelete,
     onEdgeClick,
     setBusinessIds,
+    setIsPull,
   } = useStore(
     useShallow((s) => ({
       nodes: s.nodes,
@@ -105,6 +106,7 @@ function Body(props: IBody): JSX.Element {
       setEdges: s.setEdges,
       onEdgeClick: s.onEdgeClick,
       setBusinessIds: s.setBusinessIds,
+      setIsPull: s.setIsPull,
     }))
   );
 
@@ -126,7 +128,6 @@ function Body(props: IBody): JSX.Element {
     },
   });
 
-  // primeiro pull do fluxo
   useEffect(() => {
     setBusinessIds(props.flowData.businessIds);
     setNodes(
@@ -151,6 +152,10 @@ function Body(props: IBody): JSX.Element {
 
     (async () => {
       await db.nodes.clear();
+      await db.variables.clear();
+      await db.flows.clear();
+      await db.tags.clear();
+
       await db.nodes.bulkAdd(
         props.flowData.nodes.map((n: any) => ({
           id: n.id,
@@ -181,14 +186,16 @@ function Body(props: IBody): JSX.Element {
       db.flows.bulkAdd(
         flows.map((v) => ({ name: v.name, id: v.id, type: v.type }))
       );
+      setIsPull(true);
     })();
-
     return () => {
       setNodes([]);
       setEdges([]);
       resetChanges();
-      // db.nodes.clear();
-      // db.variables.clear();
+      db.nodes.clear();
+      db.variables.clear();
+      db.flows.clear();
+      db.tags.clear();
     };
   }, [props.flowData.name]);
 
@@ -256,6 +263,7 @@ function Body(props: IBody): JSX.Element {
   }, [changes]);
 
   const isSave = useMemo(() => {
+    console.log(changes.nodes.length, changes.edges.length);
     return !!(changes.nodes.length || changes.edges.length);
   }, [changes.edges, changes.nodes]);
 
@@ -280,7 +288,7 @@ function Body(props: IBody): JSX.Element {
   }, []);
 
   const onDrop = useCallback(
-    (event: any) => {
+    async (event: any) => {
       event.preventDefault();
       if (!type) return;
       const { x, y } = screenToFlowPosition({
@@ -294,7 +302,27 @@ function Body(props: IBody): JSX.Element {
         data: {},
         deletable: true,
       };
-      db.nodes.add({
+      const typeN = type as TypesNodes;
+      if (typeN === "nodeAddTags") {
+        newNode.data = { list: [] };
+      } else if (typeN === "nodeAddVariables") {
+        newNode.data = { list: [] };
+      } else if (typeN === "nodeRemoveTags") {
+        newNode.data = { list: [] };
+      } else if (typeN === "nodeRemoveVariables") {
+        newNode.data = { list: [] };
+      } else if (typeN === "nodeIF") {
+        newNode.data = {
+          list: [{ key: nanoid(), name: "has-tags", tagIds: [] }],
+        };
+      } else if (typeN === "nodeReply") {
+        newNode.data = {
+          timeout: { value: 30, type: "MINUTES" },
+          list: [],
+        };
+      }
+
+      await db.nodes.add({
         id: newNode.id,
         data: newNode.data,
       });
@@ -313,7 +341,7 @@ function Body(props: IBody): JSX.Element {
         onNodesDelete={onNodesDelete}
         onConnect={onConnect}
         nodeTypes={nodeTypes}
-        snapToGrid={true}
+        // snapToGrid={true}
         // snapGrid={[60, 80]}
         edgeTypes={edgeTypes}
         onEdgeClick={onEdgeClick}
@@ -398,12 +426,15 @@ function Body(props: IBody): JSX.Element {
             </HStack>
           </HStack>
         </Panel>
-        <Panel
-          position="bottom-left"
+        <div
           style={{
             margin: 0,
+            position: "absolute",
+            bottom: 0,
+            left: 0,
             padding: "10px 20px",
-            pointerEvents: "none",
+            zIndex: 9,
+            cursor: "pointer",
           }}
         >
           <Presence
@@ -414,12 +445,16 @@ function Body(props: IBody): JSX.Element {
             animationDuration="moderate"
             present={isSave}
           >
-            <span className="text-sm text-white/60 select-none">
+            <span
+              className="text-sm text-white/60 cursor-pointer"
+              onClick={() => {}}
+            >
               Pressione <strong className="text-white">CTRL</strong> +{" "}
-              <strong className="text-white">S</strong> para salvar
+              <strong className="text-white">S</strong> para salvar ou clique
+              aqui
             </span>
           </Presence>
-        </Panel>
+        </div>
         <Panel
           position="bottom-center"
           style={{

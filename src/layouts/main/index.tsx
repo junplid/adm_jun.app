@@ -1,7 +1,7 @@
 import { JSX, useContext } from "react";
 import { Outlet } from "react-router-dom";
 import { LayoutPrivateContext } from "@contexts/layout-private.context";
-import { ColorModeButton } from "@components/ui/color-mode";
+// import { ColorModeButton } from "@components/ui/color-mode";
 
 export function LayoutMain(): JSX.Element {
   const { ToggleMenu } = useContext(LayoutPrivateContext);
@@ -20,7 +20,7 @@ export function LayoutMain(): JSX.Element {
         className="p-1 px-4 flex justify-between w-full items-center"
       >
         {ToggleMenu}
-        <ColorModeButton />
+        {/* <ColorModeButton /> */}
       </header>
       <div
         className="w-full h-full max-w-7xl mx-auto p-8 py-2 flex-1"
@@ -28,13 +28,13 @@ export function LayoutMain(): JSX.Element {
       >
         <Outlet />
       </div>
-      <footer className="text-white/50 text-xs p-0.5 text-end flex items-center justify-between px-3">
-        <span>Última atualização: 24/03/2025</span>
+      <footer className="text-white/50 p-0.5 text-end flex items-center justify-between px-3">
+        <span>Data da última atualização: 18/05/2025</span>
         <div className="flex items-center gap-x-3">
           <span className="font-light">
             Este produto não representa a sua versão final.
           </span>
-          <span className="font-medium text-white">v0.1.03-alpha</span>
+          <span className="font-medium text-white">v0.1.00-alpha</span>
         </div>
       </footer>
     </div>

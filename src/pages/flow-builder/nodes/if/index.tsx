@@ -3,7 +3,7 @@ import { PatternNode } from "../Pattern";
 import { FaCheck, FaTimes } from "react-icons/fa";
 import { useColorModeValue } from "@components/ui/color-mode";
 import useStore from "../../flowStore";
-import { JSX, useEffect } from "react";
+import { JSX } from "react";
 import { nanoid } from "nanoid";
 import { createListCollection, Select, Span, Stack } from "@chakra-ui/react";
 import {
@@ -77,7 +77,7 @@ function BodyNode({ id }: { id: string }): JSX.Element {
   }
 
   return (
-    <div className="flex flex-col -mt-3 gap-y-4">
+    <div className="flex flex-col -mt-3 gap-y-4 min-h-60">
       {node.data.list?.map((item, index) => {
         let isDisabled = false;
         if (item.name === "var") {
@@ -87,8 +87,8 @@ function BodyNode({ id }: { id: string }): JSX.Element {
         }
 
         return (
-          <div key={item.key}>
-            <div className="flex flex-col gap-y-2">
+          <div key={item.key} className="flex flex-col flex-1">
+            <div className="flex flex-col flex-1 gap-y-2 h-full">
               <TabsRoot
                 lazyMount
                 unmountOnExit
@@ -98,6 +98,7 @@ function BodyNode({ id }: { id: string }): JSX.Element {
                   node.data.list![index].name = e.value as NameEntity;
                   updateNode(id, { data: { list: node.data.list } });
                 }}
+                className="h-full flex-1"
               >
                 <TabsList minW={"100%"} bg="#1c1c1c" rounded="l3" p="1.5">
                   <TabsTrigger
@@ -140,6 +141,7 @@ function BodyNode({ id }: { id: string }): JSX.Element {
                     <SelectTags
                       isMulti={true}
                       isClearable
+                      menuPlacement="bottom"
                       value={node.data.list![index].tagIds}
                       onChange={(e: any) => {
                         node.data.list![index].tagIds = e.map(
@@ -157,6 +159,7 @@ function BodyNode({ id }: { id: string }): JSX.Element {
                     <SelectTags
                       isMulti={true}
                       isClearable
+                      menuPlacement="bottom"
                       value={node.data.list![index].tagIds}
                       onChange={(e: any) => {
                         node.data.list![index].tagIds = e.map(
@@ -165,6 +168,9 @@ function BodyNode({ id }: { id: string }): JSX.Element {
                         updateNode(id, {
                           data: { list: node.data.list },
                         });
+                      }}
+                      onCreate={(tag) => {
+                        
                       }}
                     />
                   </div>
@@ -290,16 +296,6 @@ function BodyNode({ id }: { id: string }): JSX.Element {
 }
 
 export const NodeIF: React.FC<Node<DataNode>> = ({ id }) => {
-  const nodes = useDBNodes();
-  const node = nodes.find((s) => s.id === id) as Node<DataNode> | undefined;
-  const updateNode = useStore((s) => s.updateNode);
-
-  useEffect(() => {
-    if (!node?.data.list?.length) {
-      updateNode(id, { data: { list: [{ key: nanoid(), type: "entity" }] } });
-    }
-  }, [id]);
-
   const colorTrue = useColorModeValue("#00CE6B", "#179952");
   const colorFalse = useColorModeValue("#FB4F6A", "#FB4F6A");
 

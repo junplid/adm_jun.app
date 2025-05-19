@@ -3,7 +3,7 @@ import { PatternNode } from "../Pattern";
 import { PiBracketsCurlyBold } from "react-icons/pi";
 import { WithContext as ReactTags, SEPARATORS, Tag } from "react-tag-input";
 import useStore from "../../flowStore";
-import { JSX, useEffect, useMemo } from "react";
+import { JSX, useMemo } from "react";
 import { Highlight } from "@chakra-ui/react";
 import { useColorModeValue } from "@components/ui/color-mode";
 import { useDBNodes, useVariables } from "../../../../db";
@@ -33,9 +33,7 @@ function BodyNode({ id }: { id: string }): JSX.Element {
       }));
   }, [variables, node?.data.list]);
 
-  if (!node) {
-    return <span>Não encontrado</span>;
-  }
+  if (!node) return <span>Não encontrado</span>;
 
   const handleDelete = (index: number) => {
     if (!index && node.data.list.length === 1) {
@@ -50,6 +48,9 @@ function BodyNode({ id }: { id: string }): JSX.Element {
   };
 
   const handleAddition = async (tag: Tag) => {
+    const nextName = tag.text.trim().replace(/\s/g, "_");
+    const exist = variables.find((s) => s.name === nextName);
+    if (!exist) return;
     updateNode(id, { data: { list: [...node.data.list, Number(tag.id)] } });
   };
 
@@ -82,6 +83,14 @@ function BodyNode({ id }: { id: string }): JSX.Element {
         handleAddition={handleAddition}
         placeholder="Digite e pressione `ENTER`"
         allowDragDrop={false}
+        shouldRenderSuggestions={(query) => {
+          return query.length > 0;
+        }}
+        handleFilterSuggestions={(query, suggestions) => {
+          return suggestions
+            .filter((s) => s.text.toLowerCase().includes(query.toLowerCase()))
+            .slice(0, 3);
+        }}
         renderSuggestion={(item, query) => (
           <div
             key={item.id}
@@ -112,19 +121,12 @@ function BodyNode({ id }: { id: string }): JSX.Element {
             "absolute z-50 dark:bg-[#111111] bg-white w-full translate-y-2 shadow-xl p-1 border dark:border-white/10 border-black/10 rounded-sm",
         }}
       />
-      <div className="mt-20"></div>
+      <div className="mt-24"></div>
     </div>
   );
 }
 
-export const NodeRemoveVariables: React.FC<Node<DataNode>> = ({ data, id }) => {
-  const updateNode = useStore((s) => s.updateNode);
-  useEffect(() => {
-    if (!data.list?.length) {
-      updateNode(id, { data: { list: [] } });
-    }
-  }, [id]);
-
+export const NodeRemoveVariables: React.FC<Node<DataNode>> = ({ id }) => {
   return (
     <div>
       <PatternNode.PatternPopover

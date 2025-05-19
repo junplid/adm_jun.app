@@ -18,6 +18,8 @@ export type AppState = {
   nodes: AppNode[];
   edges: Edge[];
   businessIds: number[];
+  isPull: boolean;
+  setIsPull: (v: boolean) => void;
   setBusinessIds: (businessIds: number[]) => void;
   setChange: (
     type: "nodes" | "edges",
@@ -31,7 +33,7 @@ export type AppState = {
   setEdges: (edges: Edge[]) => void;
   updateNode: (nodeId: string, node: any) => void;
   getEdgesNode: (nodeId: string) => Edge[];
-  addNode: (node: Omit<AppNode, "id">) => void;
+  // addNode: (node: Omit<AppNode, "id">) => void;
   resetChanges: () => void;
   onEdgeClick: (event: MouseEvent, edge: Edge) => void;
 };

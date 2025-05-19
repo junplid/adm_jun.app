@@ -1,23 +1,41 @@
-import { forwardRef, JSX, useEffect, useRef, useState } from "react";
+import { forwardRef, JSX, useEffect, useMemo, useRef, useState } from "react";
 import SelectComponent from "./Select";
 import { Props as SelectProps } from "react-select";
-import { useCreateTag, useGetTagsOptions } from "../hooks/tag";
+import { useCreateVariable, useGetVariablesOptions } from "../hooks/variable";
+import { VariableType } from "../services/api/Variable";
 
 interface ISelectTagsProps extends SelectProps {
-  onCreate?: (business: { id: number; name: string }) => void;
+  onCreate?: (variable: { id: number; name: string }) => void;
   value?: number[] | number | null;
   isFlow?: boolean;
   isCreatable?: boolean;
+  filter?: (
+    opt: {
+      id: number;
+      name: string;
+      business: {
+        name: string;
+        id: number;
+      }[];
+      value: string | null;
+      type: VariableType;
+    }[]
+  ) => any;
 }
 
-const SelectTags = forwardRef<any, ISelectTagsProps>(
+const SelectVariables = forwardRef<any, ISelectTagsProps>(
   ({ isMulti, value, isCreatable = true, ...props }, ref): JSX.Element => {
     const canTriggerCreate = useRef(null);
     const [newTagName, setNewTagName] = useState("");
 
-    const { data: opt, isFetching, isLoading, isPending } = useGetTagsOptions();
-    const { mutateAsync: createTag, isPending: isPendingCreate } =
-      useCreateTag();
+    const {
+      data: opt,
+      isFetching,
+      isLoading,
+      isPending,
+    } = useGetVariablesOptions({});
+    const { mutateAsync: createVariable, isPending: isPendingCreate } =
+      useCreateVariable();
 
     useEffect(() => {
       if (isCreatable) {
@@ -25,9 +43,9 @@ const SelectTags = forwardRef<any, ISelectTagsProps>(
           if (canTriggerCreate.current && e.key === "Enter") {
             e.preventDefault();
             const cloneName = structuredClone(newTagName);
-            const { id } = await createTag({
+            const { id } = await createVariable({
               name: cloneName,
-              type: "contactwa",
+              type: "dynamics",
             });
             setNewTagName("");
             props.onCreate?.({ id, name: cloneName });
@@ -40,12 +58,17 @@ const SelectTags = forwardRef<any, ISelectTagsProps>(
       }
     }, [newTagName]);
 
+    const resolveOpt = useMemo(() => {
+      if (props.filter) return props.filter(opt || []);
+      return opt || [];
+    }, [opt]);
+
     return (
       <SelectComponent
         ref={ref}
         isLoading={isLoading || isFetching || isPending}
-        placeholder={`Selecione ${isMulti ? "as etiquetas" : "a etiqueta"}`}
-        options={(opt || []).map((item) => ({
+        placeholder={`Selecione ${isMulti ? "as variáveis" : "a variável"}`}
+        options={resolveOpt.map((item: any) => ({
           label: item.name,
           value: item.id,
         }))}
@@ -57,11 +80,11 @@ const SelectTags = forwardRef<any, ISelectTagsProps>(
           return (
             <div className="flex  text-sm flex-col gap-1 pointer-events-auto">
               <span className="text-white/60">
-                Nenhuma etiqueta {inputValue && `"${inputValue}"`} encontrada
+                Nenhuma variável {inputValue && `"${inputValue}"`} encontrada
               </span>
               {isCreatable && !inputValue && (
                 <span className="text-sm text-white/80">
-                  Digite o nome da etiqueta que quer adicionar
+                  Digite o nome da variável que quer adicionar
                 </span>
               )}
               {isCreatable && inputValue && (
@@ -71,7 +94,7 @@ const SelectTags = forwardRef<any, ISelectTagsProps>(
                 >
                   {isPendingCreate ? (
                     <span className="text-white/60">
-                      Criando nova etiqueta...
+                      Criando nova variável...
                     </span>
                   ) : (
                     <span className="text-xs">
@@ -138,4 +161,4 @@ const SelectTags = forwardRef<any, ISelectTagsProps>(
   }
 );
 
-export default SelectTags;
+export default SelectVariables;
