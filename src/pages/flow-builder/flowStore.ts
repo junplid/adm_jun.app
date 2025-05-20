@@ -110,6 +110,16 @@ const useStore = create<AppState>((set, get) => ({
       nodes: get().nodes.filter(
         (s) => !nodesToDelete.find((n) => s.id === n.id)?.deletable
       ),
+      edges: get().edges.filter(
+        (s) =>
+          !nodesToDelete.find(
+            (n) =>
+              s.source === n.id ||
+              s.target === n.id ||
+              s.sourceHandle === n.id ||
+              s.targetHandle === n.id
+          )?.deletable
+      ),
     });
   },
   setEdges: (edges) => {
@@ -133,6 +143,19 @@ const useStore = create<AppState>((set, get) => ({
       (s) => s.target === nodeId || s.source === nodeId
     );
     return edges;
+  },
+  delNode: (id: string) => {
+    const edgesIds = get()
+      .getEdgesNode(id)
+      .map((s) => s.id);
+    get().setChange("nodes", { type: "delete", id });
+    for (const edgeId of edgesIds) {
+      get().setChange("edges", { type: "delete", id: edgeId });
+    }
+    set({
+      nodes: get().nodes.filter((s) => s.id !== id),
+      edges: get().edges.filter((s) => !edgesIds.includes(s.id)),
+    });
   },
   // addNode: (node: Omit<AppNode, "id">) => {
   //   const newNode = { ...node, id: nanoid() };

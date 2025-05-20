@@ -82,7 +82,10 @@ export const NodeSendFlow: React.FC<Node<DataNode>> = ({ id }) => {
         description="Transferir a conversa para outro fluxo"
         node={{
           children: (
-            <div className="p-1">
+            <div className="p-1 relative">
+              <div className="flex justify-end absolute -top-1 -right-1 opacity-10 group-hover:opacity-100 duration-200">
+                <PatternNode.Actions id={id} />
+              </div>
               <PiFlowArrowBold
                 className="dark:text-neutral-300 text-neutral-800"
                 size={26.8}

@@ -315,7 +315,7 @@ export function LayoutPrivateProvider(): JSX.Element {
               </SubMenu>
             </Menu>
 
-            {/* {toggledMenu && (
+            {toggledMenu && (
               <Presence
                 animationName={{
                   _open: "slide-from-top, fade-in",
@@ -339,7 +339,7 @@ export function LayoutPrivateProvider(): JSX.Element {
                   <p className="text-xs text-zinc-200">Escaneie com o Pix</p>
                 </div>
               </Presence>
-            )} */}
+            )}
 
             <div
               style={{ background: bgSideBar }}
@@ -350,7 +350,11 @@ export function LayoutPrivateProvider(): JSX.Element {
                 positioning={{ placement: toggledMenu ? "top" : "right" }}
                 content="Acesse a comunidade"
               >
-                <a className="flex text-white border border-white/25 justify-center cursor-pointer items-center bg-[#646ee4] hover:bg-[#4460ff] duration-300 p-2 rounded-sm">
+                <a
+                  href="https://discord.gg/2C4Uu8DPVb"
+                  target="_blank"
+                  className="flex text-white border border-white/25 justify-center cursor-pointer items-center bg-[#646ee4] hover:bg-[#4460ff] duration-300 p-2 rounded-sm"
+                >
                   <BsDiscord size={18} />
                 </a>
               </Tooltip>

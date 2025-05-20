@@ -134,7 +134,10 @@ export const NodeRemoveVariables: React.FC<Node<DataNode>> = ({ id }) => {
         description="Remove várias variáveis do lead"
         node={{
           children: (
-            <div className="p-1">
+            <div className="p-1 relative">
+              <div className="flex justify-end absolute -top-1 -right-1 opacity-10 group-hover:opacity-100 duration-200">
+                <PatternNode.Actions id={id} />
+              </div>
               <PiBracketsCurlyBold
                 className="dark:text-red-300 text-red-800"
                 size={26.8}

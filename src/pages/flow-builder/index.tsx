@@ -18,7 +18,10 @@ import {
   ReactFlow,
   useReactFlow,
 } from "@xyflow/react";
-import { useColorModeValue, ColorModeButton } from "@components/ui/color-mode";
+import {
+  useColorModeValue,
+  // ColorModeButton
+} from "@components/ui/color-mode";
 import { LayoutPrivateContext } from "@contexts/layout-private.context";
 import { useShallow } from "zustand/react/shallow";
 import useStore from "./flowStore";
@@ -34,7 +37,7 @@ import { NodeSendFlow } from "./nodes/SendFlow";
 import { SearchNodesComponents } from "./components/SearchNodes";
 import { DnDContext } from "@contexts/DnD.context";
 import { AppNode } from "./types";
-import { FeedbackComponent } from "./components/feedback";
+// import { FeedbackComponent } from "./components/feedback";
 import useSyncLoadStore from "./syncLoadStore";
 import { RiErrorWarningLine, RiSaveFill } from "react-icons/ri";
 import { useParams } from "react-router-dom";
@@ -204,6 +207,8 @@ function Body(props: IBody): JSX.Element {
     const handleKey = async (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === "s") {
         e.preventDefault();
+        e.stopImmediatePropagation();
+        e.stopPropagation();
         setLoad("load");
 
         if (!changes.nodes.length && !changes.edges.length) {
@@ -420,9 +425,9 @@ function Body(props: IBody): JSX.Element {
               </div>
             </HStack>
             <HStack className="pointer-events-auto">
-              <FeedbackComponent />
+              {/* <FeedbackComponent /> */}
               <SearchNodesComponents />
-              <ColorModeButton />
+              {/* <ColorModeButton /> */}
             </HStack>
           </HStack>
         </Panel>

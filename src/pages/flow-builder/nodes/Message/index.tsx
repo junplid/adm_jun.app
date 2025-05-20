@@ -127,7 +127,10 @@ export const NodeMessage: React.FC<Node<DataNode>> = ({ id }) => {
         description="Envia vários balões de texto"
         node={{
           children: (
-            <div className="p-0.5">
+            <div className="p-0.5 relative">
+              <div className="flex justify-end absolute -top-1 -right-1 opacity-10 group-hover:opacity-100 duration-200">
+                <PatternNode.Actions id={id} />
+              </div>
               <TbTextSize
                 className="dark:text-teal-400 text-teal-700"
                 size={31}

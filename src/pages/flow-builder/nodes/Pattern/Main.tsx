@@ -62,7 +62,7 @@ export const PatternNodeComponent: FC<PropsPatternNodeComponent> = ({
   const colorDesc = useColorModeValue("#7c7c7c", "#aaaaaa");
 
   return (
-    <VStack alignItems={"baseline"} gap={0}>
+    <VStack className="group" alignItems={"baseline"} gap={0}>
       <Container
         className={isConnectable ? "" : "not-connectable"}
         size={props.size}

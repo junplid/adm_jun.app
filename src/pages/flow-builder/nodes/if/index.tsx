@@ -151,6 +151,10 @@ function BodyNode({ id }: { id: string }): JSX.Element {
                           data: { list: node.data.list },
                         });
                       }}
+                      onCreate={(tag) => {
+                        node.data.list![index].tagIds.push(tag.id);
+                        updateNode(id, { data: { list: node.data.list } });
+                      }}
                     />
                   </div>
                 </TabsContent>
@@ -170,7 +174,8 @@ function BodyNode({ id }: { id: string }): JSX.Element {
                         });
                       }}
                       onCreate={(tag) => {
-                        
+                        node.data.list![index].tagIds.push(tag.id);
+                        updateNode(id, { data: { list: node.data.list } });
                       }}
                     />
                   </div>
@@ -307,7 +312,10 @@ export const NodeIF: React.FC<Node<DataNode>> = ({ id }) => {
         description="Verifica e executa regras lógicas"
         node={{
           children: (
-            <div className="p-[4.5px] translate-y-0.5 py-[9.5px] text-xs font-bold dark:text-yellow-300 text-yellow-600">
+            <div className="relative p-[4.5px] translate-y-0.5 py-[9.5px] text-xs font-bold dark:text-yellow-300 text-yellow-600">
+              <div className="flex justify-end absolute -top-1 -right-1 opacity-10 group-hover:opacity-100 duration-200">
+                <PatternNode.Actions id={id} />
+              </div>
               {"if (..)"}
             </div>
           ),

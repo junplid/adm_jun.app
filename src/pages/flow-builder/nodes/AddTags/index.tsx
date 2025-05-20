@@ -47,7 +47,10 @@ export const NodeAddTags: React.FC<Node<DataNode>> = ({ id }) => {
         description="Adiciona várias etiquetas/tags ao lead"
         node={{
           children: (
-            <div className="p-1">
+            <div className="p-1 relative">
+              <div className="flex justify-end absolute -top-1 -right-1 opacity-10 group-hover:opacity-100 duration-200">
+                <PatternNode.Actions id={id} />
+              </div>
               <TbTags
                 className="dark:text-green-300 text-green-800"
                 size={26.8}

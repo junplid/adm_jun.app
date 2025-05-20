@@ -34,6 +34,7 @@ export type AppState = {
   updateNode: (nodeId: string, node: any) => void;
   getEdgesNode: (nodeId: string) => Edge[];
   // addNode: (node: Omit<AppNode, "id">) => void;
+  delNode: (id: string) => void;
   resetChanges: () => void;
   onEdgeClick: (event: MouseEvent, edge: Edge) => void;
 };
