@@ -334,7 +334,7 @@ export function LayoutPrivateProvider(): JSX.Element {
                     desenvolvedores.
                   </p>
                   <div className="flex justify-center">
-                    <QrCode value="QR Code para doação" />
+                    <QrCode value="00020126360014BR.GOV.BCB.PIX0114+55199877266775204000053039865802BR5925Janderson Gabriel Silva d6009SAO PAULO6214051083oLAs51LG63048238" />
                   </div>
                   <p className="text-xs text-zinc-200">Escaneie com o Pix</p>
                 </div>

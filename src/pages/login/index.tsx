@@ -149,9 +149,16 @@ export const LoginPage: React.FC = (): JSX.Element => {
             </div>
           </div>
         </div>
-        <div className="w-full bg-[#11111143] p-2">
-          <div>video</div>
-        </div>
+        <video
+          className="w-full h-auto"
+          src="/login-video.mp4"
+          controls={false}
+          controlsList="nodownload noremoteplayback nodownload"
+          disablePictureInPicture
+          autoPlay
+          muted
+          loop
+        />
       </div>
     </div>
   );
