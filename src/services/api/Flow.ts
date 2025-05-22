@@ -7,7 +7,7 @@ export async function createFlow(body: {
   type: FlowType;
   businessIds?: number[];
 }): Promise<{
-  id: number;
+  id: string;
   createAt: Date;
   updateAt: Date;
   businesses: { id: number; name: string }[];
@@ -17,7 +17,7 @@ export async function createFlow(body: {
 }
 
 export async function updateFlow(
-  id: number,
+  id: string,
   params: { name?: string; type?: FlowType; businessIds?: number[] }
 ): Promise<{
   updateAt: Date;
@@ -30,7 +30,7 @@ export async function updateFlow(
 }
 
 export async function updateFlowData(
-  id: number,
+  id: string,
   body: {
     nodes?: { type: "upset" | "delete"; node: any }[];
     edges?: { type: "upset" | "delete"; edge: any }[];
@@ -43,9 +43,9 @@ export async function updateFlowData(
   return data.flow;
 }
 
-export async function getFlowDetails(id: number): Promise<{
+export async function getFlowDetails(id: string): Promise<{
   name: string;
-  id: number;
+  id: string;
   type: FlowType;
   business: { id: number; name: string }[];
   createAt: Date;
@@ -55,7 +55,7 @@ export async function getFlowDetails(id: number): Promise<{
   return data.flow;
 }
 
-export async function getFlow(id: number): Promise<{
+export async function getFlow(id: string): Promise<{
   name: string;
   type: FlowType;
   businessIds: number[];
@@ -64,7 +64,7 @@ export async function getFlow(id: number): Promise<{
   return data.flows;
 }
 
-export async function getFlowData(id: number): Promise<{
+export async function getFlowData(id: string): Promise<{
   name: string;
   type: FlowType;
   businessIds: number[];
@@ -80,7 +80,7 @@ export async function getFlows(params?: {
   page?: number;
 }): Promise<
   {
-    id: number;
+    id: string;
     name: string;
     createAt: Date;
     updateAt: Date;
@@ -96,13 +96,13 @@ export async function getOptionsFlows(params?: {
   name?: string;
   businessIds?: number[];
   type?: FlowType[];
-}): Promise<{ id: number; name: string; type: FlowType }[]> {
+}): Promise<{ id: string; name: string; type: FlowType }[]> {
   const { data } = await api.get("/private/flows/options", {
     params,
   });
   return data.flows;
 }
 
-export async function deleteFlow(id: number): Promise<void> {
+export async function deleteFlow(id: string): Promise<void> {
   await api.delete(`/private/flows/${id}`);
 }

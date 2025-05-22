@@ -16,6 +16,7 @@ import { TbTags, TbTextSize } from "react-icons/tb";
 import { TypesNodes } from "..";
 import { DnDContext } from "@contexts/DnD.context";
 import removeAccents from "remove-accents";
+import { LiaHourglassHalfSolid } from "react-icons/lia";
 
 export function SearchNodesComponents(): JSX.Element {
   const [open, setOpen] = useState(false);
@@ -135,7 +136,19 @@ const nodesList: {
     name: "Enviar texto",
     description: "Envie vários balões de texto",
     id: "1",
-    type: "nodeMessage",
+    type: "NodeMessage",
+  },
+  {
+    icon: (
+      <LiaHourglassHalfSolid
+        className="dark:text-zinc-400 text-zinc-700 w-8"
+        size={31}
+      />
+    ),
+    name: "Aguardar tempo",
+    description: "Pausa o fluxo por um tempo",
+    id: "2",
+    type: "NodeTimer",
   },
   {
     icon: (
@@ -146,8 +159,8 @@ const nodesList: {
     ),
     name: "Receber resposta",
     description: "Espera a resposta do lead",
-    id: "2",
-    type: "nodeReply",
+    id: "3",
+    type: "NodeReply",
   },
   {
     icon: (
@@ -155,8 +168,8 @@ const nodesList: {
     ),
     name: "Adicionar etiquetas",
     description: "Adicione várias tags/etiquetas",
-    id: "3",
-    type: "nodeAddTags",
+    id: "4",
+    type: "NodeAddTags",
   },
   {
     icon: (
@@ -167,15 +180,15 @@ const nodesList: {
     ),
     name: "Adicionar variáveis",
     description: "Atribua/Sobrescreva várias variáveis",
-    id: "4",
-    type: "nodeAddVariables",
+    id: "5",
+    type: "NodeAddVariables",
   },
   {
     icon: <TbTags className="dark:text-red-300 text-red-800 w-8" size={29} />,
     name: "Remover etiquetas",
     description: "Remova várias tags/etiquetas",
-    id: "5",
-    type: "nodeRemoveTags",
+    id: "6",
+    type: "NodeRemoveTags",
   },
   {
     icon: (
@@ -186,8 +199,8 @@ const nodesList: {
     ),
     name: "Remover variáveis",
     description: "Remova várias variáveis",
-    id: "6",
-    type: "nodeRemoveVariables",
+    id: "7",
+    type: "NodeRemoveVariables",
   },
   {
     icon: (
@@ -198,8 +211,8 @@ const nodesList: {
     ),
     name: "Enviar fluxos",
     description: "Envie outro fluxo de conversa",
-    id: "7",
-    type: "nodeSendFlow",
+    id: "8",
+    type: "NodeSendFlow",
   },
   {
     icon: (
@@ -209,7 +222,7 @@ const nodesList: {
     ),
     name: "Condição lógica",
     description: "Crie condições IF..else 'E' - 'OU'",
-    id: "8",
-    type: "nodeIF",
+    id: "9",
+    type: "NodeIF",
   },
 ];

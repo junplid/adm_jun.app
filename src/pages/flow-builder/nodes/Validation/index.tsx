@@ -76,7 +76,7 @@ interface DataNode {
   //   //   interval: number;
   //   //   value: string;
   //   //   action: TypeActions;
-  //   //   submitFlowId?: number;
+  //   //   submitflowId?: string;
   //   // };
   // };
 }
@@ -864,7 +864,7 @@ export const NodeValidation: React.FC<Node> = ({ id }): JSX.Element => {
                                         failedAttempts: {
                                           ...dataN.validateReply
                                             ?.failedAttempts,
-                                          submitFlowId: Number(propsV.value),
+                                          submitflowId: string(propsV.value),
                                         },
                                       },
                                     } as DataNode;

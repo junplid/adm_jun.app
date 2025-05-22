@@ -16,7 +16,7 @@ import { Link } from "react-router-dom";
 import { useDialogModal } from "../../hooks/dialog.modal";
 
 export interface FlowRow {
-  id: number;
+  id: string;
   name: string;
   createAt: Date;
   updateAt: Date;

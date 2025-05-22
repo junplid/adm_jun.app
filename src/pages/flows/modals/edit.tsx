@@ -21,7 +21,7 @@ import { useGetFlow, useUpdateFlow } from "../../../hooks/flow";
 import deepEqual from "fast-deep-equal";
 
 interface IProps {
-  id: number;
+  id: string;
   close: () => void;
 }
 
@@ -39,7 +39,7 @@ function Content({
   id,
   ...props
 }: {
-  id: number;
+  id: string;
   onClose: () => void;
 }): JSX.Element {
   const [fieldsDraft, setFieldsDraft] = useState<Fields | null>(null);

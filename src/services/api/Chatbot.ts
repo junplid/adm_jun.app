@@ -3,7 +3,7 @@ import { api } from "./index";
 export async function createChatbot(body: {
   name: string;
   businessId: number;
-  flowId: number;
+  flowId: string;
   connectionWAId?: number;
   status?: boolean;
   description?: string;
@@ -85,7 +85,7 @@ export async function getChatbot(id: number): Promise<{
   id: number;
   name: string;
   businessId: number;
-  flowId: number;
+  flowId: string;
   connectionWAId?: number;
   status?: boolean;
   description?: string;

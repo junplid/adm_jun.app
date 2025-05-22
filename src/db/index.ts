@@ -23,7 +23,7 @@ interface Tags {
 
 interface Flows {
   targetId?: number;
-  id?: number;
+  id?: string;
   type: "marketing" | "chatbot" | "universal";
   name: string;
 }

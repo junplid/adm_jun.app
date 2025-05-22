@@ -98,7 +98,7 @@ export function useCreateChatbot(props?: {
   setError?: UseFormSetError<{
     name: string;
     businessId: number;
-    flowId: number;
+    flowId: string;
     connectionWAId?: number;
     status?: boolean;
     description?: string;
@@ -121,7 +121,7 @@ export function useCreateChatbot(props?: {
     mutationFn: (body: {
       name: string;
       businessId: number;
-      flowId: number;
+      flowId: string;
       connectionWAId?: number;
       status?: boolean;
       description?: string;
@@ -174,7 +174,7 @@ export function useUpdateChatbot(props?: {
   setError?: UseFormSetError<{
     name?: string;
     businessId?: number;
-    flowId?: number;
+    flowId?: string;
     connectionWAId?: number;
     status?: boolean;
     description?: string;
@@ -202,7 +202,7 @@ export function useUpdateChatbot(props?: {
       body: {
         name?: string;
         businessId?: number;
-        flowId?: number;
+        flowId?: string;
         connectionWAId?: number;
         status?: boolean;
         description?: string;

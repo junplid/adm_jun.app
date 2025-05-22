@@ -9,7 +9,6 @@ import {
   PopoverTitle,
   PopoverDescription,
   PopoverHeader,
-  PopoverCloseTrigger,
 } from "@components/ui/popover";
 import { PatternNode } from ".";
 import { PositioningOptions } from "@zag-js/popper";
@@ -58,7 +57,7 @@ export const PatternNodePopoverComponent: FC<PropsPatternNodeComponent> = (
       </PopoverTrigger>
       <PopoverContent
         w={props.size || "290px"}
-        className="scroll-hidden overflow-y-scroll"
+        className="select-none scroll-hidden overflow-y-scroll"
       >
         <PopoverHeader
           position={"sticky"}

@@ -59,7 +59,7 @@ const FormSchema = z.object({
     .optional()
     .transform((v) => v || undefined),
 
-  flowId: z.number({ message: "Campo obrigatório." }),
+  flowId: z.string({ message: "Campo obrigatório." }),
   connectionWAId: z.number().optional(),
   addLeadToAudiencesIds: z
     .array(z.number())

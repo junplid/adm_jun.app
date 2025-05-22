@@ -7,7 +7,7 @@ import { AuthContext } from "@contexts/auth.context";
 import { ErrorResponse_I } from "../services/api/ErrorResponse";
 import { UseFormSetError } from "react-hook-form";
 
-export function useGetFlowData(id: number) {
+export function useGetFlowData(id: string) {
   const { logout } = useContext(AuthContext);
   return useQuery({
     queryKey: ["flow-data", id],
@@ -28,7 +28,7 @@ export function useGetFlowData(id: number) {
   });
 }
 
-export function useGetFlowDetails(id: number) {
+export function useGetFlowDetails(id: string) {
   const { logout } = useContext(AuthContext);
   return useQuery({
     queryKey: ["flow-details", id],
@@ -49,7 +49,7 @@ export function useGetFlowDetails(id: number) {
   });
 }
 
-export function useGetFlow(id: number) {
+export function useGetFlow(id: string) {
   const { logout } = useContext(AuthContext);
   return useQuery({
     queryKey: ["flow", id],
@@ -122,7 +122,7 @@ export function useCreateFlow(props?: {
     type: FlowService.FlowType;
     businessIds?: number[];
   }>;
-  onSuccess?: (id: number) => Promise<void>;
+  onSuccess?: (id: string) => Promise<void>;
 }) {
   const { logout } = useContext(AuthContext);
   const queryClient = useQueryClient();
@@ -183,7 +183,7 @@ export function useUpdateFlow(props?: {
       id,
       body,
     }: {
-      id: number;
+      id: string;
       body: {
         name?: string;
         type?: FlowService.FlowType;
@@ -251,7 +251,7 @@ export function useUpdateFlowData(props?: {
       id,
       body,
     }: {
-      id: number;
+      id: string;
       body: {
         nodes?: { type: "upset" | "delete"; node: any }[];
         edges?: { type: "upset" | "delete"; edge: any }[];
@@ -283,7 +283,7 @@ export function useDeleteFlow(props?: { onSuccess?: () => Promise<void> }) {
   const { logout } = useContext(AuthContext);
 
   return useMutation({
-    mutationFn: (id: number) => FlowService.deleteFlow(id),
+    mutationFn: (id: string) => FlowService.deleteFlow(id),
     async onSuccess(_, id) {
       if (props?.onSuccess) await props.onSuccess();
       queryClient.removeQueries({ queryKey: ["flow-details", id] });

@@ -18,7 +18,7 @@ type TypesActions =
 
 type DataNode =
   | { type: "add-tag" | "remove-tag"; tagId: number }
-  | { type: "send-flow"; flowId: number }
+  | { type: "send-flow"; flowId: string }
   | { type: "finish-flow" }
   | { type: "add-to-audience" | "remove-to-audience"; audienceId: number }
   | { type: "variable"; variableId: number; value: string };
@@ -352,7 +352,7 @@ export const NodeAction: React.FC<Node> = ({ id }) => {
                       if (node.id === id) {
                         node.data = {
                           ...dataN,
-                          flowId: Number(value),
+                          flowId: string(value),
                         } as DataNode;
                       }
                       return node;

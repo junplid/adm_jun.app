@@ -228,7 +228,7 @@ function BodyNode({ id }: { id: string }): JSX.Element {
         </NumberInput.Root>
         <SelectRoot
           // @ts-expect-error
-          value={[node.data.timeout?.type]}
+          value={node.data.timeout?.type}
           onValueChange={(e) => {
             updateNode(id, {
               data: {
@@ -270,10 +270,13 @@ export const NodeReply: React.FC<Node<DataNode>> = ({ id }) => {
         description="Salve a resposta em várias variáveis"
         node={{
           children: (
-            <div className="p-1">
+            <div className="p-[6.5px] relative">
+              <div className="flex justify-end absolute -top-1 -right-1 opacity-10 group-hover:opacity-100 duration-200">
+                <PatternNode.Actions id={id} />
+              </div>
               <BsChatLeftDots
                 className="dark:text-blue-400 text-blue-700"
-                size={26.8}
+                size={22}
               />
             </div>
           ),

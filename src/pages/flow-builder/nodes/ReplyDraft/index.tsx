@@ -30,7 +30,7 @@ interface DataNode {
       interval: number;
       value: string;
       run: TypeActions;
-      submitFlowId?: number;
+      submitflowId?: string;
     };
   };
 }
@@ -519,7 +519,7 @@ export const NodeReply: React.FC<Node> = ({ id }): JSX.Element => {
                                         ...dataN?.timeOut,
                                         action: {
                                           ...dataN?.timeOut?.action,
-                                          submitFlowId: Number(propsV.value),
+                                          submitflowId: string(propsV.value),
                                         },
                                       },
                                     } as DataNode;

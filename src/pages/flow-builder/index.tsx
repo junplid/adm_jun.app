@@ -48,28 +48,30 @@ import { nanoid } from "nanoid";
 import CustomEdge from "./customs/edge";
 import { FlowType, getOptionsFlows } from "../../services/api/Flow";
 import { getOptionsTags } from "../../services/api/Tag";
+import { NodeTimer } from "./nodes/Timer";
 
 type NodeTypesGeneric = {
   [x in TypesNodes]: any;
 };
 
 export type TypesNodes =
-  | "nodeInitial"
-  | "nodeMessage"
-  | "nodeReply"
-  | "nodeAddTags"
-  | "nodeAddVariables"
-  | "nodeRemoveVariables"
-  | "nodeIF"
-  | "nodeSendFlow"
-  | "nodeRemoveTags";
+  | "NodeInitial"
+  | "NodeMessage"
+  | "NodeReply"
+  | "NodeAddTags"
+  | "NodeAddVariables"
+  | "NodeRemoveVariables"
+  | "NodeIF"
+  | "NodeSendFlow"
+  | "NodeTimer"
+  | "NodeRemoveTags";
 
 const edgeTypes = {
   customedge: CustomEdge,
 };
 
 interface IBody {
-  id: number;
+  id: string;
   flowData: {
     name: string;
     type: FlowType;
@@ -274,15 +276,16 @@ function Body(props: IBody): JSX.Element {
 
   const nodeTypes: NodeTypesGeneric = useMemo(
     () => ({
-      nodeInitial: NodeInitial,
-      nodeMessage: NodeMessage,
-      nodeReply: NodeReply,
-      nodeAddTags: NodeAddTags,
-      nodeRemoveTags: NodeRemoveTags,
-      nodeAddVariables: NodeAddVariables,
-      nodeRemoveVariables: NodeRemoveVariables,
-      nodeIF: NodeIF,
-      nodeSendFlow: NodeSendFlow,
+      NodeInitial: NodeInitial,
+      NodeMessage: NodeMessage,
+      NodeReply: NodeReply,
+      NodeTimer: NodeTimer,
+      NodeAddTags: NodeAddTags,
+      NodeRemoveTags: NodeRemoveTags,
+      NodeAddVariables: NodeAddVariables,
+      NodeRemoveVariables: NodeRemoveVariables,
+      NodeIF: NodeIF,
+      NodeSendFlow: NodeSendFlow,
     }),
     []
   );
@@ -308,23 +311,25 @@ function Body(props: IBody): JSX.Element {
         deletable: true,
       };
       const typeN = type as TypesNodes;
-      if (typeN === "nodeAddTags") {
+      if (typeN === "NodeAddTags") {
         newNode.data = { list: [] };
-      } else if (typeN === "nodeAddVariables") {
+      } else if (typeN === "NodeAddVariables") {
         newNode.data = { list: [] };
-      } else if (typeN === "nodeRemoveTags") {
+      } else if (typeN === "NodeRemoveTags") {
         newNode.data = { list: [] };
-      } else if (typeN === "nodeRemoveVariables") {
+      } else if (typeN === "NodeRemoveVariables") {
         newNode.data = { list: [] };
-      } else if (typeN === "nodeIF") {
+      } else if (typeN === "NodeIF") {
         newNode.data = {
           list: [{ key: nanoid(), name: "has-tags", tagIds: [] }],
         };
-      } else if (typeN === "nodeReply") {
+      } else if (typeN === "NodeReply") {
         newNode.data = {
           timeout: { value: 30, type: "MINUTES" },
           list: [],
         };
+      } else if (typeN === "NodeTimer") {
+        newNode.data = { value: 20, type: ["seconds"] };
       }
 
       await db.nodes.add({
@@ -489,7 +494,35 @@ export function FlowBuilderPage() {
     data: flowData,
     isFetching,
     isError,
-  } = useGetFlowData(Number(params.id));
+  } = useGetFlowData(params.id || "");
+
+  if (!params.id) {
+    return (
+      <Presence
+        animationName={{
+          _open: "slide-from-top, fade-in",
+          _closed: "slide-to-top, fade-out",
+        }}
+        animationDuration="moderate"
+        present={true}
+        position={"absolute"}
+        top={0}
+        left={0}
+        zIndex={99999}
+        className="absolute top-0 left-0 w-full h-full z-50 flex justify-center"
+      >
+        <div className="flex items-center flex-col gap-y-0.5 mt-14">
+          <div className="text-lg font-bold text-gray-500 dark:text-gray-200">
+            Fluxo não encontrado
+          </div>
+          <div className="text-sm text-gray-400 dark:text-gray-400">
+            O construtor de fluxo que você está tentando acessar não existe ou
+            foi excluído.
+          </div>
+        </div>
+      </Presence>
+    );
+  }
 
   return (
     <Box as={"div"} className="dndflow" h={"100svh"}>
@@ -520,7 +553,7 @@ export function FlowBuilderPage() {
       </Presence>
 
       {!isFetching && !isError && flowData?.name && (
-        <Body id={Number(params.id)} flowData={flowData} />
+        <Body id={params.id} flowData={flowData} />
       )}
 
       <Presence

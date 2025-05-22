@@ -15,7 +15,7 @@ import { CloseButton } from "@components/ui/close-button";
 import { useDeleteFlow } from "../../../hooks/flow";
 
 interface PropsModalDelete {
-  data: { id: number; name: string } | null;
+  data: { id: string; name: string } | null;
   close: () => void;
 }
 

@@ -4,7 +4,7 @@ import { Props as SelectProps } from "react-select";
 import { useGetFlowsOptions } from "../hooks/flow";
 
 interface ISelectFlowsProps extends SelectProps {
-  value?: number[] | number | null;
+  value?: string[] | string | null;
 }
 
 const SelectFlows = forwardRef<any, ISelectFlowsProps>(
@@ -37,7 +37,7 @@ const SelectFlows = forwardRef<any, ISelectFlowsProps>(
         }}
         isMulti={isMulti}
         {...(value !== null && value !== undefined
-          ? typeof value === "number"
+          ? typeof value === "string"
             ? {
                 value: [
                   { label: opt?.find((i) => i.id === value)?.name, value },

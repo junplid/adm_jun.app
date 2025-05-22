@@ -16,7 +16,7 @@ import { JSX } from "react";
 import { useDBNodes, useFlows } from "../../../../db";
 
 type DataNode = {
-  id: number;
+  id: string;
 };
 
 function BodyNode({ id }: { id: string }): JSX.Element {
@@ -29,7 +29,7 @@ function BodyNode({ id }: { id: string }): JSX.Element {
   const collection = createListCollection({
     items: flows.map((s) => ({
       label: s.name,
-      value: String(s.id),
+      value: s.id,
     })),
   });
 

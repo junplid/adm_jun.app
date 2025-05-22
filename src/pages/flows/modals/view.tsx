@@ -16,10 +16,10 @@ import { useGetFlowDetails } from "../../../hooks/flow";
 import { useDialogModal } from "../../../hooks/dialog.modal";
 
 interface IProps {
-  id: number;
+  id: string;
 }
 
-function Content({ id }: { id: number }) {
+function Content({ id }: { id: string }) {
   const { data, isFetching, status } = useGetFlowDetails(id);
   const { close, dialog, onOpen } = useDialogModal({});
 
