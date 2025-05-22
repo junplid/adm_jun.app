@@ -116,7 +116,7 @@ function Body(props: IBody): JSX.Element {
   );
 
   const reactFlowWrapper = useRef(null);
-  const { type } = useContext(DnDContext);
+  const { type, setType } = useContext(DnDContext);
   const { screenToFlowPosition } = useReactFlow();
   const { ToggleMenu } = useContext(LayoutPrivateContext);
   const colorDotFlow = useColorModeValue("#c6c6c6", "#373737");
@@ -337,6 +337,7 @@ function Body(props: IBody): JSX.Element {
         data: newNode.data,
       });
       onNodesChange([{ type: "add", item: newNode }]);
+      setType(null);
     },
     [screenToFlowPosition, type]
   );
