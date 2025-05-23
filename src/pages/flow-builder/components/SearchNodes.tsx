@@ -16,7 +16,7 @@ import { TbTags, TbTextSize } from "react-icons/tb";
 import { TypesNodes } from "..";
 import { DnDContext } from "@contexts/DnD.context";
 import removeAccents from "remove-accents";
-import { LiaHourglassHalfSolid } from "react-icons/lia";
+import { LiaHourglassHalfSolid, LiaListSolid } from "react-icons/lia";
 
 export function SearchNodesComponents(): JSX.Element {
   const [open, setOpen] = useState(false);
@@ -149,6 +149,18 @@ const nodesList: {
     description: "Pausa o fluxo por um tempo",
     id: "2",
     type: "NodeTimer",
+  },
+  {
+    icon: (
+      <LiaListSolid
+        className="dark:text-purple-400 text-purple-700 w-8"
+        size={31}
+      />
+    ),
+    name: "Menu",
+    description: "Envia um menu de opções",
+    id: "2",
+    type: "NodeMenu",
   },
   {
     icon: (

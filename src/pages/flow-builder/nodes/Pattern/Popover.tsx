@@ -42,6 +42,7 @@ export const PatternNodePopoverComponent: FC<PropsPatternNodeComponent> = (
       portalled
       onOpenChange={(e) => setOpen(e.open)}
       // closeOnInteractOutside={false}
+      positioning={props.positioning}
     >
       <PopoverTrigger>
         <PatternNode.PatternContainer

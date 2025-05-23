@@ -1,1313 +1,467 @@
-import { Input, Radio, RadioGroup, Textarea } from "@chakra-ui/react";
-import { useContext, useEffect, useMemo, useState } from "react";
-import { AiOutlineFieldTime } from "react-icons/ai";
-import { IoMdAdd, IoMdClose } from "react-icons/io";
-import { MdOutlineAdd } from "react-icons/md";
-import { TfiMenuAlt } from "react-icons/tfi";
-import { Handle, Node, Position, useReactFlow, useStoreApi } from "reactflow";
+import {
+  Button,
+  createListCollection,
+  Input,
+  NumberInput,
+  Span,
+  Stack,
+} from "@chakra-ui/react";
+import { JSX } from "react";
+import { IoIosCloseCircle, IoMdAdd } from "react-icons/io";
+import { Handle, Node, Position } from "@xyflow/react";
 import { nanoid } from "nanoid";
-import SelectComponent from "../../../../components/Select";
-import { CustomHandle } from "../../customs/node";
 import { PatternNode } from "../Pattern";
-import { FlowContext } from "../../../../contexts/flow.context";
+import { LiaListSolid } from "react-icons/lia";
+import { useDBNodes, useFlows, useVariables } from "../../../../db";
+import useStore from "../../flowStore";
+import { Field } from "@components/ui/field";
+import { RxLapTimer } from "react-icons/rx";
+import { IoReloadOutline } from "react-icons/io5";
+import { useColorModeValue } from "@components/ui/color-mode";
+import AutocompleteTextField from "@components/Autocomplete";
+import {
+  SelectContent,
+  SelectItem,
+  SelectItemText,
+  SelectRoot,
+  SelectTrigger,
+  SelectValueText,
+} from "@components/ui/select";
 
-const optionsValidateTime = [
-  { label: "Minutos", value: "MINUTES" },
-  { label: "Horas", value: "HOURS" },
-  { label: "Dias", value: "DAYS" },
-];
+const timesList = createListCollection({
+  items: [
+    {
+      label: "Seg",
+      value: "seconds",
+      description: "Segundos",
+    },
+    {
+      label: "Min",
+      value: "minutes",
+      description: "Minutos",
+    },
+    {
+      label: "Hor",
+      value: "hours",
+      description: "Horas",
+    },
+    {
+      label: "Dia",
+      value: "days",
+      description: "Dias",
+    },
+  ],
+});
 
-type TypeActions = "SUBMIT_FLOW" | "FORK" | "END_FLOW";
-
-interface DataNode {
-  interval: number;
-  header: string;
-  items: {
-    value: string;
-    activators: { value: string; key: string }[];
-    key: string;
-  }[];
+type DataNode = {
+  interval?: number;
+  header?: string;
+  items: { value: string; key: string }[];
   footer?: string;
   validateReply?: {
     attempts: number;
-    messageErrorAttempts?: { interval: number; value: string };
-    failedAttempts?: {
-      interval: number;
-      value: string;
-      action: TypeActions;
-      submitflowId?: string;
-    };
-    timeOut?: {
-      type: "MINUTES" | "HOURS" | "DAYS";
+    messageErrorAttempts?: { interval?: number; value?: string };
+    timeout?: {
+      type: "seconds" | "minutes" | "hours" | "days";
       value: number;
-      action: {
-        interval: number;
-        value: string;
-        run: TypeActions;
-        submitflowId?: string;
-      };
     };
   };
-}
+};
 
-export const NodeMenu: React.FC<Node> = ({ id }): JSX.Element => {
-  const {
-    options,
-    actions,
-    reactflow: {
-      listLinesIdNodesInterruoption,
-      listIdNodesLineDependent,
-      startConnection,
-    },
-  } = useContext(FlowContext);
-  const { setNodes, setEdges } = useReactFlow();
-  const store = useStoreApi();
-  const [fieldsActivator, setFieldsActivator] = useState<{
-    [x: string]: string;
-  }>({} as { [x: string]: string });
+function BodyNode({ id }: { id: string }): JSX.Element {
+  const nodes = useDBNodes();
+  const flows = useFlows();
+  const variables = useVariables();
+  const { updateNode, delEdge } = useStore((s) => ({
+    updateNode: s.updateNode,
+    delEdge: s.delEdge,
+  }));
+  const node = nodes.find((s) => s.id === id) as
+    | (Node<DataNode> & { preview?: string[] })
+    | undefined;
 
-  const data = useMemo(() => {
-    const dataNode = store.getState().nodeInternals.get(id)?.data;
-    return dataNode as DataNode;
-  }, [store.getState().nodeInternals.get(id)?.data]);
+  const getNodePreview = useStore((s) => s.getNodePreview);
+  const preview = getNodePreview(id);
 
-  const [isFirst, setIsFirst] = useState(true);
-  useEffect(() => {
-    if (!options.flows.length && isFirst) {
-      actions.getFlows();
-      setIsFirst(true);
-    }
-  }, [options.flows.length, isFirst]);
-
-  const isConnectable = useMemo(() => {
-    if (startConnection) {
-      if (startConnection.id === id) {
-        return false;
-      } else {
-        if (
-          !listIdNodesLineDependent.includes(id) &&
-          !listLinesIdNodesInterruoption.includes(id)
-        ) {
-          return true;
-        }
-
-        if (listLinesIdNodesInterruoption.includes(startConnection.id)) {
-          if (listIdNodesLineDependent.includes(id)) return false;
-          return true;
-        }
-        if (listIdNodesLineDependent.includes(startConnection.id)) {
-          if (listLinesIdNodesInterruoption.includes(id)) return false;
-          return true;
-        }
-      }
-    } else {
-      return true;
-    }
-  }, [startConnection?.hash]);
+  if (!node) {
+    return <span>Não encontrado</span>;
+  }
 
   return (
-    <PatternNode.PatternContainer
-      size="230px"
-      style={{ bgColor: "#131821", color: "#ffffff" }}
-      header={{
-        icon: TfiMenuAlt,
-        label: "Menu",
-        style: { bgColor: "#09900b", color: "#ffffff" },
-      }}
-      isConnectable={isConnectable ? startConnection?.id !== id : isConnectable}
-    >
-      <div className="nopan flex flex-col gap-y-3 px-1 pb-1">
-        <div className="flex flex-col">
-          <label className="mt-2 flex items-center justify-between gap-2 rounded-lg border border-dashed border-slate-700 p-2 py-1">
-            <span style={{ fontSize: 9 }}>Digitando...</span>
-            <div className="flex items-center gap-2">
-              <Input
-                focusBorderColor="#f6bb0b"
-                borderColor={"#354564"}
-                size={"xs"}
-                width={"14"}
-                type="number"
-                min={2}
-                fontSize={10}
-                title={`${data.interval ?? 0} Segundos`}
-                value={data.interval ?? "0"}
-                onChange={({ target }) => {
-                  setNodes((nodes) => {
-                    return nodes?.map((node) => {
-                      if (node.id === id) {
-                        const dataN: DataNode = node.data;
-                        node.data = {
-                          ...dataN,
-                          interval: Number(target.value),
-                        } as DataNode;
-                      }
-                      return node;
-                    });
-                  });
-                }}
-              />
-              <AiOutlineFieldTime size={18} />
-            </div>
-          </label>
-          <div className="flex flex-col gap-y-1 py-3">
-            <label className="flex flex-col gap-1">
-              <span className="font-semibold text-white/80">
-                Cabeçalho
-                <strong className="font-semibold text-red-500">*</strong>
-              </span>
-              <Input
-                focusBorderColor="#f6bb0b"
-                borderColor={"#2d3b55"}
-                size={"xs"}
-                fontSize={10}
-                placeholder="Cabeçalho"
-                onChange={({ target }) => {
-                  setNodes((nodes) => {
-                    return nodes?.map((node) => {
-                      if (node.id === id) {
-                        const dataN: DataNode = node.data;
-                        node.data = {
-                          ...dataN,
-                          header: target.value,
-                        } as DataNode;
-                      }
-                      return node;
-                    });
-                  });
-                }}
-                value={data.header ?? ""}
-              />
-            </label>
-            <div className="my-1 flex flex-col gap-2">
-              <ul className="space-y-1">
-                {data?.items?.map((item) => (
-                  <li
-                    key={item.key}
-                    className="relative flex gap-1 bg-slate-200/10 p-1 pr-5"
+    <div className="flex flex-col -mt-3 mb-5">
+      <NumberInput.Root
+        min={0}
+        max={60}
+        size={"md"}
+        defaultValue={node.data.interval ? String(node.data.interval) : "0"}
+        onBlur={(e) => {
+          updateNode(id, {
+            // @ts-expect-error
+            data: { ...node.data, interval: Number(e.target.value) },
+          });
+        }}
+      >
+        <div className="flex w-full justify-between px-2">
+          <div className="flex flex-col">
+            <NumberInput.Label fontWeight={"medium"}>
+              Segundos digitando...
+            </NumberInput.Label>
+            <span className="dark:text-white/70 text-black/50 font-light">
+              Pra enviar o menu de opções
+            </span>
+          </div>
+          <NumberInput.Input maxW={"43px"} />
+        </div>
+      </NumberInput.Root>
+      <div className="flex flex-col">
+        <div className="flex flex-col gap-y-1 py-3">
+          <Field label="Título">
+            <Input
+              onBlur={(e) => {
+                updateNode(id, {
+                  data: { ...node.data, header: e.target.value },
+                });
+              }}
+              autoComplete="off"
+              size={"xs"}
+              defaultValue={node.data.header ? String(node.data.header) : ""}
+            />
+          </Field>
+          <div className="my-1 flex flex-col gap-1">
+            <span className="text-white/70 text-center">
+              Menu de opções {node.data?.items?.length}/8
+            </span>
+            <ul className="space-y-3 mb-3">
+              {node.data?.items?.map((item, index) => (
+                <li
+                  key={item.key}
+                  className="relative flex w-full items-center pl-2 gap-1.5 min-w-full"
+                >
+                  <a
+                    className="absolute -top-2 -left-2"
+                    onClick={() => {
+                      const nextItems = node.data.items.filter((i) => {
+                        if (i.key !== item.key) return true;
+                        // delEdge(item.key);
+                        //  setEdges((edges) =>
+                        //    edges.filter(
+                        //      ({ source, sourceHandle }) =>
+                        //        !(
+                        //          source === id &&
+                        //          sourceHandle === i.key
+                        //        )
+                        //    )
+                        //  );
+                        return false;
+                      });
+                      const nextPreview = node.preview?.filter(
+                        (key) => key !== item.key
+                      );
+                      updateNode(id, {
+                        preview: nextPreview,
+                        data: { ...node.data, items: nextItems },
+                      });
+                    }}
                   >
-                    <button
-                      className="nodrag min-h-full cursor-pointer bg-red-500 duration-200 hover:bg-red-600"
-                      onClick={() => {
-                        setNodes((nodes) => {
-                          return nodes?.map((node) => {
-                            if (node.id === id) {
-                              const dataN: DataNode = node.data;
-                              const newItems = dataN.items
-                                .filter((i) => {
-                                  if (i.key !== item.key) return true;
-                                  setEdges((edges) =>
-                                    edges.filter(
-                                      ({ source, sourceHandle }) =>
-                                        !(
-                                          source === id &&
-                                          sourceHandle === i.key
-                                        )
-                                    )
-                                  );
-                                  return false;
-                                })
-                                .map((ni, indice) => {
-                                  ni.activators.shift();
-                                  const activator = String(indice + 1);
-                                  const newActivadors = [
-                                    { value: activator, key: nanoid() },
-                                    ...ni.activators,
-                                  ];
-                                  return { ...ni, activators: newActivadors };
-                                });
-
-                              node.data = {
-                                ...dataN,
-                                items: newItems,
-                              } as DataNode;
-                            }
-                            return node;
-                          });
+                    <IoIosCloseCircle
+                      size={20}
+                      className="text-red-500/40 hover:text-red-500/80 duration-200 cursor-pointer"
+                    />
+                  </a>
+                  <span className="font-semibold tracking-wide">
+                    {`[${index + 1}]`}
+                  </span>
+                  <Field>
+                    <Input
+                      onBlur={(e) => {
+                        node.data.items[index].value = e.target.value;
+                        updateNode(id, {
+                          data: { ...node.data, items: node.data.items },
                         });
                       }}
-                    >
-                      <IoMdClose />
-                    </button>
-                    <div>
-                      <div className="flex gap-x-1">
-                        <span className="font-semibold tracking-wide">
-                          {`[${item.activators[0].value}]`}
-                        </span>
-                        <input
-                          type="text"
-                          className="w-full border-none bg-transparent text-white outline-none placeholder:font-light placeholder:text-white"
-                          placeholder="Digite a opção"
-                          value={item.value ?? ""}
-                          onChange={({ target }) => {
-                            setNodes((nodes) => {
-                              return nodes?.map((node) => {
-                                if (node.id === id) {
-                                  const dataN: DataNode = node.data;
-                                  const newItems = dataN.items.map((it) => {
-                                    if (it.key === item.key) {
-                                      it.value = target.value;
-                                    }
-                                    return it;
-                                  });
-
-                                  node.data = {
-                                    ...dataN,
-                                    items: newItems,
-                                  } as DataNode;
-                                }
-                                return node;
-                              });
-                            });
-                          }}
-                        />
-                      </div>
-                      <div className="mt-1 flex flex-col gap-1">
-                        {item.activators.length > 1 ? (
-                          <div className="flex flex-col">
-                            <span className="font-semibold">Ativadores:</span>
-                            <div className="w-full">
-                              <span className="nodrag flex flex-wrap">
-                                {item.activators.map(
-                                  (act, indice) =>
-                                    indice > 0 && (
-                                      <span
-                                        key={act.key}
-                                        className="cursor-pointer px-1 duration-200 hover:bg-red-500"
-                                        onClick={() => {
-                                          setNodes((nodes) => {
-                                            return nodes?.map((node) => {
-                                              if (node.id === id) {
-                                                const dataN: DataNode =
-                                                  node.data;
-                                                const newItems =
-                                                  dataN.items.map((it) => {
-                                                    if (it.key === item.key) {
-                                                      const newActivator =
-                                                        it.activators.filter(
-                                                          (acti) =>
-                                                            acti.key !== act.key
-                                                        );
-                                                      it.activators =
-                                                        newActivator;
-                                                    }
-                                                    return it;
-                                                  });
-
-                                                node.data = {
-                                                  ...dataN,
-                                                  items: newItems,
-                                                } as DataNode;
-                                              }
-                                              return node;
-                                            });
-                                          });
-                                        }}
-                                      >
-                                        {act.value}
-                                      </span>
-                                    )
-                                )}
-                              </span>
-                            </div>
-                          </div>
-                        ) : undefined}
-                        <form
-                          onSubmit={(e) => {
-                            e.preventDefault();
-                            setNodes((nodes) => {
-                              return nodes?.map((node) => {
-                                if (node.id === id) {
-                                  const dataN: DataNode = node.data;
-                                  const newItems = dataN.items.map((it) => {
-                                    if (it.key === item.key) {
-                                      const isAlreadyExist = it.activators.some(
-                                        (acti) =>
-                                          acti.value ===
-                                          fieldsActivator[item.key]
-                                      );
-                                      if (!isAlreadyExist) {
-                                        it.activators.push({
-                                          key: nanoid(),
-                                          value: fieldsActivator[item.key],
-                                        });
-                                      } else {
-                                        alert(
-                                          `O ativador: ${fieldsActivator} já existe!`
-                                        );
-                                      }
-                                    }
-                                    return it;
-                                  });
-
-                                  node.data = {
-                                    ...dataN,
-                                    items: newItems,
-                                  } as DataNode;
-                                }
-                                return node;
-                              });
-                            });
-                            setFieldsActivator((state) => ({
-                              ...state,
-                              [item.key]: "",
-                            }));
-                          }}
-                          className="flex gap-1"
-                        >
-                          <Input
-                            focusBorderColor="#f6bb0b"
-                            borderColor={"#2d3b55"}
-                            size={"xs"}
-                            fontSize={10}
-                            placeholder="Adicionar ativador"
-                            onChange={({ target }) =>
-                              setFieldsActivator((fields) => ({
-                                ...fields,
-                                [item.key]: target.value,
-                              }))
-                            }
-                            value={fieldsActivator[item.key]}
-                          />
-                          <button className="nodrag min-h-full cursor-pointer bg-green-500 px-1 duration-200 hover:bg-green-400">
-                            <MdOutlineAdd size={15} />
-                          </button>
-                        </form>
-                      </div>
-                    </div>
-                    <CustomHandle
-                      handleId={item.key}
-                      nodeId={id}
-                      type="source"
-                      position={Position.Right}
-                      style={{ right: -30, top: "50%" }}
-                      isConnectable={isConnectable}
-                    />
-                  </li>
-                ))}
-              </ul>
-              <button
-                onClick={() => {
-                  setNodes((nodes) => {
-                    return nodes?.map((node) => {
-                      if (node.id === id) {
-                        const dataN: DataNode = node.data;
-                        const itemId = nanoid();
-                        const activator = String(
-                          (node.data?.items?.length ?? 0) + 1
-                        );
-
-                        const newItems = dataN.items?.length
-                          ? [
-                              ...dataN.items,
-                              {
-                                key: itemId,
-                                value: "",
-                                activators: [
-                                  { value: activator, key: nanoid() },
-                                ],
-                              },
-                            ]
-                          : [
-                              {
-                                key: itemId,
-                                value: "",
-                                activators: [
-                                  { value: activator, key: nanoid() },
-                                ],
-                              },
-                            ];
-
-                        node.data = {
-                          ...dataN,
-                          items: newItems,
-                        } as DataNode;
+                      bg={"#181818d6"}
+                      autoComplete="off"
+                      size={"xs"}
+                      placeholder="Digite o nome da opção"
+                      defaultValue={
+                        node.data.items[index].value
+                          ? String(node.data.items[index].value)
+                          : ""
                       }
-                      return node;
-                    });
+                    />
+                  </Field>
+                </li>
+              ))}
+            </ul>
+            {node.data?.items?.length < 8 && (
+              <Button
+                onClick={() => {
+                  const itemId = nanoid();
+
+                  const items = node.data?.items?.length
+                    ? [...node.data.items, { key: itemId, value: "" }]
+                    : [{ key: itemId, value: "" }];
+
+                  const pp = preview?.length ? [...preview, itemId] : [itemId];
+                  updateNode(id, {
+                    preview: pp,
+                    data: { ...node.data, items },
                   });
                 }}
-                className="flex items-center justify-between bg-green-800 p-2 duration-300 hover:bg-green-700 "
-              >
-                <span>Adicionar uma nova opção</span>
-                <IoMdAdd size={14} />
-              </button>
-            </div>
-            <label className="flex flex-col gap-1">
-              <span className="font-semibold text-white/80">Rodapé</span>
-              <Input
-                focusBorderColor="#f6bb0b"
-                borderColor={"#2d3b55"}
+                variant={"plain"}
+                colorPalette={"green"}
                 size={"xs"}
-                fontSize={10}
-                placeholder="Rodapé"
-                onChange={({ target }) =>
-                  setNodes((nodes) => {
-                    return nodes?.map((node) => {
-                      if (node.id === id) {
-                        const dataN: DataNode = node.data;
-                        node.data = {
-                          ...dataN,
-                          footer: target.value,
-                        } as DataNode;
-                      }
-                      return node;
-                    });
-                  })
-                }
-                value={data.footer ?? ""}
-              />
-            </label>
+              >
+                <span>Adicionar nova opção</span>
+                <IoMdAdd size={14} />
+              </Button>
+            )}
           </div>
-          <div className="space-y-3">
-            <div className="flex flex-col gap-y-1">
-              <span className="text-white/90">
-                Enviar mensagem de erro se a resposta estiver inválida
-              </span>
-              <div className="flex flex-col gap-y-2">
-                <div className="flex flex-col gap-y-2">
-                  <label className="flex items-center justify-between gap-2 rounded-lg border border-dashed border-slate-700 p-2 py-1">
-                    <span style={{ fontSize: 9 }}>Digitando...</span>
-                    <div className="flex items-center gap-2">
-                      <Input
-                        focusBorderColor="#f6bb0b"
-                        borderColor={"#354564"}
-                        size={"xs"}
-                        width={"14"}
-                        type="number"
-                        min={2}
-                        fontSize={10}
-                        title={`${
-                          data.validateReply?.messageErrorAttempts?.interval ??
-                          2
-                        } Segundos`}
-                        value={
-                          data.validateReply?.messageErrorAttempts?.interval ??
-                          "2"
-                        }
-                        onChange={({ target }) => {
-                          setNodes((nodes) =>
-                            nodes.map((node) => {
-                              const dataN: DataNode = node.data;
-                              if (node.id === id) {
-                                node.data = {
-                                  ...dataN,
-                                  validateReply: {
-                                    ...dataN.validateReply,
-                                    messageErrorAttempts: {
-                                      ...dataN.validateReply
-                                        ?.messageErrorAttempts,
-                                      interval:
-                                        Number(target.value) <= 1
-                                          ? 2
-                                          : Number(target.value),
-                                    },
-                                  },
-                                } as DataNode;
-                              }
-                              return node;
-                            })
-                          );
-                        }}
-                      />
-                      <AiOutlineFieldTime size={18} />
-                    </div>
-                  </label>
-                  <div className="grid h-full flex-1 items-center">
-                    <Textarea
-                      focusBorderColor="#f6bb0b"
-                      borderColor={"#1a2538"}
-                      padding={"2"}
-                      paddingLeft={2}
-                      resize={"none"}
-                      className="nodrag rounded-lg rounded-tl-none p-1 pr-4 leading-tight"
-                      style={{
-                        boxShadow: "0 1px 1px #0707071d",
-                        fontSize: 10,
-                        background: "#131a27",
-                      }}
-                      value={
-                        data.validateReply?.messageErrorAttempts?.value ?? ""
-                      }
-                      onChange={({ target }) => {
-                        setNodes((nodes) =>
-                          nodes.map((node) => {
-                            const dataN: DataNode = node.data;
-                            if (node.id === id) {
-                              node.data = {
-                                ...dataN,
-                                validateReply: {
-                                  ...dataN.validateReply,
-                                  messageErrorAttempts: {
-                                    ...dataN.validateReply
-                                      ?.messageErrorAttempts,
-                                    value: target.value,
-                                  },
-                                },
-                              } as DataNode;
-                            }
-                            return node;
-                          })
-                        );
-                      }}
-                      onInput={({ target }) => {
-                        //@ts-expect-error
-                        target.style.height = "auto";
-                        //@ts-expect-error
-                        target.style.height = target.scrollHeight + 2 + "px";
-                      }}
-                      placeholder="Digite a mensagem aqui"
-                    />
-                  </div>
-                </div>
-                <div className="flex flex-col gap-y-1">
-                  <div className="flex items-center justify-between gap-x-2">
-                    <span className="text-white/90">
-                      Quantidade de tentativas
+          <Field label="Rodapé">
+            <Input
+              onBlur={(e) => {
+                updateNode(id, {
+                  data: { ...node.data, footer: e.target.value },
+                });
+              }}
+              autoComplete="off"
+              size={"xs"}
+              defaultValue={node.data.footer ? String(node.data.footer) : ""}
+            />
+          </Field>
+        </div>
+        <div className="space-y-3.5 border-t border-white/10 pt-3">
+          <div className="flex flex-col gap-y-2">
+            <span className="font-medium text-center">
+              Mensagem de resposta inválida
+            </span>
+            <div className="flex flex-col gap-y-2">
+              <NumberInput.Root
+                min={0}
+                max={60}
+                size={"md"}
+                defaultValue={
+                  node.data.interval ? String(node.data.interval) : "0"
+                }
+                onBlur={(e) => {
+                  updateNode(id, {
+                    // @ts-expect-error
+                    data: { ...node.data, interval: Number(e.target.value) },
+                  });
+                }}
+              >
+                <div className="flex w-full gap-x-1 justify-between px-2">
+                  <div className="flex flex-col w-full">
+                    <NumberInput.Label fontWeight={"medium"}>
+                      Segundos digitando...
+                    </NumberInput.Label>
+                    <span className="dark:text-white/70 text-black/50 font-light">
+                      Pra enviar mensagem de erro
                     </span>
-                    <Input
-                      focusBorderColor="#f6bb0b"
-                      borderColor={"#354564"}
-                      size={"xs"}
-                      width={"16"}
-                      type="number"
-                      min={1}
-                      max={10}
-                      fontSize={10}
-                      title={`${data.validateReply?.attempts ?? 0} Tentativas`}
-                      value={data.validateReply?.attempts ?? "0"}
-                      onChange={({ target }) => {
-                        setNodes((nodes) =>
-                          nodes.map((node) => {
-                            const dataN: DataNode = node.data;
-                            if (node.id === id) {
-                              node.data = {
-                                ...dataN,
-                                validateReply: {
-                                  ...dataN.validateReply,
-                                  attempts: Number(target.value),
-                                },
-                              } as DataNode;
-                            }
-                            return node;
-                          })
-                        );
-                      }}
-                    />
                   </div>
-                  <div className="flex flex-col gap-y-2 bg-slate-800/50 pb-3">
-                    <i className="p-2 text-white/90">
-                      Após esgotar as tentativas envie uma mensagem e tome uma
-                      decisão
-                    </i>
-                    <div className="flex flex-col gap-y-2 px-2">
-                      <label className="flex items-center justify-between gap-2 rounded-lg border border-dashed border-slate-700 p-2 py-1">
-                        <span style={{ fontSize: 9 }}>Digitando...</span>
-                        <div className="flex items-center gap-2">
-                          <Input
-                            focusBorderColor="#f6bb0b"
-                            borderColor={"#354564"}
-                            size={"xs"}
-                            width={"14"}
-                            type="number"
-                            min={2}
-                            fontSize={10}
-                            title={`${
-                              data.validateReply?.failedAttempts?.interval ?? 2
-                            } Segundos`}
-                            value={
-                              data.validateReply?.failedAttempts?.interval ??
-                              "2"
-                            }
-                            onChange={({ target }) => {
-                              setNodes((nodes) =>
-                                nodes.map((node) => {
-                                  const dataN: DataNode = node.data;
-                                  if (node.id === id) {
-                                    node.data = {
-                                      ...dataN,
-                                      validateReply: {
-                                        ...dataN.validateReply,
-                                        failedAttempts: {
-                                          ...dataN.validateReply
-                                            ?.failedAttempts,
-                                          interval:
-                                            Number(target.value) <= 1
-                                              ? 2
-                                              : Number(target.value),
-                                        },
-                                      },
-                                    } as DataNode;
-                                  }
-                                  return node;
-                                })
-                              );
-                            }}
-                          />
-                          <AiOutlineFieldTime size={18} />
-                        </div>
-                      </label>
-                      <div className="grid h-full flex-1 items-center">
-                        <Textarea
-                          focusBorderColor="#f6bb0b"
-                          borderColor={"#1a2538"}
-                          padding={"2"}
-                          paddingLeft={2}
-                          resize={"none"}
-                          className="nodrag rounded-lg rounded-tl-none p-1 pr-4 leading-tight"
-                          style={{
-                            boxShadow: "0 1px 1px #0707071d",
-                            fontSize: 10,
-                            background: "#131a27",
-                          }}
-                          value={
-                            data.validateReply?.failedAttempts?.value ?? ""
-                          }
-                          onChange={({ target }) => {
-                            setNodes((nodes) =>
-                              nodes.map((node) => {
-                                const dataN: DataNode = node.data;
-                                if (node.id === id) {
-                                  node.data = {
-                                    ...dataN,
-                                    validateReply: {
-                                      ...dataN.validateReply,
-                                      failedAttempts: {
-                                        ...dataN.validateReply?.failedAttempts,
-                                        value: target.value,
-                                      },
-                                    },
-                                  } as DataNode;
-                                }
-                                return node;
-                              })
-                            );
-                          }}
-                          onInput={({ target }) => {
-                            //@ts-expect-error
-                            target.style.height = "auto";
-                            //@ts-expect-error
-                            target.style.height =
-                              //@ts-expect-error
-                              target.scrollHeight + 2 + "px";
-                          }}
-                          placeholder="Digite a mensagem aqui"
-                        />
-                      </div>
-                    </div>
-                    <RadioGroup>
-                      <div className="flex flex-col gap-y-2">
-                        <div className="flex flex-col gap-y-2 px-2">
-                          <label className="flex gap-x-2">
-                            <Radio
-                              size={"sm"}
-                              colorScheme="green"
-                              isChecked={
-                                data.validateReply?.failedAttempts?.action ===
-                                "SUBMIT_FLOW"
-                              }
-                              onChange={() => {
-                                setEdges((edges) =>
-                                  edges.filter(
-                                    ({ source, sourceHandle }) =>
-                                      !(
-                                        source === id &&
-                                        sourceHandle === "failedAttempts"
-                                      )
-                                  )
-                                );
-                                setNodes((nodes) =>
-                                  nodes.map((node) => {
-                                    const dataN: DataNode = node.data;
-                                    if (node.id === id) {
-                                      node.data = {
-                                        ...dataN,
-                                        validateReply: {
-                                          ...dataN.validateReply,
-                                          failedAttempts: {
-                                            ...dataN.validateReply
-                                              ?.failedAttempts,
-                                            action: "SUBMIT_FLOW",
-                                          },
-                                        },
-                                      } as DataNode;
-                                    }
-                                    return node;
-                                  })
-                                );
-                              }}
-                            />
-                            <span>Enviar fluxo</span>
-                          </label>
-                          {data.validateReply?.failedAttempts?.action ===
-                            "SUBMIT_FLOW" && (
-                            <div className="nodrag mt-0.5 px-2">
-                              <SelectComponent
-                                styles={{
-                                  valueContainer: {
-                                    paddingLeft: 9,
-                                  },
-                                  control: { minHeight: 20 },
-                                  indicatorsContainer: { padding: 5 },
-                                  dropdownIndicator: { padding: 3 },
-                                }}
-                                onChange={(propsV) =>
-                                  setNodes((nodes) =>
-                                    nodes.map((node) => {
-                                      const dataN: DataNode = node.data;
-                                      if (node.id === id) {
-                                        node.data = {
-                                          ...node.data,
-                                          validateReply: {
-                                            ...data.validateReply,
-                                            failedAttempts: {
-                                              ...dataN.validateReply
-                                                ?.failedAttempts,
-                                              submitflowId: string(
-                                                propsV.value
-                                              ),
-                                            },
-                                          },
-                                        } as DataNode;
-                                      }
-                                      return node;
-                                    })
-                                  )
-                                }
-                                value={
-                                  data?.validateReply?.failedAttempts
-                                    ?.submitFlowId
-                                    ? {
-                                        label:
-                                          options.flows.find(
-                                            (v) =>
-                                              Number(v.id) ===
-                                              data?.validateReply
-                                                ?.failedAttempts?.submitFlowId
-                                          )?.name ?? "",
-                                        value:
-                                          data?.validateReply?.failedAttempts
-                                            ?.submitFlowId,
-                                      }
-                                    : undefined
-                                }
-                                options={options.flows.map((f) => ({
-                                  label: f.name,
-                                  value: f.id,
-                                }))}
-                                isMulti={false}
-                                noOptionsMessage="Nenhum fluxo encontrado"
-                                placeholder="Selecione o fluxo"
-                              />
-                            </div>
-                          )}
-                        </div>
-                        <label className="relative cursor-pointer bg-orange-500/25 p-2">
-                          <div className="flex gap-x-2">
-                            <Radio
-                              size={"sm"}
-                              colorScheme="green"
-                              isChecked={
-                                data.validateReply?.failedAttempts?.action ===
-                                "FORK"
-                              }
-                              onChange={() => {
-                                setNodes((nodes) =>
-                                  nodes.map((node) => {
-                                    const dataN: DataNode = node.data;
-                                    if (node.id === id) {
-                                      node.data = {
-                                        ...dataN,
-                                        validateReply: {
-                                          ...dataN.validateReply,
-                                          failedAttempts: {
-                                            ...dataN.validateReply
-                                              ?.failedAttempts,
-                                            action: "FORK",
-                                          },
-                                        },
-                                      } as DataNode;
-                                    }
-                                    return node;
-                                  })
-                                );
-                              }}
-                            />
-                            <span>Caminho alternativo</span>
-                          </div>
-                          <CustomHandle
-                            handleId={"red failedAttempts"}
-                            nodeId={id}
-                            type="source"
-                            position={Position.Right}
-                            style={{ right: -29, background: "red" }}
-                            isConnectable={
-                              isConnectable
-                                ? data.validateReply?.failedAttempts?.action ===
-                                  "FORK"
-                                : false
-                            }
-                          />
-                        </label>
-                        <label className="flex gap-x-2 px-2">
-                          <Radio
-                            size={"sm"}
-                            colorScheme="green"
-                            isChecked={
-                              data.validateReply?.failedAttempts?.action ===
-                              "END_FLOW"
-                            }
-                            onChange={() => {
-                              setEdges((edges) =>
-                                edges.filter(
-                                  ({ source, sourceHandle }) =>
-                                    !(
-                                      source === id &&
-                                      sourceHandle === "failedAttempts"
-                                    )
-                                )
-                              );
-                              setNodes((nodes) =>
-                                nodes.map((node) => {
-                                  const dataN: DataNode = node.data;
-                                  if (node.id === id) {
-                                    node.data = {
-                                      ...dataN,
-                                      validateReply: {
-                                        ...dataN.validateReply,
-                                        failedAttempts: {
-                                          ...dataN.validateReply
-                                            ?.failedAttempts,
-                                          action: "END_FLOW",
-                                        },
-                                      },
-                                    } as DataNode;
-                                  }
-                                  return node;
-                                })
-                              );
-                            }}
-                          />
-                          <span>Encerrar o fluxo</span>
-                        </label>
-                      </div>
-                    </RadioGroup>
-                  </div>
+                  <NumberInput.Input maxW={"43px"} />
                 </div>
-              </div>
+              </NumberInput.Root>
+              <AutocompleteTextField
+                // @ts-expect-error
+                trigger={["{{"]}
+                options={{ "{{": variables.map((s) => s.name) }}
+                spacer={"}} "}
+                placeholder="Digite sua mensagem aqui"
+                // defaultValue={msg.text}
+                // @ts-expect-error
+                onBlur={({ target }) => {
+                  // const nextMessages = data.messages!.map((m) => {
+                  //   if (m.key === msg.key) m.text = target.value;
+                  //   return m;
+                  // });
+                  // updateNode(id, { data: { messages: nextMessages } });
+                }}
+              />
             </div>
-            <div className="border-t border-white/20"></div>
-            <div className="flex flex-col gap-y-2 bg-slate-800/50 pb-3">
-              <i className="p-2 text-white/90">
-                Se não houver resposta após um certo período, envie uma mensagem
-                e tome uma decisão
-              </i>
-              <div className="flex flex-col gap-y-2 px-2">
-                <div className="flex w-full justify-between gap-1">
-                  <label className="flex w-full flex-col gap-0.5">
-                    <span style={{ fontSize: 9 }}>Tipo</span>
-                    <div className="nodrag flex w-full items-center gap-2">
-                      <SelectComponent
-                        styles={{
-                          valueContainer: {
-                            paddingLeft: 9,
-                          },
-                          control: { minHeight: 20 },
-                          indicatorsContainer: { padding: 5 },
-                          dropdownIndicator: { padding: 3 },
-                        }}
-                        onChange={(propsV) =>
-                          setNodes((nodes) =>
-                            nodes.map((node) => {
-                              const dataN: DataNode = node.data;
-                              if (node.id === id) {
-                                node.data = {
-                                  ...dataN,
-                                  validateReply: {
-                                    ...dataN.validateReply,
-                                    timeOut: {
-                                      ...dataN.validateReply?.timeOut,
-                                      type: propsV.value,
-                                    },
-                                  },
-                                } as DataNode;
-                              }
-                              return node;
-                            })
-                          )
-                        }
-                        value={
-                          data?.validateReply?.timeOut?.type
-                            ? {
-                                label:
-                                  optionsValidateTime.find(
-                                    (v) =>
-                                      v.value ===
-                                      data?.validateReply?.timeOut?.type
-                                  )?.label ?? "",
-                                value: data?.validateReply?.timeOut?.type,
-                              }
-                            : undefined
-                        }
-                        options={optionsValidateTime}
-                        isMulti={false}
-                        noOptionsMessage="Nenhum tipo encontrado"
-                        placeholder="Selecione*"
-                      />
-                    </div>
-                  </label>
-                  <label className="flex flex-col gap-0.5">
-                    <span style={{ fontSize: 9 }}>Quantidade</span>
-                    <div className="flex items-center gap-2">
-                      <Input
-                        focusBorderColor="#f6bb0b"
-                        borderColor={"#354564"}
-                        size={"sm"}
-                        type="number"
-                        min={1}
-                        style={{
-                          height: 38,
-                          width: 70,
-                        }}
-                        fontSize={10}
-                        title={`${
-                          data.validateReply?.timeOut?.value ?? 1
-                        } Segundos`}
-                        value={data.validateReply?.timeOut?.value ?? "1"}
-                        onChange={({ target }) => {
-                          setNodes((nodes) =>
-                            nodes.map((node) => {
-                              const dataN: DataNode = node.data;
-                              if (node.id === id) {
-                                node.data = {
-                                  ...dataN,
-                                  validateReply: {
-                                    ...dataN.validateReply,
-                                    timeOut: {
-                                      ...dataN.validateReply?.timeOut,
-                                      value: Number(target.value),
-                                    },
-                                  },
-                                } as DataNode;
-                              }
-                              return node;
-                            })
-                          );
-                        }}
-                      />
-                    </div>
-                  </label>
-                </div>
-                <label className="flex items-center justify-between gap-2 rounded-lg border border-dashed border-slate-700 p-2 py-1">
-                  <span style={{ fontSize: 9 }}>Digitando...</span>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      focusBorderColor="#f6bb0b"
-                      borderColor={"#354564"}
-                      size={"xs"}
-                      width={"14"}
-                      type="number"
-                      min={2}
-                      fontSize={10}
-                      title={`${
-                        data.validateReply?.timeOut?.action?.interval ?? 2
-                      } Segundos`}
-                      value={
-                        data.validateReply?.timeOut?.action?.interval ?? "2"
-                      }
-                      onChange={({ target }) => {
-                        setNodes((nodes) =>
-                          nodes.map((node) => {
-                            const dataN: DataNode = node.data;
-                            if (node.id === id) {
-                              node.data = {
-                                ...dataN,
-                                validateReply: {
-                                  ...dataN.validateReply,
-                                  timeOut: {
-                                    ...dataN.validateReply?.timeOut,
-                                    action: {
-                                      ...dataN.validateReply?.timeOut?.action,
-                                      interval:
-                                        Number(target.value) <= 1
-                                          ? 2
-                                          : Number(target.value),
-                                    },
-                                  },
-                                },
-                              } as DataNode;
-                            }
-                            return node;
-                          })
-                        );
-                      }}
-                    />
-                    <AiOutlineFieldTime size={18} />
-                  </div>
-                </label>
-                <div className="grid h-full flex-1 items-center">
-                  <Textarea
-                    focusBorderColor="#f6bb0b"
-                    borderColor={"#1a2538"}
-                    padding={"2"}
-                    paddingLeft={2}
-                    resize={"none"}
-                    className="nodrag rounded-lg rounded-tl-none p-1 pr-4 leading-tight"
-                    style={{
-                      boxShadow: "0 1px 1px #0707071d",
-                      fontSize: 10,
-                      background: "#131a27",
-                    }}
-                    value={data.validateReply?.timeOut?.action?.value ?? ""}
-                    onChange={({ target }) => {
-                      setNodes((nodes) =>
-                        nodes.map((node) => {
-                          const dataN: DataNode = node.data;
-                          if (node.id === id) {
-                            node.data = {
-                              ...dataN,
-                              validateReply: {
-                                ...dataN.validateReply,
-                                timeOut: {
-                                  ...dataN.validateReply?.timeOut,
-                                  action: {
-                                    ...dataN.validateReply?.timeOut?.action,
-                                    value: target.value,
-                                  },
-                                },
-                              },
-                            } as DataNode;
-                          }
-                          return node;
-                        })
-                      );
-                    }}
-                    onInput={({ target }) => {
-                      //@ts-expect-error
-                      target.style.height = "auto";
-                      //@ts-expect-error
-                      target.style.height =
-                        //@ts-expect-error
-                        target.scrollHeight + 2 + "px";
-                    }}
-                    placeholder="Digite a mensagem aqui"
-                  />
-                </div>
+          </div>
+          <div className="border-t border-white/10"></div>
+          <NumberInput.Root
+            min={0}
+            max={60}
+            size={"md"}
+            defaultValue={node.data.interval ? String(node.data.interval) : "0"}
+            onBlur={(e) => {
+              updateNode(id, {
+                // @ts-expect-error
+                data: { ...node.data, interval: Number(e.target.value) },
+              });
+            }}
+          >
+            <div className="flex w-full gap-x-1 justify-between px-2">
+              <div className="flex flex-col w-full">
+                <NumberInput.Label fontWeight={"medium"}>
+                  Quantidade de tentativas
+                </NumberInput.Label>
+                <span className="dark:text-white/70 flex items-center gap-x-1.5 tracking-tight text-black/50 font-light">
+                  Para sair no próximo passo{" "}
+                  <IoReloadOutline size={14} className="text-orange-400" />
+                </span>
               </div>
-              <RadioGroup>
-                <div className="flex flex-col gap-y-2">
-                  <div className="flex flex-col gap-y-2 px-2">
-                    <label className="flex gap-x-2">
-                      <Radio
-                        size={"sm"}
-                        colorScheme="green"
-                        isChecked={
-                          data.validateReply?.timeOut?.action?.run ===
-                          "SUBMIT_FLOW"
-                        }
-                        onChange={() => {
-                          setEdges((edges) =>
-                            edges.filter(
-                              ({ source, sourceHandle }) =>
-                                !(source === id && sourceHandle === "timeOut")
-                            )
-                          );
-                          setNodes((nodes) =>
-                            nodes.map((node) => {
-                              const dataN: DataNode = node.data;
-                              if (node.id === id) {
-                                node.data = {
-                                  ...dataN,
-                                  validateReply: {
-                                    ...dataN.validateReply,
-                                    timeOut: {
-                                      ...dataN.validateReply?.timeOut,
-                                      action: {
-                                        ...dataN.validateReply?.timeOut?.action,
-                                        run: "SUBMIT_FLOW",
-                                      },
-                                    },
-                                  },
-                                } as DataNode;
-                              }
-                              return node;
-                            })
-                          );
-                        }}
-                      />
-                      <span>Enviar fluxo</span>
-                    </label>
-                    {data.validateReply?.timeOut?.action?.run ===
-                      "SUBMIT_FLOW" && (
-                      <div className="nodrag mt-0.5 px-2">
-                        <SelectComponent
-                          styles={{
-                            valueContainer: {
-                              paddingLeft: 9,
-                            },
-                            control: { minHeight: 20 },
-                            indicatorsContainer: { padding: 5 },
-                            dropdownIndicator: { padding: 3 },
-                          }}
-                          onChange={(propsV) => {
-                            setNodes((nodes) =>
-                              nodes.map((node) => {
-                                const dataN: DataNode = node.data;
-                                if (node.id === id) {
-                                  node.data = {
-                                    ...node.data,
-                                    validateReply: {
-                                      ...data.validateReply,
-                                      timeOut: {
-                                        ...dataN.validateReply?.timeOut,
-                                        action: {
-                                          ...dataN.validateReply?.timeOut
-                                            ?.action,
-                                          submitflowId: string(propsV.value),
-                                        },
-                                      },
-                                    },
-                                  } as DataNode;
-                                }
-                                return node;
-                              })
-                            );
-                          }}
-                          value={
-                            data?.validateReply?.timeOut?.action?.submitFlowId
-                              ? {
-                                  label:
-                                    options.flows.find(
-                                      (v) =>
-                                        Number(v.id) ===
-                                        data?.validateReply?.timeOut?.action
-                                          ?.submitFlowId
-                                    )?.name ?? "",
-                                  value:
-                                    data?.validateReply?.timeOut?.action
-                                      ?.submitFlowId,
-                                }
-                              : undefined
-                          }
-                          options={options.flows.map((f) => ({
-                            label: f.name,
-                            value: f.id,
-                          }))}
-                          isMulti={false}
-                          noOptionsMessage="Nenhum fluxo encontrado"
-                          placeholder="Selecione o fluxo"
-                        />
-                      </div>
-                    )}
-                  </div>
-                  <label className="relative cursor-pointer bg-orange-500/25 p-2">
-                    <div className="flex gap-x-2">
-                      <Radio
-                        size={"sm"}
-                        colorScheme="green"
-                        isChecked={
-                          data.validateReply?.timeOut?.action?.run === "FORK"
-                        }
-                        onChange={() => {
-                          setNodes((nodes) =>
-                            nodes.map((node) => {
-                              const dataN: DataNode = node.data;
-                              if (node.id === id) {
-                                node.data = {
-                                  ...dataN,
-                                  validateReply: {
-                                    ...dataN.validateReply,
-                                    timeOut: {
-                                      ...dataN.validateReply?.timeOut,
-                                      action: {
-                                        ...dataN.validateReply?.timeOut?.action,
-                                        run: "FORK",
-                                      },
-                                    },
-                                  },
-                                } as DataNode;
-                              }
-                              return node;
-                            })
-                          );
-                        }}
-                      />
-                      <span>Caminho alternativo</span>
-                    </div>
-                    <CustomHandle
-                      handleId={"red timeOut"}
-                      nodeId={id}
-                      type="source"
-                      position={Position.Right}
-                      style={{ right: -29, background: "red" }}
-                      isConnectable={
-                        isConnectable
-                          ? data.validateReply?.timeOut?.action?.run === "FORK"
-                          : false
-                      }
-                    />
-                  </label>
-                  <label className="flex gap-x-2 px-2">
-                    <Radio
-                      size={"sm"}
-                      colorScheme="green"
-                      isChecked={
-                        data.validateReply?.timeOut?.action?.run === "END_FLOW"
-                      }
-                      onChange={() => {
-                        setEdges((edges) =>
-                          edges.filter(
-                            ({ source, sourceHandle }) =>
-                              !(source === id && sourceHandle === "timeOut")
-                          )
-                        );
-                        setNodes((nodes) =>
-                          nodes.map((node) => {
-                            const dataN: DataNode = node.data;
-                            if (node.id === id) {
-                              node.data = {
-                                ...dataN,
-                                validateReply: {
-                                  ...dataN.validateReply,
-                                  timeOut: {
-                                    ...dataN.validateReply?.timeOut,
-                                    action: {
-                                      ...dataN.validateReply?.timeOut?.action,
-                                      run: "END_FLOW",
-                                    },
-                                  },
-                                },
-                              } as DataNode;
-                            }
-                            return node;
-                          })
-                        );
-                      }}
-                    />
-                    <span>Encerrar o fluxo</span>
-                  </label>
-                </div>
-              </RadioGroup>
+              <NumberInput.Input maxW={"43px"} />
             </div>
+          </NumberInput.Root>
+
+          <div className="grid grid-cols-[1fr_43px_75px] gap-x-1 px-2 w-full justify-between">
+            <div className="flex flex-col">
+              <span className="font-medium">Tempo máximo</span>
+              <span className="dark:text-white/70 flex items-center gap-x-1.5 tracking-tight text-black/50 font-light">
+                Para sair no
+                <RxLapTimer size={15} className="text-red-400" />
+              </span>
+            </div>
+            <NumberInput.Root
+              min={0}
+              max={60}
+              size={"md"}
+              // value={
+              //   node.data.timeout?.value ? String(node.data.timeout.value) : "0"
+              // }
+              defaultValue="0"
+            >
+              <NumberInput.Input
+                // style={{
+                //   borderColor: node.data.timeout?.value ? "transparent" : "",
+                // }}
+                maxW={"43px"}
+                onBlur={({ target }) => {
+                  updateNode(id, {
+                    data: {
+                      ...node.data,
+                      // timeout: {
+                      //   ...node.data.timeout,
+                      //   value: Number(target.value),
+                      // },
+                    },
+                  });
+                }}
+              />
+            </NumberInput.Root>
+            <SelectRoot
+              // @ts-expect-error
+              value={node.data.timeout?.type}
+              onValueChange={(e) => {
+                updateNode(id, {
+                  data: {
+                    ...node.data,
+                    // timeout: { ...node.data.timeout, type: e.value },
+                  },
+                });
+              }}
+              collection={timesList}
+            >
+              <SelectTrigger>
+                <SelectValueText placeholder="Tipo" />
+              </SelectTrigger>
+              <SelectContent>
+                {timesList.items.map((time) => (
+                  <SelectItem item={time} key={time.value}>
+                    <Stack gap="0">
+                      <SelectItemText>{time.label}</SelectItemText>
+                      <Span color="fg.muted" textStyle="xs">
+                        {time.description}
+                      </Span>
+                    </Stack>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </SelectRoot>
           </div>
         </div>
-
-        {/* <div className="fixed pointer-events-none rounded-sm left-1/2 -translate-x-1/2 -bottom-4 bg-white/5 text-white/60 px-1">
-          <span className="tracking-widest" style={{ fontSize: 7 }}>
-            {id}
-          </span>
-        </div> */}
-
-        <Handle
-          type="target"
-          isConnectable={
-            isConnectable ? startConnection?.id !== id : isConnectable
-          }
-          position={Position.Left}
-          style={{ top: "30%", left: -15 }}
-        />
-
-        <PatternNode.Actions id={id} />
       </div>
-    </PatternNode.PatternContainer>
+    </div>
+  );
+}
+
+export const NodeMenu: React.FC<Node<DataNode>> = ({ id }) => {
+  const getNodePreview = useStore((s) => s.getNodePreview);
+  const preview = getNodePreview(id);
+  const colorTimeout = useColorModeValue("#F94A65", "#B1474A");
+  const colorFailed = useColorModeValue("#ee9e42", "#a55d29");
+
+  return (
+    <div>
+      <PatternNode.PatternPopover
+        title="Node menu"
+        description="Envie um menu de opções"
+        positioning={{ flip: ["left", "right"], placement: "left" }}
+        node={{
+          children: (
+            <div
+              style={{
+                height:
+                  preview.length >= 2 ? 14 * preview.length + 50 - 35 : 35,
+              }}
+              className="p-0.5 relative flex items-center"
+            >
+              <div className="flex justify-end absolute -top-1 -right-1 opacity-10 group-hover:opacity-100 duration-200">
+                <PatternNode.Actions id={id} />
+              </div>
+              <LiaListSolid
+                className="dark:text-purple-400 text-purple-700"
+                size={31}
+              />
+            </div>
+          ),
+          name: "Menu",
+          description: "Envia",
+        }}
+      >
+        <BodyNode id={id} />
+      </PatternNode.PatternPopover>
+
+      <Handle type="target" position={Position.Left} style={{ left: -8 }} />
+
+      {preview?.map((id: any, index: number) => (
+        <Handle
+          id={`${id}.${index}`}
+          key={id}
+          type="source"
+          position={Position.Right}
+          style={{ right: -20, top: 14 * index + 6 }}
+          className="relative"
+        >
+          <span
+            style={{ fontSize: 9, top: -3, left: -13.8 }}
+            className="absolute cursor-default text-white/50 -left-[13px] font-medium"
+          >
+            {`[${index + 1}]`}
+          </span>
+        </Handle>
+      ))}
+
+      <Handle
+        type="source"
+        position={Position.Right}
+        style={{ right: -20, bottom: 10, top: "initial" }}
+        className="relative dark:text-orange-400 text-orange-500 dark:!border-orange-400/60 dark:!bg-orange-400/15 !border-orange-500/70 !bg-orange-500/15"
+        title="Tentativa de resposta"
+        id={`${colorFailed} failed`}
+      >
+        <IoReloadOutline
+          size={11}
+          style={{ left: -14, top: -1, position: "absolute" }}
+        />
+      </Handle>
+
+      <Handle
+        type="source"
+        position={Position.Right}
+        style={{ right: -20, bottom: -3, top: "initial" }}
+        className="relative dark:text-red-400 text-red-500 dark:!border-red-400/60 dark:!bg-red-400/15 !border-red-500/70 !bg-red-500/15"
+        title="Tempo esgotado"
+        id={`${colorTimeout} timeout`}
+      >
+        <RxLapTimer
+          size={11}
+          style={{ left: -14, top: -1, position: "absolute" }}
+        />
+      </Handle>
+    </div>
   );
 };

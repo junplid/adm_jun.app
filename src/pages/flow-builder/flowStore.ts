@@ -123,12 +123,22 @@ const useStore = create<AppState>((set, get) => ({
     });
   },
   setEdges: (edges) => {
-    set({ edges });
+    set({
+      edges: edges.map((s) => ({
+        ...s,
+        style: {
+          stroke: s.sourceHandle?.split(/\s/)[0] ?? "#7E7D7D",
+          strokeWidth: 2,
+        },
+        type: "customedge",
+      })),
+    });
   },
   updateNode: (nodeId: string, node: AppNode) => {
     get().setChange("nodes", { type: "upset", id: nodeId });
     const { data, ...rest } = node;
-    db.nodes.update(nodeId, { data: { ...data } });
+    console.log(rest);
+    db.nodes.update(nodeId, { data });
     set({
       nodes: get().nodes.map((nodeX) => {
         if (nodeX.id === nodeId) {
@@ -156,6 +166,14 @@ const useStore = create<AppState>((set, get) => ({
       nodes: get().nodes.filter((s) => s.id !== id),
       edges: get().edges.filter((s) => !edgesIds.includes(s.id)),
     });
+  },
+  getNodePreview: (id: string) => {
+    const node = get().nodes.find((s) => s.id === id);
+    return node?.preview;
+  },
+  delEdge: (id: string) => {
+    get().setChange("edges", { type: "delete", id });
+    set({ edges: get().edges.filter((s) => s.id !== id) });
   },
   // addNode: (node: Omit<AppNode, "id">) => {
   //   const newNode = { ...node, id: nanoid() };

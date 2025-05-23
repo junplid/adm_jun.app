@@ -7,7 +7,7 @@ import {
   getConnectedEdges,
   useReactFlow,
   useStore,
-} from "reactflow";
+} from "@xyflow/react";
 
 interface PropsConnectableFn {
   nodeId: string;

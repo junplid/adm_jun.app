@@ -49,6 +49,7 @@ import CustomEdge from "./customs/edge";
 import { FlowType, getOptionsFlows } from "../../services/api/Flow";
 import { getOptionsTags } from "../../services/api/Tag";
 import { NodeTimer } from "./nodes/Timer";
+import { NodeMenu } from "./nodes/Menu";
 
 type NodeTypesGeneric = {
   [x in TypesNodes]: any;
@@ -64,6 +65,7 @@ export type TypesNodes =
   | "NodeIF"
   | "NodeSendFlow"
   | "NodeTimer"
+  | "NodeMenu"
   | "NodeRemoveTags";
 
 const edgeTypes = {
@@ -142,6 +144,7 @@ function Body(props: IBody): JSX.Element {
         data: {},
         position: n.position,
         deletable: n.deletable,
+        preview: n.preview,
       }))
     );
 
@@ -222,12 +225,13 @@ function Body(props: IBody): JSX.Element {
             if (n.type === "delete") {
               return { type: n.type, node: { id: n.id } };
             }
-            const { position, type, deletable } = nodes.find(
+            const { position, type, deletable, preview } = nodes.find(
               (node) => node.id === n.id
             )!;
             return {
               type: n.type,
               node: {
+                preview,
                 position,
                 type,
                 id: n.id,
@@ -286,6 +290,7 @@ function Body(props: IBody): JSX.Element {
       NodeRemoveVariables: NodeRemoveVariables,
       NodeIF: NodeIF,
       NodeSendFlow: NodeSendFlow,
+      NodeMenu: NodeMenu,
     }),
     []
   );
