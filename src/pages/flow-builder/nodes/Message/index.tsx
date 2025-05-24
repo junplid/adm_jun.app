@@ -88,6 +88,7 @@ function BodyNode({ id }: { id: string }): JSX.Element {
               trigger={["{{"]}
               options={{ "{{": variables.map((s) => s.name) }}
               spacer={"}} "}
+              type="textarea"
               placeholder="Digite sua mensagem aqui"
               defaultValue={msg.text}
               // @ts-expect-error

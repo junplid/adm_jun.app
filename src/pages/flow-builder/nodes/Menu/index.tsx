@@ -8,11 +8,11 @@ import {
 } from "@chakra-ui/react";
 import { JSX } from "react";
 import { IoIosCloseCircle, IoMdAdd } from "react-icons/io";
-import { Handle, Node, Position } from "@xyflow/react";
+import { Handle, useUpdateNodeInternals, Node, Position } from "@xyflow/react";
 import { nanoid } from "nanoid";
 import { PatternNode } from "../Pattern";
 import { LiaListSolid } from "react-icons/lia";
-import { useDBNodes, useFlows, useVariables } from "../../../../db";
+import { useDBNodes, useVariables } from "../../../../db";
 import useStore from "../../flowStore";
 import { Field } from "@components/ui/field";
 import { RxLapTimer } from "react-icons/rx";
@@ -30,26 +30,10 @@ import {
 
 const timesList = createListCollection({
   items: [
-    {
-      label: "Seg",
-      value: "seconds",
-      description: "Segundos",
-    },
-    {
-      label: "Min",
-      value: "minutes",
-      description: "Minutos",
-    },
-    {
-      label: "Hor",
-      value: "hours",
-      description: "Horas",
-    },
-    {
-      label: "Dia",
-      value: "days",
-      description: "Dias",
-    },
+    { label: "Seg", value: "seconds", description: "Segundos" },
+    { label: "Min", value: "minutes", description: "Minutos" },
+    { label: "Hor", value: "hours", description: "Horas" },
+    { label: "Dia", value: "days", description: "Dias" },
   ],
 });
 
@@ -61,16 +45,16 @@ type DataNode = {
   validateReply?: {
     attempts: number;
     messageErrorAttempts?: { interval?: number; value?: string };
-    timeout?: {
-      type: "seconds" | "minutes" | "hours" | "days";
-      value: number;
-    };
+  };
+  timeout?: {
+    type: ("seconds" | "minutes" | "hours" | "days")[];
+    value: number;
   };
 };
 
 function BodyNode({ id }: { id: string }): JSX.Element {
+  const updateNodeInternals = useUpdateNodeInternals();
   const nodes = useDBNodes();
-  const flows = useFlows();
   const variables = useVariables();
   const { updateNode, delEdge } = useStore((s) => ({
     updateNode: s.updateNode,
@@ -83,9 +67,7 @@ function BodyNode({ id }: { id: string }): JSX.Element {
   const getNodePreview = useStore((s) => s.getNodePreview);
   const preview = getNodePreview(id);
 
-  if (!node) {
-    return <span>Não encontrado</span>;
-  }
+  if (!node) return <span>Não encontrado</span>;
 
   return (
     <div className="flex flex-col -mt-3 mb-5">
@@ -140,27 +122,18 @@ function BodyNode({ id }: { id: string }): JSX.Element {
                   <a
                     className="absolute -top-2 -left-2"
                     onClick={() => {
-                      const nextItems = node.data.items.filter((i) => {
-                        if (i.key !== item.key) return true;
-                        // delEdge(item.key);
-                        //  setEdges((edges) =>
-                        //    edges.filter(
-                        //      ({ source, sourceHandle }) =>
-                        //        !(
-                        //          source === id &&
-                        //          sourceHandle === i.key
-                        //        )
-                        //    )
-                        //  );
-                        return false;
-                      });
-                      const nextPreview = node.preview?.filter(
-                        (key) => key !== item.key
+                      delEdge(item.key);
+                      const nextItems = node.data.items.filter(
+                        (i) => i.key !== item.key
+                      );
+                      const nextPreview = preview?.filter(
+                        (key: string) => key !== item.key
                       );
                       updateNode(id, {
                         preview: nextPreview,
                         data: { ...node.data, items: nextItems },
                       });
+                      updateNodeInternals(id);
                     }}
                   >
                     <IoIosCloseCircle
@@ -207,6 +180,7 @@ function BodyNode({ id }: { id: string }): JSX.Element {
                     preview: pp,
                     data: { ...node.data, items },
                   });
+                  updateNodeInternals(id);
                 }}
                 variant={"plain"}
                 colorPalette={"green"}
@@ -265,17 +239,27 @@ function BodyNode({ id }: { id: string }): JSX.Element {
               <AutocompleteTextField
                 // @ts-expect-error
                 trigger={["{{"]}
+                type="textarea"
                 options={{ "{{": variables.map((s) => s.name) }}
                 spacer={"}} "}
-                placeholder="Digite sua mensagem aqui"
-                // defaultValue={msg.text}
+                placeholder="Digite sua {{mensagem}} aqui"
+                defaultValue={
+                  node.data.validateReply?.messageErrorAttempts?.value || ""
+                }
                 // @ts-expect-error
                 onBlur={({ target }) => {
-                  // const nextMessages = data.messages!.map((m) => {
-                  //   if (m.key === msg.key) m.text = target.value;
-                  //   return m;
-                  // });
-                  // updateNode(id, { data: { messages: nextMessages } });
+                  updateNode(id, {
+                    data: {
+                      ...node.data,
+                      validateReply: {
+                        ...node.data.validateReply,
+                        messageErrorAttempts: {
+                          ...node.data.validateReply?.messageErrorAttempts,
+                          value: target.value,
+                        },
+                      },
+                    },
+                  });
                 }}
               />
             </div>
@@ -319,37 +303,36 @@ function BodyNode({ id }: { id: string }): JSX.Element {
               min={0}
               max={60}
               size={"md"}
-              // value={
-              //   node.data.timeout?.value ? String(node.data.timeout.value) : "0"
-              // }
+              value={
+                node.data.timeout?.value ? String(node.data.timeout.value) : "0"
+              }
               defaultValue="0"
             >
               <NumberInput.Input
-                // style={{
-                //   borderColor: node.data.timeout?.value ? "transparent" : "",
-                // }}
+                style={{
+                  borderColor: node.data.timeout?.value ? "transparent" : "",
+                }}
                 maxW={"43px"}
                 onBlur={({ target }) => {
                   updateNode(id, {
                     data: {
                       ...node.data,
-                      // timeout: {
-                      //   ...node.data.timeout,
-                      //   value: Number(target.value),
-                      // },
+                      timeout: {
+                        ...node.data.timeout,
+                        value: Number(target.value),
+                      },
                     },
                   });
                 }}
               />
             </NumberInput.Root>
             <SelectRoot
-              // @ts-expect-error
               value={node.data.timeout?.type}
               onValueChange={(e) => {
                 updateNode(id, {
                   data: {
                     ...node.data,
-                    // timeout: { ...node.data.timeout, type: e.value },
+                    timeout: { ...node.data.timeout, type: e.value },
                   },
                 });
               }}
@@ -395,7 +378,7 @@ export const NodeMenu: React.FC<Node<DataNode>> = ({ id }) => {
             <div
               style={{
                 height:
-                  preview.length >= 2 ? 14 * preview.length + 50 - 35 : 35,
+                  preview?.length >= 2 ? 14 * preview?.length + 50 - 35 : 35,
               }}
               className="p-0.5 relative flex items-center"
             >
@@ -419,7 +402,7 @@ export const NodeMenu: React.FC<Node<DataNode>> = ({ id }) => {
 
       {preview?.map((id: any, index: number) => (
         <Handle
-          id={`${id}.${index}`}
+          id={id}
           key={id}
           type="source"
           position={Position.Right}

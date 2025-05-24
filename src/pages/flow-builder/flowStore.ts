@@ -87,6 +87,7 @@ const useStore = create<AppState>((set, get) => ({
       edges: addEdge(
         {
           ...connection,
+          id: connection.sourceHandle || undefined,
           type: "customedge",
           style: {
             stroke: isColor
@@ -137,7 +138,6 @@ const useStore = create<AppState>((set, get) => ({
   updateNode: (nodeId: string, node: AppNode) => {
     get().setChange("nodes", { type: "upset", id: nodeId });
     const { data, ...rest } = node;
-    console.log(rest);
     db.nodes.update(nodeId, { data });
     set({
       nodes: get().nodes.map((nodeX) => {
@@ -173,7 +173,7 @@ const useStore = create<AppState>((set, get) => ({
   },
   delEdge: (id: string) => {
     get().setChange("edges", { type: "delete", id });
-    set({ edges: get().edges.filter((s) => s.id !== id) });
+    set({ edges: get().edges.filter((s) => s.sourceHandle !== id) });
   },
   // addNode: (node: Omit<AppNode, "id">) => {
   //   const newNode = { ...node, id: nanoid() };

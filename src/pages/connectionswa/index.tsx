@@ -38,7 +38,7 @@ export interface ConnectionWARow {
   status: "open" | "close" | "connecting" | "sync";
 }
 
-const MotionIcon = motion(MdOutlineSync);
+const MotionIcon = motion.create(MdOutlineSync);
 
 // const translateType: {
 //   [x in TypeConnectionWA]: { label: string; cb: string; ct: string };
@@ -225,6 +225,8 @@ export const ConnectionsWAPage: React.FC = (): JSX.Element => {
               return oldData.map((conn: any) => {
                 if (conn.id === data.connectionId) {
                   if (data.connection === "connectionLost") {
+                    conn = { ...conn, status: "close" };
+                  } else if (data.connection === "connecting") {
                     conn = { ...conn, status: "close" };
                   } else {
                     conn = { ...conn, status: data.connection };

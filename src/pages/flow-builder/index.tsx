@@ -274,7 +274,6 @@ function Body(props: IBody): JSX.Element {
   }, [changes]);
 
   const isSave = useMemo(() => {
-    console.log(changes.nodes.length, changes.edges.length);
     return !!(changes.nodes.length || changes.edges.length);
   }, [changes.edges, changes.nodes]);
 
@@ -335,6 +334,17 @@ function Body(props: IBody): JSX.Element {
         };
       } else if (typeN === "NodeTimer") {
         newNode.data = { value: 20, type: ["seconds"] };
+      } else if (typeN === "NodeMenu") {
+        newNode.data = {
+          interval: 5,
+          items: [],
+          validateReply: {
+            attempts: 2,
+            messageErrorAttempts: { interval: 3 },
+          },
+          timeout: { type: ["minutes"], value: 20 },
+        };
+        newNode.preview = [];
       }
 
       await db.nodes.add({

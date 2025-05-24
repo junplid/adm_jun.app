@@ -159,7 +159,7 @@ const nodesList: {
     ),
     name: "Menu",
     description: "Envia um menu de opções",
-    id: "2",
+    id: "3",
     type: "NodeMenu",
   },
   {
@@ -171,7 +171,7 @@ const nodesList: {
     ),
     name: "Receber resposta",
     description: "Espera a resposta do lead",
-    id: "3",
+    id: "4",
     type: "NodeReply",
   },
   {
@@ -180,7 +180,7 @@ const nodesList: {
     ),
     name: "Adicionar etiquetas",
     description: "Adicione várias tags/etiquetas",
-    id: "4",
+    id: "5",
     type: "NodeAddTags",
   },
   {
@@ -192,14 +192,14 @@ const nodesList: {
     ),
     name: "Adicionar variáveis",
     description: "Atribua/Sobrescreva várias variáveis",
-    id: "5",
+    id: "6",
     type: "NodeAddVariables",
   },
   {
     icon: <TbTags className="dark:text-red-300 text-red-800 w-8" size={29} />,
     name: "Remover etiquetas",
     description: "Remova várias tags/etiquetas",
-    id: "6",
+    id: "7",
     type: "NodeRemoveTags",
   },
   {
@@ -211,7 +211,7 @@ const nodesList: {
     ),
     name: "Remover variáveis",
     description: "Remova várias variáveis",
-    id: "7",
+    id: "8",
     type: "NodeRemoveVariables",
   },
   {
@@ -223,7 +223,7 @@ const nodesList: {
     ),
     name: "Enviar fluxos",
     description: "Envie outro fluxo de conversa",
-    id: "8",
+    id: "9",
     type: "NodeSendFlow",
   },
   {
@@ -234,7 +234,7 @@ const nodesList: {
     ),
     name: "Condição lógica",
     description: "Crie condições IF..else 'E' - 'OU'",
-    id: "9",
+    id: "10",
     type: "NodeIF",
   },
 ];
