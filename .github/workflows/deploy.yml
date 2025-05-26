@@ -2,7 +2,7 @@ name: Front-Deploy
 
 on:
   push:
-    branches: [main] # ajuste se usar outra branch
+    branches: [main] # ajuste se usar outra
 
 jobs:
   build-and-deploy:
