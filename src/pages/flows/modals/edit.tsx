@@ -120,6 +120,8 @@ function Content({
               </Text>
             }
             className="w-full"
+            errorText={errors.businessIds?.message}
+            invalid={!!errors.businessIds}
           >
             <Controller
               name="businessIds"
@@ -131,6 +133,11 @@ function Content({
                   onBlur={field.onBlur}
                   onChange={(e: any) => {
                     field.onChange(e.map((item: any) => item.value));
+                  }}
+                  setError={({ name, message }) => {
+                    if (name === "name") {
+                      setError("businessIds", { message });
+                    }
                   }}
                   onCreate={(business) => {
                     setValue("businessIds", [

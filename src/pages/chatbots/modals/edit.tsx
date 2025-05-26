@@ -279,6 +279,7 @@ function Content({
                 label="Anexe o projeto"
                 className="w-full"
                 required
+                errorText={errors.businessId?.message}
               >
                 <Controller
                   name="businessId"
@@ -291,6 +292,11 @@ function Content({
                       onChange={(e: any) => field.onChange(e.value)}
                       onCreate={(business) => {
                         setValue("businessId", business.id);
+                      }}
+                      setError={({ name, message }) => {
+                        if (name === "name") {
+                          setError("businessId", { message });
+                        }
                       }}
                       value={field.value}
                     />

@@ -266,6 +266,7 @@ export function ModalCreateChatbot({
                   label="Anexe o projeto"
                   className="w-full"
                   required
+                  errorText={errors.businessId?.message}
                 >
                   <Controller
                     name="businessId"
@@ -278,6 +279,11 @@ export function ModalCreateChatbot({
                         onChange={(e: any) => field.onChange(e.value)}
                         onCreate={(business) => {
                           setValue("businessId", business.id);
+                        }}
+                        setError={({ name, message }) => {
+                          if (name === "name") {
+                            setError("businessId", { message });
+                          }
                         }}
                         value={field.value}
                       />

@@ -187,7 +187,13 @@ export function ModalCreateConnectionWA({
             </Center>
             <TabsContent value="integration">
               <VStack gap={4}>
-                <Field label="Anexe o projeto" required className="w-full">
+                <Field
+                  errorText={errors.businessId?.message}
+                  invalid={!!errors.businessId}
+                  label="Anexe o projeto"
+                  required
+                  className="w-full"
+                >
                   <Controller
                     name="businessId"
                     control={control}
@@ -199,6 +205,11 @@ export function ModalCreateConnectionWA({
                         onChange={(e: any) => field.onChange(e.value)}
                         onCreate={(business) => {
                           setValue("businessId", business.id);
+                        }}
+                        setError={({ name, message }) => {
+                          if (name === "name") {
+                            setError("businessId", { message });
+                          }
                         }}
                         value={field.value}
                       />

@@ -114,6 +114,8 @@ function Content({
                 todos os projetos existentes e os que forem criados no futuro.
               </Text>
             }
+            errorText={errors.businessIds?.message}
+            invalid={!!errors.businessIds}
             className="w-full"
           >
             <Controller
@@ -132,6 +134,11 @@ function Content({
                       ...(getValues("businessIds") || []),
                       business.id,
                     ]);
+                  }}
+                  setError={({ name, message }) => {
+                    if (name === "name") {
+                      setError("businessIds", { message });
+                    }
                   }}
                   value={field.value}
                 />

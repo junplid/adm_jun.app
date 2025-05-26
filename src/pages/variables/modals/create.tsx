@@ -123,6 +123,8 @@ export function ModalCreateFlow({
                   todos os projetos existentes e os que forem criados no futuro.
                 </Text>
               }
+              errorText={errors.businessIds?.message}
+              invalid={!!errors.businessIds}
               className="w-full"
             >
               <Controller
@@ -141,6 +143,11 @@ export function ModalCreateFlow({
                         ...(getValues("businessIds") || []),
                         business.id,
                       ]);
+                    }}
+                    setError={({ name, message }) => {
+                      if (name === "name") {
+                        setError("businessIds", { message });
+                      }
                     }}
                     value={field.value}
                   />

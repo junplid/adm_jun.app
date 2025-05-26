@@ -115,6 +115,8 @@ export function ModalCreateFlow({
                   todos os projetos existentes e os que forem criados no futuro.
                 </Text>
               }
+              errorText={errors.businessIds?.message}
+              invalid={!!errors.businessIds}
               className="w-full"
             >
               <Controller
@@ -127,6 +129,11 @@ export function ModalCreateFlow({
                     onBlur={field.onBlur}
                     onChange={(e: any) => {
                       field.onChange(e.map((item: any) => item.value));
+                    }}
+                    setError={({ name, message }) => {
+                      if (name === "name") {
+                        setError("businessIds", { message });
+                      }
                     }}
                     onCreate={(business) => {
                       setValue("businessIds", [
