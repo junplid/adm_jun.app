@@ -17,6 +17,9 @@ jobs:
           node-version: 20
           cache: "npm"
 
+      - name: Criar .env.production
+      run: echo "${{ secrets.ENV_PROD_FILE }}" > .env.production
+
       # 3. Instalar e buildar
       - run: |
           yarn install --frozen-lockfile
