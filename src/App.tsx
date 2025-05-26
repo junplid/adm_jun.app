@@ -17,6 +17,9 @@ import { TagsPage } from "./pages/tags";
 import { ConnectionsWAPage } from "./pages/connectionswa";
 import { SocketProvider } from "@contexts/socket.context";
 import { ChatbotsPage } from "./pages/chatbots";
+import { ReleasesPage } from "./pages/releases";
+import { TermsOfServicePage } from "./pages/terms-of-service";
+import { PrivacyPolicyPage } from "./pages/privacy-terms";
 
 // import { NodeMessage } from "./flow-lib/nodes/Message";
 // import { NodeReply } from "./flow-lib/nodes/Reply";
@@ -91,6 +94,9 @@ export default function App() {
               element={<ConnectionsWAPage />}
             />
             <Route path="chatbots" caseSensitive element={<ChatbotsPage />} />
+            <Route path="help" caseSensitive>
+              <Route path="releases" caseSensitive element={<ReleasesPage />} />
+            </Route>
           </Route>
 
           <Route
@@ -133,6 +139,8 @@ export default function App() {
 
         {/* <Route path="/checkout/:pl" element={<CheckoutPage />} /> */}
 
+        <Route path="/terms-of-service" element={<TermsOfServicePage />} />
+        <Route path="/privacy-terms" element={<PrivacyPolicyPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
 

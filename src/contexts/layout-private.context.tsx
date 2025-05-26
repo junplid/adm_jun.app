@@ -158,6 +158,8 @@ export function LayoutPrivateProvider(): JSX.Element {
           rootStyles={{
             border: "none !important",
             boxShadow: toggledMenu ? `4px 0 8px ${shadowSideBar}` : undefined,
+            zIndex: 9,
+            position: "relative",
           }}
         >
           <div className="flex h-screen flex-col scroll-hidden overflow-y-scroll">
@@ -280,37 +282,23 @@ export function LayoutPrivateProvider(): JSX.Element {
                 }}
                 open={toggledTo === "help"}
               >
-                <MenuItem
+                {/* <MenuItem
                   active={pathname === "/auth/help/faq"}
                   component={<Link to={"/auth/help/faq"} />}
                 >
                   F.A.Q.
-                </MenuItem>
-                <MenuItem
-                  active={pathname === "/auth/help/report-bugs-and-suggestions"}
-                  component={
-                    <Link to={"/auth/help/report-bugs-and-suggestions"} />
-                  }
-                >
-                  Reportar bugs e sugestões
-                </MenuItem>
-                <MenuItem
-                  active={pathname === "/auth/help/support-contacts"}
-                  component={<Link to={"/auth/help/support-contacts"} />}
-                >
-                  Contatos do suporte
-                </MenuItem>
+                </MenuItem> */}
                 <MenuItem
                   active={pathname === "/auth/help/whats-new"}
-                  component={<Link to={"/auth/help/whats-new"} />}
+                  component={<Link to={"/auth/help/releases"} />}
                 >
                   Releases
                 </MenuItem>
-                <MenuItem
-                  active={pathname === "/auth/help/terms-and-conditions"}
-                  component={<Link to={"/auth/help/terms-and-conditions"} />}
-                >
-                  Termos e condições
+                <MenuItem component={<Link to={"/terms-of-service"} />}>
+                  Termos e serviço
+                </MenuItem>
+                <MenuItem component={<Link to={"/privacy-terms"} />}>
+                  Política de privacidade
                 </MenuItem>
               </SubMenu>
             </Menu>

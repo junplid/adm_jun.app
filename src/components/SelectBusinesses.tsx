@@ -6,10 +6,11 @@ import { useCreateBusiness, useGetBusinessesOptions } from "../hooks/business";
 interface ISelectBusinessesProps extends SelectProps {
   onCreate?: (business: { id: number; name: string }) => void;
   value?: number[] | number | null;
+  setError?(props: { name: string; message?: string }): void;
 }
 
 const SelectBusinesses = forwardRef<any, ISelectBusinessesProps>(
-  ({ isMulti, value, ...props }, ref): JSX.Element => {
+  ({ isMulti, value, setError, ...props }, ref): JSX.Element => {
     const canTriggerCreate = useRef(null);
     const [newBusinessName, setNewBusinessName] = useState("");
 
@@ -21,7 +22,11 @@ const SelectBusinesses = forwardRef<any, ISelectBusinessesProps>(
     } = useGetBusinessesOptions();
 
     const { mutateAsync: createBusiness, isPending: isPendingCreate } =
-      useCreateBusiness();
+      useCreateBusiness({
+        setError: (name, { message }) => {
+          setError?.({ name, message });
+        },
+      });
 
     useEffect(() => {
       const handleKey = async (e: KeyboardEvent) => {

@@ -120,7 +120,6 @@ function Body(props: IBody): JSX.Element {
   const reactFlowWrapper = useRef(null);
   const { type, setType } = useContext(DnDContext);
   const { screenToFlowPosition } = useReactFlow();
-  const { ToggleMenu } = useContext(LayoutPrivateContext);
   const colorDotFlow = useColorModeValue("#c6c6c6", "#373737");
   const { load: syncLoad, setLoad } = useSyncLoadStore((s) => s);
 
@@ -207,72 +206,6 @@ function Body(props: IBody): JSX.Element {
     };
   }, [props.flowData.name]);
 
-  // sincroniza o fluxo
-  useEffect(() => {
-    const handleKey = async (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === "s") {
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        e.stopPropagation();
-        setLoad("load");
-
-        if (!changes.nodes.length && !changes.edges.length) {
-          return;
-        }
-
-        const nodesxx = await Promise.all(
-          changes.nodes.map(async (n) => {
-            if (n.type === "delete") {
-              return { type: n.type, node: { id: n.id } };
-            }
-            const { position, type, deletable, preview } = nodes.find(
-              (node) => node.id === n.id
-            )!;
-            return {
-              type: n.type,
-              node: {
-                preview,
-                position,
-                type,
-                id: n.id,
-                deletable,
-                data: (await db.nodes.get(n.id))?.data,
-              },
-            };
-          })
-        );
-
-        const edgesxx = await Promise.all(
-          changes.edges.map(async (ed) => {
-            if (ed.type === "delete") {
-              return { type: ed.type, edge: { id: ed.id } };
-            }
-            const findEdge = edges.find((node) => node.id === ed.id)!;
-            return {
-              type: ed.type,
-              edge: {
-                id: ed.id,
-                source: findEdge.source,
-                target: findEdge.target,
-                sourceHandle: findEdge.sourceHandle,
-                targetHandle: findEdge.targetHandle,
-              },
-            };
-          })
-        );
-
-        updateFlowData({
-          id: props.id,
-          body: { nodes: nodesxx, edges: edgesxx },
-        });
-        return;
-      }
-    };
-
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
-  }, [changes]);
-
   const isSave = useMemo(() => {
     return !!(changes.nodes.length || changes.edges.length);
   }, [changes.edges, changes.nodes]);
@@ -357,6 +290,122 @@ function Body(props: IBody): JSX.Element {
     [screenToFlowPosition, type]
   );
 
+  useEffect(() => {
+    if (!changes.nodes.length && !changes.edges.length) return;
+
+    const timer = setTimeout(async () => {
+      const nodesxx = await Promise.all(
+        changes.nodes.map(async (n) => {
+          if (n.type === "delete") {
+            return { type: n.type, node: { id: n.id } };
+          }
+          const { position, type, deletable, preview } = nodes.find(
+            (node) => node.id === n.id
+          )!;
+          return {
+            type: n.type,
+            node: {
+              preview,
+              position,
+              type,
+              id: n.id,
+              deletable,
+              data: (await db.nodes.get(n.id))?.data,
+            },
+          };
+        })
+      );
+
+      const edgesxx = await Promise.all(
+        changes.edges.map(async (ed) => {
+          if (ed.type === "delete") {
+            return { type: ed.type, edge: { id: ed.id } };
+          }
+          const findEdge = edges.find((node) => node.id === ed.id)!;
+          return {
+            type: ed.type,
+            edge: {
+              id: ed.id,
+              source: findEdge.source,
+              target: findEdge.target,
+              sourceHandle: findEdge.sourceHandle,
+              targetHandle: findEdge.targetHandle,
+            },
+          };
+        })
+      );
+
+      updateFlowData({
+        id: props.id,
+        body: { nodes: nodesxx, edges: edgesxx },
+      });
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, [changes.nodes, changes.edges, updateFlowData]);
+
+  useEffect(() => {
+    const handleKey = async (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
+        e.stopImmediatePropagation();
+        e.stopPropagation();
+        e.preventDefault();
+        setLoad("load");
+
+        if (!changes.nodes.length && !changes.edges.length) return;
+
+        const nodesxx = await Promise.all(
+          changes.nodes.map(async (n) => {
+            if (n.type === "delete") {
+              return { type: n.type, node: { id: n.id } };
+            }
+            const { position, type, deletable, preview } = nodes.find(
+              (node) => node.id === n.id
+            )!;
+            return {
+              type: n.type,
+              node: {
+                preview,
+                position,
+                type,
+                id: n.id,
+                deletable,
+                data: (await db.nodes.get(n.id))?.data,
+              },
+            };
+          })
+        );
+
+        const edgesxx = await Promise.all(
+          changes.edges.map(async (ed) => {
+            if (ed.type === "delete") {
+              return { type: ed.type, edge: { id: ed.id } };
+            }
+            const findEdge = edges.find((node) => node.id === ed.id)!;
+            return {
+              type: ed.type,
+              edge: {
+                id: ed.id,
+                source: findEdge.source,
+                target: findEdge.target,
+                sourceHandle: findEdge.sourceHandle,
+                targetHandle: findEdge.targetHandle,
+              },
+            };
+          })
+        );
+        updateFlowData({
+          id: props.id,
+          body: { nodes: nodesxx, edges: edgesxx },
+        });
+        return;
+      }
+    };
+
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [changes]);
+
   return (
     <div className="reactflow-wrapper w-full h-full" ref={reactFlowWrapper}>
       <ReactFlow
@@ -367,8 +416,8 @@ function Body(props: IBody): JSX.Element {
         onNodesDelete={onNodesDelete}
         onConnect={onConnect}
         nodeTypes={nodeTypes}
-        // snapToGrid={true}
-        // snapGrid={[60, 80]}
+        snapToGrid={true}
+        snapGrid={[8, 8]}
         edgeTypes={edgeTypes}
         onEdgeClick={onEdgeClick}
         onDrop={onDrop}
@@ -385,7 +434,7 @@ function Body(props: IBody): JSX.Element {
           style={{
             margin: 0,
             width: "100%",
-            padding: "10px 20px",
+            padding: "10px 20px 10px 45px",
             pointerEvents: "none",
           }}
         >
@@ -395,55 +444,43 @@ function Body(props: IBody): JSX.Element {
             w={"100%"}
           >
             <HStack className="w-full relative">
-              {ToggleMenu}
-              <div className=" w-full">
-                <Presence
-                  animationName={{
-                    _open: "slide-from-top, fade-in",
-                    // _closed: "slide-to-top, fade-out",
-                  }}
-                  animationDuration="moderate"
-                  present={isPending}
-                  top={"2px"}
-                  position={"absolute"}
-                >
-                  <Spinner color={"whiteAlpha.700"} />
-                </Presence>
-
-                <Presence
-                  animationName={{
-                    // _open: "slide-from-top, fade-in",
-                    _closed: "slide-to-top, fade-out",
-                  }}
-                  animationDuration="moderate"
-                  present={syncLoad === "save"}
-                  top={"2px"}
-                  position={"absolute"}
-                >
-                  <div className="flex select-none justify-end gap-x-2 text-white/70">
-                    <RiSaveFill size={20} color="#78a5ec" />
-                    <span>Salvo</span>
-                  </div>
-                </Presence>
-                <Presence
-                  animationName={{
-                    _open: "slide-from-top, fade-in",
-                    _closed: "slide-to-top, fade-out",
-                  }}
-                  animationDuration="moderate"
-                  present={isErrorSync}
-                  top={"1px"}
-                  position={"absolute"}
-                  w={"full"}
-                  className="gap-x-2 text-red-500 flex items-center w-full"
-                >
-                  <RiErrorWarningLine size={22} />
-                  <span className="text-base select-none">
-                    Erro de sincronização! Se o erro persistir, contate o
-                    suporte.
-                  </span>
-                </Presence>
-              </div>
+              <Presence
+                animationName={{
+                  _open: "slide-from-top, fade-in",
+                }}
+                animationDuration="moderate"
+                present={isPending}
+              >
+                <Spinner color={"whiteAlpha.700"} />
+              </Presence>
+              <Presence
+                animationName={{
+                  _closed: "slide-to-top, fade-out",
+                }}
+                animationDuration="moderate"
+                present={syncLoad === "save"}
+              >
+                <div className="flex select-none justify-end gap-x-2 text-white/70">
+                  <RiSaveFill size={20} color="#78a5ec" />
+                  <span>Salvo</span>
+                </div>
+              </Presence>
+              <Presence
+                animationName={{
+                  _open: "slide-from-top, fade-in",
+                  _closed: "slide-to-top, fade-out",
+                }}
+                animationDuration="moderate"
+                present={isErrorSync}
+                top={"1px"}
+                w={"full"}
+                className="gap-x-2 text-red-500 flex items-center w-full"
+              >
+                <RiErrorWarningLine size={22} />
+                <span className="text-base select-none">
+                  Erro de sincronização! Se o erro persistir, contate o suporte.
+                </span>
+              </Presence>
             </HStack>
             <HStack className="pointer-events-auto">
               {/* <FeedbackComponent /> */}
@@ -476,8 +513,7 @@ function Body(props: IBody): JSX.Element {
               onClick={() => {}}
             >
               Pressione <strong className="text-white">CTRL</strong> +{" "}
-              <strong className="text-white">S</strong> para salvar ou clique
-              aqui
+              <strong className="text-white">S</strong> para salvar
             </span>
           </Presence>
         </div>
@@ -506,42 +542,51 @@ function Body(props: IBody): JSX.Element {
 
 export function FlowBuilderPage() {
   const params = useParams<{ id: string }>();
+  const { ToggleMenu } = useContext(LayoutPrivateContext);
   const {
     data: flowData,
     isFetching,
     isError,
   } = useGetFlowData(params.id || "");
 
+  const Toggle = useMemo(() => {
+    return <div className="absolute top-4 left-2 z-20">{ToggleMenu}</div>;
+  }, [ToggleMenu]);
+
   if (!params.id) {
     return (
-      <Presence
-        animationName={{
-          _open: "slide-from-top, fade-in",
-          _closed: "slide-to-top, fade-out",
-        }}
-        animationDuration="moderate"
-        present={true}
-        position={"absolute"}
-        top={0}
-        left={0}
-        zIndex={99999}
-        className="absolute top-0 left-0 w-full h-full z-50 flex justify-center"
-      >
-        <div className="flex items-center flex-col gap-y-0.5 mt-14">
-          <div className="text-lg font-bold text-gray-500 dark:text-gray-200">
-            Fluxo não encontrado
+      <div className="relative">
+        {Toggle}
+        <Presence
+          animationName={{
+            _open: "slide-from-top, fade-in",
+            _closed: "slide-to-top, fade-out",
+          }}
+          animationDuration="moderate"
+          present={true}
+          position={"absolute"}
+          top={0}
+          left={0}
+          zIndex={1}
+          className="absolute top-0 left-0 w-full h-full z-50 flex justify-center"
+        >
+          <div className="flex items-center flex-col gap-y-0.5 mt-14">
+            <div className="text-lg font-bold text-gray-500 dark:text-gray-200">
+              Fluxo não encontrado
+            </div>
+            <div className="text-sm text-gray-400 dark:text-gray-400">
+              O construtor de fluxo que você está tentando acessar não existe ou
+              foi excluído.
+            </div>
           </div>
-          <div className="text-sm text-gray-400 dark:text-gray-400">
-            O construtor de fluxo que você está tentando acessar não existe ou
-            foi excluído.
-          </div>
-        </div>
-      </Presence>
+        </Presence>
+      </div>
     );
   }
 
   return (
-    <Box as={"div"} className="dndflow" h={"100svh"}>
+    <Box as={"div"} className="dndflow" h={"100svh"} position={"relative"}>
+      {Toggle}
       <Presence
         animationName={{
           _open: "slide-from-top, fade-in",
@@ -552,7 +597,7 @@ export function FlowBuilderPage() {
         position={"absolute"}
         top={0}
         left={0}
-        zIndex={99999}
+        zIndex={8}
         className="absolute top-0 left-0 w-full h-full z-50 flex items-center justify-center"
       >
         <div className="flex items-center justify-center gap-x-5">
@@ -582,7 +627,7 @@ export function FlowBuilderPage() {
         position={"absolute"}
         top={0}
         left={0}
-        zIndex={99999}
+        zIndex={7}
         className="absolute top-0 left-0 w-full h-full z-50 flex justify-center"
       >
         <div className="flex items-center flex-col gap-y-0.5 mt-14">

@@ -124,6 +124,8 @@ export function ModalCreateFlow({
                 </Text>
               }
               className="w-full"
+              errorText={errors.businessIds?.message}
+              invalid={!!errors.businessIds}
             >
               <Controller
                 name="businessIds"
@@ -135,6 +137,11 @@ export function ModalCreateFlow({
                     onBlur={field.onBlur}
                     onChange={(e: any) => {
                       field.onChange(e.map((item: any) => item.value));
+                    }}
+                    setError={({ name, message }) => {
+                      if (name === "name") {
+                        setError("businessIds", { message });
+                      }
                     }}
                     onCreate={(business) => {
                       setValue("businessIds", [

@@ -80,7 +80,7 @@ export function SearchNodesComponents(): JSX.Element {
         css={{ "--popover-bg": bg }}
         w={"320px"}
         h={"100vh"}
-        className="scroll-hidden overflow-y-scroll backdrop-blur-xs"
+        className="scroll-hidden overflow-y-scroll backdrop-blur-xs duration-300"
       >
         {!search.length && (
           <PopoverHeader

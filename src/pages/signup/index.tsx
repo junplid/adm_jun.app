@@ -11,6 +11,7 @@ import { Field } from "@components/ui/field";
 import { toaster } from "@components/ui/toaster";
 import { ErrorResponse_I } from "../../services/api/ErrorResponse";
 import { useHookFormMask } from "use-mask-input";
+import { useQuery } from "@tanstack/react-query";
 
 const FormSchema = z.object({
   name: z.string().min(6, "Campo nome completo inválido."),
@@ -28,6 +29,14 @@ export const SignupPage: React.FC = (): JSX.Element => {
   const [_cookies, setCookies] = useCookies(["auth"]);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+
+  const { data: av, isPending } = useQuery({
+    queryKey: ["public-av"],
+    queryFn: async () => {
+      const { data } = await api.get("/public/av");
+      return data.f;
+    },
+  });
 
   const {
     handleSubmit,
@@ -98,6 +107,7 @@ export const SignupPage: React.FC = (): JSX.Element => {
                     invalid={!!errors.name}
                     label="Nome completo"
                     errorText={errors.name?.message}
+                    disabled={isPending || !av}
                   >
                     <Input
                       {...register("name")}
@@ -111,6 +121,7 @@ export const SignupPage: React.FC = (): JSX.Element => {
                     label="CPF ou CNPJ"
                     errorText={errors.cpfCnpj?.message}
                     helperText="Usado para identificação unica da conta"
+                    disabled={isPending || !av}
                   >
                     <Input
                       {...registerWithMask("cpfCnpj", [
@@ -126,6 +137,7 @@ export const SignupPage: React.FC = (): JSX.Element => {
                     invalid={!!errors.number}
                     label="Número whatsapp"
                     errorText={errors.number?.message}
+                    disabled={isPending || !av}
                   >
                     <InputGroup startElement="+55">
                       <Input
@@ -143,6 +155,7 @@ export const SignupPage: React.FC = (): JSX.Element => {
                     invalid={!!errors.email}
                     label="E-mail de acesso"
                     errorText={errors.email?.message}
+                    disabled={isPending || !av}
                   >
                     <Input
                       {...register("email")}
@@ -156,6 +169,7 @@ export const SignupPage: React.FC = (): JSX.Element => {
                     invalid={!!errors.password}
                     label="Senha de acesso"
                     errorText={errors.password?.message}
+                    disabled={isPending || !av}
                   >
                     <Input
                       {...register("password")}
@@ -166,11 +180,11 @@ export const SignupPage: React.FC = (): JSX.Element => {
                 </div>
                 <span className="text-white">
                   Ao criar uma conta, você concorda com nossos{" "}
-                  <Link to={"/"} className="text-blue-400">
+                  <Link to={"/terms-of-service"} className="text-blue-400">
                     Termos de Serviço
                   </Link>{" "}
                   e{" "}
-                  <Link to={"/"} className="text-blue-400">
+                  <Link to={"/privacy-terms"} className="text-blue-400">
                     Política de Privacidade
                   </Link>
                   . Utilizamos cookies essenciais e tecnologias similares para
@@ -180,6 +194,7 @@ export const SignupPage: React.FC = (): JSX.Element => {
                   loadingText="Aguarde..."
                   loading={isSubmitting}
                   type="submit"
+                  disabled={isPending || !av}
                 >
                   Criar conta
                 </Button>
