@@ -18,7 +18,7 @@ jobs:
           cache: "npm"
 
       - name: Criar .env.production
-      run: echo "${{ secrets.ENV_PROD_FILE }}" > .env.production
+        run: echo "${{ secrets.ENV_PROD_FILE }}" > .env.production
 
       # 3. Instalar e buildar
       - run: |
