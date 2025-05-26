@@ -24,6 +24,8 @@ jobs:
       - run: |
           yarn install --frozen-lockfile
           yarn build
+      - name: Copiar .env.production para dist/
+        run: cp .env.production dist/
 
       # 4. Enviar apenas dist/ (via rsync --delete)
       - name: Deploy to VPS
