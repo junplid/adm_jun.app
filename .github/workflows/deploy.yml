@@ -35,8 +35,10 @@ jobs:
 
       # 5. (opcional) Reiniciar serviço / clear cache
       - name: Post-deploy command
-        if: secrets.POST_DEPLOY_CMD != ''
+        if: ${{ env.POST_DEPLOY_CMD != '' }}
+        env:
+          POST_DEPLOY_CMD: ${{ secrets.POST_DEPLOY_CMD }}
         run: |
           ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
             ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} \
-            "${{ secrets.POST_DEPLOY_CMD }}"
+            "$POST_DEPLOY_CMD"
