@@ -31,7 +31,7 @@ type DataNode = {
   isSave?: boolean;
   list: number[];
   timeout?: {
-    type: "SECONDS" | "MINUTES" | "HOURS" | "DAYS";
+    type: ("SECONDS" | "MINUTES" | "HOURS" | "DAYS")[];
     value: number;
   };
 };
@@ -227,7 +227,6 @@ function BodyNode({ id }: { id: string }): JSX.Element {
           />
         </NumberInput.Root>
         <SelectRoot
-          // @ts-expect-error
           value={node.data.timeout?.type}
           onValueChange={(e) => {
             updateNode(id, {

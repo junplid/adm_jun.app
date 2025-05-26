@@ -28,14 +28,14 @@ interface Flows {
   name: string;
 }
 
-class JunplidDatabase extends Dexie {
+class PlataformachatbotDatabase extends Dexie {
   variables!: Table<Variable, number>;
   nodes!: Table<Node, string>;
   tags!: Table<Tags, number>;
   flows!: Table<Flows, string>;
 
   constructor() {
-    super("JunplidDatabase");
+    super("PlataformachatbotDatabase");
     this.version(1).stores({
       variables: "++targetId, id, type, name",
       tags: "++targetId, id, type, name",
@@ -45,7 +45,7 @@ class JunplidDatabase extends Dexie {
   }
 }
 
-const db = new JunplidDatabase();
+const db = new PlataformachatbotDatabase();
 
 const useVariables = (): Variable[] =>
   useLiveQuery(() => db.variables.toArray(), []) || [];

@@ -15,7 +15,7 @@ import { useQuery } from "@tanstack/react-query";
 
 const FormSchema = z.object({
   name: z.string().min(6, "Campo nome completo inválido."),
-  cpfCnpj: z.string().min(1, "Esse campo é obrigatório."),
+  // cpfCnpj: z.string().min(1, "Esse campo é obrigatório."),
   number: z.string().min(1, "Esse campo é obrigatório."),
   email: z.string().email({
     message: "Campo de e-mail inválido.",
@@ -87,9 +87,7 @@ export const SignupPage: React.FC = (): JSX.Element => {
 
   return (
     <div className="m-auto flex flex-col w-full max-w-sm flex-1 my-10 gap-y-5">
-      <span className="text-2xl font-semibold text-center select-none">
-        Junplid
-      </span>
+      <img src="/logo-dark.svg" alt="Logo" />
       <div className="min-h-full w-full rounded-sm bg-[#f5f5f5] dark:bg-[#181616c5] shadow-xl border border-black/5 dark:border-none">
         <div className="flex h-full w-full flex-1 items-center p-6 py-8">
           <div className="w-full flex-col flex gap-y-3">
@@ -116,7 +114,7 @@ export const SignupPage: React.FC = (): JSX.Element => {
                     />
                   </Field>
 
-                  <Field
+                  {/* <Field
                     invalid={!!errors.cpfCnpj}
                     label="CPF ou CNPJ"
                     errorText={errors.cpfCnpj?.message}
@@ -131,7 +129,7 @@ export const SignupPage: React.FC = (): JSX.Element => {
                       autoComplete="nope"
                       type="text"
                     />
-                  </Field>
+                  </Field> */}
 
                   <Field
                     invalid={!!errors.number}

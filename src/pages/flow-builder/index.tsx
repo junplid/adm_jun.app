@@ -262,7 +262,7 @@ function Body(props: IBody): JSX.Element {
         };
       } else if (typeN === "NodeReply") {
         newNode.data = {
-          timeout: { value: 30, type: "MINUTES" },
+          timeout: { value: 30, type: ["MINUTES"] },
           list: [],
         };
       } else if (typeN === "NodeTimer") {

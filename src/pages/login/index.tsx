@@ -11,6 +11,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ErrorResponse_I } from "../../services/api/ErrorResponse";
 import { toaster } from "@components/ui/toaster";
+import { queryClient } from "../../main";
 
 const FormSchema = z.object({
   email: z.string().min(1, "Esse campo é obrigatório."),
@@ -72,14 +73,14 @@ export const LoginPage: React.FC = (): JSX.Element => {
   }, []);
 
   useEffect(() => {
+    queryClient.clear();
+    api.defaults.headers.common["Authorization"] = "";
     removeCookie("auth");
   }, []);
 
   return (
     <div className="my-10 flex flex-col gap-y-10 items-center justify-center w-full h-full">
-      <span className="text-2xl font-semibold text-center block select-none">
-        Junplid
-      </span>
+      <img src="/logo-dark.svg" alt="Logo" />
       <div className="m-auto flex-col w-full flex-1  gap-x-3 grid grid-cols-[310px_1fr] items-center max-w-3xl">
         <div className="min-h-full w-full rounded-sm bg-[#f5f5f5] dark:bg-[#181616c5] shadow-xl border border-black/5 dark:border-none">
           <div className="flex h-full w-full flex-1 items-center p-6 py-8">
