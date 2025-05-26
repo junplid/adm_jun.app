@@ -24,7 +24,7 @@ jobs:
 
       # 4. Enviar apenas dist/ (via rsync --delete)
       - name: Deploy to VPS
-        uses: burnett01/rsync-deployments@v3
+        uses: burnett01/rsync-deployments@master
         with:
           switches: -avzr --delete
           path: dist/
