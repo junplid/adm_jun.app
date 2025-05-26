@@ -1,0 +1,43 @@
+name: Front-Deploy
+
+on:
+  push:
+    branches: [main] # ajuste se usar outra branch
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout
+      - uses: actions/checkout@v4
+
+      # 2. Node
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      # 3. Instalar e buildar
+      - run: |
+          npm ci
+          npm run build      # gera dist/
+
+      # 4. Enviar apenas dist/ (via rsync --delete)
+      - name: Deploy to VPS
+        uses: burnett01/rsync-deployments@v3
+        with:
+          switches: -avzr --delete
+          path: dist/
+          remote_path: ${{ secrets.VPS_DEST }}
+          remote_host: ${{ secrets.VPS_HOST }}
+          remote_user: ${{ secrets.VPS_USER }}
+          remote_key: ${{ secrets.VPS_KEY }}
+
+      # 5. (opcional) Reiniciar serviço / clear cache
+      - name: Post-deploy command
+        if: secrets.POST_DEPLOY_CMD != ''
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
+            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} \
+            "${{ secrets.POST_DEPLOY_CMD }}"
