@@ -19,8 +19,8 @@ jobs:
 
       # 3. Instalar e buildar
       - run: |
-          npm ci
-          npm run build      # gera dist/
+          yarn install --frozen-lockfile
+          yarn build
 
       # 4. Enviar apenas dist/ (via rsync --delete)
       - name: Deploy to VPS
