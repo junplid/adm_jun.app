@@ -21,7 +21,7 @@ export const SocketProvider = ({
   const [_stateSocket, setStateSocket] = useState<TStateSocket>("loading");
 
   const socket = useMemo(() => {
-    const sio = io(import.meta.env.VITE_API.split("/api")[0], {
+    const sio = io(import.meta.env.VITE_API.split("/v1")[0], {
       timeout: 3000,
       auth: { accountId: account.id },
     });
