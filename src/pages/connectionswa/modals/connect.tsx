@@ -25,7 +25,10 @@ interface IProps {
 }
 
 const FormSchema = z.object({
-  number: z.string().min(1, "Campo obrigatório"),
+  number: z
+    .string()
+    .min(1, "Campo obrigatório")
+    .transform((s) => "+55" + s),
   // .regex(/^\(\d{2}\) \d{4,5}-\d{4}$/, "Número inválido"),
 });
 
@@ -42,18 +45,20 @@ function QRCode(props: {
 
   const requestQRcode = useCallback(() => {
     setQrCode(null);
-    socket.emit("create-session", { connectionWhatsId: props.connectionId });
+    socket.emit("revoke-session", { connectionWhatsId: props.connectionId });
+    setTimeout(() => {
+      socket.emit("create-session", { connectionWhatsId: props.connectionId });
+    }, 3000);
   }, [socket, props.connectionId]);
 
   useEffect(() => {
-    setTimeout(requestQRcode, 3500);
+    requestQRcode();
     socket.on(`qr-code-${props.connectionId}`, (data: string) =>
       setQrCode({ v: data, valid: true })
     );
 
     return () => {
       socket.off(`qr-code-${props.connectionId}`);
-      socket.emit("revoke-session", { connectionWhatsId: props.connectionId });
     };
   }, [socket]);
 
@@ -202,6 +207,7 @@ function PIN(props: {
   );
 
   useEffect(() => {
+    socket.emit("revoke-session", { connectionWhatsId: props.connectionId });
     socket.on(
       `pairing-code-${props.connectionId}`,
       (data: [string, string]) => {
@@ -213,7 +219,7 @@ function PIN(props: {
     return () => {
       setLoad(false);
       socket.off("pairing-code");
-      socket.emit("revoke-session", { connectionWhatsId: props.connectionId });
+      socket.off("revoke-session");
     };
   }, [socket]);
 
