@@ -95,6 +95,12 @@ export const SignupPage: React.FC = (): JSX.Element => {
               Criar conta{" "}
               <span className="text-green-300/70 text-sm">free</span>
             </h3>
+            <p className="text-gray-500 dark:text-gray-300 text-sm">
+              <strong className="text-yellow-500">ATENÇÃO!</strong> Este produto
+              está em versão de testes. Recomendamos que não sejam utilizados
+              dados reais durante o uso. O número de criação de contas foi
+              limitado nesta fase de testes.
+            </p>
             <form
               onSubmit={handleSubmit(signup)}
               className="w-full space-y-4 flex flex-col"
