@@ -76,6 +76,7 @@ export async function getChatbotDetails({ id }: { id: number }): Promise<{
   status: boolean;
   business: { id: number; name: string };
   connection: { name: string; id: number; number: string | null };
+  target?: string;
 }> {
   const { data } = await api.get(`/private/chatbots/${id}/details`);
   return data.chatbot;

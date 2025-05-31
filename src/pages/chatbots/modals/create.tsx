@@ -1,5 +1,6 @@
 import { JSX, useCallback, useEffect, useMemo, useState } from "react";
 import {
+  Badge,
   Button,
   Center,
   IconButton,
@@ -55,6 +56,14 @@ const FormSchema = z.object({
   businessId: z.number({ message: "Campo obrigatório." }),
   status: z.boolean().default(true).optional(),
   description: z
+    .string()
+    .optional()
+    .transform((v) => v || undefined),
+  trigger: z
+    .string()
+    .optional()
+    .transform((v) => v || undefined),
+  flowBId: z
     .string()
     .optional()
     .transform((v) => v || undefined),
@@ -455,6 +464,64 @@ export function ModalCreateChatbot({
                     )}
                   />
                 </Field>
+                <span className="block w-full h-[1px] my-2 bg-white/25"></span>
+                <div className="grid gap-y-1">
+                  <Field
+                    errorText={errors.name?.message}
+                    invalid={!!errors.name}
+                    label={
+                      <span>
+                        Palavra-chave de ativação{" "}
+                        <Badge colorPalette={"green"}>New</Badge>
+                      </span>
+                    }
+                  >
+                    <Input
+                      {...register("trigger", {
+                        onChange(event) {
+                          setValue("trigger", event.target.value);
+                        },
+                      })}
+                      autoComplete="off"
+                      maxLength={159}
+                    />
+                  </Field>
+                  <span className="text-white/70">
+                    Ativa o bot de recepção quando a mensagem recebida for igual
+                    à palavra-chave configurada.
+                  </span>
+                </div>
+                <div className="grid gap-y-1">
+                  <Field
+                    errorText={errors.flowBId?.message}
+                    invalid={!!errors.flowBId}
+                    label={
+                      <span>
+                        Fluxo alternativo B{" "}
+                        <Badge colorPalette={"green"}>New</Badge>
+                      </span>
+                    }
+                  >
+                    <Controller
+                      name="flowBId"
+                      control={control}
+                      render={({ field }) => (
+                        <SelectFlows
+                          name={field.name}
+                          placeholder="Selecione o fluxo alternativo B"
+                          isMulti={false}
+                          onBlur={field.onBlur}
+                          onChange={(e: any) => field.onChange(e.value)}
+                          value={field.value}
+                        />
+                      )}
+                    />
+                  </Field>
+                  <span className="text-white/70">
+                    Mensagens diferentes da palavra-chave ativam o fluxo
+                    alternativo B
+                  </span>
+                </div>
                 <span className="block w-full h-[1px] my-2 bg-white/25"></span>
                 <div className="grid gap-y-1">
                   <span className="font-semibold mb-0.5">

@@ -13,6 +13,8 @@ import { Button, Spinner } from "@chakra-ui/react";
 import { ModalDeleteChatbot } from "./delete";
 import { useDialogModal } from "../../../hooks/dialog.modal";
 import { useGetChatbotDetails } from "../../../hooks/chatbot";
+import { Tooltip } from "@components/ui/tooltip";
+import { QrCode } from "@components/ui/qr-code";
 
 interface IProps {
   id: number;
@@ -78,8 +80,39 @@ function Content({ id, close }: IProps) {
 
   return (
     <>
-      <DialogBody className="flex">
-        <div className="flex flex-col gap-y-1">
+      <DialogBody className="flex flex-col gap-y-4">
+        <div>
+          <div className="grid grid-cols-2 items-center gap-3">
+            <Tooltip
+              disabled={!data.target}
+              contentProps={{ className: "!bg-white" }}
+              content={<QrCode size={"lg"} value="askljakjsklasjljaslkasj" />}
+            >
+              <Button
+                disabled={!data.target}
+                w={"100%"}
+                variant={"ghost"}
+                size={"xs"}
+              >
+                Baixar QR code
+              </Button>
+            </Tooltip>
+            <Button
+              disabled={!data.target}
+              w={"full"}
+              variant={"ghost"}
+              size={"xs"}
+            >
+              Copiar link
+            </Button>
+          </div>
+          {!data.target && (
+            <div className="text-white/80 text-center text-xs mt-2">
+              QR Code e link aparecem quando a Conexão WA está ativa.
+            </div>
+          )}
+        </div>
+        <div className="flex flex-col flex-1 gap-y-1">
           <div className="flex items-start gap-3">
             <strong>ID:</strong>
             <span>{id}</span>
