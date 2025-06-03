@@ -20,6 +20,7 @@ import { ChatbotsPage } from "./pages/chatbots";
 import { ReleasesPage } from "./pages/releases";
 import { TermsOfServicePage } from "./pages/terms-of-service";
 import { PrivacyPolicyPage } from "./pages/privacy-terms";
+import { CampaignsPage } from "./pages/campaigns";
 
 // import { NodeMessage } from "./flow-lib/nodes/Message";
 // import { NodeReply } from "./flow-lib/nodes/Reply";
@@ -93,6 +94,7 @@ export default function App() {
               caseSensitive
               element={<ConnectionsWAPage />}
             />
+            <Route path="campaigns" caseSensitive element={<CampaignsPage />} />
             <Route path="chatbots" caseSensitive element={<ChatbotsPage />} />
             <Route path="help" caseSensitive>
               <Route path="releases" caseSensitive element={<ReleasesPage />} />

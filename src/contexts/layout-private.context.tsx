@@ -12,7 +12,7 @@ import {
 import { BsDiscord } from "react-icons/bs";
 import { IoClose, IoHelpCircleOutline } from "react-icons/io5";
 import { PiBracketsCurlyBold, PiProjectorScreenBold } from "react-icons/pi";
-import { GrConnect } from "react-icons/gr";
+import { GrConnect, GrSend } from "react-icons/gr";
 import { Menu, MenuItem, Sidebar, SubMenu } from "react-pro-sidebar";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { InViewComponent } from "@components/InView";
@@ -24,7 +24,7 @@ import { TbDoorExit, TbTags } from "react-icons/tb";
 import { GoWorkflow } from "react-icons/go";
 import { LuBotMessageSquare, LuChartNoAxesCombined } from "react-icons/lu";
 import { QrCode } from "@components/ui/qr-code";
-import { Presence } from "@chakra-ui/react";
+import { Badge, Presence } from "@chakra-ui/react";
 import { AuthContext } from "./auth.context";
 import { ModalOnboarded } from "./ModalOnboarded";
 import { updateAccount } from "../services/api/Account";
@@ -247,13 +247,19 @@ export function LayoutPrivateProvider(): JSX.Element {
               >
                 Variáveis
               </MenuItem>
-
               <MenuItem
                 icon={<LuBotMessageSquare size={22} />}
                 active={pathname === "/auth/chatbots"}
                 component={<Link to={"/auth/chatbots"} />}
               >
                 Bots de recepção
+              </MenuItem>
+              <MenuItem
+                icon={<GrSend size={20} />}
+                active={pathname === "/auth/campaigns"}
+                component={<Link to={"/auth/campaigns"} />}
+              >
+                Campanhas <Badge colorPalette={"green"}>NEW</Badge>
               </MenuItem>
               {/* <MenuItem
                 icon={<BsChatRightDotsFill size={25} />}

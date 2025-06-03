@@ -8,14 +8,27 @@ interface ISelectTagsProps extends SelectProps {
   value?: number[] | number | null;
   isFlow?: boolean;
   isCreatable?: boolean;
+  params?: {
+    name?: string;
+    businessIds?: number[];
+    type?: "contactwa" | "audience";
+  };
 }
 
 const SelectTags = forwardRef<any, ISelectTagsProps>(
-  ({ isMulti, value, isCreatable = true, ...props }, ref): JSX.Element => {
+  (
+    { isMulti, value, isCreatable = true, params, ...props },
+    ref
+  ): JSX.Element => {
     const canTriggerCreate = useRef(null);
     const [newTagName, setNewTagName] = useState("");
 
-    const { data: opt, isFetching, isLoading, isPending } = useGetTagsOptions();
+    const {
+      data: opt,
+      isFetching,
+      isLoading,
+      isPending,
+    } = useGetTagsOptions(params);
     const { mutateAsync: createTag, isPending: isPendingCreate } =
       useCreateTag();
 

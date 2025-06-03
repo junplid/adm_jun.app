@@ -3,24 +3,70 @@ import { Badge } from "@chakra-ui/react";
 
 export const ReleasesPage: React.FC = (): JSX.Element => {
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 h-[calc(100vh-80px)] scroll-auto overflow-y-auto pr-2">
       <h1 className="font-semibold text-xl">Releases</h1>
 
       <div className="flex flex-col gap-1">
         <h3>
-          <Badge colorPalette={"blue"}>Atual</Badge> Versão v0.1.00-alpha - 25
-          mai 2025{" "}
+          <Badge colorPalette={"blue"}>Atual</Badge> v0.3.00
+          <span className="text-white/50">-alpha</span> 30/05/2025
         </h3>
-        <div>
+        <div className="pl-2">
+          <p className="text-green-200">+ Campanhas</p>
+          <p className="text-white/70 pl-3">
+            Envie mensagens de forma eficiente para seus contatos utilizando
+            múltiplas conexões WhatsApp. Basta selecionar as conexões desejadas,
+            definir o fluxo de conversa e escolher a velocidade de envio para
+            otimizar suas campanhas com máxima praticidade e desempenho.
+          </p>
+        </div>
+      </div>
+      <div className="flex flex-col gap-1">
+        <h3>
+          v0.2.01<span className="text-white/50">-alpha</span> 26/05/2025
+        </h3>
+        <div className="pl-2">
+          <p className="text-orange-200">* Correções</p>
+          <p className="text-white/70 pl-3">
+            - O fluxo de conversa não era executado corretamente quando o bloco
+            "Receber resposta" estava posicionado após o bloco "Inicia fluxo".
+          </p>
+        </div>
+      </div>
+      <div className="flex flex-col gap-1">
+        <h3>
+          v0.2.00<span className="text-white/50">-alpha</span> 25/05/2025
+        </h3>
+        <div className="pl-2">
           <p className="text-green-200">
-            + Sistema de autenticação 100 % reativo.
+            + Bots de recepção {">"} Palavra-chave de ativação
           </p>
-          <p className="text-red-200">
-            - Endpoints antigos de <code>/v1/access</code> foram removidos; use
-            o novo padrão <code>/v2/auth</code>
+          <p className="text-white/70 pl-3">
+            Agora você pode criar bots de recepção que respondem automaticamente
+            às mensagens recebidas, ativando-os por meio de palavras-chave
+            específicas. Isso permite uma interação mais personalizada e
+            eficiente com seus contatos, garantindo que as mensagens sejam
+            tratadas de forma adequada e oportuna.
           </p>
-          <p className="text-orange-200">
-            * Corrigido bug de reconexão Baileys em redes instáveis.
+        </div>
+        <div className="pl-2">
+          <p className="text-green-200">
+            + Bots de recepção {">"} Fluxo alternativo B
+          </p>
+          <p className="text-white/70 pl-3">
+            Envie outro fluxo de conversa quando uma palavra-chave não for igual
+            a mensagem recebida.
+          </p>
+        </div>
+      </div>
+      <div className="flex flex-col gap-1">
+        <h3>
+          v0.1.01<span className="text-white/50">-alpha</span> 23/05/2025
+        </h3>
+        <div className="pl-2">
+          <p className="text-orange-200">* Correções</p>
+          <p className="text-white/70 pl-3">
+            - Campo de Número Whatsapp que impedia o registro de novas contas.
           </p>
         </div>
       </div>

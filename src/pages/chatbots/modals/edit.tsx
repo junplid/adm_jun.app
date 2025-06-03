@@ -138,7 +138,7 @@ function Content({
   const {
     handleSubmit,
     register,
-    formState: { errors, isSubmitting, isDirty, dirtyFields },
+    formState: { errors, isSubmitting, dirtyFields },
     setError,
     reset,
     setValue,
@@ -231,8 +231,6 @@ function Content({
       return false;
     }
   }, [operatingDays, fields]);
-
-  console.log("dirty", isDirty);
 
   return (
     <form onSubmit={handleSubmit(edit)}>
