@@ -50,6 +50,7 @@ import { FlowType, getOptionsFlows } from "../../services/api/Flow";
 import { getOptionsTags } from "../../services/api/Tag";
 import { NodeTimer } from "./nodes/Timer";
 import { NodeMenu } from "./nodes/Menu";
+import { NodeNotifyWA } from "./nodes/NotifyWA";
 
 type NodeTypesGeneric = {
   [x in TypesNodes]: any;
@@ -66,6 +67,7 @@ export type TypesNodes =
   | "NodeSendFlow"
   | "NodeTimer"
   | "NodeMenu"
+  | "NodeNotifyWA"
   | "NodeRemoveTags";
 
 const edgeTypes = {
@@ -223,6 +225,7 @@ function Body(props: IBody): JSX.Element {
       NodeIF: NodeIF,
       NodeSendFlow: NodeSendFlow,
       NodeMenu: NodeMenu,
+      NodeNotifyWA: NodeNotifyWA,
     }),
     []
   );
@@ -278,6 +281,8 @@ function Body(props: IBody): JSX.Element {
           timeout: { type: ["minutes"], value: 20 },
         };
         newNode.preview = [];
+      } else if (typeN === "NodeNotifyWA") {
+        newNode.data = { numbers: [] };
       }
 
       await db.nodes.add({

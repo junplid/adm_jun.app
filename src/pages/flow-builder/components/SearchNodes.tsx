@@ -1,4 +1,4 @@
-import { Input, InputGroup } from "@chakra-ui/react";
+import { Badge, Input, InputGroup } from "@chakra-ui/react";
 import { useColorModeValue } from "@components/ui/color-mode";
 import {
   PopoverBody,
@@ -17,6 +17,7 @@ import { TypesNodes } from "..";
 import { DnDContext } from "@contexts/DnD.context";
 import removeAccents from "remove-accents";
 import { LiaHourglassHalfSolid, LiaListSolid } from "react-icons/lia";
+import { MdOutlineNotificationsActive } from "react-icons/md";
 
 export function SearchNodesComponents(): JSX.Element {
   const [open, setOpen] = useState(false);
@@ -98,7 +99,7 @@ export function SearchNodesComponents(): JSX.Element {
             {nodeListFilter.map((node) => (
               <li
                 key={node.id}
-                className="dndnode flex h-[52px] items-center gap-3.5 select-none cursor-grab dark:hover:bg-zinc-700/40 hover:bg-zinc-300/50 p-1.5 rounded-lg px-3"
+                className="dndnode flex min-h-[52px] items-center gap-3.5 select-none cursor-grab dark:hover:bg-zinc-700/40 hover:bg-zinc-300/50 p-1.5 rounded-lg px-3"
                 onDragStart={(event) => {
                   onDragStart(event, node.type);
                 }}
@@ -106,7 +107,12 @@ export function SearchNodesComponents(): JSX.Element {
               >
                 {node.icon}
                 <div>
-                  <span className="font-medium">{node.name}</span>
+                  <span className="font-medium">
+                    {node.name}{" "}
+                    <Badge colorPalette={"green"} hidden={!node.new}>
+                      New
+                    </Badge>
+                  </span>
                   {node.description && (
                     <p className="font-light dark:text-white/65 text-black/65">
                       {node.description}
@@ -128,6 +134,7 @@ const nodesList: {
   icon: ReactNode;
   id: string;
   type: TypesNodes;
+  new?: boolean;
 }[] = [
   {
     icon: (
@@ -204,6 +211,19 @@ const nodesList: {
   },
   {
     icon: (
+      <MdOutlineNotificationsActive
+        className="dark:text-green-500 text-green-600 w-8"
+        size={29}
+      />
+    ),
+    name: "Notificar WhatsApps",
+    description: "Notifique números de WhatsApp",
+    id: "8",
+    type: "NodeNotifyWA",
+    new: true,
+  },
+  {
+    icon: (
       <PiBracketsCurlyBold
         className="dark:text-red-300 text-red-800 w-8"
         size={29}
@@ -211,7 +231,7 @@ const nodesList: {
     ),
     name: "Remover variáveis",
     description: "Remova várias variáveis",
-    id: "8",
+    id: "9",
     type: "NodeRemoveVariables",
   },
   {
@@ -223,7 +243,7 @@ const nodesList: {
     ),
     name: "Enviar fluxos",
     description: "Envie outro fluxo de conversa",
-    id: "9",
+    id: "10",
     type: "NodeSendFlow",
   },
   {
@@ -234,7 +254,7 @@ const nodesList: {
     ),
     name: "Condição lógica",
     description: "Crie condições IF..else 'E' - 'OU'",
-    id: "10",
+    id: "11",
     type: "NodeIF",
   },
 ];
