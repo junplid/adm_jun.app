@@ -8,7 +8,23 @@ export const ReleasesPage: React.FC = (): JSX.Element => {
 
       <div className="flex flex-col gap-1">
         <h3>
-          <Badge colorPalette={"blue"}>Atual</Badge> v0.3.00
+          <Badge colorPalette={"blue"}>Atual</Badge> v0.4.00
+          <span className="text-white/50">-alpha</span> 03/06/2025
+        </h3>
+        <div className="pl-2">
+          <p className="text-green-200">
+            + Contrutores de fluxos {">"} Bloco de notificar WhatsApp
+          </p>
+          <p className="text-white/70 pl-3">
+            Feito para enviar mensagens de texto para números de WhatsApp
+            específicos. Basta adicionar os números desejados e a mensagem que
+            você deseja enviar.
+          </p>
+        </div>
+      </div>
+      <div className="flex flex-col gap-1">
+        <h3>
+          v0.3.00
           <span className="text-white/50">-alpha</span> 30/05/2025
         </h3>
         <div className="pl-2">
