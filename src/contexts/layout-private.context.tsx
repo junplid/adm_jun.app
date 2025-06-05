@@ -12,7 +12,7 @@ import {
 import { BsDiscord } from "react-icons/bs";
 import { IoClose, IoHelpCircleOutline } from "react-icons/io5";
 import { PiBracketsCurlyBold, PiProjectorScreenBold } from "react-icons/pi";
-import { GrConnect, GrSend } from "react-icons/gr";
+import { GrConnect, GrSend, GrStorage } from "react-icons/gr";
 import { Menu, MenuItem, Sidebar, SubMenu } from "react-pro-sidebar";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { InViewComponent } from "@components/InView";
@@ -225,6 +225,13 @@ export function LayoutPrivateProvider(): JSX.Element {
                 active={pathname === "/auth/connectionswa"}
               >
                 Conexões WA
+              </MenuItem>
+              <MenuItem
+                icon={<GrStorage size={20} />}
+                component={<Link to={"/auth/storage"} />}
+                active={pathname === "/auth/storage"}
+              >
+                Storage <Badge colorPalette={"green"}>NEW</Badge>
               </MenuItem>
               <MenuItem
                 icon={<GoWorkflow size={20} />}

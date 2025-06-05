@@ -8,7 +8,22 @@ export const ReleasesPage: React.FC = (): JSX.Element => {
 
       <div className="flex flex-col gap-1">
         <h3>
-          <Badge colorPalette={"blue"}>Atual</Badge> v0.4.00
+          <Badge colorPalette={"blue"}>Atual</Badge> v0.5.00
+          <span className="text-white/50">-alpha</span> 05/06/2025
+        </h3>
+        <div className="pl-2">
+          <p className="text-green-200">+ Storage</p>
+          <p className="text-white/70 pl-3">
+            Armazene e gerencie eficientemente os arquivos dos seus projetos.
+            Salve documentos, áudios, vídeos e diversos formatos para suas
+            estratégias de marketing e comunicação. Tenha acesso rápido e
+            integral a todo o conteúdo que você armazenar.
+          </p>
+        </div>
+      </div>
+      <div className="flex flex-col gap-1">
+        <h3>
+          v0.4.00
           <span className="text-white/50">-alpha</span> 03/06/2025
         </h3>
         <div className="pl-2">
