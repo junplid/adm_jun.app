@@ -59,6 +59,7 @@ export const PatternNodePopoverComponent: FC<PropsPatternNodeComponent> = (
       <PopoverContent
         w={props.size || "290px"}
         className="select-none scroll-hidden overflow-y-scroll"
+        zIndex={9}
       >
         <PopoverHeader
           position={"sticky"}

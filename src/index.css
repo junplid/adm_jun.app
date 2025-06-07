@@ -10,6 +10,47 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+.rhap_additional-controls {
+  display: none !important;
+}
+
+.rhap_main-controls-button {
+  height: initial !important;
+  width: initial !important;
+}
+
+.rhap_volume-controls {
+  display: none !important;
+}
+
+.rhap_controls-section {
+  flex: initial !important;
+  margin-left: 4px !important;
+}
+
+.rhap_total-time {
+  margin-right: 10px !important;
+  color: #ffffff !important;
+}
+
+.rhap_progress-bar {
+  height: 0px !important;
+  background: transparent !important;
+  border-bottom: 3px dashed #5c5c5c !important;
+}
+
+.rhap_progress-indicator {
+  width: 11px !important;
+  height: 11px !important;
+  top: -4px !important;
+  background: #0dacd4 !important;
+}
+
+.rhap_container {
+  padding: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
 .scroll-custom::-webkit-scrollbar-thumb {
   background-color: #d1d1d156;
 }

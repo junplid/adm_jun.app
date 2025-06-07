@@ -51,6 +51,11 @@ import { getOptionsTags } from "../../services/api/Tag";
 import { NodeTimer } from "./nodes/Timer";
 import { NodeMenu } from "./nodes/Menu";
 import { NodeNotifyWA } from "./nodes/NotifyWA";
+import { NodeSendFiles } from "./nodes/SendFiles";
+import { NodeSendImages } from "./nodes/SendImages";
+import { NodeSendVideos } from "./nodes/SendVideos";
+import { NodeSendAudiosLive } from "./nodes/SendAudiosLive";
+import { NodeSendAudios } from "./nodes/SendAudios";
 
 type NodeTypesGeneric = {
   [x in TypesNodes]: any;
@@ -68,6 +73,11 @@ export type TypesNodes =
   | "NodeTimer"
   | "NodeMenu"
   | "NodeNotifyWA"
+  | "NodeSendFiles"
+  | "NodeSendImages"
+  | "NodeSendVideos"
+  | "NodeSendAudiosLive"
+  | "NodeSendAudios"
   | "NodeRemoveTags";
 
 const edgeTypes = {
@@ -226,6 +236,11 @@ function Body(props: IBody): JSX.Element {
       NodeSendFlow: NodeSendFlow,
       NodeMenu: NodeMenu,
       NodeNotifyWA: NodeNotifyWA,
+      NodeSendFiles: NodeSendFiles,
+      NodeSendImages: NodeSendImages,
+      NodeSendVideos: NodeSendVideos,
+      NodeSendAudiosLive: NodeSendAudiosLive,
+      NodeSendAudios: NodeSendAudios,
     }),
     []
   );
@@ -283,6 +298,8 @@ function Body(props: IBody): JSX.Element {
         newNode.preview = [];
       } else if (typeN === "NodeNotifyWA") {
         newNode.data = { numbers: [] };
+      } else if (typeN === "NodeSendFiles") {
+        newNode.data = { files: [] };
       }
 
       await db.nodes.add({

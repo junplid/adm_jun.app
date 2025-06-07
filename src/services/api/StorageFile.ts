@@ -72,6 +72,7 @@ export async function getOptionsStorageFiles(params?: {
     businessIds: number[];
     originalName: string;
     mimetype: string | null;
+    fileName: string;
   }[]
 > {
   const { data } = await api.get("/private/storage-files/options", { params });

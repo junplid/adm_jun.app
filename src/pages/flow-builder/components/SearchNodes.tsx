@@ -11,13 +11,19 @@ import {
 import { JSX, ReactNode, useContext, useMemo, useRef, useState } from "react";
 import { BsChatLeftDots } from "react-icons/bs";
 import { IoSearchSharp } from "react-icons/io5";
-import { PiBracketsCurlyBold, PiFlowArrowBold } from "react-icons/pi";
-import { TbTags, TbTextSize } from "react-icons/tb";
+import {
+  PiBracketsCurlyBold,
+  PiFile,
+  PiFileVideoFill,
+  PiFlowArrowBold,
+} from "react-icons/pi";
+import { TbHeadphones, TbTags, TbTextSize } from "react-icons/tb";
 import { TypesNodes } from "..";
 import { DnDContext } from "@contexts/DnD.context";
 import removeAccents from "remove-accents";
 import { LiaHourglassHalfSolid, LiaListSolid } from "react-icons/lia";
-import { MdOutlineNotificationsActive } from "react-icons/md";
+import { MdOutlineImage, MdOutlineNotificationsActive } from "react-icons/md";
+import { VscMic } from "react-icons/vsc";
 
 export function SearchNodesComponents(): JSX.Element {
   const [open, setOpen] = useState(false);
@@ -183,11 +189,70 @@ const nodesList: {
   },
   {
     icon: (
+      <PiFile className="dark:text-[#999999] text-teal-700 w-8" size={31} />
+    ),
+    name: "Enviar documentos",
+    description: "Envie vários documentos",
+    id: "5",
+    type: "NodeSendFiles",
+    new: true,
+  },
+  {
+    icon: (
+      <MdOutlineImage
+        className="dark:text-[#6daebe] text-teal-700 w-8"
+        size={31}
+      />
+    ),
+    name: "Enviar imagens",
+    description: "Envie várias imagens",
+    id: "6",
+    type: "NodeSendImages",
+    new: true,
+  },
+  {
+    icon: (
+      <PiFileVideoFill
+        className="dark:text-[#8eb87a] text-teal-700 w-8"
+        size={31}
+      />
+    ),
+    name: "Enviar vídeos",
+    description: "Envie vários vídeos",
+    id: "7",
+    type: "NodeSendVideos",
+    new: true,
+  },
+  {
+    icon: (
+      <VscMic className="dark:text-[#0dacd4] text-teal-700 w-8" size={31} />
+    ),
+    name: "Enviar áudios gravados",
+    description: "Envie áudios como se fossem grava...",
+    id: "8",
+    type: "NodeSendAudiosLive",
+    new: true,
+  },
+  {
+    icon: (
+      <TbHeadphones
+        className="dark:text-[#daa557] text-teal-700 w-8"
+        size={31}
+      />
+    ),
+    name: "Enviar áudios",
+    description: "Envie vários áudios",
+    id: "9",
+    type: "NodeSendAudios",
+    new: true,
+  },
+  {
+    icon: (
       <TbTags className="dark:text-green-300 text-green-800 w-8" size={29} />
     ),
     name: "Adicionar etiquetas",
     description: "Adicione várias tags/etiquetas",
-    id: "5",
+    id: "10",
     type: "NodeAddTags",
   },
   {
@@ -199,14 +264,14 @@ const nodesList: {
     ),
     name: "Adicionar variáveis",
     description: "Atribua/Sobrescreva várias variáveis",
-    id: "6",
+    id: "11",
     type: "NodeAddVariables",
   },
   {
     icon: <TbTags className="dark:text-red-300 text-red-800 w-8" size={29} />,
     name: "Remover etiquetas",
     description: "Remova várias tags/etiquetas",
-    id: "7",
+    id: "12",
     type: "NodeRemoveTags",
   },
   {
@@ -218,7 +283,7 @@ const nodesList: {
     ),
     name: "Notificar WhatsApps",
     description: "Notifique números de WhatsApp",
-    id: "8",
+    id: "13",
     type: "NodeNotifyWA",
     new: true,
   },
@@ -231,7 +296,7 @@ const nodesList: {
     ),
     name: "Remover variáveis",
     description: "Remova várias variáveis",
-    id: "9",
+    id: "14",
     type: "NodeRemoveVariables",
   },
   {
@@ -243,7 +308,7 @@ const nodesList: {
     ),
     name: "Enviar fluxos",
     description: "Envie outro fluxo de conversa",
-    id: "10",
+    id: "15",
     type: "NodeSendFlow",
   },
   {
@@ -254,7 +319,7 @@ const nodesList: {
     ),
     name: "Condição lógica",
     description: "Crie condições IF..else 'E' - 'OU'",
-    id: "11",
+    id: "16",
     type: "NodeIF",
   },
 ];
