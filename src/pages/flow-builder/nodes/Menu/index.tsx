@@ -27,6 +27,7 @@ import {
   SelectTrigger,
   SelectValueText,
 } from "@components/ui/select";
+import { CustomHandle } from "../../customs/node";
 
 const timesList = createListCollection({
   items: [
@@ -418,33 +419,37 @@ export const NodeMenu: React.FC<Node<DataNode>> = ({ id }) => {
         </Handle>
       ))}
 
-      <Handle
-        type="source"
+      <CustomHandle
+        nodeId={id}
+        handleId={`${colorFailed} failed`}
         position={Position.Right}
+        type="source"
         style={{ right: -20, bottom: 10, top: "initial" }}
+        isConnectable={true}
         className="relative dark:text-orange-400 text-orange-500 dark:!border-orange-400/60 dark:!bg-orange-400/15 !border-orange-500/70 !bg-orange-500/15"
         title="Tentativa de resposta"
-        id={`${colorFailed} failed`}
       >
         <IoReloadOutline
           size={11}
           style={{ left: -14, top: -1, position: "absolute" }}
         />
-      </Handle>
+      </CustomHandle>
 
-      <Handle
-        type="source"
+      <CustomHandle
+        nodeId={id}
+        handleId={`${colorTimeout} timeout`}
         position={Position.Right}
+        type="source"
         style={{ right: -20, bottom: -3, top: "initial" }}
-        className="relative dark:text-red-400 text-red-500 dark:!border-red-400/60 dark:!bg-red-400/15 !border-red-500/70 !bg-red-500/15"
+        isConnectable={true}
         title="Tempo esgotado"
-        id={`${colorTimeout} timeout`}
+        className="relative dark:text-red-400 text-red-500 dark:!border-red-400/60 dark:!bg-red-400/15 !border-red-500/70 !bg-red-500/15"
       >
         <RxLapTimer
           size={11}
           style={{ left: -14, top: -1, position: "absolute" }}
         />
-      </Handle>
+      </CustomHandle>
     </div>
   );
 };

@@ -22,6 +22,7 @@ import {
 } from "@components/ui/tabs";
 import AutocompleteTextField from "@components/Autocomplete";
 import SelectTags from "@components/SelectTags";
+import { CustomHandle } from "../../customs/node";
 
 type NameEntity = "has-tags" | "no-tags" | "var";
 
@@ -331,22 +332,26 @@ export const NodeIF: React.FC<Node<DataNode>> = ({ id }) => {
       <span className="absolute -right-[12.3px] top-[8.3px] dark:text-green-400 text-green-500">
         <FaCheck size={9.5} />
       </span>
-      <Handle
-        id={`${colorTrue} true`}
-        type="source"
+      <CustomHandle
+        nodeId={id}
+        handleId={`${colorTrue} true`}
         position={Position.Right}
+        type="source"
         style={{ right: -20, top: 13 }}
+        isConnectable={true}
         className="dark:!border-green-400/60 dark:!bg-green-400/15 !border-green-500/80 !bg-green-500/15"
       />
 
       <span className="absolute -right-[13px] top-[31px] dark:text-red-400 text-red-500">
         <FaTimes size={11} />
       </span>
-      <Handle
-        id={`${colorFalse} false`}
-        type="source"
+      <CustomHandle
+        nodeId={id}
+        handleId={`${colorFalse} false`}
         position={Position.Right}
+        type="source"
         style={{ right: -20, top: 37 }}
+        isConnectable={true}
         className="dark:!border-red-400/60 dark:!bg-red-400/15 !border-red-500/70 !bg-red-500/15"
       />
     </div>

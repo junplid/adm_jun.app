@@ -8,6 +8,7 @@ import { Button } from "@chakra-ui/react";
 import { GrClose } from "react-icons/gr";
 import { TbHeadphones } from "react-icons/tb";
 import AudioPlayerWA from "@components/AudioPlayerWA";
+import { CustomHandle } from "../../customs/node";
 
 type DataNode = {
   files: { id: number; fileName: string | null; originalName: string }[];
@@ -104,7 +105,14 @@ export const NodeSendAudios: React.FC<Node<DataNode>> = ({ id }) => {
       </PatternNode.PatternPopover>
 
       <Handle type="target" position={Position.Left} style={{ left: -8 }} />
-      <Handle type="source" position={Position.Right} style={{ right: -8 }} />
+      <CustomHandle
+        nodeId={id}
+        handleId="main"
+        position={Position.Right}
+        type="source"
+        style={{ right: -8 }}
+        isConnectable={true}
+      />
     </div>
   );
 };

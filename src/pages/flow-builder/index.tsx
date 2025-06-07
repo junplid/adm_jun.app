@@ -16,6 +16,7 @@ import {
   MiniMap,
   Panel,
   ReactFlow,
+  SelectionMode,
   useReactFlow,
 } from "@xyflow/react";
 import {
@@ -446,6 +447,7 @@ function Body(props: IBody): JSX.Element {
         onDragOver={onDragOver}
         attributionPosition="top-right"
         fitView
+        selectionMode={SelectionMode.Partial}
       >
         <MiniMap
           style={{ width: 180, height: 100 }}

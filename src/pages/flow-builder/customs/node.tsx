@@ -21,8 +21,6 @@ const useConnectableFn = ({ handleId, nodeId }: PropsConnectableFn) => {
   const [hasConnections, setHasConnections] = useState(false);
 
   useEffect(() => {
-    // const node = getNode(nodeId);
-
     setHasConnections(() => {
       const edges = getConnectedEdges(
         [getNode(nodeId) as Node],
@@ -45,6 +43,8 @@ interface PropsCustomHandle {
   style?: React.CSSProperties;
   isConnectable?: boolean;
   className?: string;
+  children?: React.ReactNode;
+  title?: string;
 }
 
 export const CustomHandle: React.FC<PropsCustomHandle> = ({

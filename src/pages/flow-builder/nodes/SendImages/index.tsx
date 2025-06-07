@@ -9,6 +9,7 @@ import AutocompleteTextField from "@components/Autocomplete";
 import { Button, Image } from "@chakra-ui/react";
 import { api } from "../../../../services/api";
 import { MdOutlineImage } from "react-icons/md";
+import { CustomHandle } from "../../customs/node";
 
 type DataNode = {
   files: { id: number; fileName: string | null }[];
@@ -127,7 +128,14 @@ export const NodeSendImages: React.FC<Node<DataNode>> = ({ id }) => {
       </PatternNode.PatternPopover>
 
       <Handle type="target" position={Position.Left} style={{ left: -8 }} />
-      <Handle type="source" position={Position.Right} style={{ right: -8 }} />
+      <CustomHandle
+        nodeId={id}
+        handleId="main"
+        position={Position.Right}
+        type="source"
+        style={{ right: -8 }}
+        isConnectable={true}
+      />
     </div>
   );
 };

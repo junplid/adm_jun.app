@@ -3,7 +3,7 @@ import { addEdge, applyNodeChanges, applyEdgeChanges } from "@xyflow/react";
 import { type AppState } from "./types";
 import { type AppNode } from "./types";
 import { db } from "../../db";
-import { nanoid } from "nanoid";
+// import { nanoid } from "nanoid";
 
 const useStore = create<AppState>((set, get) => ({
   nodes: [],
@@ -88,7 +88,8 @@ const useStore = create<AppState>((set, get) => ({
       edges: addEdge(
         {
           ...connection,
-          id: connection.sourceHandle || nanoid(),
+          // aparentemente ta vindo o srourceHandle definido.
+          // id: connection.sourceHandle || nanoid(),
           type: "customedge",
           style: {
             stroke: isColor

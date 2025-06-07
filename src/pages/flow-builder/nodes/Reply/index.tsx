@@ -26,6 +26,7 @@ import {
 import { useDBNodes, useVariables } from "../../../../db/index";
 import { db } from "../../../../db";
 import { createVariable } from "../../../../services/api/Variable";
+import { CustomHandle } from "../../customs/node";
 
 type DataNode = {
   isSave?: boolean;
@@ -288,20 +289,25 @@ export const NodeReply: React.FC<Node<DataNode>> = ({ id }) => {
 
       <Handle type="target" position={Position.Left} style={{ left: -8 }} />
 
-      <Handle
-        type="source"
-        id={"main"}
+      <CustomHandle
+        nodeId={id}
+        handleId={"main"}
         position={Position.Right}
+        type="source"
         style={{ right: -8, top: 12 }}
+        isConnectable={true}
       />
       <span className="absolute -right-[13px] top-[31px] dark:text-red-400 text-red-500">
         <RxLapTimer size={11} />
       </span>
-      <Handle
-        id={`${colorTimeout} timeout`}
-        type="source"
+
+      <CustomHandle
+        nodeId={id}
+        handleId={`${colorTimeout} timeout`}
         position={Position.Right}
+        type="source"
         style={{ right: -20, top: 37 }}
+        isConnectable={true}
         className="dark:!border-red-400/60 dark:!bg-red-400/15 !border-red-500/70 !bg-red-500/15"
       />
     </div>

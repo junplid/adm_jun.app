@@ -9,6 +9,7 @@ import { db, useDBNodes, useVariables } from "../../../../db";
 import { useCreateVariable } from "../../../../hooks/variable";
 import { GrClose } from "react-icons/gr";
 import { useColorModeValue } from "@components/ui/color-mode";
+import { CustomHandle } from "../../customs/node";
 
 type DataNode = {
   list: {
@@ -213,7 +214,14 @@ export const NodeAddVariables: React.FC<Node<DataNode>> = ({ id }) => {
       </PatternNode.PatternPopover>
 
       <Handle type="target" position={Position.Left} style={{ left: -8 }} />
-      <Handle type="source" position={Position.Right} style={{ right: -8 }} />
+      <CustomHandle
+        nodeId={id}
+        handleId="main"
+        position={Position.Right}
+        type="source"
+        style={{ right: -8 }}
+        isConnectable={true}
+      />
     </div>
   );
 };

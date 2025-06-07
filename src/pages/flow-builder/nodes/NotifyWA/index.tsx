@@ -9,6 +9,7 @@ import { withMask } from "use-mask-input";
 import { MdOutlineNotificationsActive } from "react-icons/md";
 import { GrClose } from "react-icons/gr";
 import { nanoid } from "nanoid";
+import { CustomHandle } from "../../customs/node";
 
 type DataNode = {
   numbers: { key: string; number: string }[];
@@ -130,7 +131,14 @@ export const NodeNotifyWA: React.FC<Node> = ({ id }) => {
       </PatternNode.PatternPopover>
 
       <Handle type="target" position={Position.Left} style={{ left: -8 }} />
-      <Handle type="source" position={Position.Right} style={{ right: -8 }} />
+      <CustomHandle
+        nodeId={id}
+        handleId="main"
+        position={Position.Right}
+        type="source"
+        style={{ right: -8 }}
+        isConnectable={true}
+      />
     </div>
   );
 };

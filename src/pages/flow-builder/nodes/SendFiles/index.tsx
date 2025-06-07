@@ -16,6 +16,7 @@ import {
 } from "react-icons/pi";
 import AutocompleteTextField from "@components/Autocomplete";
 import { Button } from "@chakra-ui/react";
+import { CustomHandle } from "../../customs/node";
 
 type DataNode = {
   files: { id: number; originalName: string; mimetype: string | null }[];
@@ -134,7 +135,14 @@ export const NodeSendFiles: React.FC<Node<DataNode>> = ({ id }) => {
       </PatternNode.PatternPopover>
 
       <Handle type="target" position={Position.Left} style={{ left: -8 }} />
-      <Handle type="source" position={Position.Right} style={{ right: -8 }} />
+      <CustomHandle
+        nodeId={id}
+        handleId="main"
+        position={Position.Right}
+        type="source"
+        style={{ right: -8 }}
+        isConnectable={true}
+      />
     </div>
   );
 };
