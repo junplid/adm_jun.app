@@ -150,5 +150,5 @@ export async function disconnectConnectionWA(
 }
 
 export async function deleteConnectionWA(id: number): Promise<void> {
-  await api.delete(`/private/connection-wa/${id}`);
+  await api.delete(`/private/connections-wa/${id}`);
 }
