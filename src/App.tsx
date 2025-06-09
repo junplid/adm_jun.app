@@ -22,6 +22,7 @@ import { TermsOfServicePage } from "./pages/terms-of-service";
 import { PrivacyPolicyPage } from "./pages/privacy-terms";
 import { CampaignsPage } from "./pages/campaigns";
 import { StoragePage } from "./pages/storage";
+import { AgentsAIPage } from "./pages/agents-ai";
 
 // import { NodeMessage } from "./flow-lib/nodes/Message";
 // import { NodeReply } from "./flow-lib/nodes/Reply";
@@ -101,6 +102,7 @@ export default function App() {
               <Route path="releases" caseSensitive element={<ReleasesPage />} />
             </Route>
             <Route path="storage" caseSensitive element={<StoragePage />} />
+            <Route path="agents-ai" caseSensitive element={<AgentsAIPage />} />
           </Route>
 
           <Route

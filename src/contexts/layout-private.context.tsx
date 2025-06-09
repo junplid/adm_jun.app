@@ -28,6 +28,7 @@ import { Badge, Presence } from "@chakra-ui/react";
 import { AuthContext } from "./auth.context";
 import { ModalOnboarded } from "./ModalOnboarded";
 import { updateAccount } from "../services/api/Account";
+import { SiRobotframework } from "react-icons/si";
 
 export const ShadowTopMemoComponent = memo(() => {
   const [showShadowTop, setShowShadowTop] = useState(true);
@@ -162,7 +163,7 @@ export function LayoutPrivateProvider(): JSX.Element {
             position: "relative",
           }}
         >
-          <div className="flex h-screen flex-col scroll-hidden overflow-y-scroll">
+          <div className="flex h-screen flex-col scroll-hidden overflow-y-scroll scroll-by">
             <ShadowTopMemoComponent />
             <div
               style={{ minHeight: 50, background: bgSideBar }}
@@ -226,12 +227,43 @@ export function LayoutPrivateProvider(): JSX.Element {
               >
                 Conexões WA
               </MenuItem>
+              {toggledMenu && (
+                <Presence
+                  animationName={{
+                    _open: "slide-from-top, fade-in",
+                    _closed: "slide-to-top, fade-out",
+                  }}
+                  animationDuration="moderate"
+                  present={showDonate}
+                >
+                  <div className="p-4 text-center">
+                    <h3 className="text-lg font-bold text-white mb-1">
+                      Apoie nosso trabalho ❤️
+                    </h3>
+                    <p className="text-sm text-zinc-400 mb-1">
+                      Sua doação contribui e impulsiona nosso time de
+                      desenvolvedores.
+                    </p>
+                    <div className="flex justify-center">
+                      <QrCode value="00020126360014BR.GOV.BCB.PIX0114+55199877266775204000053039865802BR5925Janderson Gabriel Silva d6009SAO PAULO6214051083oLAs51LG63048238" />
+                    </div>
+                    <p className="text-xs text-zinc-200">Escaneie com o Pix</p>
+                  </div>
+                </Presence>
+              )}
               <MenuItem
                 icon={<GrStorage size={20} />}
                 component={<Link to={"/auth/storage"} />}
                 active={pathname === "/auth/storage"}
               >
                 Storage <Badge colorPalette={"green"}>NEW</Badge>
+              </MenuItem>
+              <MenuItem
+                icon={<SiRobotframework size={20} />}
+                component={<Link to={"/auth/agents-ai"} />}
+                active={pathname === "/auth/agents-ai"}
+              >
+                Agentes IA <Badge colorPalette={"green"}>NEW</Badge>
               </MenuItem>
               <MenuItem
                 icon={<GoWorkflow size={20} />}
@@ -277,7 +309,7 @@ export function LayoutPrivateProvider(): JSX.Element {
               </MenuItem> */}
 
               <SubMenu
-                className="remove-scaped"
+                className="remove-scaped mb-5"
                 active={pathname.includes("/auth/help")}
                 icon={<IoHelpCircleOutline size={35} />}
                 label="Ajuda+"
@@ -286,6 +318,12 @@ export function LayoutPrivateProvider(): JSX.Element {
                     setToggledMenu(true);
                     setTimeout(() => setToggledTo("help"), 200);
                   } else {
+                    setTimeout(() => {
+                      document.querySelector(".scroll-by")?.scrollBy({
+                        top: 310,
+                        behavior: "smooth",
+                      });
+                    }, 310);
                     setToggledTo((to) => {
                       if (to === null) return "help";
                       if (to === "help") return null;
@@ -315,32 +353,6 @@ export function LayoutPrivateProvider(): JSX.Element {
                 </MenuItem>
               </SubMenu>
             </Menu>
-
-            {toggledMenu && (
-              <Presence
-                animationName={{
-                  _open: "slide-from-top, fade-in",
-                  _closed: "slide-to-top, fade-out",
-                }}
-                animationDuration="moderate"
-                present={showDonate}
-                className="mb-3"
-              >
-                <div className="p-4 text-center">
-                  <h3 className="text-lg font-bold text-white mb-1">
-                    Apoie nosso trabalho ❤️
-                  </h3>
-                  <p className="text-sm text-zinc-400 mb-1">
-                    Sua doação contribui e impulsiona nosso time de
-                    desenvolvedores.
-                  </p>
-                  <div className="flex justify-center">
-                    <QrCode value="00020126360014BR.GOV.BCB.PIX0114+55199877266775204000053039865802BR5925Janderson Gabriel Silva d6009SAO PAULO6214051083oLAs51LG63048238" />
-                  </div>
-                  <p className="text-xs text-zinc-200">Escaneie com o Pix</p>
-                </div>
-              </Presence>
-            )}
 
             <div
               style={{ background: bgSideBar }}

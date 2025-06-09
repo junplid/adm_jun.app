@@ -9,6 +9,7 @@ import { GrClose } from "react-icons/gr";
 import { TbHeadphones } from "react-icons/tb";
 import AudioPlayerWA from "@components/AudioPlayerWA";
 import { CustomHandle } from "../../customs/node";
+import { api } from "../../../../services/api";
 
 type DataNode = {
   files: { id: number; fileName: string | null; originalName: string }[];
@@ -47,7 +48,9 @@ function BodyNode({ id }: { id: string }): JSX.Element {
                   >
                     <GrClose size={15} color="#d36060" />
                   </button>
-                  <AudioPlayerWA src="/audios/meu-voz.ogg" />
+                  <AudioPlayerWA
+                    src={api.getUri() + "/public/storage/" + item.fileName}
+                  />
                 </div>
                 <span className="text-xs text-white/60">
                   {item.originalName}
@@ -70,7 +73,7 @@ function BodyNode({ id }: { id: string }): JSX.Element {
               },
             });
           }}
-          mimetype="audio/"
+          mimetype={["audio/"]}
         >
           <Button size={"sm"}>Selecionar os áudios</Button>
         </ModalStorageFiles>

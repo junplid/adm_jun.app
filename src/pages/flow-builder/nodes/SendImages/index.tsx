@@ -78,7 +78,7 @@ function BodyNode({ id }: { id: string }): JSX.Element {
               },
             });
           }}
-          mimetype="image/"
+          mimetype={["image/"]}
         >
           <Button size={"sm"}>Selecionar as imagens</Button>
         </ModalStorageFiles>

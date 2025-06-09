@@ -67,7 +67,7 @@ function BodyNode({ id }: { id: string }): JSX.Element {
               },
             });
           }}
-          mimetype="video/"
+          mimetype={["video/"]}
         >
           <Button size={"sm"}>Selecionar os vídeo</Button>
         </ModalStorageFiles>

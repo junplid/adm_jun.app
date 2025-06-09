@@ -33,7 +33,7 @@ interface PropsModalEdit {
       fileName?: string | null;
     }[]
   ) => void;
-  mimetype?: "image/" | "video/" | "audio/" | "application/pdf" | "text/";
+  mimetype?: ("image/" | "video/" | "audio/" | "application/pdf" | "text/")[];
   isMult?: boolean;
   children: React.ReactNode;
 }
@@ -65,8 +65,10 @@ function Content(
 
   const nextData = useMemo(() => {
     if (!data?.length) return [];
-    if (!p.mimetype) return data;
-    return data.filter((file) => file.mimetype?.startsWith(p.mimetype!));
+    if (!p.mimetype?.length) return data;
+    return data.filter((file) =>
+      p.mimetype!.some((s) => file.mimetype?.startsWith(s))
+    );
   }, [data]);
 
   return (
