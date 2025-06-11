@@ -51,6 +51,9 @@ const propTypes = {
   passThroughTab: PropTypes.bool,
   triggerMatchWholeWord: PropTypes.bool,
   triggerCaseInsensitive: PropTypes.bool,
+  minRows: PropTypes.number,
+  maxRows: PropTypes.number,
+  type: PropTypes.oneOf(["input", "textarea"]),
 };
 
 const defaultProps = {
@@ -146,7 +149,7 @@ class AutocompleteTextField extends React.Component {
 
   getMatch(str, caret, providedOptions) {
     const { trigger, matchAny, regex } = this.props;
-    const re = new RegExp(regex);
+    const re = new RegExp(regex, "g");
 
     let triggers = trigger;
     if (!Array.isArray(triggers)) {
@@ -516,7 +519,7 @@ class AutocompleteTextField extends React.Component {
 
       return (
         <li
-          className={idx === selection ? "active" : null}
+          className={`${idx === selection ? "active" : ""} text-nowrap`}
           ref={idx === selection ? this.refCurrent : null}
           key={val}
           onClick={() => {
@@ -554,7 +557,7 @@ class AutocompleteTextField extends React.Component {
         zIndex={99999}
       >
         <ul
-          className="react-autocomplete-input !shadow-xl shadow-black/50"
+          className="react-autocomplete-input scroll-custom-table !shadow-xl shadow-black/50"
           style={{
             maxHeight,
             maxWidth,
@@ -590,8 +593,8 @@ class AutocompleteTextField extends React.Component {
       <>
         {this.type === "textarea" ? (
           <TextareaAutosize
-            minRows={2}
-            maxRows={6}
+            minRows={this.props.minRows || 2}
+            maxRows={this.props.maxRows || 6}
             className="p-3 py-2.5 rounded-sm resize-none dark:border-white/10 border-black/10 border"
             disabled={disabled}
             onBlur={this.handleBlur}

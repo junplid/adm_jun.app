@@ -6,6 +6,8 @@ import { ModalCreateAgentAI } from "./modals/create";
 import { Button } from "@chakra-ui/react";
 import { IoAdd } from "react-icons/io5";
 import { useGetAgentsAI } from "../../hooks/agentAI";
+import { ModalDeleteAgentAI } from "./modals/delete";
+import { MdDeleteOutline } from "react-icons/md";
 
 export interface AgentsAIRow {
   businesses: { id: number; name: string }[];
@@ -42,68 +44,57 @@ export const AgentsAIPage: React.FC = (): JSX.Element => {
       {
         key: "actions",
         name: "",
-        styles: { width: 43 * 4 },
+        styles: { width: 43 * 3 },
         render(row) {
           return (
-            <div></div>
-            // <div className="flex h-full items-center gap-x-1.5">
-            //   <ModalView
-            //     setAttendantsAI={setAttendantsAI}
-            //     id={row.id}
-            //     buttonJSX={(open) => (
-            //       <Button
-            //         onClick={open}
-            //         size={"sm"}
-            //         bg={"#60c4eb39"}
-            //         _hover={{ bg: "#60c4eb63" }}
-            //       >
-            //         <LuEye size={18} color={"#92f2ff"} />
-            //       </Button>
-            //     )}
-            //   />
-            //   <ModalClone
-            //     setAIs={setAttendantsAI}
-            //     data={{ id: row.id, name: row.name }}
-            //     buttonJSX={(open) => (
-            //       <Button
-            //         onClick={open}
-            //         size={"sm"}
-            //         bg={"#ebaf6039"}
-            //         _hover={{ bg: "#ebb46062" }}
-            //       >
-            //         <FaRegClone size={16} color="#f39d4d" />
-            //       </Button>
-            //     )}
-            //   />
-            //   <ModalEdit
-            //     id={row.id ?? 0}
-            //     setAIs={setAttendantsAI}
-            //     buttonJSX={(onOpen) => (
-            //       <Button
-            //         onClick={onOpen}
-            //         size={"sm"}
-            //         bg={"#608ceb39"}
-            //         _hover={{ bg: "#6098eb61" }}
-            //       >
-            //         <MdEdit size={18} color={"#9ec9fa"} />
-            //       </Button>
-            //     )}
-            //   />
-            //   <ModalDelete
-            //     buttonJSX={(open) => (
-            //       <Button
-            //         onClick={open}
-            //         size={"sm"}
-            //         bg={"#eb606039"}
-            //         _hover={{ bg: "#eb606060" }}
-            //       >
-            //         <MdDeleteOutline size={19} color={"#fa9393"} />
-            //       </Button>
-            //     )}
-            //     data={{ id: row.id, name: row.name }}
-            //     setAttendantsAI={setAttendantsAI}
-            //   />
-            // </div>
+            <div className="flex h-full items-center gap-x-1.5">
+              {/* <ModalView
+             setAttendantsAI={setAttendantsAI}
+             id={row.id}
+             buttonJSX={(open) => (
+               <Button
+                 onClick={open}
+                 size={"sm"}
+                 bg={"#60c4eb39"}
+                 _hover={{ bg: "#60c4eb63" }}
+               >
+                 <LuEye size={18} color={"#92f2ff"} />
+               </Button>
+             )}
+           /> 
+           <ModalEdit
+             id={row.id ?? 0}
+             setAIs={setAttendantsAI}
+             buttonJSX={(onOpen) => (
+               <Button
+                 onClick={onOpen}
+                 size={"sm"}
+                 bg={"#608ceb39"}
+                 _hover={{ bg: "#6098eb61" }}
+               >
+                 <MdEdit size={18} color={"#9ec9fa"} />
+               </Button>
+             )}
+           /> */}
+              <Button
+                size={"sm"}
+                bg={"#eb606013"}
+                _hover={{ bg: "#eb606028" }}
+                _icon={{ width: "20px", height: "20px" }}
+                onClick={() => {
+                  onOpen({
+                    content: (
+                      <ModalDeleteAgentAI
+                        data={{ id: row.id, name: row.name }}
+                        close={close}
+                      />
+                    ),
+                  });
+                }}
+              >
+                <MdDeleteOutline color={"#f75050"} />
+              </Button>
+            </div>
           );
         },
       },

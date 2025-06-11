@@ -88,7 +88,7 @@ const SelectComponent = forwardRef<any, SelectInputProps>(
           option: (base, props) => ({
             ...base,
             backgroundColor: props.isFocused ? "#1F1E20" : "#111111",
-            color: "#ffffff",
+            color: props.isDisabled ? "#5f5f5f" : "#ffffff",
             cursor: "pointer",
             padding: "6px 8px",
             borderRadius: "0.125rem",

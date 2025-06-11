@@ -268,7 +268,7 @@ export function useCreateAgentAI(props?: {
 //   });
 // }
 
-export function useDeleteChatbot(props?: { onSuccess?: () => Promise<void> }) {
+export function useDeleteAgentAI(props?: { onSuccess?: () => Promise<void> }) {
   const queryClient = useQueryClient();
   const { logout } = useContext(AuthContext);
 
