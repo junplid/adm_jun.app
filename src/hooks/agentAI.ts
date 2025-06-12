@@ -70,29 +70,29 @@ export function useGetAgentAI(id: number) {
   });
 }
 
-// export function useGetChatbotsWAOptions(params?: {
-//   name?: string;
-//   businessIds?: number[];
-// }) {
-//   const { logout } = useContext(AuthContext);
-//   return useQuery({
-//     queryKey: ["chatbots-options", params],
-//     queryFn: async () => {
-//       try {
-//         return await AgentAIService.getOptionsChatbots(params || {});
-//       } catch (error) {
-//         if (error instanceof AxiosError) {
-//           if (error.response?.status === 401) logout();
-//           if (error.response?.status === 400) {
-//             const dataError = error.response?.data as ErrorResponse_I;
-//             if (dataError.toast.length) dataError.toast.forEach(toaster.create);
-//           }
-//         }
-//         throw error;
-//       }
-//     },
-//   });
-// }
+export function useGetAgentsAIWAOptions(params?: {
+  name?: string;
+  businessIds?: number[];
+}) {
+  const { logout } = useContext(AuthContext);
+  return useQuery({
+    queryKey: ["agents-ai-options", params],
+    queryFn: async () => {
+      try {
+        return await AgentAIService.getOptionsAgentAI(params || {});
+      } catch (error) {
+        if (error instanceof AxiosError) {
+          if (error.response?.status === 401) logout();
+          if (error.response?.status === 400) {
+            const dataError = error.response?.data as ErrorResponse_I;
+            if (dataError.toast.length) dataError.toast.forEach(toaster.create);
+          }
+        }
+        throw error;
+      }
+    },
+  });
+}
 
 export function useCreateAgentAI(props?: {
   setError?: UseFormSetError<{
@@ -108,11 +108,9 @@ export function useCreateAgentAI(props?: {
     temperature?: number;
     knowledgeBase?: string;
     files?: number[];
-    instructions?: {
-      prompt?: string;
-      promptAfterReply?: string;
-      files?: number[];
-    }[];
+    instructions?: string;
+    timeout?: number;
+    debounce?: number;
   }>;
   onSuccess?: (id: number) => Promise<void>;
 }) {
@@ -132,11 +130,9 @@ export function useCreateAgentAI(props?: {
       temperature?: number;
       knowledgeBase?: string;
       files?: number[];
-      instructions?: {
-        prompt?: string;
-        promptAfterReply?: string;
-        files?: number[];
-      }[];
+      instructions?: string;
+      timeout?: number;
+      debounce?: number;
     }) => AgentAIService.createAgentAI(body),
     async onSuccess(data, body) {
       if (props?.onSuccess) await props.onSuccess(data.id);
@@ -172,101 +168,119 @@ export function useCreateAgentAI(props?: {
   });
 }
 
-// export function useUpdateChatbot(props?: {
-//   setError?: UseFormSetError<{
-//     name?: string;
-//     businessId?: number;
-//     flowId?: string;
-//     connectionWAId?: number;
-//     status?: boolean;
-//     description?: string;
-//     addLeadToAudiencesIds?: number[];
-//     addToLeadTagsIds?: number[];
-//     timeToRestart?: {
-//       value: number;
-//       type: "seconds" | "minutes" | "hours" | "days";
-//     };
-//     operatingDays?: {
-//       dayOfWeek: number;
-//       workingTimes?: { start: string; end: string }[];
-//     }[];
-//   }>;
-//   onSuccess?: () => Promise<void>;
-// }) {
-//   const { logout } = useContext(AuthContext);
-//   const queryClient = useQueryClient();
-//   return useMutation({
-//     mutationFn: ({
-//       id,
-//       body,
-//     }: {
-//       id: number;
-//       body: {
-//         name?: string;
-//         businessId?: number;
-//         flowId?: string;
-//         connectionWAId?: number;
-//         status?: boolean;
-//         description?: string;
-//         addLeadToAudiencesIds?: number[];
-//         addToLeadTagsIds?: number[];
-//         timeToRestart?: {
-//           value?: number;
-//           type?: "seconds" | "minutes" | "hours" | "days";
-//         };
-//         operatingDays?: {
-//           dayOfWeek: number;
-//           workingTimes?: { start: string; end: string }[];
-//         }[];
-//       };
-//     }) => AgentAIService.updateChatbot(id, body),
-//     async onSuccess(data, { id, body }) {
-//       const { businessId, ...bodyData } = body;
-//       if (props?.onSuccess) await props.onSuccess();
-//       queryClient.setQueryData(["chatbot", id], (old: any) => ({
-//         ...old,
-//         ...body,
-//       }));
+function pickExistNode(text: string) {
+  const math = text.match(/\/\[sair_node,\s(.+)\]/g);
+  if (!math) return [];
+  return math.map((s) => s.replace(/\/\[sair_node,\s(.+)\]/, "$1"));
+}
 
-//       if (queryClient.getQueryData<any>(["chatbots", null])) {
-//         queryClient.setQueryData(["chatbots", null], (old: any) =>
-//           old?.map((b: any) => {
-//             if (b.id === id)
-//               b = {
-//                 ...b,
-//                 name: bodyData.name || b.name,
-//                 ...data,
-//               };
-//             return b;
-//           })
-//         );
-//       }
-//       if (queryClient.getQueryData<any>(["chatbots-options", null])) {
-//         queryClient.setQueryData(["chatbots-options", null], (old: any) =>
-//           old?.map((b: any) => {
-//             if (b.id === id) b = { ...b, name: body.name || b.name };
-//             return b;
-//           })
-//         );
-//       }
-//     },
-//     onError(error: unknown) {
-//       if (error instanceof AxiosError) {
-//         if (error.response?.status === 401) logout();
-//         if (error.response?.status === 400) {
-//           const dataError = error.response?.data as ErrorResponse_I;
-//           if (dataError.toast?.length) dataError.toast.forEach(toaster.create);
-//           if (dataError.input?.length) {
-//             dataError.input.forEach(({ text, path }) =>
-//               // @ts-expect-error
-//               props?.setError?.(path, { message: text })
-//             );
-//           }
-//         }
-//       }
-//     },
-//   });
-// }
+export function useUpdateAgentAI(props?: {
+  setError?: UseFormSetError<{
+    providerCredentialId?: number;
+    apiKey?: string;
+    nameProvider?: string;
+    businessIds: number[];
+    name: string;
+    emojiLevel?: "none" | "low" | "medium" | "high";
+    language?: string;
+    personality?: string;
+    model: string;
+    temperature?: number;
+    knowledgeBase?: string;
+    files?: {
+      id: number;
+      originalName: string;
+      fileName?: string | null | undefined;
+      mimetype?: string | null | undefined;
+    }[];
+    instructions?: string;
+    timeout?: number;
+    debounce?: number;
+  }>;
+  onSuccess?: () => Promise<void>;
+}) {
+  const { logout } = useContext(AuthContext);
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      id,
+      body,
+    }: {
+      id: number;
+      body: {
+        name?: string;
+        providerCredentialId?: number;
+        apiKey?: string;
+        nameProvider?: string;
+        businessIds?: number[];
+        emojiLevel?: "none" | "low" | "medium" | "high";
+        language?: string;
+        personality?: string;
+        model?: string;
+        temperature?: number;
+        knowledgeBase?: string;
+        files?: {
+          id: number;
+          originalName: string;
+          fileName?: string | null | undefined;
+          mimetype?: string | null | undefined;
+        }[];
+        instructions?: string;
+        timeout?: number;
+        debounce?: number;
+      };
+    }) =>
+      AgentAIService.updateAgentAI(id, {
+        ...body,
+        files: body.files?.map((f) => f.id),
+      }),
+    async onSuccess(data, { id, body }) {
+      if (props?.onSuccess) await props.onSuccess();
+      queryClient.setQueryData(["agent-ai", id], (old: any) => ({
+        ...old,
+        ...body,
+      }));
+
+      if (queryClient.getQueryData<any>(["agents-ai", null])) {
+        queryClient.setQueryData(["agents-ai", null], (old: any) =>
+          old?.map((b: any) => {
+            if (b.id === id)
+              b = {
+                ...b,
+                name: body.name || b.name,
+                ...data,
+              };
+            return b;
+          })
+        );
+      }
+      if (queryClient.getQueryData<any>(["agents-ai-options", null])) {
+        const exitNodes = pickExistNode(body.instructions || "");
+        queryClient.setQueryData(["agents-ai-options", null], (old: any) =>
+          old?.map((b: any) => {
+            if (b.id === id) b = { ...b, name: body.name || b.name, exitNodes };
+            return b;
+          })
+        );
+      }
+    },
+    onError(error: unknown) {
+      if (error instanceof AxiosError) {
+        if (error.response?.status === 401) logout();
+        if (error.response?.status === 400) {
+          const dataError = error.response?.data as ErrorResponse_I;
+          if (dataError.toast?.length) dataError.toast.forEach(toaster.create);
+          if (dataError.input?.length) {
+            dataError.input.forEach(({ text, path }) =>
+              // @ts-expect-error
+              props?.setError?.(path, { message: text })
+            );
+          }
+        }
+      }
+    },
+  });
+}
 
 export function useDeleteAgentAI(props?: { onSuccess?: () => Promise<void> }) {
   const queryClient = useQueryClient();

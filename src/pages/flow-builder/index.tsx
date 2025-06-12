@@ -57,6 +57,7 @@ import { NodeSendImages } from "./nodes/SendImages";
 import { NodeSendVideos } from "./nodes/SendVideos";
 import { NodeSendAudiosLive } from "./nodes/SendAudiosLive";
 import { NodeSendAudios } from "./nodes/SendAudios";
+import { NodeAgentAI } from "./nodes/AgentAI";
 
 type NodeTypesGeneric = {
   [x in TypesNodes]: any;
@@ -79,7 +80,8 @@ export type TypesNodes =
   | "NodeSendVideos"
   | "NodeSendAudiosLive"
   | "NodeSendAudios"
-  | "NodeRemoveTags";
+  | "NodeRemoveTags"
+  | "NodeAgentAI";
 
 const edgeTypes = {
   customedge: CustomEdge,
@@ -242,6 +244,7 @@ function Body(props: IBody): JSX.Element {
       NodeSendVideos: NodeSendVideos,
       NodeSendAudiosLive: NodeSendAudiosLive,
       NodeSendAudios: NodeSendAudios,
+      NodeAgentAI: NodeAgentAI,
     }),
     []
   );

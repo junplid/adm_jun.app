@@ -7,7 +7,9 @@ import { Button } from "@chakra-ui/react";
 import { IoAdd } from "react-icons/io5";
 import { useGetAgentsAI } from "../../hooks/agentAI";
 import { ModalDeleteAgentAI } from "./modals/delete";
-import { MdDeleteOutline } from "react-icons/md";
+import { MdDeleteOutline, MdEdit } from "react-icons/md";
+import { LuEye } from "react-icons/lu";
+import { ModalEditAgentAI } from "./modals/edit";
 
 export interface AgentsAIRow {
   businesses: { id: number; name: string }[];
@@ -48,34 +50,29 @@ export const AgentsAIPage: React.FC = (): JSX.Element => {
         render(row) {
           return (
             <div className="flex h-full items-center gap-x-1.5">
-              {/* <ModalView
-             setAttendantsAI={setAttendantsAI}
-             id={row.id}
-             buttonJSX={(open) => (
-               <Button
-                 onClick={open}
-                 size={"sm"}
-                 bg={"#60c4eb39"}
-                 _hover={{ bg: "#60c4eb63" }}
-               >
-                 <LuEye size={18} color={"#92f2ff"} />
-               </Button>
-             )}
-           /> 
-           <ModalEdit
-             id={row.id ?? 0}
-             setAIs={setAttendantsAI}
-             buttonJSX={(onOpen) => (
-               <Button
-                 onClick={onOpen}
-                 size={"sm"}
-                 bg={"#608ceb39"}
-                 _hover={{ bg: "#6098eb61" }}
-               >
-                 <MdEdit size={18} color={"#9ec9fa"} />
-               </Button>
-             )}
-           /> */}
+              <Button
+                size={"sm"}
+                bg={"#60c4eb39"}
+                _hover={{ bg: "#60c4eb63" }}
+                disabled
+              >
+                <LuEye size={18} color={"#92f2ff"} />
+              </Button>
+              <Button
+                onClick={() => {
+                  onOpen({
+                    size: "xl",
+                    content: <ModalEditAgentAI close={close} id={row.id} />,
+                  });
+                }}
+                size={"sm"}
+                bg={"#60d6eb13"}
+                _hover={{ bg: "#30c9e422" }}
+                _icon={{ width: "20px", height: "20px" }}
+                disabled={row.type === "system"}
+              >
+                <MdEdit size={18} color={"#9ec9fa"} />
+              </Button>
               <Button
                 size={"sm"}
                 bg={"#eb606013"}

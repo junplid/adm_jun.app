@@ -362,9 +362,9 @@ function BodyNode({ id }: { id: string }): JSX.Element {
   );
 }
 
-export const NodeMenu: React.FC<Node<DataNode>> = ({ id }) => {
+export const NodeMenu: React.FC<Node<DataNode>> = (props) => {
   const getNodePreview = useStore((s) => s.getNodePreview);
-  const preview = getNodePreview(id);
+  const preview = getNodePreview(props.id);
   const colorTimeout = useColorModeValue("#F94A65", "#B1474A");
   const colorFailed = useColorModeValue("#ee9e42", "#a55d29");
 
@@ -384,7 +384,7 @@ export const NodeMenu: React.FC<Node<DataNode>> = ({ id }) => {
               className="p-0.5 relative flex items-center"
             >
               <div className="flex justify-end absolute -top-1 -right-1 opacity-10 group-hover:opacity-100 duration-200">
-                <PatternNode.Actions id={id} />
+                <PatternNode.Actions id={props.id} />
               </div>
               <LiaListSolid
                 className="dark:text-purple-400 text-purple-700"
@@ -396,14 +396,16 @@ export const NodeMenu: React.FC<Node<DataNode>> = ({ id }) => {
           description: "Envia",
         }}
       >
-        <BodyNode id={id} />
+        <BodyNode id={props.id} />
       </PatternNode.PatternPopover>
 
       <Handle type="target" position={Position.Left} style={{ left: -8 }} />
 
       {preview?.map((id: any, index: number) => (
-        <Handle
-          id={id}
+        <CustomHandle
+          nodeId={props.id}
+          isConnectable
+          handleId={id}
           key={id}
           type="source"
           position={Position.Right}
@@ -416,11 +418,11 @@ export const NodeMenu: React.FC<Node<DataNode>> = ({ id }) => {
           >
             {`[${index + 1}]`}
           </span>
-        </Handle>
+        </CustomHandle>
       ))}
 
       <CustomHandle
-        nodeId={id}
+        nodeId={props.id}
         handleId={`${colorFailed} failed`}
         position={Position.Right}
         type="source"
@@ -436,7 +438,7 @@ export const NodeMenu: React.FC<Node<DataNode>> = ({ id }) => {
       </CustomHandle>
 
       <CustomHandle
-        nodeId={id}
+        nodeId={props.id}
         handleId={`${colorTimeout} timeout`}
         position={Position.Right}
         type="source"

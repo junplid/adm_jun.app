@@ -24,6 +24,7 @@ import removeAccents from "remove-accents";
 import { LiaHourglassHalfSolid, LiaListSolid } from "react-icons/lia";
 import { MdOutlineImage, MdOutlineNotificationsActive } from "react-icons/md";
 import { VscMic } from "react-icons/vsc";
+import { LuBrainCircuit } from "react-icons/lu";
 
 export function SearchNodesComponents(): JSX.Element {
   const [open, setOpen] = useState(false);
@@ -310,6 +311,19 @@ const nodesList: {
     description: "Envie outro fluxo de conversa",
     id: "15",
     type: "NodeSendFlow",
+  },
+  {
+    icon: (
+      <LuBrainCircuit
+        className="dark:text-teal-600 text-teal-600 w-8"
+        size={31}
+      />
+    ),
+    name: "Chama agente IA",
+    description: "Chama um agente de IA",
+    id: "00",
+    type: "NodeAgentAI",
+    new: true,
   },
   {
     icon: (

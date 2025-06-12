@@ -42,6 +42,20 @@ const useStore = create<AppState>((set, get) => ({
     set({ changes: { edges: [], nodes: [] } });
   },
   onNodesChange: (changes) => {
+    set((state) => ({
+      nodes: applyNodeChanges(changes, state.nodes),
+    }));
+    // changes.forEach((c) => {
+    //   if (c.type === "remove") {
+    //     get().setChange("nodes", { type: "delete", id: c.id });
+    //     return;
+    //   }
+
+    //   // add, replace, dimensions, position, etc.
+    //   // @ts-expect-error
+    //   const id = "item" in c && c.item ? c.item.id : c.id;
+    //   get().setChange("nodes", { type: "upset", id });
+    // });
     if (changes.length > 1) return;
     if (changes[0].type === "add") {
       get().setChange("nodes", {
@@ -73,9 +87,9 @@ const useStore = create<AppState>((set, get) => ({
         id: changes[0].id,
       });
     }
-    set({
-      nodes: applyNodeChanges(changes, get().nodes),
-    });
+    // set({
+    //   nodes: applyNodeChanges(changes, get().nodes),
+    // });
   },
   onEdgesChange: (changes) => {
     set({

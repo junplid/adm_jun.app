@@ -5,7 +5,6 @@ import {
   ReactNode,
   SetStateAction,
   useContext,
-  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -22,13 +21,16 @@ import { useColorModeValue } from "@components/ui/color-mode";
 import { Tooltip } from "@components/ui/tooltip";
 import { TbDoorExit, TbTags } from "react-icons/tb";
 import { GoWorkflow } from "react-icons/go";
-import { LuBotMessageSquare, LuChartNoAxesCombined } from "react-icons/lu";
-import { QrCode } from "@components/ui/qr-code";
-import { Badge, Presence } from "@chakra-ui/react";
+import {
+  LuBotMessageSquare,
+  LuBrainCircuit,
+  LuChartNoAxesCombined,
+} from "react-icons/lu";
+// import { QrCode } from "@components/ui/qr-code";
+import { Badge } from "@chakra-ui/react";
 import { AuthContext } from "./auth.context";
 import { ModalOnboarded } from "./ModalOnboarded";
 import { updateAccount } from "../services/api/Account";
-import { SiRobotframework } from "react-icons/si";
 
 export const ShadowTopMemoComponent = memo(() => {
   const [showShadowTop, setShowShadowTop] = useState(true);
@@ -126,17 +128,17 @@ export function LayoutPrivateProvider(): JSX.Element {
     [toggledMenu]
   );
 
-  const [showDonate, setShowDonate] = useState(false);
-  useEffect(() => {
-    if (toggledMenu) {
-      setTimeout(() => {
-        setShowDonate(true);
-      }, 180);
-    }
-    if (!toggledMenu) {
-      setShowDonate(false);
-    }
-  }, [toggledMenu]);
+  // const [showDonate, setShowDonate] = useState(false);
+  // useEffect(() => {
+  //   if (toggledMenu) {
+  //     setTimeout(() => {
+  //       setShowDonate(true);
+  //     }, 180);
+  //   }
+  //   if (!toggledMenu) {
+  //     setShowDonate(false);
+  //   }
+  // }, [toggledMenu]);
 
   return (
     <LayoutPrivateContext.Provider value={dataValue}>
@@ -150,6 +152,7 @@ export function LayoutPrivateProvider(): JSX.Element {
           }}
         />
       )}
+
       <div className="items-start duration-500 w-full flex">
         <Sidebar
           collapsed={!toggledMenu}
@@ -165,12 +168,37 @@ export function LayoutPrivateProvider(): JSX.Element {
         >
           <div className="flex h-screen flex-col scroll-hidden overflow-y-scroll scroll-by">
             <ShadowTopMemoComponent />
+
             <div
               style={{ minHeight: 50, background: bgSideBar }}
               className="sticky top-0 z-50 flex w-full items-center justify-center p-1 px-2"
             >
               <img src="/logo-dark.svg" alt="Logo" />
             </div>
+
+            {/* {toggledMenu && (
+          <Presence
+            animationName={{
+              _open: "slide-from-top, fade-in",
+              _closed: "slide-to-top, fade-out",
+            }}
+            animationDuration="moderate"
+            present={showDonate}
+          >
+            <div className="p-4 text-center">
+              <h3 className="text-lg font-bold text-white mb-1">
+                Apoie nosso trabalho ❤️
+              </h3>
+              <p className="text-sm text-zinc-400 mb-1">
+                Sua doação contribui e impulsiona nosso time de desenvolvedores.
+              </p>
+              <div className="flex justify-center">
+                <QrCode value="00020126360014BR.GOV.BCB.PIX0114+55199877266775204000053039865802BR5925Janderson Gabriel Silva d6009SAO PAULO6214051083oLAs51LG63048238" />
+              </div>
+              <p className="text-xs text-zinc-200">Escaneie com o Pix</p>
+            </div>
+          </Presence>
+        )} */}
 
             <Menu
               className="relative font-semibold flex-1"
@@ -227,30 +255,6 @@ export function LayoutPrivateProvider(): JSX.Element {
               >
                 Conexões WA
               </MenuItem>
-              {toggledMenu && (
-                <Presence
-                  animationName={{
-                    _open: "slide-from-top, fade-in",
-                    _closed: "slide-to-top, fade-out",
-                  }}
-                  animationDuration="moderate"
-                  present={showDonate}
-                >
-                  <div className="p-4 text-center">
-                    <h3 className="text-lg font-bold text-white mb-1">
-                      Apoie nosso trabalho ❤️
-                    </h3>
-                    <p className="text-sm text-zinc-400 mb-1">
-                      Sua doação contribui e impulsiona nosso time de
-                      desenvolvedores.
-                    </p>
-                    <div className="flex justify-center">
-                      <QrCode value="00020126360014BR.GOV.BCB.PIX0114+55199877266775204000053039865802BR5925Janderson Gabriel Silva d6009SAO PAULO6214051083oLAs51LG63048238" />
-                    </div>
-                    <p className="text-xs text-zinc-200">Escaneie com o Pix</p>
-                  </div>
-                </Presence>
-              )}
               <MenuItem
                 icon={<GrStorage size={20} />}
                 component={<Link to={"/auth/storage"} />}
@@ -259,7 +263,7 @@ export function LayoutPrivateProvider(): JSX.Element {
                 Storage <Badge colorPalette={"green"}>NEW</Badge>
               </MenuItem>
               <MenuItem
-                icon={<SiRobotframework size={20} />}
+                icon={<LuBrainCircuit size={20} />}
                 component={<Link to={"/auth/agents-ai"} />}
                 active={pathname === "/auth/agents-ai"}
               >

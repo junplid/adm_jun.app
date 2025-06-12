@@ -1,6 +1,7 @@
 import {
   Button,
   Center,
+  IconButton,
   Image,
   Input,
   NumberInput,
@@ -11,7 +12,6 @@ import React, {
   JSX,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
   useRef,
   useState,
@@ -41,17 +41,13 @@ import {
 } from "@components/ui/tabs";
 import SelectBusinesses from "@components/SelectBusinesses";
 import { Field } from "@components/ui/field";
-import { MdOutlineImage } from "react-icons/md";
 import {
-  PiFile,
   PiFileAudioFill,
   PiFileFill,
   PiFilePdfFill,
   PiFileTextFill,
   PiFileVideoFill,
 } from "react-icons/pi";
-import { VscMic } from "react-icons/vsc";
-import { TbHeadphones } from "react-icons/tb";
 import { IoClose } from "react-icons/io5";
 import { ModalStorageFiles } from "@components/Modals/StorageFiles";
 import { CloseButton } from "@components/ui/close-button";
@@ -70,6 +66,7 @@ import { RxLapTimer } from "react-icons/rx";
 import { Tooltip } from "@components/ui/tooltip";
 import { ErrorResponse_I } from "../../../services/api/ErrorResponse";
 import { AuthContext } from "@contexts/auth.context";
+import { RiSendPlane2Line } from "react-icons/ri";
 
 interface Props {
   onCreate?(business: AgentsAIRow): Promise<void>;
@@ -78,13 +75,8 @@ interface Props {
 }
 
 const toNumberOrUndef = (v: unknown) => {
-  // RHF com valueAsNumber:true manda NaN ⇒ vire undefined
   if (typeof v === "number") return Number.isNaN(v) ? undefined : v;
-
-  // RHF sem valueAsNumber (string "")
   if (typeof v === "string" && v.trim() === "") return undefined;
-
-  // qualquer outra coisa: tente converter
   const n = Number(v);
   return Number.isNaN(n) ? undefined : n;
 };
@@ -187,42 +179,42 @@ const IconPreviewFile = (p: { mimetype: string }): JSX.Element => {
   return <PiFileFill color="#808080" size={24} />;
 };
 
-const itemsSend: {
-  value: "files" | "images" | "videos" | "audios_live" | "audios";
-  desc: string;
-  icon: React.ReactNode;
-  disabled?: boolean;
-}[] = [
-  {
-    value: "files",
-    desc: "Enviar documentos",
-    icon: <PiFile className="dark:text-[#999999] text-teal-700" size={27} />,
-  },
-  {
-    value: "images",
-    desc: "Enviar imagens",
-    icon: <MdOutlineImage className="dark:text-[#6daebe]" size={27} />,
-  },
-  {
-    value: "videos",
-    desc: "Enviar vídeos",
-    icon: <PiFileVideoFill className="dark:text-[#8eb87a]" size={27} />,
-  },
-  {
-    value: "audios_live",
-    desc: "Enviar áudios",
-    icon: <VscMic className="dark:text-[#0dacd4] text-teal-700" size={27} />,
-    disabled: true,
-  },
-  {
-    value: "audios",
-    desc: "Enviar áudios",
-    icon: (
-      <TbHeadphones className="dark:text-[#daa557] text-teal-700" size={27} />
-    ),
-    disabled: true,
-  },
-];
+// const itemsSend: {
+//   value: "files" | "images" | "videos" | "audios_live" | "audios";
+//   desc: string;
+//   icon: React.ReactNode;
+//   disabled?: boolean;
+// }[] = [
+//   {
+//     value: "files",
+//     desc: "Enviar documentos",
+//     icon: <PiFile className="dark:text-[#999999] text-teal-700" size={27} />,
+//   },
+//   {
+//     value: "images",
+//     desc: "Enviar imagens",
+//     icon: <MdOutlineImage className="dark:text-[#6daebe]" size={27} />,
+//   },
+//   {
+//     value: "videos",
+//     desc: "Enviar vídeos",
+//     icon: <PiFileVideoFill className="dark:text-[#8eb87a]" size={27} />,
+//   },
+//   {
+//     value: "audios_live",
+//     desc: "Enviar áudios",
+//     icon: <VscMic className="dark:text-[#0dacd4] text-teal-700" size={27} />,
+//     disabled: true,
+//   },
+//   {
+//     value: "audios",
+//     desc: "Enviar áudios",
+//     icon: (
+//       <TbHeadphones className="dark:text-[#daa557] text-teal-700" size={27} />
+//     ),
+//     disabled: true,
+//   },
+// ];
 
 const itemsCorporation = [
   { name: "[atribuir_variavel, <Nome da variavel>, <Qual o valor?>" },
@@ -237,7 +229,7 @@ const itemsCorporation = [
   { name: '[notify_wa, <999999999>, "<MSG>"' },
   { name: "[pausar, <VALOR>, <Qual o tipo de tempo?>" },
   // { name: '[if, ""' },
-  { name: "[sair_node, <Nome da saída>" },
+  // { name: "[sair_node, <Nome da saída>" },
 ];
 
 const optionsModels = [
@@ -275,6 +267,7 @@ const optionsModels = [
       </span>
     ),
     value: "gpt-4o",
+    isDisabled: true,
   },
   {
     label: (
@@ -291,6 +284,7 @@ const optionsModels = [
       </span>
     ),
     value: "o4-mini",
+    isDisabled: true,
   },
   {
     label: (
@@ -299,6 +293,7 @@ const optionsModels = [
       </span>
     ),
     value: "o3-mini",
+    isDisabled: true,
   },
 ];
 
@@ -322,6 +317,7 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
   const [draft, setDraft] = useState("");
   const [errorDraft, setErrorDraft] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
+  const [loadSend, setLoadSend] = useState(false);
   const [currentTab, setCurrentTab] = useState<
     "secret-key" | "persona" | "engine"
   >("secret-key");
@@ -350,18 +346,8 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
     name: "files",
   });
 
-  // const {
-  //   fields: fieldInstructions,
-  //   append,
-  //   remove,
-  //   update,
-  // } = useFieldArray({
-  //   control,
-  //   name: "instructions",
-  // });
-
   const { mutateAsync: createAgentAI, isPending } = useCreateAgentAI({
-    // setError,
+    setError,
     async onSuccess() {
       setCurrentTab("secret-key");
       setOpen(false);
@@ -371,17 +357,13 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
   const create = useCallback(
     async ({ files, instructions, ...fields }: Fields): Promise<void> => {
       try {
-        // const agentAI = await createAgentAI({
-        //   ...fields,
-        //   files: files?.map((file) => file.id),
-        //   instructions: instructions?.map((instruction) => ({
-        //     prompt: instruction.prompt?.trim(),
-        //     promptAfterReply: instruction.promptAfterReply?.trim(),
-        //     files: instruction.files?.map((file) => file.id),
-        //   })),
-        // });
+        const agentAI = await createAgentAI({
+          ...fields,
+          instructions,
+          files: files?.map((s) => s.id),
+        });
         reset();
-        // props.onCreate?.({ ...agentAI, name: fields.name });
+        props.onCreate?.({ ...agentAI, name: fields.name });
       } catch (error) {
         if (error instanceof AxiosError) {
           console.log("Error-API", error);
@@ -411,6 +393,7 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
     async (fields: Fields) => {
       try {
         if (!draft.trim()) return;
+        setLoadSend(true);
         setMessages((prev) => [
           ...prev,
           { id: v4(), role: "user", content: draft },
@@ -430,11 +413,13 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
           content: draft.trim(),
           tokenTest: tokenTest,
         });
+        setLoadSend(false);
         for await (const content of data.actions) {
           setMessages((prev) => [
             ...prev,
             { id: v4(), role: "system", content },
           ]);
+          await new Promise((resolve) => setTimeout(resolve, 220));
         }
         await new Promise((resolve) => setTimeout(resolve, 300));
         for await (const content of data.content) {
@@ -445,6 +430,7 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
           await new Promise((resolve) => setTimeout(resolve, 220));
         }
       } catch (error) {
+        setLoadSend(false);
         if (error instanceof AxiosError) {
           if (error.response?.status === 401) logout();
           if (error.response?.status === 400) {
@@ -801,8 +787,8 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
                       label={
                         <div className="flex flex-col -space-y-1">
                           <span>Tempo esperando resposta</span>
-                          <span className="text-white/70 font-light">
-                            Funciona apenas em chat real
+                          <span className="text-white/60 font-light">
+                            *Funciona apenas em chat real
                           </span>
                         </div>
                       }
@@ -838,21 +824,17 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
                       label={
                         <div className="flex flex-col -space-y-1">
                           <span>Debounce</span>
-                          <span className="text-white/70 font-light">
-                            Funciona apenas em chat real
+                          <span className="text-white/60 font-light">
+                            *Funciona apenas em chat real
                           </span>
                         </div>
                       }
                       helperText={
                         <div>
-                          <Tooltip
-                            content="Espera alguns segundos após a última mensagem do
-                            contato antes de prosseguir. Isso evita floods e
-                            garante que ele terminou de enviar todas as mensagens. (Funciona apenas em conversa real)"
-                          >
+                          <Tooltip content="Isso evita floods e garante que o contato terminou de enviar todas as mensagens">
                             <span className="line-clamp-2 leading-5 ">
-                              Espera alguns segundos após a última mensagem do
-                              contato...
+                              Isso evita floods e garante que o contato terminou
+                              de enviar todas as mensagens
                             </span>
                           </Tooltip>
                         </div>
@@ -971,13 +953,7 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
                       value={instructions}
                       spacer={"] "}
                       type="textarea"
-                      placeholder={`- Quando iniciar a conversa /[add_etiqueta, LEAD_FRIO] 
-
-- Depois pergunte o nome do contato, e: 
-    /[atribuir_variável, NOME_LEAD, Resposta do contato]
-
--Depois de salvar o nome do contato, faça: 
-    /[add_tag, LEAD_QUENTE] e /[remove_tag, LEAD_FRIO]`}
+                      placeholder={`- Quando iniciar a conversa /[add_etiqueta, LEAD_FRIO]`}
                       onChange={(s: string) => setValue("instructions", s)}
                     />
                     <span className="text-white/70">
@@ -1303,23 +1279,34 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
                 />
               </div>
               <div className="flex flex-col">
-                <TextareaAutosize
-                  placeholder="Enviar mensagem"
-                  style={{ resize: "none" }}
-                  minRows={1}
-                  maxRows={6}
-                  className="p-3 py-2.5 rounded-sm w-full border-black/10 dark:border-white/10 border"
-                  value={draft}
-                  onChange={(e) => setDraft(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault();
-                      if (draft.trim()) {
-                        handleSubmit(sendMessage, onError)();
+                <div className="flex items-center gap-x-2">
+                  <TextareaAutosize
+                    placeholder="Enviar mensagem"
+                    style={{ resize: "none" }}
+                    minRows={1}
+                    maxRows={6}
+                    className="p-3 py-2.5 rounded-sm w-full border-black/10 dark:border-white/10 border"
+                    value={draft}
+                    onChange={(e) => setDraft(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        if (draft.trim()) {
+                          handleSubmit(sendMessage, onError)();
+                        }
                       }
-                    }
-                  }}
-                />
+                    }}
+                  />
+                  <IconButton
+                    onClick={() => {
+                      if (draft.trim()) handleSubmit(sendMessage, onError)();
+                    }}
+                    loading={loadSend}
+                    variant={"outline"}
+                  >
+                    <RiSendPlane2Line />
+                  </IconButton>
+                </div>
                 <span className="text-xs text-center text-white/50">
                   Teste seu agente IA.
                 </span>
