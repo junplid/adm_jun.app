@@ -52,7 +52,7 @@ export const AgentsAIPage: React.FC = (): JSX.Element => {
             <div className="flex h-full items-center gap-x-1.5">
               <Button
                 size={"sm"}
-                bg={"#60c4eb39"}
+                bg={"transparent"}
                 _hover={{ bg: "#60c4eb63" }}
                 disabled
               >
@@ -66,7 +66,7 @@ export const AgentsAIPage: React.FC = (): JSX.Element => {
                   });
                 }}
                 size={"sm"}
-                bg={"#60d6eb13"}
+                bg={"transparent"}
                 _hover={{ bg: "#30c9e422" }}
                 _icon={{ width: "20px", height: "20px" }}
                 disabled={row.type === "system"}
@@ -75,7 +75,7 @@ export const AgentsAIPage: React.FC = (): JSX.Element => {
               </Button>
               <Button
                 size={"sm"}
-                bg={"#eb606013"}
+                bg={"transparent"}
                 _hover={{ bg: "#eb606028" }}
                 _icon={{ width: "20px", height: "20px" }}
                 onClick={() => {
@@ -124,7 +124,7 @@ export const AgentsAIPage: React.FC = (): JSX.Element => {
         <TableComponent
           rows={agentsAI || []}
           columns={renderColumns}
-          textEmpity="Nenhum agente IA criado."
+          textEmpity="Seus agente IA aparecerão aqui."
           load={isFetching || isPending}
         />
       </div>

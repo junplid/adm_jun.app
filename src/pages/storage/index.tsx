@@ -110,13 +110,13 @@ export const StoragePage: React.FC = (): JSX.Element => {
       {
         key: "actions",
         name: "",
-        styles: { width: 200 },
+        styles: { width: 43 * 2 },
         render(row) {
           return (
             <div className="flex h-full items-center justify-end gap-x-1.5">
               <Button
                 size={"sm"}
-                bg={"#60d6eb13"}
+                bg={"transparent"}
                 _hover={{ bg: "#30c9e422" }}
                 _icon={{ width: "20px", height: "20px" }}
                 onClick={() =>
@@ -129,7 +129,7 @@ export const StoragePage: React.FC = (): JSX.Element => {
               </Button>
               <Button
                 size={"sm"}
-                bg={"#eb606013"}
+                bg={"transparent"}
                 _hover={{ bg: "#eb606028" }}
                 _icon={{ width: "20px", height: "20px" }}
                 onClick={() => {
@@ -180,7 +180,7 @@ export const StoragePage: React.FC = (): JSX.Element => {
         <TableComponent
           rows={storageFiles || []}
           columns={renderColumns}
-          textEmpity="Nenhum arquivo criado."
+          textEmpity="Seus arquivos aparecerão aqui."
           load={isFetching || isPending}
         />
       </div>

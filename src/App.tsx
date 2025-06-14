@@ -23,6 +23,9 @@ import { PrivacyPolicyPage } from "./pages/privacy-terms";
 import { CampaignsPage } from "./pages/campaigns";
 import { StoragePage } from "./pages/storage";
 import { AgentsAIPage } from "./pages/agents-ai";
+import { InboxUsersPage } from "./pages/inboxes/users";
+import { LayoutInboxesPageProvider } from "./pages/inboxes/page.context";
+import { InboxDepartmentsPage } from "./pages/inboxes/departments";
 
 // import { NodeMessage } from "./flow-lib/nodes/Message";
 // import { NodeReply } from "./flow-lib/nodes/Reply";
@@ -103,6 +106,18 @@ export default function App() {
             </Route>
             <Route path="storage" caseSensitive element={<StoragePage />} />
             <Route path="agents-ai" caseSensitive element={<AgentsAIPage />} />
+            <Route caseSensitive element={<LayoutInboxesPageProvider />}>
+              <Route
+                path="inboxes/attendants"
+                caseSensitive
+                element={<InboxUsersPage />}
+              />
+              <Route
+                path="inboxes/departments"
+                caseSensitive
+                element={<InboxDepartmentsPage />}
+              />
+            </Route>
           </Route>
 
           <Route

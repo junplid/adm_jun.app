@@ -67,7 +67,7 @@ export const ChatbotsPage: React.FC = (): JSX.Element => {
       {
         key: "actions",
         name: "",
-        styles: { width: 200 },
+        styles: { width: 43 * 3 },
         render(row) {
           return (
             <div className="flex h-full items-center justify-end gap-x-1.5">
@@ -78,7 +78,7 @@ export const ChatbotsPage: React.FC = (): JSX.Element => {
                   })
                 }
                 size={"sm"}
-                bg={"#f0f0f016"}
+                bg={"transparent"}
                 _hover={{ bg: "#ffffff21" }}
                 _icon={{ width: "20px", height: "20px" }}
               >
@@ -92,7 +92,7 @@ export const ChatbotsPage: React.FC = (): JSX.Element => {
                   });
                 }}
                 size={"sm"}
-                bg={"#60d6eb13"}
+                bg={"transparent"}
                 _hover={{ bg: "#30c9e422" }}
                 _icon={{ width: "20px", height: "20px" }}
                 disabled={row.type === "system"}
@@ -101,7 +101,7 @@ export const ChatbotsPage: React.FC = (): JSX.Element => {
               </Button>
               <Button
                 size={"sm"}
-                bg={"#eb606013"}
+                bg={"transparent"}
                 _hover={{ bg: "#eb606028" }}
                 _icon={{ width: "20px", height: "20px" }}
                 disabled={row.type === "system"}
@@ -148,7 +148,7 @@ export const ChatbotsPage: React.FC = (): JSX.Element => {
         <TableComponent
           rows={chatbots || []}
           columns={renderColumns}
-          textEmpity="Nenhum bot de recepção criado."
+          textEmpity="Seus bots de recepção aparecerão aqui."
           load={isFetching || isPending}
         />
       </div>

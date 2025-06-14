@@ -26,11 +26,11 @@ import {
   LuBrainCircuit,
   LuChartNoAxesCombined,
 } from "react-icons/lu";
-// import { QrCode } from "@components/ui/qr-code";
 import { Badge } from "@chakra-ui/react";
 import { AuthContext } from "./auth.context";
 import { ModalOnboarded } from "./ModalOnboarded";
 import { updateAccount } from "../services/api/Account";
+import { FiInbox } from "react-icons/fi";
 
 export const ShadowTopMemoComponent = memo(() => {
   const [showShadowTop, setShowShadowTop] = useState(true);
@@ -263,18 +263,18 @@ export function LayoutPrivateProvider(): JSX.Element {
                 Storage <Badge colorPalette={"green"}>NEW</Badge>
               </MenuItem>
               <MenuItem
+                icon={<FiInbox size={22} />}
+                component={<Link to={"/auth/inboxes/attendants"} />}
+                active={pathname === "/auth/inboxes/attendants"}
+              >
+                Inboxes <Badge colorPalette={"green"}>NEW</Badge>
+              </MenuItem>
+              <MenuItem
                 icon={<LuBrainCircuit size={20} />}
                 component={<Link to={"/auth/agents-ai"} />}
                 active={pathname === "/auth/agents-ai"}
               >
                 Agentes IA <Badge colorPalette={"green"}>NEW</Badge>
-              </MenuItem>
-              <MenuItem
-                icon={<GoWorkflow size={20} />}
-                component={<Link to={"/auth/flows"} />}
-                active={pathname === "/auth/flows"}
-              >
-                Construtores de fluxos
               </MenuItem>
               <MenuItem
                 icon={<TbTags size={21} />}
@@ -289,6 +289,13 @@ export function LayoutPrivateProvider(): JSX.Element {
                 active={pathname === "/auth/variables"}
               >
                 Variáveis
+              </MenuItem>
+              <MenuItem
+                icon={<GoWorkflow size={20} />}
+                component={<Link to={"/auth/flows"} />}
+                active={pathname === "/auth/flows"}
+              >
+                Construtores de fluxos
               </MenuItem>
               <MenuItem
                 icon={<LuBotMessageSquare size={22} />}

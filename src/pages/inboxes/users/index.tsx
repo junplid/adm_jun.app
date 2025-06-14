@@ -1,53 +1,60 @@
-import { JSX, useMemo } from "react";
+import { JSX, useContext, useMemo } from "react";
 import moment from "moment";
-import { TableComponent } from "../../components/Table";
-import { Column } from "../../components/Table";
-import { ModalCreateFlow } from "./modals/create";
-import { ModalDeleteFlow } from "./modals/delete";
 import { Button } from "@chakra-ui/react";
-import { MdDeleteOutline, MdEdit } from "react-icons/md";
-import { ModalViewFlow } from "./modals/view";
-import { LuEye } from "react-icons/lu";
 import { IoAdd } from "react-icons/io5";
-import { ModalEditFlow } from "./modals/edit";
-import { FlowType } from "../../services/api/Flow";
-import { useGetFlows } from "../../hooks/flow";
-import { Link } from "react-router-dom";
-import { useDialogModal } from "../../hooks/dialog.modal";
+import { useDialogModal } from "../../../hooks/dialog.modal";
+import { Column, TableComponent } from "@components/Table";
+import { LayoutInboxesPageContext } from "../page.context";
+import { ModalCreateUser } from "./modals/create";
+import { useGetInboxUsers } from "../../../hooks/inboxUser";
+import { ModalDeleteInboxUser } from "./modals/delete";
+import { MdDeleteOutline, MdEdit } from "react-icons/md";
+import { ModalEditIndexUser } from "./modals/edit";
+import { LuEye } from "react-icons/lu";
 
-export interface FlowRow {
-  id: string;
+export interface inboxUserRow {
+  id: number;
   name: string;
   createAt: Date;
-  updateAt: Date;
-  type: FlowType;
-  businesses: { id: number; name: string }[];
 }
 
-export const FlowsPage: React.FC = (): JSX.Element => {
-  const { data: flows, isFetching, isPending } = useGetFlows();
+export const InboxUsersPage: React.FC = (): JSX.Element => {
+  const { ToggleMenu } = useContext(LayoutInboxesPageContext);
+  const { data: inboxUsers, isFetching, isPending } = useGetInboxUsers();
   const { dialog: DialogModal, close, onOpen } = useDialogModal({});
 
   const renderColumns = useMemo(() => {
     const columns: Column[] = [
       {
+        key: "id",
+        name: "ID",
+        styles: { width: 10 },
+      },
+      {
         key: "name",
-        name: "Nome do fluxo",
+        name: "Nome do atendente",
+      },
+      {
+        key: "tickets_open",
+        name: "Atendendo",
+        styles: { width: 100 },
         render(row) {
           return (
-            <Link
-              to={`/auth/flows/${row.id}`}
-              className="text-blue-300 hover:text-blue-400 underline"
-            >
-              {row.name}
-            </Link>
+            <div className="flex items-center justify-center">
+              <span
+                className="font-semibold"
+                style={{ color: row.tickets_open > 0 ? "#4caf50" : "#f44336" }}
+              >
+                {row.tickets_open}
+              </span>
+            </div>
           );
         },
       },
       {
         key: "createAt",
         name: "Data de criação",
-        styles: { width: 200 },
+        styles: { width: 140 },
         render(row) {
           return (
             <div className="flex flex-col">
@@ -71,11 +78,7 @@ export const FlowsPage: React.FC = (): JSX.Element => {
                 bg={"transparent"}
                 _hover={{ bg: "#ffffff21" }}
                 _icon={{ width: "20px", height: "20px" }}
-                onClick={() =>
-                  onOpen({
-                    content: <ModalViewFlow id={row.id} />,
-                  })
-                }
+                disabled
               >
                 <LuEye color={"#dbdbdb"} />
               </Button>
@@ -86,7 +89,7 @@ export const FlowsPage: React.FC = (): JSX.Element => {
                 _icon={{ width: "20px", height: "20px" }}
                 onClick={() =>
                   onOpen({
-                    content: <ModalEditFlow close={close} id={row.id} />,
+                    content: <ModalEditIndexUser close={close} id={row.id} />,
                   })
                 }
               >
@@ -100,7 +103,7 @@ export const FlowsPage: React.FC = (): JSX.Element => {
                 onClick={() => {
                   onOpen({
                     content: (
-                      <ModalDeleteFlow
+                      <ModalDeleteInboxUser
                         data={{ id: row.id, name: row.name }}
                         close={close}
                       />
@@ -119,28 +122,31 @@ export const FlowsPage: React.FC = (): JSX.Element => {
   }, []);
 
   return (
-    <div className="h-full gap-y-2 flex flex-col">
+    <div className="h-full flex-1 gap-y-1 flex flex-col">
       <div className="flex flex-col gap-y-0.5">
-        <div className="flex items-center gap-x-5">
-          <h1 className="text-lg font-semibold">Construtores de fluxos</h1>
-          <ModalCreateFlow
+        <div className="flex items-center w-full justify-between gap-x-5">
+          <div className="flex items-center gap-x-2">
+            {ToggleMenu}
+            <h1 className="text-lg font-semibold">Atendentes</h1>
+            <p className="text-white/60 font-light">
+              responsáveis por atender seus contatos.
+            </p>
+          </div>
+
+          <ModalCreateUser
             trigger={
-              <Button variant="outline" size={"sm"}>
+              <Button disabled variant="outline" size={"sm"}>
                 <IoAdd /> Adicionar
               </Button>
             }
           />
         </div>
-        <p className="text-white/60 font-light">
-          Construa, melhore e organize fluxos de conversa de forma visual e
-          intuitiva.
-        </p>
       </div>
-      <div style={{ maxHeight: "calc(100vh - 180px)" }} className="grid flex-1">
+      <div className="flex-1 grid">
         <TableComponent
-          rows={flows || []}
+          rows={inboxUsers || []}
           columns={renderColumns}
-          textEmpity="Seus construtores de fluxo aparecerão aqui."
+          textEmpity="Seus atendentes aparecerão aqui."
           load={isFetching || isPending}
         />
       </div>

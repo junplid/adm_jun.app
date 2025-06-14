@@ -59,7 +59,7 @@ export const TableComponent = (props: Props): JSX.Element => {
   }, [props.columns, props.rows]);
 
   return (
-    <div className="relative">
+    <div className="relative w-full">
       <TableVirtuoso
         className="scroll-custom-table container__virtuoso"
         style={{ height: "100%", width: "100%" }}
