@@ -58,6 +58,7 @@ import { NodeSendVideos } from "./nodes/SendVideos";
 import { NodeSendAudiosLive } from "./nodes/SendAudiosLive";
 import { NodeSendAudios } from "./nodes/SendAudios";
 import { NodeAgentAI } from "./nodes/AgentAI";
+import { NodeTransferDepartment } from "./nodes/TransferDepartment";
 
 type NodeTypesGeneric = {
   [x in TypesNodes]: any;
@@ -81,6 +82,7 @@ export type TypesNodes =
   | "NodeSendAudiosLive"
   | "NodeSendAudios"
   | "NodeRemoveTags"
+  | "NodeTransferDepartment"
   | "NodeAgentAI";
 
 const edgeTypes = {
@@ -245,6 +247,7 @@ function Body(props: IBody): JSX.Element {
       NodeSendAudiosLive: NodeSendAudiosLive,
       NodeSendAudios: NodeSendAudios,
       NodeAgentAI: NodeAgentAI,
+      NodeTransferDepartment: NodeTransferDepartment,
     }),
     []
   );
@@ -304,6 +307,10 @@ function Body(props: IBody): JSX.Element {
         newNode.data = { numbers: [] };
       } else if (typeN === "NodeSendFiles") {
         newNode.data = { files: [] };
+      } else if (typeN === "NodeMessage") {
+        newNode.data = {
+          messages: [{ text: "", key: nanoid(), interval: 0 }],
+        };
       }
 
       await db.nodes.add({

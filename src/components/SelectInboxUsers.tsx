@@ -7,6 +7,7 @@ interface ISelectInboxUsersProps extends SelectProps {
   onCreate?: (business: { id: number; name: string }) => void;
   value?: number[] | number | null;
   setError?(props: { name: string; message?: string }): void;
+  isFlow?: boolean;
 }
 
 const SelectInboxUsers = forwardRef<any, ISelectInboxUsersProps>(
@@ -52,6 +53,39 @@ const SelectInboxUsers = forwardRef<any, ISelectInboxUsersProps>(
                 })),
               }
           : { value: null })}
+        menuPosition={props.isFlow ? "fixed" : "absolute"}
+        menuPortalTarget={props.isFlow ? document.body : undefined}
+        components={
+          props.isFlow
+            ? {
+                Option: (props) => {
+                  const handleMouseDown = (e: React.MouseEvent) => {
+                    e.stopPropagation();
+                    props.innerRef?.(e.currentTarget as HTMLDivElement);
+                    props.selectOption(props.data);
+                  };
+
+                  return (
+                    <div
+                      style={{
+                        backgroundColor: props.isFocused
+                          ? "#1f1e20"
+                          : "transparent",
+                        padding: "6px 8px",
+                        cursor: "pointer",
+                        fontSize: "15px",
+                        borderRadius: "0.125rem",
+                      }}
+                      onMouseDown={handleMouseDown}
+                      {...props.innerProps}
+                    >
+                      {props.children}
+                    </div>
+                  );
+                },
+              }
+            : undefined
+        }
         {...props}
       />
     );

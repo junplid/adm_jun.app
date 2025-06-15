@@ -24,7 +24,7 @@ import removeAccents from "remove-accents";
 import { LiaHourglassHalfSolid, LiaListSolid } from "react-icons/lia";
 import { MdOutlineImage, MdOutlineNotificationsActive } from "react-icons/md";
 import { VscMic } from "react-icons/vsc";
-import { LuBrainCircuit } from "react-icons/lu";
+import { LuBrainCircuit, LuBriefcaseBusiness } from "react-icons/lu";
 
 export function SearchNodesComponents(): JSX.Element {
   const [open, setOpen] = useState(false);
@@ -187,6 +187,19 @@ const nodesList: {
     description: "Espera a resposta do lead",
     id: "4",
     type: "NodeReply",
+  },
+  {
+    icon: (
+      <LuBriefcaseBusiness
+        className="dark:text-neutral-300 text-neutral-800 w-8"
+        size={27}
+      />
+    ),
+    name: "Transferir para departamento",
+    description: "Transfere a conversa para um departamento",
+    id: "1a5",
+    type: "NodeTransferDepartment",
+    new: true,
   },
   {
     icon: (

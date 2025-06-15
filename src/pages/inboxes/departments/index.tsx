@@ -11,7 +11,7 @@ import { ModalDeleteInboxDepartment } from "./modals/delete";
 import { MdDeleteOutline, MdEdit } from "react-icons/md";
 import { ModalCreateInboxDepartment } from "./modals/create";
 import { ModalEditInboxDepartment } from "./modals/edit";
-import { ModalPlayerInboxDepartment } from "./modals/player";
+import { ModalPlayerInboxDepartment } from "./modals/Player";
 
 export interface inboxDepartmentRow {
   tickets_open: number;
@@ -48,38 +48,38 @@ export const InboxDepartmentsPage: React.FC = (): JSX.Element => {
         render(row) {
           return (
             <div className="flex flex-col gap-y-[1px]">
-              <div className="flex w-full justify-between gap-x-1">
-                <span
-                  style={{
-                    color: row.tickets_new > 0 ? "#f7f7f7" : "#6d6d6d",
-                  }}
-                >
-                  Aguardando
-                </span>
+              <div className="flex w-full gap-x-4">
                 <span
                   className="font-semibold"
                   style={{
-                    color: row.tickets_new > 0 ? "#6adb6e" : "#882f29",
+                    color: row.tickets_new ? "#f7a85e" : "#882f29",
                   }}
                 >
                   {row.tickets_new}
                 </span>
-              </div>
-              <div className="flex w-full justify-between gap-x-1">
                 <span
                   style={{
-                    color: row.tickets_open > 0 ? "#f7f7f7" : "#6d6d6d",
+                    color: row.tickets_new ? "#f7f7f7" : "#6d6d6d",
                   }}
                 >
-                  Atendendo
+                  Aguardando
                 </span>
+              </div>
+              <div className="flex w-full gap-x-4">
                 <span
                   className="font-semibold"
                   style={{
-                    color: row.tickets_open > 0 ? "#6adb6e" : "#882f29",
+                    color: row.tickets_open ? "#6faddd" : "#882f29",
                   }}
                 >
                   {row.tickets_open}
+                </span>
+                <span
+                  style={{
+                    color: row.tickets_open ? "#f7f7f7" : "#6d6d6d",
+                  }}
+                >
+                  Atendendo
                 </span>
               </div>
             </div>
@@ -119,7 +119,11 @@ export const InboxDepartmentsPage: React.FC = (): JSX.Element => {
                     content: (
                       <ModalPlayerInboxDepartment
                         close={close}
-                        data={{ id: row.id, name: row.name }}
+                        data={{
+                          id: row.id,
+                          name: row.name,
+                          businessId: row.business.id,
+                        }}
                       />
                     ),
                   })
