@@ -29,7 +29,7 @@ interface PropsInbox {
   accountId: number;
   departmentId: number;
   departmentName: string;
-  status: "NEW" | "OPEN";
+  status: "NEW" | "OPEN" | "RETURN" | "RESOLVED";
   notifyMsc: boolean;
   notifyToast: boolean;
   id: number;
@@ -76,27 +76,40 @@ export const SocketProvider = ({
                 if (!old) return old;
                 return old.map((s: any) => {
                   if (s.id !== data.departmentId) return s;
+
+                  let tickets_new = s.tickets_new;
+                  let tickets_open = s.tickets_open;
+
+                  if (data.status === "NEW") tickets_new += 1;
+                  if (data.status === "OPEN") {
+                    if (s.tickets_new > 0) tickets_new -= 1;
+                    tickets_open += 1;
+                  }
+                  if (data.status === "RETURN") {
+                    tickets_new += 1;
+                    if (s.tickets_open > 0) tickets_open -= 1;
+                  }
+                  if (data.status === "RESOLVED") {
+                    tickets_open -= 1;
+                  }
+
                   return {
                     ...s,
-                    tickets_new:
-                      data.status === "NEW" ? s.tickets_new + 1 : s.tickets_new,
-                    tickets_open:
-                      data.status === "OPEN"
-                        ? s.tickets_open + 1
-                        : s.tickets_open,
+                    tickets_new,
+                    tickets_open,
                   };
                 });
               }
             );
           }
           if (departmentOpenId === data.departmentId) return;
-          if (data.notifyToast) {
+          if (data.notifyToast && data.status === "NEW") {
             toaster.create({
               title: data.departmentName,
               ...(data.status === "NEW" && {
                 description: `Novo ticket em: ${data.departmentName}`,
               }),
-              type: data.status === "NEW" ? "success" : "info",
+              type: data.status === "NEW" ? "info" : "info",
               duration: 4000,
             });
           }

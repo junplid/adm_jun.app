@@ -137,8 +137,8 @@ export function ModalCreateCampaign({
   const [open, setOpen] = useState(false);
   const [load, setLoad] = useState(true);
   const [currentTab, setCurrentTab] = useState<
-    "start-config" | "opening-hours"
-  >("start-config");
+    "start-config" | "opening-hours" | "bloq-bans"
+  >("bloq-bans");
 
   const { mutateAsync: createCampaign, isPending } = useCreateCampaign({
     setError,
@@ -172,24 +172,6 @@ export function ModalCreateCampaign({
     const selectedDays = operatingDays.map((day) => day.dayOfWeek);
     return optionsOpertaingDays.filter((s) => !selectedDays.includes(s.value));
   }, [operatingDays?.length]);
-
-  useEffect(() => {
-    if (!!errors.operatingDays) {
-      setCurrentTab("opening-hours");
-      return;
-    }
-    setCurrentTab("start-config");
-  }, [
-    errors.name,
-    errors.businessIds,
-    errors.description,
-    errors.flowId,
-    errors.connectionIds,
-    errors.operatingDays,
-    errors.timeItWillStart,
-    errors.tagsIds,
-    errors.shootingSpeedId,
-  ]);
 
   useEffect(() => {
     (async () => {
@@ -234,7 +216,29 @@ export function ModalCreateCampaign({
       preventScroll
     >
       <DialogTrigger asChild>{props.trigger}</DialogTrigger>
-      <DialogContent as={"form"} onSubmit={handleSubmit(create)} w={"470px"}>
+      <DialogContent
+        as={"form"}
+        onSubmit={handleSubmit(create, (error) => {
+          if (
+            !!error.name ||
+            !!error.businessIds ||
+            !!error.description ||
+            !!error.flowId ||
+            !!error.connectionIds ||
+            !!error.tagsIds ||
+            !!error.shootingSpeedId ||
+            !!error.timeItWillStart
+          ) {
+            setCurrentTab("start-config");
+            return;
+          }
+          if (!!error.operatingDays) {
+            setCurrentTab("opening-hours");
+            return;
+          }
+        })}
+        w={"470px"}
+      >
         <DialogHeader flexDirection={"column"} gap={0}>
           <DialogTitle>Criar campanha</DialogTitle>
           <DialogDescription>
@@ -255,6 +259,14 @@ export function ModalCreateCampaign({
                 <TabsTrigger
                   _selected={{ bg: "bg.subtle", color: "#fff" }}
                   color={"#757575"}
+                  value="bloq-bans"
+                  py={"27px"}
+                >
+                  Bloqueios e banimentos
+                </TabsTrigger>
+                <TabsTrigger
+                  _selected={{ bg: "bg.subtle", color: "#fff" }}
+                  color={"#757575"}
                   value="start-config"
                   py={"27px"}
                 >
@@ -266,10 +278,74 @@ export function ModalCreateCampaign({
                   value="opening-hours"
                   py={"27px"}
                 >
-                  Horarios de funcionamento
+                  Horários de funcionamento
                 </TabsTrigger>
               </TabsList>
             </Center>
+            <TabsContent value="bloq-bans">
+              <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-1 bg-red-600/30 p-2.5 px-3.5 rounded-sm">
+                  <div className="flex items-center gap-x-2">
+                    <BsFire size={25} color="#ff0000" />
+                    <span className="font-semibold text-[#fffcfc]">
+                      Cuidado!
+                    </span>
+                  </div>
+                  <p className="font-medium leading-4">
+                    Se 3% dos destinatários marcarem sua mensagem como spam seu
+                    número será <strong>banido</strong>!
+                  </p>
+                  <strong className="uppercase text-lg">
+                    O WhatsApp não permite SPAM!
+                  </strong>
+                </div>
+                <h2 className="text-center text-[16px] font-semibold">
+                  Boas práticas para suas Campanhas
+                </h2>
+                <ul className="list-decimal pl-5 flex flex-col gap-2">
+                  <li>
+                    <span className="font-medium">
+                      Mature o número antes de escalar
+                    </span>
+                    <p className="text-white/70">
+                      Converse normalmente por alguns dias para criar histórico
+                      e reputação.
+                    </p>
+                  </li>
+                  <li>
+                    <span className="font-medium">
+                      Use o app ou WhatsApp Web primeiro
+                    </span>
+                    <p className="text-white/70">
+                      Realize trocas reais de mensagens para que a conta seja
+                      reconhecida como humana.
+                    </p>
+                  </li>
+                  <li>
+                    <span className="font-medium">Complete o perfil</span>
+                    <p className="text-white/70">
+                      Foto + Nome + Bio = transparência, gera confiança e reduz
+                      denúncias.
+                    </p>
+                  </li>
+                  <li>
+                    <span className="font-medium">
+                      Evite disparar para quem não salvou seu contato
+                    </span>
+                    <p className="text-white/70">
+                      Essas abordagens têm maior chance de bloqueio.
+                    </p>
+                  </li>
+                  <li>
+                    <span className="font-medium">Personalize cada envio</span>
+                    <p className="text-white/70">
+                      Mencione nome, cidade ou outras variáveis; se não for
+                      possível, varie a redação para quebrar padrões.
+                    </p>
+                  </li>
+                </ul>
+              </div>
+            </TabsContent>
             <TabsContent value="start-config">
               <div className="grid w-full gap-y-3">
                 <Field
@@ -399,6 +475,7 @@ export function ModalCreateCampaign({
                           <IoIceCreamOutline size={28} color="#197fd3" />
                           <small className="text-white/40">Safe</small>
                         </div>
+
                         <Controller
                           control={control}
                           name="shootingSpeedId"
@@ -423,7 +500,7 @@ export function ModalCreateCampaign({
                                 bg={"#ffffff29"}
                               />
                               <SegmentGroup.Items
-                                className="cursor-pointer"
+                                className="cursor-pointer !h-[66px]"
                                 items={shootingSpeeds.map((s) => ({
                                   label: (
                                     <div className="flex flex-col font-medium items-center">
@@ -660,15 +737,35 @@ export function ModalCreateCampaign({
               Cancelar
             </Button>
           </DialogActionTrigger>
-          {currentTab === "start-config" && (
+          {currentTab === "bloq-bans" && (
             <Button
               type="button"
-              onClick={() => setCurrentTab("opening-hours")}
+              onClick={() => setCurrentTab("start-config")}
               colorPalette={"cyan"}
               loading={isPending}
             >
               Avançar
             </Button>
+          )}
+          {currentTab === "start-config" && (
+            <>
+              <Button
+                type="button"
+                onClick={() => setCurrentTab("bloq-bans")}
+                colorPalette={"cyan"}
+                loading={isPending}
+              >
+                Voltar
+              </Button>
+              <Button
+                type="button"
+                onClick={() => setCurrentTab("opening-hours")}
+                colorPalette={"cyan"}
+                loading={isPending}
+              >
+                Avançar
+              </Button>
+            </>
           )}
           {currentTab === "opening-hours" && (
             <Button

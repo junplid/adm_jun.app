@@ -7,9 +7,9 @@ import {
   DialogFooter,
   DialogActionTrigger,
 } from "@components/ui/dialog";
-import { JSX } from "react";
+import { JSX, useRef } from "react";
 import { CloseButton } from "@components/ui/close-button";
-import { Button, Spinner } from "@chakra-ui/react";
+import { Button, Clipboard, Spinner } from "@chakra-ui/react";
 import { ModalDeleteChatbot } from "./delete";
 import { useDialogModal } from "../../../hooks/dialog.modal";
 import { useGetChatbotDetails } from "../../../hooks/chatbot";
@@ -24,6 +24,26 @@ interface IProps {
 function Content({ id, close }: IProps) {
   const { data, isFetching, status } = useGetChatbotDetails(id);
   const { dialog, onOpen } = useDialogModal({});
+
+  const svgRef = useRef<any>(null);
+
+  const handleDownload = () => {
+    if (!svgRef.current) return;
+
+    // Converte o SVG gerado pelo componente em blob
+    const svgMarkup = new XMLSerializer().serializeToString(svgRef.current);
+    const blob = new Blob([svgMarkup], {
+      type: "image/svg+xml;charset=utf-8",
+    });
+
+    // Cria link temporário e força o download
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "qrcode.svg";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   const footer = (
     <DialogFooter>
@@ -86,9 +106,10 @@ function Content({ id, close }: IProps) {
             <Tooltip
               disabled={!data.target}
               contentProps={{ className: "!bg-white" }}
-              content={<QrCode size={"lg"} value="askljakjsklasjljaslkasj" />}
+              content={<QrCode ref={svgRef} size={"lg"} value={data.target} />}
             >
               <Button
+                onClick={handleDownload}
                 disabled={!data.target}
                 w={"100%"}
                 variant={"ghost"}
@@ -97,14 +118,19 @@ function Content({ id, close }: IProps) {
                 Baixar QR code
               </Button>
             </Tooltip>
-            <Button
-              disabled={!data.target}
-              w={"full"}
-              variant={"ghost"}
-              size={"xs"}
-            >
-              Copiar link
-            </Button>
+            <Clipboard.Root value={data.target || ""}>
+              <Clipboard.Trigger asChild>
+                <Button
+                  disabled={!data.target}
+                  w={"full"}
+                  variant={"ghost"}
+                  size={"xs"}
+                >
+                  <Clipboard.Indicator />
+                  Copiar
+                </Button>
+              </Clipboard.Trigger>
+            </Clipboard.Root>
           </div>
           {!data.target && (
             <div className="text-white/80 text-center text-xs mt-2">

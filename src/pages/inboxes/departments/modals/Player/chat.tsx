@@ -1,4 +1,11 @@
-import { Box, Button, IconButton, Presence, Spinner } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  IconButton,
+  Image,
+  Presence,
+  Spinner,
+} from "@chakra-ui/react";
 import { Avatar } from "@components/ui/avatar";
 import moment, { Moment } from "moment";
 import {
@@ -24,7 +31,8 @@ import { format } from "@flasd/whatsapp-formatting";
 import parse from "html-react-parser";
 import { PlayerContext } from "./context";
 import {
-  getTicket,
+  resolveTicket,
+  returnTicket,
   sendTicketMessage,
 } from "../../../../../services/api/Ticket";
 import { AxiosError } from "axios";
@@ -33,6 +41,16 @@ import { AuthContext } from "@contexts/auth.context";
 import { toaster } from "@components/ui/toaster";
 import dataEmojis from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
+import { TbArrowBack, TbCircleCheck } from "react-icons/tb";
+import { MidiaComponent } from "./midia";
+import { IoMdImage } from "react-icons/io";
+import {
+  PiFileAudioFill,
+  PiFileFill,
+  PiFilePdfFill,
+  PiFileTextFill,
+  PiFileVideoFill,
+} from "react-icons/pi";
 
 const background = {
   system: "#5c3600cd",
@@ -47,33 +65,6 @@ type MessageType = {
   createAt: Date;
 };
 
-interface Ticket {
-  id: number;
-  inboxDepartmentId: number;
-  inboxUserId: number | null;
-  status: "NEW" | "OPEN" | "RESOLVED" | "DELETED";
-  contact: { name: string; completeNumber: string };
-  messages: {
-    content: MessageType;
-    by: "contact" | "user" | "system";
-    // number: string;
-    // id: number;
-    // createAt: Date;
-    // inboxUserId: number | null;
-    // name: string;
-    // type: string;
-    // by: "contact" | "user" | "system";
-    // latitude: string;
-    // longitude: string;
-    // address: string;
-    // fileName: string;
-    // caption: string;
-    // fullName: string;
-    // message: string;
-    // org: string;
-  }[];
-}
-
 interface PropsSocketMessage {
   ticketId: number;
   by: "contact" | "user" | "system";
@@ -85,18 +76,55 @@ interface PropsSocketMessage {
   lastInteractionDate: Date;
 }
 
+interface FileSelected {
+  id: number;
+  originalName: string;
+  mimetype: string | null;
+  fileName?: string | null;
+  type: "image/video" | "audio" | "document";
+}
+
+const IconPreviewFile = (p: { mimetype: string }): JSX.Element => {
+  if (/^image\//.test(p.mimetype)) {
+    return <IoMdImage color="#6daebe" size={24} />;
+  }
+  if (/^video\//.test(p.mimetype)) {
+    return <PiFileVideoFill color="#8eb87a" size={24} />;
+  }
+  if (/^audio\//.test(p.mimetype)) {
+    return <PiFileAudioFill color="#d4b663" size={24} />;
+  }
+  if (p.mimetype === "application/pdf") {
+    return <PiFilePdfFill color="#db8c8c" size={24} />;
+  }
+  if (/^text\//.test(p.mimetype)) {
+    return <PiFileTextFill color="#ffffff" size={24} />;
+  }
+  return <PiFileFill color="#808080" size={24} />;
+};
+
 export const ChatPlayer: FC = () => {
+  const {
+    pick,
+    currentTicket,
+    setDataTicket,
+    dataTicket,
+    socket,
+    loadResolved,
+    setLoadReturn,
+    setLoadResolved,
+    loadData,
+    loadReturn,
+  } = useContext(PlayerContext);
   const { logout } = useContext(AuthContext);
   const virtuosoRef = useRef<VirtuosoHandle>(null);
-  const [data, setData] = useState<Ticket | null>(null);
-  const [load, setLoad] = useState(true);
   const [loadMsg, setLoadMsg] = useState(false);
   const [text, setText] = useState("");
-  const { pick, currentTicket, socket } = useContext(PlayerContext);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [openEmojis, setOpenEmojis] = useState(false);
   const btnRef = useRef<HTMLButtonElement>(null);
   const caretRef = useRef<{ start: number; end: number }>({ start: 0, end: 0 });
+  const [filesSelected, setFilesSelected] = useState<FileSelected[]>([]);
 
   const rememberCaret = () => {
     const el = textareaRef.current;
@@ -107,60 +135,17 @@ export const ChatPlayer: FC = () => {
     const el = textareaRef.current;
     if (!el) return;
 
-    // 1. Captura a posição atual
     const { selectionStart: start, selectionEnd: end } = el;
-
-    /* 2. Insere o emoji no DOM.
-          O quarto argumento diz o que fazer com o caret:
-          - "end"      → caret depois do emoji  (o mais comum)
-          - "start"    → caret antes do emoji
-          - "select"   → emoji fica selecionado
-          - "preserve" → caret/seleção ficam onde estavam, só que
-                         deslocados pelo tamanho do emoji
-     */
     el.setRangeText(emoji, start, end, "end");
-
-    // 3. Atualiza o estado **com o valor já editado**
     setText(el.value);
-
-    // 4. Garante foco (se o picker tirou)
     el.focus();
   }
+  const [isToEnd, setIsToEnd] = useState(false);
 
   useEffect(() => {
     if (currentTicket) {
-      (async () => {
-        try {
-          const ticket = await getTicket(currentTicket);
-          setData(ticket);
-          setTimeout(() => {
-            virtuosoRef.current?.scrollToIndex({
-              index: ticket.messages.length - 1,
-              align: "end",
-              behavior: "auto",
-            });
-          }, 100);
-          setLoad(false);
-        } catch (error) {
-          if (error instanceof AxiosError) {
-            setLoad(false);
-            if (error.response?.status === 401) logout();
-            if (error.response?.status === 400) {
-              const dataError = error.response?.data as ErrorResponse_I;
-              if (dataError.toast.length)
-                dataError.toast.forEach(toaster.create);
-            }
-          }
-        }
-      })();
-
+      socket.emit("join-ticket", { id: currentTicket });
       socket.on("message", (data: PropsSocketMessage) => {
-        if (data.ticketId !== currentTicket) {
-          if (data.notifyMsc) {
-            // enviar notificação para o usuário
-          }
-          return;
-        }
         if (data.by === "user") {
           requestAnimationFrame(() => {
             textareaRef.current?.focus();
@@ -169,7 +154,7 @@ export const ChatPlayer: FC = () => {
           setLoadMsg(false);
           setText("");
         }
-        setData((prev) => {
+        setDataTicket((prev) => {
           if (!prev) return null;
           return {
             ...prev,
@@ -180,15 +165,57 @@ export const ChatPlayer: FC = () => {
           };
         });
       });
+    } else {
+      setIsToEnd(false);
     }
+
+    return () => {
+      socket.emit("join-ticket", { id: null });
+      socket.off("message");
+      setDataTicket(null);
+      setText("");
+      setLoadMsg(false);
+      setOpenEmojis(false);
+    };
   }, [currentTicket, socket]);
 
   const sendMessage = async (message: string) => {
-    if (!data || !message.trim() || !currentTicket) return;
+    if (
+      !dataTicket ||
+      (!message.trim() && !filesSelected.length) ||
+      !currentTicket
+    ) {
+      return;
+    }
     setLoadMsg(true);
+    setOpenEmojis(false);
     try {
-      if (data.status === "NEW") await pick(data.id);
-      await sendTicketMessage(currentTicket, { text: message.trim() });
+      let type: "text" | "image" | "audio" | "file" = "text";
+      if (!filesSelected.length) {
+        type = "text";
+      } else {
+        if (filesSelected.every((file) => file.type === "image/video")) {
+          type = "image";
+        }
+        if (filesSelected.every((file) => file.type === "audio")) {
+          type = "audio";
+        }
+        if (filesSelected.every((file) => file.type === "document")) {
+          type = "file";
+        }
+      }
+      const files = filesSelected.map((file) => ({
+        id: file.id,
+        type: file.type,
+      }));
+      if (dataTicket.status === "NEW") await pick(dataTicket.id);
+      await sendTicketMessage(currentTicket, {
+        text: message.trim(),
+        files,
+        type,
+      });
+      setText("");
+      setFilesSelected([]);
     } catch (error) {
       if (error instanceof AxiosError) {
         if (error.response?.status === 401) logout();
@@ -200,6 +227,57 @@ export const ChatPlayer: FC = () => {
     }
   };
 
+  useEffect(() => {
+    if (!dataTicket?.messages.length || isToEnd) return;
+    virtuosoRef.current?.scrollToIndex({
+      index: (dataTicket?.messages.length || 0) - 1,
+      align: "end",
+      behavior: "auto",
+    });
+    setTimeout(() => {
+      setIsToEnd(true);
+    }, 300);
+  }, [dataTicket?.messages.length]);
+
+  const handleReturnTicket = async () => {
+    if (!currentTicket || !dataTicket) return;
+    if (dataTicket.status !== "OPEN") return;
+    setLoadReturn(dataTicket.id);
+    await returnTicket(dataTicket.id);
+  };
+
+  const handleResolvedTicket = async () => {
+    if (!currentTicket || !dataTicket) return;
+    if (dataTicket.status !== "OPEN") return;
+    setLoadResolved(dataTicket.id);
+    await resolveTicket(dataTicket.id);
+  };
+
+  const isDisabledReturn = useMemo(() => {
+    if (!dataTicket) return true;
+    if (dataTicket.status !== "OPEN") return true;
+    if (!loadReturn) return false;
+    if (loadReturn === dataTicket.id) return true;
+    return false;
+  }, [dataTicket, loadReturn]);
+
+  const isDisabledResolved = useMemo(() => {
+    if (!dataTicket) return true;
+    if (dataTicket.status !== "OPEN") return true;
+    if (!loadResolved) return false;
+    if (loadResolved === dataTicket.id) return true;
+    return false;
+  }, [dataTicket, loadResolved]);
+
+  const isDisabledSend = useMemo(() => {
+    if (!dataTicket) return true;
+    if (dataTicket.status === "RESOLVED" || dataTicket.status === "DELETED") {
+      return true;
+    }
+    if (!text.trim().length && !filesSelected.length) return true;
+    return false;
+  }, [dataTicket?.status, text, filesSelected]);
+
   if (!currentTicket) {
     return (
       <div className="h-full grid place-items-center">
@@ -210,7 +288,7 @@ export const ChatPlayer: FC = () => {
     );
   }
 
-  if (load) {
+  if (loadData) {
     return (
       <div className="h-full grid place-items-center">
         <span className="text-white/70 text-sm">
@@ -220,7 +298,7 @@ export const ChatPlayer: FC = () => {
     );
   }
 
-  if (!data) {
+  if (!dataTicket) {
     return (
       <div className="h-full grid place-items-center">
         <span className="text-red-500/70 text-sm">Ticket não encontrado!</span>
@@ -234,31 +312,50 @@ export const ChatPlayer: FC = () => {
         <div className="flex items-center gap-x-2">
           <Avatar size={"sm"} bg={"#555555"} width={"40px"} height={"40px"} />
           <div className="flex flex-col">
-            <span className="font-medium">Nome</span>
-            <span className="text-sm text-white/60">719999999999</span>
+            <span className="font-medium">{dataTicket.contact.name}</span>
+            <span className="text-sm text-white/60">
+              {dataTicket.contact.completeNumber}
+            </span>
           </div>
         </div>
         <div className="flex gap-x-2">
           <span className="text-xs text-white/30">Ações:</span>
-          <Button size={"xs"} variant={"outline"}>
-            Devolver para aguardando
+          <Button
+            loading={loadReturn === dataTicket.id}
+            disabled={isDisabledReturn}
+            onClick={handleReturnTicket}
+            size={"xs"}
+            fontSize={"13px"}
+            variant={"outline"}
+          >
+            <TbArrowBack /> Retornar
           </Button>
-          <Button size={"xs"} colorPalette={"green"} variant={"subtle"}>
-            Resolver
+          <Button
+            size={"xs"}
+            fontSize={"13px"}
+            colorPalette={"green"}
+            variant={"subtle"}
+            onClick={handleResolvedTicket}
+            loading={loadResolved === dataTicket.id}
+            disabled={isDisabledResolved}
+          >
+            Resolver <TbCircleCheck />
           </Button>
         </div>
       </div>
       <Box
-        backgroundImage={`linear-gradient(45deg, #111111f8, #111111fd), url('/background-chat.png')`}
+        backgroundImage={`linear-gradient(45deg, #111111eb, #111111f2), url('/background-chat.png')`}
         borderRadius={"8px"}
         backgroundSize={"cover"}
       >
-        <div className="p-2 h-full flex flex-col">
+        <div className="p-2 h-full flex flex-col relative">
           <Virtuoso
             ref={virtuosoRef}
-            data={data.messages}
+            data={dataTicket.messages}
             className="scroll-custom-table"
             followOutput="smooth"
+            increaseViewportBy={{ bottom: 300, top: 200 }}
+            style={{ opacity: isToEnd ? 1 : 0 }}
             itemContent={(_, msg) => {
               if (msg.content.type === "text") {
                 return (
@@ -267,6 +364,37 @@ export const ChatPlayer: FC = () => {
                     createAt={moment(msg.content.createAt)}
                     isArrow={msg.by === "contact"}
                     sentBy={msg.by}
+                  />
+                );
+              }
+              if (msg.content.type === "image") {
+                return (
+                  <ImageBubbleComponent
+                    createAt={moment(msg.content.createAt)}
+                    fileName={msg.content.fileName}
+                    sentBy={msg.by}
+                    caption={msg.content.caption}
+                  />
+                );
+              }
+              if (msg.content.type === "audio") {
+                return (
+                  <AudioBubbleComponent
+                    createAt={moment(msg.content.createAt)}
+                    fileName={msg.content.fileName}
+                    sentBy={msg.by}
+                    isArrow={msg.by === "contact"}
+                  />
+                );
+              }
+              if (msg.content.type === "file") {
+                return (
+                  <FileBubbleComponent
+                    createAt={moment(msg.content.createAt)}
+                    fileName={msg.content.fileName || ""}
+                    caption={msg.content.caption}
+                    sentBy={msg.by}
+                    fileNameOriginal={msg.content.fileNameOriginal}
                   />
                 );
               }
@@ -282,6 +410,61 @@ export const ChatPlayer: FC = () => {
               );
             }}
           />
+          {!!filesSelected.length && (
+            <div className="absolute justify-between  w-full h-full pb-10 bottom-0 left-0 right-0 flex flex-col gap-y-2 bg-[#141516c5] p-2 rounded-lg backdrop-blur-md">
+              <div className="grid grid-cols-4 auto-rows-[126px]">
+                {filesSelected.map((file) => (
+                  <article
+                    key={file.id}
+                    className="hover:bg-red-500/70 duration-200 rounded-sm cursor-pointer p-1 h-full flex flex-col select-none items-center w-full gap-1"
+                    onClick={() => {
+                      textareaRef.current?.focus();
+                      setFilesSelected((prev) =>
+                        prev.filter((id) => id.id !== file.id)
+                      );
+                    }}
+                  >
+                    <div className="cursor-pointer w-full h-20 overflow-hidden object-center origin-center bg-center flex items-center justify-center rounded-sm">
+                      {file.type === "image/video" ? (
+                        <>
+                          {/^image\//.test(file.mimetype || "") ? (
+                            <Image
+                              w="100%"
+                              h="auto"
+                              src={
+                                api.getUri() +
+                                "/public/storage/" +
+                                file.fileName
+                              }
+                              fetchPriority="low"
+                            />
+                          ) : (
+                            <IconPreviewFile mimetype={file.mimetype || ""} />
+                          )}
+                        </>
+                      ) : (
+                        <IconPreviewFile mimetype={file.mimetype || ""} />
+                      )}
+                    </div>
+                    <span className="line-clamp-2 text-xs text-center font-light">
+                      {file.originalName}
+                    </span>
+                  </article>
+                ))}
+              </div>
+              <Button
+                onClick={() => {
+                  setFilesSelected([]);
+                  textareaRef.current?.focus();
+                }}
+                mx={20}
+                size={"xs"}
+                colorPalette={"red"}
+              >
+                Cancelar
+              </Button>
+            </div>
+          )}
         </div>
       </Box>
       <div className="flex flex-col w-full">
@@ -292,42 +475,59 @@ export const ChatPlayer: FC = () => {
             sendMessage(text);
           }}
         >
-          <Presence
-            animationName={{
-              _open: "slide-from-bottom, fade-in",
-              _closed: "slide-to-bottom, fade-out",
-            }}
-            animationDuration="moderate"
-            present={openEmojis}
-            position={"absolute"}
-            top={"-438px"}
-          >
-            <Picker
-              data={dataEmojis}
-              onClickOutside={(ev: any) => {
-                if (btnRef.current?.contains(ev.target as Node)) return;
-                setOpenEmojis(false);
+          <div className="flex items-center gap-x-0.5">
+            <Presence
+              animationName={{
+                _open: "slide-from-bottom, fade-in",
+                _closed: "slide-to-bottom, fade-out",
               }}
-              onEmojiSelect={(e: any) => e && insertEmojiAtCaret(e.native)}
-              perLine={6}
-              autoFocus
-              locale="pt"
-              maxFrequentRows={2}
-              emojiSize={16}
-              skinTonePosition="search"
-              theme="dark"
-              previewPosition="none"
+              animationDuration="moderate"
+              present={openEmojis}
+              position={"absolute"}
+              top={"-438px"}
+            >
+              <Picker
+                data={dataEmojis}
+                onClickOutside={(ev: any) => {
+                  if (btnRef.current?.contains(ev.target as Node)) return;
+                  setOpenEmojis(false);
+                }}
+                onEmojiSelect={(e: any) => e && insertEmojiAtCaret(e.native)}
+                perLine={6}
+                autoFocus
+                locale="pt"
+                maxFrequentRows={2}
+                emojiSize={16}
+                skinTonePosition="search"
+                theme="dark"
+                previewPosition="none"
+              />
+            </Presence>
+            <MidiaComponent
+              isDisabled={
+                !!filesSelected.length ||
+                !(dataTicket.status === "NEW" || dataTicket.status === "OPEN")
+              }
+              onSelected={(files) => {
+                setFilesSelected(files);
+                setTimeout(() => {
+                  textareaRef.current?.focus();
+                }, 100);
+              }}
             />
-          </Presence>
-          <IconButton
-            ref={btnRef}
-            type="button"
-            variant="ghost"
-            onPointerDown={(e) => e.stopPropagation()} // <- bloqueia o outside-click
-            onClick={() => setOpenEmojis(true)}
-          >
-            <RiEmojiStickerLine />
-          </IconButton>
+            <IconButton
+              ref={btnRef}
+              type="button"
+              variant="ghost"
+              onPointerDown={(e) => e.stopPropagation()} // <- bloqueia o outside-click
+              onClick={() => setOpenEmojis(true)}
+              disabled={
+                !(dataTicket.status === "NEW" || dataTicket.status === "OPEN")
+              }
+            >
+              <RiEmojiStickerLine color="#bdb216" />
+            </IconButton>
+          </div>
           <TextareaAutosize
             placeholder="Digite {{ para variaveis abrir menu de variaveis"
             style={{ resize: "none" }}
@@ -337,7 +537,9 @@ export const ChatPlayer: FC = () => {
             autoFocus
             className="p-3 py-2.5 rounded-sm w-full outline-none border-black/10 dark:border-white/10 border"
             disabled={
-              loadMsg || data.status === "RESOLVED" || data.status === "DELETED"
+              loadMsg ||
+              dataTicket.status === "RESOLVED" ||
+              dataTicket.status === "DELETED"
             }
             value={text}
             onKeyDown={async (e) => {
@@ -354,27 +556,27 @@ export const ChatPlayer: FC = () => {
           <IconButton
             type="submit"
             variant="subtle"
-            disabled={data.status === "RESOLVED" || data.status === "DELETED"}
+            disabled={isDisabledSend}
             loading={loadMsg}
           >
             <RiSendPlane2Line />
           </IconButton>
         </form>
-        {data.status === "NEW" && (
+        {dataTicket.status === "NEW" && (
           <span className="text-white/80">
             Ticket{" "}
             <strong className="uppercase text-[#f19e55]">aguardando</strong> .
             Ao interagir com ele, você assume o atendimento.
           </span>
         )}
-        {data.status === "DELETED" && (
+        {dataTicket.status === "DELETED" && (
           <span className="text-white/80">
             Ticket{" "}
             <strong className="uppercase text-[#dd4843]">deletado</strong> .
             Será totalmente removido do sistema em breve.
           </span>
         )}
-        {data.status === "RESOLVED" && (
+        {dataTicket.status === "RESOLVED" && (
           <span className="text-white/80 text-[13px]">
             Ticket{" "}
             <strong className="uppercase text-[#6ccf6c]">RESOLVIDO</strong> .
@@ -516,10 +718,12 @@ export const ImageBubbleComponent: FC<{
               Mensagem automatica do sistema
             </i>
           )}
-          <img
+          <Image
+            fetchPriority="low"
+            loading="lazy"
             className="max-w-[290px] rounded-md"
-            src={`${api.getUri()}/public/images/${fileName}`}
-            alt="imagem"
+            src={`${api.getUri()}/public/storage/${fileName}`}
+            alt="Imagem"
           />
           <div className="pt-1">
             {caption && (
@@ -552,6 +756,7 @@ export const AudioBubbleComponent: FC<{
   fileName: string;
   createAt: Moment;
   isArrow?: boolean;
+  ptt?: boolean;
   sentBy: "contact" | "user" | "system";
 }> = ({ fileName, createAt, sentBy, isArrow }): JSX.Element => {
   const time = useMemo(() => {
@@ -594,8 +799,16 @@ export const FileBubbleComponent: FC<{
   caption?: string;
   createAt: Moment;
   isArrow?: boolean;
+  fileNameOriginal?: string;
   sentBy: "contact" | "user" | "system";
-}> = ({ fileName, caption, createAt, sentBy, isArrow }): JSX.Element => {
+}> = ({
+  fileName,
+  caption,
+  createAt,
+  fileNameOriginal,
+  sentBy,
+  isArrow,
+}): JSX.Element => {
   const { download, error, isInProgress } = useDownloader();
 
   useEffect(() => {
@@ -664,12 +877,17 @@ export const FileBubbleComponent: FC<{
           <button
             onClick={() =>
               !isInProgress &&
-              download(`${api.getUri()}/public/files/${fileName}`, fileName)
+              download(
+                `${api.getUri()}/public/storage/${fileName}`,
+                fileNameOriginal || fileName
+              )
             }
             title="Baixar arquivo"
             className="bg-white/5 hover:bg-white/10 cursor-pointer duration-200 rounded-sm p-2 flex items-center gap-2"
           >
-            <p className="line-clamp-2 text-xs text-start w-full">{fileName}</p>
+            <p className="line-clamp-2 text-xs text-start w-full">
+              {fileNameOriginal || fileName}
+            </p>
             {isInProgress ? (
               <Spinner />
             ) : (

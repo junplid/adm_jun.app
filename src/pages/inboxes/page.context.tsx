@@ -1,11 +1,4 @@
-import {
-  createContext,
-  Dispatch,
-  ReactNode,
-  SetStateAction,
-  useMemo,
-  useState,
-} from "react";
+import { Dispatch, ReactNode, SetStateAction, useMemo, useState } from "react";
 import { IoClose } from "react-icons/io5";
 import { Menu, MenuItem, Sidebar } from "react-pro-sidebar";
 import { Link, Outlet, useLocation } from "react-router-dom";
@@ -14,12 +7,7 @@ import { HiMenu } from "react-icons/hi";
 import { useColorModeValue } from "@components/ui/color-mode";
 import { TbUsers } from "react-icons/tb";
 import { LuBriefcaseBusiness } from "react-icons/lu";
-
-interface IFlowContextProps {
-  ToggleMenu: ReactNode;
-}
-
-export const LayoutInboxesPageContext = createContext({} as IFlowContextProps);
+import { LayoutInboxesPageContext } from "./contexts";
 
 interface IToggleMenuProps {
   toggledMenu: boolean;

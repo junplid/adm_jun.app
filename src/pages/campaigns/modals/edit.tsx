@@ -364,7 +364,7 @@ function Content({
                               bg={"#ffffff29"}
                             />
                             <SegmentGroup.Items
-                              className="cursor-pointer"
+                              className="cursor-pointer !h-[66px]"
                               items={shootingSpeeds.map((s) => ({
                                 label: (
                                   <div className="flex flex-col font-medium items-center">

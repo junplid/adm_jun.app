@@ -14,6 +14,17 @@ export async function getInboxDepartments(params: {}): Promise<
   return data.inboxDepartments;
 }
 
+export async function countDepartmentTicket(
+  id: number,
+  type?: "NEW" | "OPEN" | "RESOLVED"
+): Promise<number> {
+  const { data } = await api.get(
+    `/private/inbox-departments/${id}/tickets/count`,
+    { params: { type } }
+  );
+  return data.count;
+}
+
 export async function getOptionsInboxDepartments(params: {}): Promise<
   { name: string; id: number; businessId: number }[]
 > {

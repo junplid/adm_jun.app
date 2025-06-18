@@ -213,7 +213,7 @@ export const ModalStorageFiles: React.FC<PropsModalEdit> = ({
       size={"lg"}
     >
       <DialogTrigger asChild>{props.children}</DialogTrigger>
-      <DialogContent zIndex={9} position={"relative"} w={"590px"}>
+      <DialogContent w={"590px"}>
         <DialogHeader flexDirection={"column"} mt={"-5px"} gap={0}>
           <DialogTitle>Storage</DialogTitle>
           <DialogDescription>

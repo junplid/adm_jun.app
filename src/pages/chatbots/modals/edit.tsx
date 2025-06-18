@@ -1,5 +1,12 @@
 import { JSX, useCallback, useEffect, useMemo, useState } from "react";
-import { Button, Center, IconButton, Input, VStack } from "@chakra-ui/react";
+import {
+  Badge,
+  Button,
+  Center,
+  IconButton,
+  Input,
+  VStack,
+} from "@chakra-ui/react";
 import { CloseButton } from "@components/ui/close-button";
 import {
   DialogContent,
@@ -49,6 +56,14 @@ const FormSchema = z.object({
     .string()
     .nullish()
     .transform((v) => v || undefined),
+  trigger: z
+    .string()
+    .optional()
+    .transform((v) => v || undefined),
+  flowBId: z
+    .string()
+    .optional()
+    .transform((v) => v || undefined),
 
   flowId: z.string({ message: "Campo obrigatório." }),
   connectionWAId: z.number({ message: "Campo obrigatório." }).optional(),
@@ -71,6 +86,11 @@ const FormSchema = z.object({
       type: z.enum(["seconds", "minutes", "hours", "days"]),
     })
     .optional(),
+
+  fallback: z
+    .string()
+    .nullish()
+    .transform((v) => v || undefined),
 
   operatingDays: z
     .array(
@@ -468,6 +488,64 @@ function Content({
               </Field>
               <span className="block w-full h-[1px] my-2 bg-white/25"></span>
               <div className="grid gap-y-1">
+                <Field
+                  errorText={errors.name?.message}
+                  invalid={!!errors.name}
+                  label={
+                    <span>
+                      Palavra-chave de ativação{" "}
+                      <Badge colorPalette={"green"}>New</Badge>
+                    </span>
+                  }
+                >
+                  <Input
+                    {...register("trigger", {
+                      onChange(event) {
+                        setValue("trigger", event.target.value);
+                      },
+                    })}
+                    autoComplete="off"
+                    maxLength={159}
+                  />
+                </Field>
+                <span className="text-white/70">
+                  Ativa o bot de recepção quando a mensagem recebida for igual à
+                  palavra-chave configurada.
+                </span>
+              </div>
+              <div className="grid gap-y-1">
+                <Field
+                  errorText={errors.flowBId?.message}
+                  invalid={!!errors.flowBId}
+                  label={
+                    <span>
+                      Fluxo alternativo B{" "}
+                      <Badge colorPalette={"green"}>New</Badge>
+                    </span>
+                  }
+                >
+                  <Controller
+                    name="flowBId"
+                    control={control}
+                    render={({ field }) => (
+                      <SelectFlows
+                        name={field.name}
+                        placeholder="Selecione o fluxo alternativo B"
+                        isMulti={false}
+                        onBlur={field.onBlur}
+                        onChange={(e: any) => field.onChange(e.value)}
+                        value={field.value}
+                      />
+                    )}
+                  />
+                </Field>
+                <span className="text-white/70">
+                  Mensagens diferentes da palavra-chave ativam o fluxo
+                  alternativo B
+                </span>
+              </div>
+              <span className="block w-full h-[1px] my-2 bg-white/25"></span>
+              <div className="grid gap-y-1">
                 <span className="font-semibold mb-0.5">
                   Intervalo para reativação automática do bot
                 </span>
@@ -555,36 +633,41 @@ function Content({
                         gap: day.workingTimes?.length ? "2px" : "0px",
                       }}
                     >
-                      <div className="flex items-center">
-                        <IconButton
-                          size={"xs"}
-                          variant={"ghost"}
-                          type="button"
-                          color={"red.100"}
-                          _hover={{ color: "red.400" }}
-                          onClick={() => {
-                            setValue(
-                              "operatingDays",
-                              operatingDays.filter(
-                                (o) => o.dayOfWeek !== day.dayOfWeek
-                              )
-                            );
-                          }}
-                        >
-                          <MdOutlineDeleteOutline />
-                        </IconButton>
-                        <div className="flex items-center gap-2 pl-1.5">
-                          <span className="font-medium block">
-                            {optionsOpertaingDays.find(
-                              (op) => op.value === day.dayOfWeek
-                            )?.label || ""}
-                          </span>
-                          {!day.workingTimes?.length && (
-                            <span className="font-light text-yellow-600">
-                              Funciona 24 horas
+                      <div className="flex flex-col">
+                        <div className="flex items-center">
+                          <IconButton
+                            size={"xs"}
+                            variant={"ghost"}
+                            type="button"
+                            color={"red.100"}
+                            _hover={{ color: "red.400" }}
+                            onClick={() => {
+                              setValue(
+                                "operatingDays",
+                                operatingDays.filter(
+                                  (o) => o.dayOfWeek !== day.dayOfWeek
+                                )
+                              );
+                            }}
+                          >
+                            <MdOutlineDeleteOutline />
+                          </IconButton>
+                          <div className="flex items-center gap-2 pl-1.5">
+                            <span className="font-medium block">
+                              {optionsOpertaingDays.find(
+                                (op) => op.value === day.dayOfWeek
+                              )?.label || ""}
                             </span>
-                          )}
+                            {!day.workingTimes?.length && (
+                              <span className="font-light text-yellow-600">
+                                Funciona 24 horas
+                              </span>
+                            )}
+                          </div>
                         </div>
+                        <span className="text-red-400">
+                          {errors.operatingDays?.[dayIndex]?.message}
+                        </span>
                       </div>
                       <ul className="flex flex-col gap-1">
                         {day.workingTimes?.map((_, timeIndex) => (
@@ -732,6 +815,26 @@ function Content({
                   />
                 )}
               />
+              <Field
+                label={
+                  <span>
+                    Fallback <Badge colorPalette={"green"}>New</Badge>
+                  </span>
+                }
+                errorText={errors.description?.message}
+                invalid={!!errors.description}
+                className="w-full"
+                helperText="Texto enviado apenas uma vez quando o bot estiver fora do horário de operação. Se o bot estiver ativo, o fallback não será enviado."
+              >
+                <TextareaAutosize
+                  placeholder=""
+                  style={{ resize: "none" }}
+                  minRows={2}
+                  maxRows={6}
+                  className="p-3 py-2.5 rounded-sm w-full border-black/10 dark:border-white/10 border"
+                  {...register("fallback")}
+                />
+              </Field>
             </div>
           </TabsContent>
         </TabsRoot>

@@ -4,22 +4,35 @@ export async function pickTicket(id: number): Promise<void> {
   await api.post(`/private/tickets/${id}/pick`);
 }
 
+export async function returnTicket(id: number): Promise<void> {
+  await api.post(`/private/tickets/${id}/return`);
+}
+
+export async function resolveTicket(id: number): Promise<void> {
+  await api.post(`/private/tickets/${id}/resolve`);
+}
+
 export async function sendTicketMessage(
   id: number,
-  props: {
-    text?: string;
-  }
+  props:
+    | { type: "text"; text: string }
+    | {
+        type: "audio";
+        ptt?: boolean;
+        files: { id: number; type: "audio" | "image/video" | "document" }[];
+      }
+    | {
+        type: "image";
+        text?: string;
+        files: { id: number; type: "audio" | "image/video" | "document" }[];
+      }
+    | {
+        type: "file";
+        text?: string;
+        files: { id: number; type: "audio" | "image/video" | "document" }[];
+      }
 ): Promise<void> {
-  const formData = new FormData();
-  // formData.append("file", props.file);
-  if (props.text) {
-    formData.append("type", "text");
-    formData.append("text", props.text);
-  }
-
-  await api.post(`/private/tickets/${id}/message`, formData, {
-    headers: { "Content-Type": "multipart/form-data" },
-  });
+  await api.post(`/private/tickets/${id}/message`, props);
 }
 
 export async function updateBusiness(
@@ -67,6 +80,8 @@ export async function getTickets(params?: {
     id: number;
     userId?: number;
     lastInteractionDate: Date;
+    count_unread: number;
+    lastMessage: string | null;
   }[]
 > {
   const { data } = await api.get("/private/tickets", { params });
@@ -103,6 +118,7 @@ export async function getTicket(id: number): Promise<{
     // message: string;
     // org: string;
   }[];
+  tags: { id: number; name: string }[];
 }> {
   const { data } = await api.get(`/private/tickets/${id}`);
   return data.ticket;

@@ -8,7 +8,24 @@ export const ReleasesPage: React.FC = (): JSX.Element => {
 
       <div className="flex flex-col gap-1">
         <h3>
-          <Badge colorPalette={"blue"}>Atual</Badge> v0.5.00
+          <Badge colorPalette={"blue"}>Atual</Badge> v0.6.00
+          <span className="text-white/50">-alpha</span> 12/06/2025
+        </h3>
+        <div className="pl-2">
+          <p className="text-green-200">
+            + Agentes de inteligência artificial (IA)
+          </p>
+          <p className="text-white/70 pl-3">
+            Crie e gerencie agentes autônomos que usam IA para realizar os
+            atendimentos dos seus clientes. Esses agentes podem ser configurados
+            para responder a perguntas, fornecer informações e interagir com os
+            usuários de forma inteligente e eficiente.
+          </p>
+        </div>
+      </div>
+      <div className="flex flex-col gap-1">
+        <h3>
+          v0.5.00
           <span className="text-white/50">-alpha</span> 05/06/2025
         </h3>
         <div className="pl-2">

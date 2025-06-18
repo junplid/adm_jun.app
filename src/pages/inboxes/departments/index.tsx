@@ -4,7 +4,7 @@ import { Button } from "@chakra-ui/react";
 import { IoAdd } from "react-icons/io5";
 import { useDialogModal } from "../../../hooks/dialog.modal";
 import { Column, TableComponent } from "@components/Table";
-import { LayoutInboxesPageContext } from "../page.context";
+import { LayoutInboxesPageContext } from "../contexts";
 import { useGetInboxDepartments } from "../../../hooks/inboxDepartment";
 import { LuEye, LuFullscreen } from "react-icons/lu";
 import { ModalDeleteInboxDepartment } from "./modals/delete";

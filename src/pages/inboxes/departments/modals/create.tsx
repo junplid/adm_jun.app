@@ -92,8 +92,6 @@ export function ModalCreateInboxDepartment({
     }
   }, []);
 
-  console.log(errors);
-
   return (
     <DialogRoot
       open={open}

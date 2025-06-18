@@ -23,8 +23,8 @@ import { PrivacyPolicyPage } from "./pages/privacy-terms";
 import { CampaignsPage } from "./pages/campaigns";
 import { StoragePage } from "./pages/storage";
 import { AgentsAIPage } from "./pages/agents-ai";
-import { InboxUsersPage } from "./pages/inboxes/users";
 import { LayoutInboxesPageProvider } from "./pages/inboxes/page.context";
+import { InboxUsersPage } from "./pages/inboxes/users";
 import { InboxDepartmentsPage } from "./pages/inboxes/departments";
 
 // import { NodeMessage } from "./flow-lib/nodes/Message";

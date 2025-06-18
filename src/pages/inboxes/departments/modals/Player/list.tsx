@@ -59,13 +59,15 @@ export const ListPlayer: FC = () => {
 interface PropsItem {
   id: number;
   name: string;
-  status: "NEW" | "OPEN" | "RESOLVED" | "DELETED";
+  status: "NEW" | "OPEN" | "RESOLVED" | "DELETED" | "RETURN";
   userId?: number;
   forceOpen?: boolean;
   notifyMsc?: boolean;
   departmentId: number;
   notifyToast?: boolean;
   lastInteractionDate: Date;
+  count_unread: number;
+  lastMessage: string | null;
 }
 
 const diasDaSemana: { [x: number]: string } = {
@@ -105,11 +107,28 @@ function Item(p: PropsItem) {
         <div className="flex flex-col w-full">
           <div className="flex items-center justify-between">
             <span className="font-medium">{p.name}</span>
-            <span className="text-xs text-white/60">{previewDateLastMsg}</span>
+            <span
+              className="text-xs"
+              style={{
+                color: p.count_unread ? "#60c4dd" : "#ffffffa9",
+                fontWeight: p.count_unread ? "bold" : "500",
+              }}
+            >
+              {previewDateLastMsg}
+            </span>
           </div>
-          <span className="text-[13px] text-white/60 line-clamp-1 pr-7">
-            Meu pedido saiu para entrega?
-          </span>
+          <div className="grid grid-cols-[1fr_30px] gap-x-2">
+            <span
+              style={{
+                color: p.count_unread ? "#60c4dd" : "#ffffffa9",
+                fontWeight: p.count_unread ? "bold" : "500",
+              }}
+              className="text-[13px] line-clamp-1"
+            >
+              {p.lastMessage || "Nenhuma mensagem ainda."}
+            </span>
+            <div></div>
+          </div>
         </div>
       </div>
     </div>

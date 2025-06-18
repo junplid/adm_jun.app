@@ -42,6 +42,7 @@ import SelectFlows from "@components/SelectFlows";
 import SelectConnectionsWA from "@components/SelectConnectionsWA";
 import SelectTags from "@components/SelectTags";
 import { useCreateChatbot } from "../../../hooks/chatbot";
+import { useHookFormMask } from "use-mask-input";
 
 type TypeChatbotInactivity = "seconds" | "minutes" | "hours" | "days";
 
@@ -85,6 +86,11 @@ const FormSchema = z.object({
       type: z.enum(["seconds", "minutes", "hours", "days"]),
     })
     .optional(),
+
+  fallback: z
+    .string()
+    .optional()
+    .transform((v) => v || undefined),
 
   operatingDays: z
     .array(
@@ -146,7 +152,7 @@ export function ModalCreateChatbot({
       timeToRestart: { value: 3, type: "minutes" },
     },
   });
-
+  const registerWithMask = useHookFormMask(register);
   const [currentTab, setCurrentTab] = useState<
     "start-config" | "activation-rules" | "opening-hours"
   >("start-config");
@@ -195,7 +201,9 @@ export function ModalCreateChatbot({
       !!errors.flowId ||
       !!errors.connectionWAId ||
       !!errors.addLeadToAudiencesIds ||
-      !!errors.addToLeadTagsIds
+      !!errors.addToLeadTagsIds ||
+      !!errors.trigger ||
+      !!errors.flowBId
     ) {
       setCurrentTab("activation-rules");
     } else if (errors.operatingDays) {
@@ -212,6 +220,8 @@ export function ModalCreateChatbot({
     errors.addToLeadTagsIds,
     errors.operatingDays,
   ]);
+
+  console.log(errors.operatingDays);
 
   return (
     <DialogRoot
@@ -467,8 +477,8 @@ export function ModalCreateChatbot({
                 <span className="block w-full h-[1px] my-2 bg-white/25"></span>
                 <div className="grid gap-y-1">
                   <Field
-                    errorText={errors.name?.message}
-                    invalid={!!errors.name}
+                    errorText={errors.trigger?.message}
+                    invalid={!!errors.trigger}
                     label={
                       <span>
                         Palavra-chave de ativação{" "}
@@ -614,80 +624,120 @@ export function ModalCreateChatbot({
                           gap: day.workingTimes?.length ? "2px" : "0px",
                         }}
                       >
-                        <div className="flex items-center">
-                          <IconButton
-                            size={"xs"}
-                            variant={"ghost"}
-                            type="button"
-                            color={"red.100"}
-                            _hover={{ color: "red.400" }}
-                            onClick={() => {
-                              setValue(
-                                "operatingDays",
-                                operatingDays.filter(
-                                  (o) => o.dayOfWeek !== day.dayOfWeek
-                                )
-                              );
-                            }}
-                          >
-                            <MdOutlineDeleteOutline />
-                          </IconButton>
-                          <div className="flex items-center gap-2 pl-1.5">
-                            <span className="font-medium block">
-                              {optionsOpertaingDays.find(
-                                (op) => op.value === day.dayOfWeek
-                              )?.label || ""}
-                            </span>
-                            {!day.workingTimes?.length && (
-                              <span className="font-light text-yellow-600">
-                                Funciona 24 horas
+                        <div className="flex flex-col">
+                          <div className="flex items-center">
+                            <IconButton
+                              size={"xs"}
+                              variant={"ghost"}
+                              type="button"
+                              color={"red.100"}
+                              _hover={{ color: "red.400" }}
+                              onClick={() => {
+                                setValue(
+                                  "operatingDays",
+                                  operatingDays.filter(
+                                    (o) => o.dayOfWeek !== day.dayOfWeek
+                                  )
+                                );
+                              }}
+                            >
+                              <MdOutlineDeleteOutline />
+                            </IconButton>
+                            <div className="flex items-center gap-2 pl-1.5">
+                              <span className="font-medium block">
+                                {optionsOpertaingDays.find(
+                                  (op) => op.value === day.dayOfWeek
+                                )?.label || ""}
                               </span>
-                            )}
+                              {!day.workingTimes?.length && (
+                                <span className="font-light text-yellow-600">
+                                  Funciona 24 horas
+                                </span>
+                              )}
+                            </div>
                           </div>
+                          <span className="text-red-400">
+                            {errors.operatingDays?.[dayIndex]?.message}
+                          </span>
                         </div>
                         <ul className="flex flex-col gap-1">
                           {day.workingTimes?.map((_, timeIndex) => (
                             <li
                               key={timeIndex}
-                              className="flex items-center gap-2"
+                              className="flex flex-col w-full"
                             >
-                              <Input
-                                type="time"
-                                size={"2xs"}
-                                {...register(
-                                  `operatingDays.${dayIndex}.workingTimes.${timeIndex}.start`
-                                )}
-                              />
-                              <MdHorizontalRule size={33} />
-                              <Input
-                                size={"2xs"}
-                                {...register(
-                                  `operatingDays.${dayIndex}.workingTimes.${timeIndex}.end`
-                                )}
-                                type="time"
-                              />
-                              <IconButton
-                                size={"xs"}
-                                variant={"ghost"}
-                                type="button"
-                                color={"red.100"}
-                                _hover={{ color: "red.400" }}
-                                onClick={() => {
-                                  setValue(
-                                    "operatingDays",
-                                    operatingDays.map((o) => {
-                                      if (o.dayOfWeek === day.dayOfWeek) {
-                                        o.workingTimes = o.workingTimes?.filter(
-                                          (__, i) => i !== timeIndex
-                                        );
-                                      }
-                                      return o;
-                                    })
-                                  );
-                                }}
-                              >
-                                <GrClose />
-                              </IconButton>
+                              <div className="flex w-full items-center gap-2">
+                                <Field
+                                  errorText={
+                                    errors.operatingDays?.[dayIndex]
+                                      ?.workingTimes?.[timeIndex]?.start
+                                      ?.message
+                                  }
+                                  invalid={
+                                    !!errors.operatingDays?.[dayIndex]
+                                      ?.workingTimes?.[timeIndex]?.start
+                                  }
+                                >
+                                  <Input
+                                    placeholder="HH:mm"
+                                    step={"60"}
+                                    size={"2xs"}
+                                    {...registerWithMask(
+                                      `operatingDays.${dayIndex}.workingTimes.${timeIndex}.start`,
+                                      "99:99"
+                                    )}
+                                  />
+                                </Field>
+                                <MdHorizontalRule size={33} />
+                                <Field
+                                  errorText={
+                                    errors.operatingDays?.[dayIndex]
+                                      ?.workingTimes?.[timeIndex]?.end?.message
+                                  }
+                                  invalid={
+                                    !!errors.operatingDays?.[dayIndex]
+                                      ?.workingTimes?.[timeIndex]?.end
+                                  }
+                                >
+                                  <Input
+                                    placeholder="HH:mm"
+                                    size={"2xs"}
+                                    {...registerWithMask(
+                                      `operatingDays.${dayIndex}.workingTimes.${timeIndex}.end`,
+                                      "99:99"
+                                    )}
+                                  />
+                                </Field>
+                                <IconButton
+                                  size={"xs"}
+                                  variant={"ghost"}
+                                  type="button"
+                                  color={"red.100"}
+                                  _hover={{ color: "red.400" }}
+                                  onClick={() => {
+                                    setValue(
+                                      "operatingDays",
+                                      operatingDays.map((o) => {
+                                        if (o.dayOfWeek === day.dayOfWeek) {
+                                          o.workingTimes =
+                                            o.workingTimes?.filter(
+                                              (__, i) => i !== timeIndex
+                                            );
+                                        }
+                                        return o;
+                                      })
+                                    );
+                                  }}
+                                >
+                                  <GrClose />
+                                </IconButton>
+                              </div>
+                              <span className="text-red-400">
+                                {
+                                  errors.operatingDays?.[dayIndex]
+                                    ?.workingTimes?.[timeIndex]?.message
+                                }
+                              </span>
                             </li>
                           ))}
                         </ul>
@@ -759,6 +809,27 @@ export function ModalCreateChatbot({
                     />
                   )}
                 />
+
+                <Field
+                  label={
+                    <span>
+                      Fallback <Badge colorPalette={"green"}>New</Badge>
+                    </span>
+                  }
+                  errorText={errors.description?.message}
+                  invalid={!!errors.description}
+                  className="w-full"
+                  helperText="Texto enviado apenas uma vez quando o bot estiver fora do horário de operação. Se o bot estiver ativo, o fallback não será enviado."
+                >
+                  <TextareaAutosize
+                    placeholder=""
+                    style={{ resize: "none" }}
+                    minRows={2}
+                    maxRows={6}
+                    className="p-3 py-2.5 rounded-sm w-full border-black/10 dark:border-white/10 border"
+                    {...register("fallback")}
+                  />
+                </Field>
               </div>
             </TabsContent>
           </TabsRoot>

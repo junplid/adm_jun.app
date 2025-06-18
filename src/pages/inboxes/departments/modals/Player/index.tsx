@@ -9,8 +9,14 @@ import { FC, JSX, useContext, useEffect } from "react";
 import { LuBriefcaseBusiness } from "react-icons/lu";
 import { ChatPlayer } from "./chat";
 import { ListPlayer } from "./list";
-import { PlayerContext, PlayerProvider } from "./context";
+import { PlayerContext } from "./context";
 import { SocketContext } from "@contexts/socket.context";
+import { countDepartmentTicket } from "../../../../../services/api/InboxDepartment";
+import { AxiosError } from "axios";
+import { AuthContext } from "@contexts/auth.context";
+import { ErrorResponse_I } from "../../../../../services/api/ErrorResponse";
+import { toaster } from "@components/ui/toaster";
+import { PlayerProvider } from "./provider.context";
 
 interface PropsModalPlayer {
   data: { id: number; name: string; businessId: number };
@@ -34,10 +40,37 @@ const txColor: { [x: string]: string } = {
 export const PlayerInboxDepartment: React.FC<PropsModalPlayer> = ({
   ...props
 }): JSX.Element => {
-  const { filter, setFilter, countNew } = useContext(PlayerContext);
+  const { logout } = useContext(AuthContext);
+  const { setdepartmentOpenId } = useContext(SocketContext);
+  const { filter, setFilter, countNew, setCountNew } =
+    useContext(PlayerContext);
+
+  useEffect(() => {
+    setdepartmentOpenId(props.data.id || null);
+    return () => {
+      setdepartmentOpenId(null);
+    };
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const count = await countDepartmentTicket(props.data.id, "NEW");
+        setCountNew(count);
+      } catch (error) {
+        if (error instanceof AxiosError) {
+          if (error.response?.status === 401) logout();
+          if (error.response?.status === 400) {
+            const dataError = error.response?.data as ErrorResponse_I;
+            if (dataError.toast.length) dataError.toast.forEach(toaster.create);
+          }
+        }
+      }
+    })();
+  }, [props.data.id]);
 
   return (
-    <DialogContent w={"1270px"} h={"calc(100vh - 70px)"} m={"20px"}>
+    <>
       <DialogHeader mt={"-5px"} flexDirection={"column"} gap={0}>
         <div className="flex items-center justify-between gap-x-2">
           <div className="flex items-center gap-x-2 text-zinc-300">
@@ -139,24 +172,22 @@ export const PlayerInboxDepartment: React.FC<PropsModalPlayer> = ({
           <ChatPlayer />
         </div>
       </DialogBody>
-    </DialogContent>
+    </>
   );
 };
 
 export const ModalPlayerInboxDepartment: FC<PropsModalPlayer> = (p) => {
-  const { setdepartmentOpenId } = useContext(SocketContext);
-
-  useEffect(() => {
-    setdepartmentOpenId(p.data?.id || null);
-    // faz a busca das informações de tickets do departamento;
-    return () => {
-      setdepartmentOpenId(null);
-    };
-  }, []);
-
   return (
-    <PlayerProvider businessId={p.data.businessId}>
-      <PlayerInboxDepartment {...p} />
-    </PlayerProvider>
+    <DialogContent
+      zIndex={1}
+      w={"1270px"}
+      h={"calc(100vh - 70px)"}
+      maxH={"700px"}
+      m={"20px"}
+    >
+      <PlayerProvider businessId={p.data.businessId}>
+        <PlayerInboxDepartment {...p} />
+      </PlayerProvider>
+    </DialogContent>
   );
 };
