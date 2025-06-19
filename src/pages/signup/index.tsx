@@ -87,7 +87,7 @@ export const SignupPage: React.FC = (): JSX.Element => {
 
   return (
     <div className="m-auto flex flex-col w-full max-w-sm flex-1 my-10 gap-y-5">
-      <img src="/logo-dark.svg" alt="Logo" />
+      <img src="/logo.svg" alt="Logo" className="max-w-32 mx-auto" />
       <div className="min-h-full w-full rounded-sm bg-[#f5f5f5] dark:bg-[#181616c5] shadow-xl border border-black/5 dark:border-none">
         <div className="flex h-full w-full flex-1 items-center p-6 py-8">
           <div className="w-full flex-col flex gap-y-3">
@@ -97,9 +97,8 @@ export const SignupPage: React.FC = (): JSX.Element => {
             </h3>
             <p className="text-gray-500 dark:text-gray-300 text-sm">
               <strong className="text-yellow-500">ATENÇÃO!</strong> Este produto
-              está em versão de testes. Recomendamos que não sejam utilizados
-              dados reais durante o uso. O número de criação de contas foi
-              limitado nesta fase de testes.
+              está em versão de testes. O número de criação de contas foi
+              limitado nesta fase.
             </p>
             <form
               onSubmit={handleSubmit(signup)}

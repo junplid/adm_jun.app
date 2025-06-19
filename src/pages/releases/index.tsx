@@ -8,7 +8,33 @@ export const ReleasesPage: React.FC = (): JSX.Element => {
 
       <div className="flex flex-col gap-1">
         <h3>
-          <Badge colorPalette={"blue"}>Atual</Badge> v0.6.00
+          <Badge colorPalette={"blue"}>Atual</Badge> v0.7.00
+          <span className="text-white/50">-alpha</span> 20/06/2025
+        </h3>
+        <div className="pl-2">
+          <p className="text-green-200">+ Inboxes</p>
+          <p className="text-white/70 pl-3">
+            Feito para centralizar e gerenciar todas as suas conversas em um só
+            lugar. Com o Inboxes, você organiza e prioriza mensagens,
+            respondendo rapidamente às dúvidas que chegam pelos fluxos de
+            atendimento.
+          </p>
+        </div>
+        <div className="pl-2">
+          <p className="text-green-200">
+            + Contrutores de fluxos {">"} Bloco de transferir para um
+            departamento
+          </p>
+          <p className="text-white/70 pl-3">
+            Permite transferir a conversa para um departamento específico,
+            facilitando a gestão de atendimentos e garantindo que as
+            solicitações sejam direcionadas para uma equipe mais adequada.
+          </p>
+        </div>
+      </div>
+      <div className="flex flex-col gap-1">
+        <h3>
+          v0.6.00
           <span className="text-white/50">-alpha</span> 12/06/2025
         </h3>
         <div className="pl-2">

@@ -4,9 +4,6 @@ export const PrivacyPolicyPage: React.FC = (): JSX.Element => {
   return (
     <div className="flex flex-col p-10 text-sm bg-white text-black">
       <h1 className="font-semibold text-xl">Política de Privacidade</h1>
-      <p className="text-xs text-gray-600">
-        Versão 0.1.00-alpha - Vigente a partir de 25 de maio de 2025
-      </p>
 
       <br />
       <p className="font-semibold">1. Introdução</p>

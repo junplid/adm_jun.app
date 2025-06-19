@@ -321,7 +321,7 @@ const nodesList: {
       />
     ),
     name: "Enviar fluxos",
-    description: "Envie outro fluxo de conversa",
+    description: "Envie para outro fluxo de conversa",
     id: "15",
     type: "NodeSendFlow",
   },

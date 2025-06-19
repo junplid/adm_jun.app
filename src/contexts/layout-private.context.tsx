@@ -8,8 +8,7 @@ import {
   useMemo,
   useState,
 } from "react";
-import { BsDiscord } from "react-icons/bs";
-import { IoClose, IoHelpCircleOutline } from "react-icons/io5";
+import { IoClose, IoHelpCircleOutline, IoLogoWhatsapp } from "react-icons/io5";
 import { PiBracketsCurlyBold, PiProjectorScreenBold } from "react-icons/pi";
 import { GrConnect, GrSend, GrStorage } from "react-icons/gr";
 import { Menu, MenuItem, Sidebar, SubMenu } from "react-pro-sidebar";
@@ -173,7 +172,7 @@ export function LayoutPrivateProvider(): JSX.Element {
               style={{ minHeight: 50, background: bgSideBar }}
               className="sticky top-0 z-50 flex w-full items-center justify-center p-1 px-2"
             >
-              <img src="/logo-dark.svg" alt="Logo" />
+              <img src="/logo.svg" alt="Logo" />
             </div>
 
             {/* {toggledMenu && (
@@ -372,14 +371,14 @@ export function LayoutPrivateProvider(): JSX.Element {
               <Tooltip
                 showArrow
                 positioning={{ placement: toggledMenu ? "top" : "right" }}
-                content="Acesse a comunidade"
+                content="Suporte Whatsapp"
               >
                 <a
-                  href="https://discord.gg/2C4Uu8DPVb"
+                  href="https://api.whatsapp.com/send?phone=5517981912525&text=Olá, preciso de ajuda"
                   target="_blank"
-                  className="flex text-white border border-white/25 justify-center cursor-pointer items-center bg-[#646ee4] hover:bg-[#4460ff] duration-300 p-2 rounded-sm"
+                  className="flex text-white border border-white/25 justify-center cursor-pointer items-center bg-[#70af64] hover:bg-[#388f3f] duration-300 p-2 rounded-sm"
                 >
-                  <BsDiscord size={18} />
+                  <IoLogoWhatsapp size={18} />
                 </a>
               </Tooltip>
               <Tooltip
