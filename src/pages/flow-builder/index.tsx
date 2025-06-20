@@ -10,6 +10,7 @@ import {
   useEffect,
   useMemo,
   useRef,
+  useState,
 } from "react";
 import {
   Background,
@@ -38,16 +39,20 @@ import { NodeSendFlow } from "./nodes/SendFlow";
 import { SearchNodesComponents } from "./components/SearchNodes";
 import { DnDContext } from "@contexts/DnD.context";
 import { AppNode } from "./types";
-// import { FeedbackComponent } from "./components/feedback";
+import { toaster } from "@components/ui/toaster";
 import useSyncLoadStore from "./syncLoadStore";
 import { RiErrorWarningLine, RiSaveFill } from "react-icons/ri";
 import { useParams } from "react-router-dom";
 import { getOptionsVariables } from "../../services/api/Variable";
 import { db } from "../../db";
-import { useGetFlowData, useUpdateFlowData } from "../../hooks/flow";
+import { useUpdateFlowData } from "../../hooks/flow";
 import { nanoid } from "nanoid";
 import CustomEdge from "./customs/edge";
-import { FlowType, getOptionsFlows } from "../../services/api/Flow";
+import {
+  FlowType,
+  getFlowData,
+  getOptionsFlows,
+} from "../../services/api/Flow";
 import { getOptionsTags } from "../../services/api/Tag";
 import { NodeTimer } from "./nodes/Timer";
 import { NodeMenu } from "./nodes/Menu";
@@ -59,6 +64,9 @@ import { NodeSendAudiosLive } from "./nodes/SendAudiosLive";
 import { NodeSendAudios } from "./nodes/SendAudios";
 import { NodeAgentAI } from "./nodes/AgentAI";
 import { NodeTransferDepartment } from "./nodes/TransferDepartment";
+import { AxiosError } from "axios";
+import { AuthContext } from "@contexts/auth.context";
+import { ErrorResponse_I } from "../../services/api/ErrorResponse";
 
 type NodeTypesGeneric = {
   [x in TypesNodes]: any;
@@ -575,13 +583,44 @@ function Body(props: IBody): JSX.Element {
 }
 
 export function FlowBuilderPage() {
+  const { logout } = useContext(AuthContext);
   const params = useParams<{ id: string }>();
   const { ToggleMenu } = useContext(LayoutPrivateContext);
-  const {
-    data: flowData,
-    isFetching,
-    isError,
-  } = useGetFlowData(params.id || "");
+  const [flowData, setFlowData] = useState<{
+    name: string;
+    type: FlowType;
+    businessIds: number[];
+    nodes: any[];
+    edges: any[];
+  } | null>(null);
+  const [isFetching, setIsFetching] = useState(true);
+  const [isError, setIsError] = useState(false);
+
+  useEffect(() => {
+    setIsError(false);
+    (async () => {
+      try {
+        const data = await getFlowData(params.id || "");
+        setFlowData(data);
+        setIsFetching(false);
+      } catch (error) {
+        if (error instanceof AxiosError) {
+          setIsError(true);
+          if (error.response?.status === 401) logout();
+          if (error.response?.status === 400) {
+            const dataError = error.response?.data as ErrorResponse_I;
+            if (dataError.toast.length) dataError.toast.forEach(toaster.create);
+          }
+        }
+      }
+    })();
+
+    return () => {
+      setFlowData(null);
+      setIsFetching(true);
+      setIsError(false);
+    };
+  }, [params.id]);
 
   const Toggle = useMemo(() => {
     return <div className="absolute top-4 left-2 z-20">{ToggleMenu}</div>;
@@ -648,7 +687,7 @@ export function FlowBuilderPage() {
       </Presence>
 
       {!isFetching && !isError && flowData?.name && (
-        <Body id={params.id} flowData={flowData} />
+        <Body id={params.id} flowData={structuredClone(flowData)} />
       )}
 
       <Presence

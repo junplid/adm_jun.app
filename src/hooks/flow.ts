@@ -246,6 +246,8 @@ export function useUpdateFlowData(props?: {
   onSuccess?: () => Promise<void>;
 }) {
   const { logout } = useContext(AuthContext);
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: ({
       id,
@@ -257,7 +259,8 @@ export function useUpdateFlowData(props?: {
         edges?: { type: "upset" | "delete"; edge: any }[];
       };
     }) => FlowService.updateFlowData(id, body),
-    async onSuccess() {
+    async onSuccess(_, { id }) {
+      queryClient.invalidateQueries({ queryKey: ["flow-data", id] });
       if (props?.onSuccess) await props.onSuccess();
     },
     onError(error: unknown) {
