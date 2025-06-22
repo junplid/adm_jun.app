@@ -172,7 +172,16 @@ export function LayoutPrivateProvider(): JSX.Element {
               style={{ minHeight: 50, background: bgSideBar }}
               className="sticky top-0 z-50 flex w-full items-center justify-center p-1 px-2"
             >
-              <img src="/logo.svg" alt="Logo" />
+              {!toggledMenu && (
+                <img
+                  src="/logo-icon.svg"
+                  style={{ width: 40, height: 40 }}
+                  alt="Logo"
+                />
+              )}
+              {toggledMenu && (
+                <img src="/logo.svg" style={{ width: 150 }} alt="Logo" />
+              )}
             </div>
 
             {/* {toggledMenu && (

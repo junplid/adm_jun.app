@@ -95,6 +95,96 @@ export function useGetTagsOptions(params?: {
   });
 }
 
+export function useAddTagOnContactWA(props?: {
+  setError?: UseFormSetError<{
+    ticketId?: number;
+    contactWAId?: number;
+    id: number;
+  }>;
+  onSuccess?: (id: number) => Promise<void>;
+}) {
+  const { logout } = useContext(AuthContext);
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (body: {
+      id: number;
+      params: { ticketId?: number; contactWAId?: number };
+    }) => TagService.addTagOnContactWA(body.id, body.params),
+    async onSuccess(_, body) {
+      if (props?.onSuccess) await props.onSuccess(body.id);
+      if (queryClient.getQueryData<any>(["tags", null])) {
+        queryClient.setQueryData(["tags", null], (old: any) => {
+          if (!old) return old;
+          return old.map((b: any) => {
+            if (b.id === body.id) b.records = (b.records || 0) + 1;
+            return b;
+          });
+        });
+      }
+    },
+    onError(error: unknown) {
+      if (error instanceof AxiosError) {
+        if (error.response?.status === 401) logout();
+        if (error.response?.status === 400) {
+          const dataError = error.response?.data as ErrorResponse_I;
+          if (dataError.toast.length) dataError.toast.forEach(toaster.create);
+          if (dataError.input.length) {
+            dataError.input.forEach(({ text, path }) =>
+              // @ts-expect-error
+              props?.setError?.(path, { message: text })
+            );
+          }
+        }
+      }
+    },
+  });
+}
+
+export function useDeleteTagOnContactWA(props?: {
+  setError?: UseFormSetError<{
+    ticketId?: number;
+    contactWAId?: number;
+    id: number;
+  }>;
+  onSuccess?: (id: number) => Promise<void>;
+}) {
+  const { logout } = useContext(AuthContext);
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (body: {
+      id: number;
+      params: { ticketId?: number; contactWAId?: number };
+    }) => TagService.deleteTagOnContactWA(body.id, body.params),
+    async onSuccess(_, body) {
+      if (props?.onSuccess) await props.onSuccess(body.id);
+      if (queryClient.getQueryData<any>(["tags", null])) {
+        queryClient.setQueryData(["tags", null], (old: any) => {
+          if (!old) return old;
+          return old.map((b: any) => {
+            if (b.id === body.id) b.records = Math.max((b.records || 0) - 1, 0);
+            return b;
+          });
+        });
+      }
+    },
+    onError(error: unknown) {
+      if (error instanceof AxiosError) {
+        if (error.response?.status === 401) logout();
+        if (error.response?.status === 400) {
+          const dataError = error.response?.data as ErrorResponse_I;
+          if (dataError.toast.length) dataError.toast.forEach(toaster.create);
+          if (dataError.input.length) {
+            dataError.input.forEach(({ text, path }) =>
+              // @ts-expect-error
+              props?.setError?.(path, { message: text })
+            );
+          }
+        }
+      }
+    },
+  });
+}
+
 export function useCreateTag(props?: {
   setError?: UseFormSetError<{
     name: string;

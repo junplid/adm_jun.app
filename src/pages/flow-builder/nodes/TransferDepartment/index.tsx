@@ -43,7 +43,7 @@ export const NodeTransferDepartment: React.FC<Node<DataNode>> = ({ id }) => {
   return (
     <div>
       <PatternNode.PatternPopover
-        title="Node de transferir para departamento"
+        title="Node de transferir departamento"
         description="Transferir a conversa para um departamento."
         size="330px"
         node={{

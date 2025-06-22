@@ -97,9 +97,14 @@ type MessageType = {
 export async function getTicket(id: number): Promise<{
   id: number;
   inboxDepartmentId: number;
+  businessId: number;
   inboxUserId: number | null;
   status: "NEW" | "OPEN" | "RESOLVED" | "DELETED";
-  contact: { name: string; completeNumber: string };
+  contact: {
+    name: string;
+    completeNumber: string;
+    tags: { id: number; name: string }[];
+  };
   messages: {
     content: MessageType;
     by: "contact" | "user" | "system";
@@ -118,7 +123,6 @@ export async function getTicket(id: number): Promise<{
     // message: string;
     // org: string;
   }[];
-  tags: { id: number; name: string }[];
 }> {
   const { data } = await api.get(`/private/tickets/${id}`);
   return data.ticket;

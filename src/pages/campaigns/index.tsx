@@ -14,6 +14,11 @@ import { useDialogModal } from "../../hooks/dialog.modal";
 import { TypeStatusCampaign } from "../../services/api/Campaign";
 import { useGetCampaigns } from "../../hooks/campaign";
 import { queryClient } from "../../main";
+import {
+  ProgressCircleRing,
+  ProgressCircleRoot,
+  ProgressCircleValueText,
+} from "@components/ui/progress-circle";
 
 export type TranslateType = {
   [x in TypeStatusCampaign]: { value: string; cb: string; ct: string };
@@ -73,8 +78,63 @@ export const CampaignsPage: React.FC = (): JSX.Element => {
         name: "Nome",
       },
       {
+        key: "totalFlows",
+        name: "Contatos",
+        styles: { width: 90 },
+        render: ({ totalFlows }) => {
+          return (
+            <div className="flex items-center justify-center">
+              <span>{totalFlows}</span>
+            </div>
+          );
+        },
+      },
+      {
+        key: "sentPercentage",
+        name: "Entregue",
+        styles: { width: 90 },
+        render: ({ sentPercentage }) => {
+          return (
+            <div className="flex items-center justify-center">
+              <ProgressCircleRoot
+                value={sentPercentage}
+                colorPalette={"green"}
+                size={"sm"}
+                pr={0}
+                opacity={sentPercentage === 100 ? 0.7 : 1}
+              >
+                <ProgressCircleRing css={{ "--thickness": "3px" }} />
+                <ProgressCircleValueText fontSize={"10px"} />
+              </ProgressCircleRoot>
+            </div>
+          );
+        },
+      },
+      // {
+      //   key: "finishPercentage",
+      //   name: "Finalizada",
+      //   styles: { width: 90 },
+      //   render: ({ finishPercentage }) => {
+      //     return (
+      //       <div className="flex items-center justify-center">
+      //         <ProgressCircleRoot
+      //           value={finishPercentage}
+      //           colorPalette={"green"}
+      //           size={"sm"}
+      //           pr={0}
+      //           opacity={finishPercentage === 100 ? 0.7 : 1}
+      //         >
+      //           <ProgressCircleRing css={{ "--thickness": "3px" }} />
+      //           <ProgressCircleValueText fontSize={"10px"} />
+      //         </ProgressCircleRoot>
+      //       </div>
+      //     );
+      //   },
+      // },
+      {
         key: "status",
         name: "Status",
+        styles: { width: 135 },
         render: ({ status }) => {
           const sts: TypeStatusCampaign = status;
           return (
@@ -83,6 +143,7 @@ export const CampaignsPage: React.FC = (): JSX.Element => {
                 style={{
                   background: translateType[sts].cb,
                   color: translateType[sts].ct,
+                  fontWeight: sts === "running" ? 600 : 400,
                 }}
                 className="p-1 px-2 text-sm rounded-sm border border-white/10"
               >
@@ -100,7 +161,7 @@ export const CampaignsPage: React.FC = (): JSX.Element => {
       {
         key: "createAt",
         name: "Data de criação",
-        styles: { width: 180 },
+        styles: { width: 140 },
         render(row) {
           return moment(row.createAt).format("DD/MM/YYYY");
         },

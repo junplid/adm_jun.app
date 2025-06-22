@@ -10,3 +10,7 @@
   background-color: #202122;
   border-radius: 10px;
 }
+
+.container__virtuoso div {
+  padding-right: 0 !important;
+}

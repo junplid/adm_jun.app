@@ -17,7 +17,6 @@ import {
   MiniMap,
   Panel,
   ReactFlow,
-  SelectionMode,
   useReactFlow,
 } from "@xyflow/react";
 import {
@@ -147,6 +146,7 @@ function Body(props: IBody): JSX.Element {
   const { screenToFlowPosition } = useReactFlow();
   const colorDotFlow = useColorModeValue("#c6c6c6", "#373737");
   const { load: syncLoad, setLoad } = useSyncLoadStore((s) => s);
+  const [viewReady, setViewReady] = useState(false);
 
   const {
     mutateAsync: updateFlowData,
@@ -449,6 +449,16 @@ function Body(props: IBody): JSX.Element {
 
   return (
     <div className="reactflow-wrapper w-full h-full" ref={reactFlowWrapper}>
+      {!viewReady && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center">
+          <Spinner
+            borderWidth="2px"
+            color="teal.500"
+            size="md"
+            className="-translate-y-20"
+          />
+        </div>
+      )}
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -457,6 +467,7 @@ function Body(props: IBody): JSX.Element {
         onNodesDelete={onNodesDelete}
         onConnect={onConnect}
         nodeTypes={nodeTypes}
+        onInit={() => setViewReady(true)}
         snapToGrid={true}
         snapGrid={[8, 8]}
         edgeTypes={edgeTypes}
@@ -464,8 +475,18 @@ function Body(props: IBody): JSX.Element {
         onDrop={onDrop}
         onDragOver={onDragOver}
         attributionPosition="top-right"
+        // selectionMode={SelectionMode.Partial}
+        // Garante que o retângulo não apareça sem modificador
+        selectionOnDrag={false}
+        // Desliga o retângulo de seleção (Shift + arrastar)
+        selectionKeyCode={null}
+        // Desliga o clique múltiplo (Ctrl/Cmd + clique)
+        multiSelectionKeyCode={null}
+        // Impede que o nó fique “selected” enquanto você o move
+        // selectNodesOnDrag={false}
+        // se quiser bloquear QUALQUER seleção (até simples)
+        // elementsSelectable={false}
         fitView
-        selectionMode={SelectionMode.Partial}
       >
         <MiniMap
           style={{ width: 180, height: 100 }}

@@ -86,14 +86,19 @@ export type MessageType =
 export interface Ticket {
   id: number;
   inboxDepartmentId: number;
+  businessId: number;
   inboxUserId: number | null;
   status: "NEW" | "OPEN" | "RESOLVED" | "DELETED";
-  contact: { name: string; completeNumber: string };
+  contact: {
+    name: string;
+    completeNumber: string;
+
+    tags: { id: number; name: string }[];
+  };
   messages: {
     content: MessageType;
     by: "contact" | "user" | "system";
   }[];
-  tags: { id: number; name: string }[];
 }
 
 interface PropsSocketMessage {

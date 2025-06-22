@@ -10,8 +10,8 @@ export async function getTags(params: {
   {
     id: number;
     name: string;
-    business: { name: string; id: number }[];
-    type: TagType;
+    // business: { name: string; id: number }[];
+    // type: TagType;
   }[]
 > {
   const { data } = await api.get("/private/tags", { params });
@@ -46,6 +46,20 @@ export async function createTag(body: {
 }> {
   const { data } = await api.post("/private/tags", body);
   return data.tag;
+}
+
+export async function addTagOnContactWA(
+  id: number,
+  params: { ticketId?: number; contactWAId?: number }
+): Promise<void> {
+  await api.post(`/private/tags/${id}/contact-wa`, undefined, { params });
+}
+
+export async function deleteTagOnContactWA(
+  id: number,
+  params: { ticketId?: number; contactWAId?: number }
+): Promise<void> {
+  await api.delete(`/private/tags/${id}/contact-wa`, { params });
 }
 
 export async function getTagDetails(id: number): Promise<{

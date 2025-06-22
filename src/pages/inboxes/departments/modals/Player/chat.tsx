@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  Highlight,
   IconButton,
   Image,
   Presence,
@@ -11,6 +12,7 @@ import moment, { Moment } from "moment";
 import {
   FC,
   JSX,
+  memo,
   useContext,
   useEffect,
   useMemo,
@@ -51,6 +53,16 @@ import {
   PiFileTextFill,
   PiFileVideoFill,
 } from "react-icons/pi";
+import { useColorModeValue } from "@components/ui/color-mode";
+import { WithContext as ReactTags, SEPARATORS, Tag } from "react-tag-input";
+import {
+  useAddTagOnContactWA,
+  useCreateTag,
+  useDeleteTagOnContactWA,
+  useGetTagsOptions,
+} from "../../../../../hooks/tag";
+import { InViewComponent } from "@components/InView";
+import { InView } from "react-intersection-observer";
 
 const background = {
   system: "#5c3600cd",
@@ -125,6 +137,140 @@ export const ChatPlayer: FC = () => {
   const btnRef = useRef<HTMLButtonElement>(null);
   const caretRef = useRef<{ start: number; end: number }>({ start: 0, end: 0 });
   const [filesSelected, setFilesSelected] = useState<FileSelected[]>([]);
+  const [errorTags, setErrorTags] = useState<string | undefined>(undefined);
+  const colorQuery = useColorModeValue("#000000", "#ffffff");
+
+  const { data: tags } = useGetTagsOptions();
+  const { mutateAsync: createTag, status: statusCreateTag } = useCreateTag({});
+  const { mutateAsync: addTag } = useAddTagOnContactWA({
+    setError: (_, error) => setErrorTags(error.message),
+  });
+  const { mutateAsync: rmTag } = useDeleteTagOnContactWA({
+    setError: (_, error) => setErrorTags(error.message),
+  });
+
+  const suggestions = useMemo(() => {
+    return tags
+      ?.filter((s) => !dataTicket?.contact.tags.some((v) => v.id === s.id))
+      .map((s) => ({
+        id: String(s.id),
+        text: s.name,
+        className: "",
+      }));
+  }, [tags, dataTicket?.contact.tags]);
+
+  const handleAddition = async (tag: Tag) => {
+    if (!dataTicket) return;
+    const nextName = tag.text.trim().replace(/\s/g, "_");
+    const exist = tags?.find((s) => s.name === nextName);
+
+    if (!exist) {
+      const tag = await createTag({
+        name: nextName,
+        businessIds: [dataTicket.businessId],
+        type: "contactwa",
+      });
+      setDataTicket((prev) => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          contact: {
+            ...prev.contact,
+            tags: [
+              ...(prev.contact.tags || []),
+              { id: tag.id, name: nextName },
+            ],
+          },
+        };
+      });
+      try {
+        await addTag({ id: tag.id, params: { ticketId: dataTicket.id } });
+      } catch (error) {
+        setDataTicket((prev) => {
+          if (!prev) return null;
+          return {
+            ...prev,
+            contact: {
+              ...prev.contact,
+              tags: prev.contact.tags.filter((t) => t.id !== tag.id),
+            },
+          };
+        });
+      }
+    } else {
+      setDataTicket((prev) => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          contact: {
+            ...prev.contact,
+            tags: [
+              ...(prev.contact.tags || []),
+              { id: exist.id, name: nextName },
+            ],
+          },
+        };
+      });
+      console.log("Existente");
+      try {
+        await addTag({ id: exist.id, params: { ticketId: dataTicket.id } });
+      } catch (error) {
+        setDataTicket((prev) => {
+          if (!prev) return null;
+          return {
+            ...prev,
+            contact: {
+              ...prev.contact,
+              tags: prev.contact.tags.filter((t) => t.id !== exist.id),
+            },
+          };
+        });
+      }
+    }
+  };
+
+  const handleDelete = async (index: number) => {
+    if (!dataTicket) return;
+    if (!index && dataTicket.contact.tags.length === 1) {
+      try {
+        await rmTag({
+          id: dataTicket.contact.tags[index].id,
+          params: { ticketId: dataTicket.id },
+        });
+        setDataTicket((prev) => {
+          if (!prev) return null;
+          return {
+            ...prev,
+            contact: {
+              ...prev.contact,
+              tags: prev.contact.tags.filter((_, i) => i !== index),
+            },
+          };
+        });
+      } catch (error) {
+        console.log("Error ao remover tag:", error);
+      }
+    } else {
+      try {
+        await rmTag({
+          id: dataTicket.contact.tags[index].id,
+          params: { ticketId: dataTicket.id },
+        });
+        setDataTicket((prev) => {
+          if (!prev) return null;
+          return {
+            ...prev,
+            contact: {
+              ...prev.contact,
+              tags: prev.contact.tags.filter((_, i) => i !== index),
+            },
+          };
+        });
+      } catch (error) {
+        console.log("Error ao remover tag:", error);
+      }
+    }
+  };
 
   const rememberCaret = () => {
     const el = textareaRef.current;
@@ -307,40 +453,116 @@ export const ChatPlayer: FC = () => {
   }
 
   return (
-    <div className="h-full grid grid-rows-[48px_1fr_minmax(48px,auto)] gap-2">
-      <div className="flex justify-between">
-        <div className="flex items-center gap-x-2">
-          <Avatar size={"sm"} bg={"#555555"} width={"40px"} height={"40px"} />
-          <div className="flex flex-col">
-            <span className="font-medium">{dataTicket.contact.name}</span>
-            <span className="text-sm text-white/60">
-              {dataTicket.contact.completeNumber}
-            </span>
+    <div className="h-full grid grid-rows-[minmax(74px,auto)_1fr_minmax(48px,auto)] gap-2">
+      <div className="w-full flex flex-col gap-y-1">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-x-2">
+            <Avatar size={"sm"} bg={"#555555"} width={"40px"} height={"40px"} />
+            <div className="flex flex-col">
+              <span className="font-medium">{dataTicket.contact.name}</span>
+              <span className="text-sm text-white/60">
+                {dataTicket.contact.completeNumber}
+              </span>
+            </div>
+          </div>
+          <div className="flex gap-x-2">
+            <span className="text-xs text-white/30">Ações:</span>
+            <Button
+              loading={loadReturn === dataTicket.id}
+              disabled={isDisabledReturn}
+              onClick={handleReturnTicket}
+              size={"xs"}
+              fontSize={"13px"}
+              variant={"outline"}
+            >
+              <TbArrowBack /> Retornar
+            </Button>
+            <Button
+              size={"xs"}
+              fontSize={"13px"}
+              colorPalette={"green"}
+              variant={"subtle"}
+              onClick={handleResolvedTicket}
+              loading={loadResolved === dataTicket.id}
+              disabled={isDisabledResolved}
+            >
+              Resolver <TbCircleCheck />
+            </Button>
           </div>
         </div>
-        <div className="flex gap-x-2">
-          <span className="text-xs text-white/30">Ações:</span>
-          <Button
-            loading={loadReturn === dataTicket.id}
-            disabled={isDisabledReturn}
-            onClick={handleReturnTicket}
-            size={"xs"}
-            fontSize={"13px"}
-            variant={"outline"}
-          >
-            <TbArrowBack /> Retornar
-          </Button>
-          <Button
-            size={"xs"}
-            fontSize={"13px"}
-            colorPalette={"green"}
-            variant={"subtle"}
-            onClick={handleResolvedTicket}
-            loading={loadResolved === dataTicket.id}
-            disabled={isDisabledResolved}
-          >
-            Resolver <TbCircleCheck />
-          </Button>
+        <div className="flex flex-col gap-y-0.5">
+          <div className="grid grid-cols-[1fr_190px] w-full items-center gap-x-3 text-sm">
+            {!dataTicket.contact.tags?.length ? (
+              <span className="text-white/50 bg-zinc-300/5 py-0.5 text-center w-full text-sm">
+                As etiquetas aparecerão aqui.
+              </span>
+            ) : (
+              <PreviewTags
+                list={dataTicket.contact.tags || []}
+                onclick={handleDelete}
+              />
+            )}
+            <div className="grid grid-cols-[16px_1fr] items-center gap-x-2 w-full">
+              <div>
+                {statusCreateTag === "pending" && <Spinner size={"sm"} />}
+              </div>
+              <ReactTags
+                tags={[]}
+                suggestions={suggestions || []}
+                separators={[SEPARATORS.ENTER]}
+                handleAddition={handleAddition}
+                placeholder="Adicionar etiqueta"
+                allowDragDrop={false}
+                autoFocus={false}
+                shouldRenderSuggestions={(query) => {
+                  return query.length > 0;
+                }}
+                minQueryLength={0}
+                allowAdditionFromPaste={false}
+                handleFilterSuggestions={(query, suggestions) => {
+                  return suggestions
+                    .filter((s) =>
+                      s.text.toLowerCase().includes(query.toLowerCase())
+                    )
+                    .slice(0, 3);
+                }}
+                renderSuggestion={(item, query) => (
+                  <div
+                    key={item.id}
+                    className="p-2 dark:text-white/50 text-black/40 py-1.5 cursor-pointer"
+                    style={{ borderRadius: 20 }}
+                  >
+                    <Highlight
+                      styles={{
+                        // px: "0.5",
+                        // bg: "#ea5c0a",
+                        color: colorQuery,
+                        fontWeight: 600,
+                      }}
+                      query={query}
+                    >
+                      {item.text}
+                    </Highlight>
+                  </div>
+                )}
+                classNames={{
+                  selected: `flex flex-wrap border gap-1.5 gap-y-2 w-full border-none`,
+                  tagInputField: `p-0.5 pl-2 text-sm rounded-sm w-full border dark:border-white/10 border-black/10`,
+                  remove: "hidden",
+                  tag: "hover:bg-red-500 duration-300 !cursor-pointer dark:bg-white/15 bg-black/15 px-1",
+                  tagInput: "w-full",
+                  tags: "w-full relative",
+                  suggestions:
+                    "absolute z-50 dark:bg-[#111111] bg-white w-full translate-y-2 shadow-xl p-1 border dark:border-white/10 border-black/10 rounded-sm",
+                }}
+              />
+            </div>
+          </div>
+          {errorTags && (
+            <span className="text-red-400/80 w-full text-end text-xs">
+              Não foi possível encontrar ticket informado.
+            </span>
+          )}
         </div>
       </div>
       <Box
@@ -529,7 +751,7 @@ export const ChatPlayer: FC = () => {
             </IconButton>
           </div>
           <TextareaAutosize
-            placeholder="Digite {{ para variaveis abrir menu de variaveis"
+            placeholder="Digite {{ para abrir o menu de variaveis"
             style={{ resize: "none" }}
             minRows={1}
             maxRows={8}
@@ -588,7 +810,79 @@ export const ChatPlayer: FC = () => {
   );
 };
 
-export const TextBubbleComponent: FC<{
+export const ShadowLeftMemoComponent = memo(() => {
+  const [showShadowTop, setShowShadowTop] = useState(true);
+  const gradient = useColorModeValue(
+    "linear-gradient(90deg, rgba(255, 255, 255, 0.797) 0%, rgba(214, 214, 214, 0) 90%)",
+    "linear-gradient(90deg, #121111 0%, transparent 90%)"
+  );
+
+  return (
+    <>
+      <InViewComponent onChange={(isTop) => setShowShadowTop(isTop)} />
+      <div
+        className={`pointer-events-none absolute left-0 top-0 z-30 h-[16px] w-12`}
+        style={{
+          background: gradient,
+          opacity: Number(!showShadowTop),
+        }}
+      />
+    </>
+  );
+});
+
+const ShadowRightMemoComponent = memo(() => {
+  const [showShadowBottom, setShowShadowBottom] = useState(false);
+  const gradient = useColorModeValue(
+    "linear-gradient(90deg, rgba(214, 214, 214, 0) 0%,rgba(255, 255, 255, 0.797) 90%)",
+    "linear-gradient(90deg, transparent 0%, #121111 90%)"
+  );
+
+  return (
+    <>
+      <div
+        className={`pointer-events-none absolute right-0 top-0 z-30 h-[16px] w-12`}
+        style={{
+          background: gradient,
+          opacity: Number(showShadowBottom),
+        }}
+      />
+      <InView
+        rootMargin="0px 50px 0px 0px"
+        onChange={(is) => setShowShadowBottom(!is)}
+      />
+      <div></div>
+    </>
+  );
+});
+
+interface PropsPreviewTags {
+  list: { id: number; name: string }[];
+  onclick: (index: number) => void;
+}
+// overflow-hidden
+const PreviewTags: FC<PropsPreviewTags> = (props): JSX.Element => {
+  return (
+    <div className="relative w-full flex overflow-hidden mt-1">
+      <div className="flex items-center w-full gap-x-1.5 pb-0.5 overflow-x-scroll scroll-x-custom">
+        <ShadowLeftMemoComponent />
+        {props.list.map(({ id: idItem, name }, index) => (
+          <span
+            key={idItem}
+            className="hover:text-red-400/70 select-none text-xs hover:bg-transparent bg-white/10 text-white/65 px-1 duration-200 cursor-pointer hover:decoration-dashed hover:line-through flex items-center gap-x-1"
+            onClick={() => props.onclick(index)}
+          >
+            {name}
+          </span>
+        ))}
+
+        <ShadowRightMemoComponent />
+      </div>
+    </div>
+  );
+};
+
+const TextBubbleComponent: FC<{
   message: string;
   createAt: Moment;
   isArrow?: boolean;
@@ -664,7 +958,7 @@ export const TextBubbleComponent: FC<{
   );
 };
 
-export const ImageBubbleComponent: FC<{
+const ImageBubbleComponent: FC<{
   fileName: string;
   createAt: Moment;
   isArrow?: boolean;
@@ -752,7 +1046,7 @@ export const ImageBubbleComponent: FC<{
   );
 };
 
-export const AudioBubbleComponent: FC<{
+const AudioBubbleComponent: FC<{
   fileName: string;
   createAt: Moment;
   isArrow?: boolean;
@@ -794,7 +1088,7 @@ export const AudioBubbleComponent: FC<{
   );
 };
 
-export const FileBubbleComponent: FC<{
+const FileBubbleComponent: FC<{
   fileName: string;
   caption?: string;
   createAt: Moment;
