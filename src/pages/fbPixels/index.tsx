@@ -1,48 +1,38 @@
 import { JSX, useMemo } from "react";
-import moment from "moment";
 import { TableComponent } from "../../components/Table";
 import { Column } from "../../components/Table";
 import { ModalCreateFlow } from "./modals/create";
-import { ModalDeleteFlow } from "./modals/delete";
+import { ModalDeleteFbPixel } from "./modals/delete";
 import { Button } from "@chakra-ui/react";
 import { MdDeleteOutline, MdEdit } from "react-icons/md";
-import { ModalViewFlow } from "./modals/view";
 import { LuEye } from "react-icons/lu";
 import { IoAdd } from "react-icons/io5";
-import { ModalEditFlow } from "./modals/edit";
-import { FlowType } from "../../services/api/Flow";
-import { useGetFlows } from "../../hooks/flow";
-import { Link } from "react-router-dom";
+import { ModalEditTag } from "./modals/edit";
 import { useDialogModal } from "../../hooks/dialog.modal";
+import { useGetFbPixels } from "../../hooks/fbPixel";
+import moment from "moment";
 
-export interface FlowRow {
-  id: string;
+export interface FbPixelRow {
+  business: { id: number; name: string } | null;
+  pixel_id: string;
+  id: number;
   name: string;
-  createAt: Date;
-  updateAt: Date;
-  type: FlowType;
-  businesses: { id: number; name: string }[];
 }
 
-export const FlowsPage: React.FC = (): JSX.Element => {
-  const { data: flows, isFetching, isPending } = useGetFlows();
+export const FbPixelsPage: React.FC = (): JSX.Element => {
+  const { data: fbPixels, isFetching, isPending } = useGetFbPixels();
   const { dialog: DialogModal, close, onOpen } = useDialogModal({});
 
   const renderColumns = useMemo(() => {
     const columns: Column[] = [
       {
         key: "name",
-        name: "Nome do fluxo",
-        render(row) {
-          return (
-            <Link
-              to={`/auth/flows/${row.id}`}
-              className="text-blue-300 hover:text-blue-400 underline"
-            >
-              {row.name}
-            </Link>
-          );
-        },
+        name: "Nome do pixel",
+      },
+      {
+        key: "pixel_id",
+        name: "ID do pixel",
+        styles: { width: 160 },
       },
       {
         key: "createAt",
@@ -69,26 +59,23 @@ export const FlowsPage: React.FC = (): JSX.Element => {
               <Button
                 size={"sm"}
                 bg={"transparent"}
+                disabled
                 _hover={{ bg: "#ffffff21" }}
                 _icon={{ width: "20px", height: "20px" }}
-                onClick={() =>
-                  onOpen({
-                    content: <ModalViewFlow id={row.id} />,
-                  })
-                }
               >
                 <LuEye color={"#dbdbdb"} />
               </Button>
               <Button
+                onClick={() => {
+                  onOpen({
+                    content: <ModalEditTag close={close} id={row.id} />,
+                  });
+                }}
                 size={"sm"}
                 bg={"transparent"}
                 _hover={{ bg: "#30c9e422" }}
                 _icon={{ width: "20px", height: "20px" }}
-                onClick={() =>
-                  onOpen({
-                    content: <ModalEditFlow close={close} id={row.id} />,
-                  })
-                }
+                disabled={row.type === "system"}
               >
                 <MdEdit size={18} color={"#9ec9fa"} />
               </Button>
@@ -97,10 +84,11 @@ export const FlowsPage: React.FC = (): JSX.Element => {
                 bg={"transparent"}
                 _hover={{ bg: "#eb606028" }}
                 _icon={{ width: "20px", height: "20px" }}
+                disabled={row.type === "system"}
                 onClick={() => {
                   onOpen({
                     content: (
-                      <ModalDeleteFlow
+                      <ModalDeleteFbPixel
                         data={{ id: row.id, name: row.name }}
                         close={close}
                       />
@@ -122,7 +110,7 @@ export const FlowsPage: React.FC = (): JSX.Element => {
     <div className="h-full gap-y-2 flex flex-col">
       <div className="flex flex-col gap-y-0.5">
         <div className="flex items-center gap-x-5">
-          <h1 className="text-lg font-semibold">Construtores de fluxos</h1>
+          <h1 className="text-lg font-semibold">Pixels do Facebook</h1>
           <ModalCreateFlow
             trigger={
               <Button variant="outline" size={"sm"}>
@@ -132,15 +120,16 @@ export const FlowsPage: React.FC = (): JSX.Element => {
           />
         </div>
         <p className="text-white/60 font-light">
-          Construa, melhore e organize fluxos de conversa de forma visual e
-          intuitiva.
+          Recurso essencial para otimizar suas campanhas, rastreando cada ação
+          dos seus Leads dentro do{" "}
+          <strong className="text-white/90 font-semibold">WhatsApp</strong>.
         </p>
       </div>
-      <div style={{ maxHeight: "calc(100vh - 180px)" }} className="grid flex-1">
+      <div style={{ maxHeight: "calc(100vh - 180px)" }} className="flex-1 grid">
         <TableComponent
-          rows={flows || []}
+          rows={fbPixels || []}
           columns={renderColumns}
-          textEmpity="Seus construtores de fluxo aparecerão aqui."
+          textEmpity="Seus pixels aparecerão aqui."
           load={isFetching || isPending}
         />
       </div>

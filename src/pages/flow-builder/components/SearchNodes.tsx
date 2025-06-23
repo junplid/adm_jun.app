@@ -22,7 +22,11 @@ import { TypesNodes } from "..";
 import { DnDContext } from "@contexts/DnD.context";
 import removeAccents from "remove-accents";
 import { LiaHourglassHalfSolid, LiaListSolid } from "react-icons/lia";
-import { MdOutlineImage, MdOutlineNotificationsActive } from "react-icons/md";
+import {
+  MdInsights,
+  MdOutlineImage,
+  MdOutlineNotificationsActive,
+} from "react-icons/md";
 import { VscMic } from "react-icons/vsc";
 import { LuBrainCircuit, LuBriefcaseBusiness } from "react-icons/lu";
 
@@ -163,6 +167,16 @@ const nodesList: {
     description: "Pausa o fluxo por um tempo",
     id: "2",
     type: "NodeTimer",
+  },
+  {
+    icon: (
+      <MdInsights className="dark:text-blue-600 text-blue-800 w-8" size={27} />
+    ),
+    name: "Rastrear pixel de conversão",
+    description: "Rastreia evento do Facebook Pixel",
+    id: "1aa5",
+    type: "NodeFbPixel",
+    new: true,
   },
   {
     icon: (

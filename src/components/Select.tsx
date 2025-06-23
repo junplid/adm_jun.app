@@ -2,10 +2,12 @@ import { forwardRef } from "react";
 import Select, { Props as SelectProps } from "react-select";
 import { useColorModeValue } from "./ui/color-mode";
 
-interface SelectInputProps extends SelectProps {}
+interface SelectInputProps extends SelectProps {
+  isFlow?: boolean;
+}
 
 const SelectComponent = forwardRef<any, SelectInputProps>(
-  ({ ...props }, ref) => {
+  ({ isFlow, ...props }, ref) => {
     const colorBorder = useColorModeValue("#e4e4e7", "#27272a");
 
     return (
@@ -99,6 +101,39 @@ const SelectComponent = forwardRef<any, SelectInputProps>(
           }),
         }}
         ref={ref}
+        menuPosition={isFlow ? "fixed" : "absolute"}
+        menuPortalTarget={isFlow ? document.body : undefined}
+        components={
+          isFlow
+            ? {
+                Option: (props) => {
+                  const handleMouseDown = (e: React.MouseEvent) => {
+                    e.stopPropagation();
+                    props.innerRef?.(e.currentTarget as HTMLDivElement);
+                    props.selectOption(props.data);
+                  };
+
+                  return (
+                    <div
+                      style={{
+                        backgroundColor: props.isFocused
+                          ? "#1f1e20"
+                          : "transparent",
+                        padding: "6px 8px",
+                        cursor: "pointer",
+                        fontSize: "15px",
+                        borderRadius: "0.125rem",
+                      }}
+                      onMouseDown={handleMouseDown}
+                      {...props.innerProps}
+                    >
+                      {props.children}
+                    </div>
+                  );
+                },
+              }
+            : undefined
+        }
         {...props}
       />
     );

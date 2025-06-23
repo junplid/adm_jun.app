@@ -161,7 +161,7 @@ export const CampaignsPage: React.FC = (): JSX.Element => {
       {
         key: "createAt",
         name: "Data de criação",
-        styles: { width: 140 },
+        styles: { width: 135 },
         render(row) {
           return moment(row.createAt).format("DD/MM/YYYY");
         },

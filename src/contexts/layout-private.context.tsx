@@ -30,6 +30,7 @@ import { AuthContext } from "./auth.context";
 import { ModalOnboarded } from "./ModalOnboarded";
 import { updateAccount } from "../services/api/Account";
 import { FiInbox } from "react-icons/fi";
+import { MdInsights } from "react-icons/md";
 
 export const ShadowTopMemoComponent = memo(() => {
   const [showShadowTop, setShowShadowTop] = useState(true);
@@ -299,6 +300,13 @@ export function LayoutPrivateProvider(): JSX.Element {
                 Variáveis
               </MenuItem>
               <MenuItem
+                icon={<MdInsights size={19} />}
+                component={<Link to={"/auth/fb-pixels"} />}
+                active={pathname === "/auth/fb-pixels"}
+              >
+                Pixels do Facebook <Badge colorPalette={"green"}>NEW</Badge>
+              </MenuItem>
+              <MenuItem
                 icon={<GoWorkflow size={20} />}
                 component={<Link to={"/auth/flows"} />}
                 active={pathname === "/auth/flows"}
@@ -319,14 +327,6 @@ export function LayoutPrivateProvider(): JSX.Element {
               >
                 Campanhas <Badge colorPalette={"green"}>NEW</Badge>
               </MenuItem>
-              {/* <MenuItem
-                icon={<BsChatRightDotsFill size={25} />}
-                active={pathname === "/auth/receiving-automation/chatbot"}
-                component={<Link to={"/auth/receiving-automation/chatbot"} />}
-              >
-                Robô de envio
-              </MenuItem> */}
-
               <SubMenu
                 className="remove-scaped mb-5"
                 active={pathname.includes("/auth/help")}

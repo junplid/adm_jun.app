@@ -66,6 +66,7 @@ import { NodeTransferDepartment } from "./nodes/TransferDepartment";
 import { AxiosError } from "axios";
 import { AuthContext } from "@contexts/auth.context";
 import { ErrorResponse_I } from "../../services/api/ErrorResponse";
+import { NodeFbPixel } from "./nodes/FbPixel";
 
 type NodeTypesGeneric = {
   [x in TypesNodes]: any;
@@ -90,7 +91,8 @@ export type TypesNodes =
   | "NodeSendAudios"
   | "NodeRemoveTags"
   | "NodeTransferDepartment"
-  | "NodeAgentAI";
+  | "NodeAgentAI"
+  | "NodeFbPixel";
 
 const edgeTypes = {
   customedge: CustomEdge,
@@ -256,6 +258,7 @@ function Body(props: IBody): JSX.Element {
       NodeSendAudios: NodeSendAudios,
       NodeAgentAI: NodeAgentAI,
       NodeTransferDepartment: NodeTransferDepartment,
+      NodeFbPixel: NodeFbPixel,
     }),
     []
   );

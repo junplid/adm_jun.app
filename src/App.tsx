@@ -26,6 +26,7 @@ import { AgentsAIPage } from "./pages/agents-ai";
 import { LayoutInboxesPageProvider } from "./pages/inboxes/page.context";
 import { InboxUsersPage } from "./pages/inboxes/users";
 import { InboxDepartmentsPage } from "./pages/inboxes/departments";
+import { FbPixelsPage } from "./pages/fbPixels";
 
 // import { NodeMessage } from "./flow-lib/nodes/Message";
 // import { NodeReply } from "./flow-lib/nodes/Reply";
@@ -118,6 +119,7 @@ export default function App() {
                 element={<InboxDepartmentsPage />}
               />
             </Route>
+            <Route path="fb-pixels" caseSensitive element={<FbPixelsPage />} />
           </Route>
 
           <Route

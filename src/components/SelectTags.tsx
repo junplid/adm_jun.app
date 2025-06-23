@@ -17,7 +17,7 @@ interface ISelectTagsProps extends SelectProps {
 
 const SelectTags = forwardRef<any, ISelectTagsProps>(
   (
-    { isMulti, value, isCreatable = true, params, ...props },
+    { isMulti, value, isCreatable = true, params, isFlow, ...props },
     ref
   ): JSX.Element => {
     const canTriggerCreate = useRef(null);
@@ -97,10 +97,10 @@ const SelectTags = forwardRef<any, ISelectTagsProps>(
             </div>
           );
         }}
-        menuPosition={props.isFlow ? "fixed" : "absolute"}
-        menuPortalTarget={props.isFlow ? document.body : undefined}
+        menuPosition={isFlow ? "fixed" : "absolute"}
+        menuPortalTarget={isFlow ? document.body : undefined}
         components={
-          props.isFlow
+          isFlow
             ? {
                 Option: (props) => {
                   const handleMouseDown = (e: React.MouseEvent) => {

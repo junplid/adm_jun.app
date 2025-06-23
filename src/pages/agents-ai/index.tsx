@@ -31,7 +31,7 @@ export const AgentsAIPage: React.FC = (): JSX.Element => {
       {
         key: "createAt",
         name: "Data de criação",
-        styles: { width: 170 },
+        styles: { width: 135 },
         render(row) {
           return (
             <div className="flex flex-col">
