@@ -8,7 +8,43 @@ export const ReleasesPage: React.FC = (): JSX.Element => {
 
       <div className="flex flex-col gap-1">
         <h3>
-          <Badge colorPalette={"blue"}>Atual</Badge> v0.7.00
+          <Badge colorPalette={"blue"}>Atual</Badge> v0.8.00
+          <span className="text-white/50">-alpha</span> 24/06/2025
+        </h3>
+        <div className="pl-2">
+          <p className="text-green-200">+ Pixels do Facebook</p>
+          <p className="text-white/70 pl-3">
+            Feito para seu chatbot com o Facebook Pixel, permitindo rastrear
+            eventos e conversões diretamente do WhatsApp. Com essa integração,
+            você pode otimizar suas campanhas de marketing e melhorar o
+            desempenho dos seus anúncios, coletando dados valiosos sobre o
+            comportamento dos usuários.
+          </p>
+        </div>
+        <div className="pl-2">
+          <p className="text-green-200">
+            + Bots de recepção {">"} Link de redirecionamento
+          </p>
+          <p className="text-white/70 pl-3">
+            Usado para direcionar o lead para sua página de captura antes de
+            ativar o Bot de recepção. Basta adicionar o link da página e passar
+            a utilizar o Link Ads do Bot de recepção nos seus anúncios do
+            Facebook.
+          </p>
+        </div>
+        <div className="pl-2">
+          <p className="text-green-200">
+            + Contrutores de fluxos {">"} Bloco de Rastrear Pixel
+          </p>
+          <p className="text-white/70 pl-3">
+            Usado para disparar eventos do Facebook Pixel diretamente do fluxo
+            de conversa.
+          </p>
+        </div>
+      </div>
+      <div className="flex flex-col gap-1">
+        <h3>
+          v0.7.00
           <span className="text-white/50">-alpha</span> 20/06/2025
         </h3>
         <div className="pl-2">
