@@ -80,7 +80,7 @@ export const LoginPage: React.FC = (): JSX.Element => {
 
   return (
     <div className="my-10 flex flex-col gap-y-10 items-center justify-center w-full h-full">
-      <img src="/logo.svg" className="max-w-xl" alt="Logo" />
+      <img src="/logo.svg" className="max-w-xs" alt="Logo" />
       <div className="m-auto flex-col w-full flex-1  gap-x-3 grid grid-cols-[310px_1fr] items-center max-w-3xl">
         <div className="min-h-full w-full rounded-sm bg-[#f5f5f5] dark:bg-[#181616c5] shadow-xl border border-black/5 dark:border-none">
           <div className="flex h-full w-full flex-1 items-center p-6 py-8">
