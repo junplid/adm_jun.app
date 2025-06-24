@@ -102,6 +102,11 @@ const FormSchema = z.object({
       })
     )
     .optional(),
+
+  destLink: z
+    .string()
+    .optional()
+    .transform((v) => v || undefined),
 });
 
 type Fields = z.infer<typeof FormSchema>;
@@ -530,6 +535,36 @@ export function ModalCreateChatbot({
                   <span className="text-white/70">
                     Mensagens diferentes da palavra-chave ativam o fluxo
                     alternativo B
+                  </span>
+                </div>
+                <div className="grid gap-y-1">
+                  <Field
+                    errorText={errors.destLink?.message}
+                    invalid={!!errors.destLink}
+                    label={
+                      <span>
+                        Link de redirecionamento
+                        <Badge colorPalette={"green"}>New</Badge>
+                      </span>
+                    }
+                  >
+                    <Input
+                      {...register("destLink", {
+                        onChange(event) {
+                          setValue("destLink", event.target.value);
+                        },
+                      })}
+                      placeholder="https://minha-pagina-de-captura.com"
+                      autoComplete="off"
+                      maxLength={159}
+                    />
+                  </Field>
+                  <span className="text-white/70">
+                    Caso esteja usando o Facebook Pixel e deseja enviar o lead
+                    para sua página de captura antes de ativar o bot, pode
+                    inserir o link da página de captura aqui. E o{" "}
+                    <strong className="text-green-300">Link Ads</strong> estará
+                    disponível para usar em seu anúncio do Facebook Ads.
                   </span>
                 </div>
                 <span className="block w-full h-[1px] my-2 bg-white/25"></span>

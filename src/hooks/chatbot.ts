@@ -112,6 +112,7 @@ export function useCreateChatbot(props?: {
       dayOfWeek: number;
       workingTimes?: { start: string; end: string }[];
     }[];
+    destLink?: string;
   }>;
   onSuccess?: (id: number) => Promise<void>;
 }) {
@@ -135,6 +136,7 @@ export function useCreateChatbot(props?: {
         dayOfWeek: number;
         workingTimes?: { start: string; end: string }[];
       }[];
+      destLink?: string;
     }) => ChatbotService.createChatbot(body),
     async onSuccess(data, body) {
       if (props?.onSuccess) await props.onSuccess(data.id);
@@ -188,6 +190,7 @@ export function useUpdateChatbot(props?: {
       dayOfWeek: number;
       workingTimes?: { start: string; end: string }[];
     }[];
+    destLink?: string;
   }>;
   onSuccess?: () => Promise<void>;
 }) {
@@ -216,6 +219,7 @@ export function useUpdateChatbot(props?: {
           dayOfWeek: number;
           workingTimes?: { start: string; end: string }[];
         }[];
+        destLink?: string;
       };
     }) => ChatbotService.updateChatbot(id, body),
     async onSuccess(data, { id, body }) {
@@ -225,6 +229,10 @@ export function useUpdateChatbot(props?: {
         ...old,
         ...body,
       }));
+
+      if (body.destLink) {
+        queryClient.invalidateQueries({ queryKey: ["chatbot-details", id] });
+      }
 
       if (queryClient.getQueryData<any>(["chatbots", null])) {
         queryClient.setQueryData(["chatbots", null], (old: any) =>

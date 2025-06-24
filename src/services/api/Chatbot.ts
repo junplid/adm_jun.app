@@ -22,6 +22,7 @@ export async function createChatbot(body: {
   status: boolean;
   business: { name: string; id: number };
   createAt: Date;
+  destLink?: string;
 }> {
   const { data } = await api.post("/private/chatbots", body);
   return data.chatbot;
@@ -77,6 +78,7 @@ export async function getChatbotDetails({ id }: { id: number }): Promise<{
   business: { id: number; name: string };
   connection: { name: string; id: number; number: string | null };
   target?: string;
+  linkAds?: string;
 }> {
   const { data } = await api.get(`/private/chatbots/${id}/details`);
   return data.chatbot;

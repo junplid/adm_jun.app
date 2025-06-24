@@ -147,12 +147,24 @@ function Content({ id, close }: IProps) {
             <strong>Nome:</strong>
             <span>{data.name}</span>
           </div>
-          {/* {data.type && (
-            <div className="flex items-start gap-3">
-              <strong>type:</strong>
-              <span>{data.type}</span>
+          {data.linkAds && (
+            <div className="flex items-center gap-3">
+              <strong>Link do anúncio:</strong>
+              <Clipboard.Root value={data.linkAds}>
+                <Clipboard.Trigger asChild>
+                  <Button
+                    disabled={!data.target}
+                    w={"full"}
+                    variant={"ghost"}
+                    size={"xs"}
+                  >
+                    <Clipboard.Indicator />
+                    Copiar
+                  </Button>
+                </Clipboard.Trigger>
+              </Clipboard.Root>
             </div>
-          )} */}
+          )}
         </div>
       </DialogBody>
       {footer}
