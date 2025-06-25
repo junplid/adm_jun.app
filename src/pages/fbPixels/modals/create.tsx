@@ -75,14 +75,13 @@ export function ModalCreateFlow({
     formState: { errors },
     setError,
     watch,
-    reset,
+    reset: restFields,
   } = useForm<Fields>({
     resolver: zodResolver(FormSchema),
   });
 
   const [open, setOpen] = useState(false);
   const [currentTab, setCurrentTab] = useState<"info" | "fields">("info");
-  const [statusTest, setStatusTest] = useState(false);
   const [test_event_code, setTestEventCode] = useState("");
 
   const { mutateAsync: createFbPixel, isPending } = useCreateFbPixel({
@@ -97,12 +96,13 @@ export function ModalCreateFlow({
     mutateAsync: testFbP,
     isPending: loadStatusTest,
     status,
+    reset,
   } = useTestFbPixel();
 
   const create = useCallback(async (fields: Fields): Promise<void> => {
     try {
       await createFbPixel(fields);
-      reset({});
+      restFields({});
     } catch (error) {
       if (error instanceof AxiosError) {
         console.log("Error-API", error);
@@ -116,7 +116,10 @@ export function ModalCreateFlow({
   const pixel_id = watch("pixel_id");
 
   useEffect(() => {
-    if (!open) reset({});
+    if (!open) {
+      restFields({});
+      setTestEventCode("");
+    }
   }, [open]);
 
   return (
@@ -306,7 +309,7 @@ export function ModalCreateFlow({
                     autoComplete="off"
                     placeholder="Digite o ID do pixel"
                     {...register("pixel_id", {
-                      onChange: () => setStatusTest(false),
+                      onChange: () => reset(),
                     })}
                   />
                 </Field>
@@ -362,7 +365,7 @@ export function ModalCreateFlow({
                     maxRows={6}
                     className="p-3 py-2.5 rounded-sm overflow-hidden w-full border-black/10 dark:border-white/10 border"
                     {...register("access_token", {
-                      onChange: () => setStatusTest(false),
+                      onChange: () => reset(),
                     })}
                   />
                 </Field>
@@ -378,7 +381,7 @@ export function ModalCreateFlow({
                         autoComplete="off"
                         placeholder="Código do evento"
                         onChange={(e) => setTestEventCode(e.target.value)}
-                        disabled={loadStatusTest || statusTest}
+                        disabled={loadStatusTest || status === "success"}
                         value={test_event_code}
                       />
                       {status !== "success" ? (
@@ -406,8 +409,7 @@ export function ModalCreateFlow({
                                 !pixel_id?.trim() ||
                                 !access_token?.trim() ||
                                 !test_event_code?.trim() ||
-                                loadStatusTest ||
-                                statusTest
+                                loadStatusTest
                               }
                             >
                               Testar
@@ -442,7 +444,11 @@ export function ModalCreateFlow({
               Cancelar
             </Button>
           </DialogActionTrigger>
-          <Button type="submit" loading={isPending} disabled={!statusTest}>
+          <Button
+            type="submit"
+            loading={isPending}
+            disabled={status !== "success"}
+          >
             Criar
           </Button>
         </DialogFooter>
