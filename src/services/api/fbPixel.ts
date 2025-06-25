@@ -34,6 +34,14 @@ export async function createFbPixel(body: {
   return data.fbPixel;
 }
 
+export async function testFbPixel(body: {
+  pixel_id: string;
+  access_token: string;
+  test_event_code: string;
+}): Promise<void> {
+  await api.post("/private/fb-pixels/test", body);
+}
+
 export async function getFbPixel(id: number): Promise<{
   name: string;
   status: boolean;

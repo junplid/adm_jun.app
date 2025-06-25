@@ -383,7 +383,7 @@ export function LayoutPrivateProvider(): JSX.Element {
                 content="Suporte Whatsapp"
               >
                 <a
-                  href="https://api.whatsapp.com/send?phone=5517981912525&text=Olá, preciso de ajuda"
+                  href="https://web.whatsapp.com/send?phone=5517981912525&text=Olá, preciso de ajuda"
                   target="_blank"
                   className="flex text-white border border-white/25 justify-center cursor-pointer items-center bg-[#70af64] hover:bg-[#388f3f] duration-300 p-2 rounded-sm"
                 >

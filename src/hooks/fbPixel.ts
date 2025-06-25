@@ -127,6 +127,32 @@ export function useCreateFbPixel(props?: {
   });
 }
 
+export function useTestFbPixel() {
+  const { logout } = useContext(AuthContext);
+  return useMutation({
+    mutationFn: (body: {
+      pixel_id: string;
+      access_token: string;
+      test_event_code: string;
+    }) => FbPixelService.testFbPixel(body),
+    onError(error: unknown) {
+      if (error instanceof AxiosError) {
+        if (error.response?.status === 401) logout();
+        if (error.response?.status === 400) {
+          const dataError = error.response?.data as ErrorResponse_I;
+          if (dataError.toast.length) dataError.toast.forEach(toaster.create);
+          if (dataError.input.length) {
+            dataError.input.forEach(({ text, path }) =>
+              // @ts-expect-error
+              props?.setError?.(path, { message: text })
+            );
+          }
+        }
+      }
+    },
+  });
+}
+
 export function useUpdateFbPixel(props?: {
   setError?: UseFormSetError<{
     name?: string;
