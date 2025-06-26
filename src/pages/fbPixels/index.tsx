@@ -1,9 +1,9 @@
-import { JSX, useMemo } from "react";
+import { JSX, useContext, useMemo } from "react";
 import { TableComponent } from "../../components/Table";
 import { Column } from "../../components/Table";
 import { ModalCreateFlow } from "./modals/create";
 import { ModalDeleteFbPixel } from "./modals/delete";
-import { Button } from "@chakra-ui/react";
+import { Badge, Button } from "@chakra-ui/react";
 import { MdDeleteOutline, MdEdit } from "react-icons/md";
 import { LuEye } from "react-icons/lu";
 import { IoAdd } from "react-icons/io5";
@@ -11,6 +11,9 @@ import { ModalEditTag } from "./modals/edit";
 import { useDialogModal } from "../../hooks/dialog.modal";
 import { useGetFbPixels } from "../../hooks/fbPixel";
 import moment from "moment";
+import { Tooltip } from "@components/ui/tooltip";
+import { FaCrown } from "react-icons/fa";
+import { AuthContext } from "@contexts/auth.context";
 
 export interface FbPixelRow {
   business: { id: number; name: string } | null;
@@ -20,6 +23,9 @@ export interface FbPixelRow {
 }
 
 export const FbPixelsPage: React.FC = (): JSX.Element => {
+  const {
+    account: { isPremium },
+  } = useContext(AuthContext);
   const { data: fbPixels, isFetching, isPending } = useGetFbPixels();
   const { dialog: DialogModal, close, onOpen } = useDialogModal({});
 
@@ -110,7 +116,24 @@ export const FbPixelsPage: React.FC = (): JSX.Element => {
     <div className="h-full gap-y-2 flex flex-col">
       <div className="flex flex-col gap-y-0.5">
         <div className="flex items-center gap-x-5">
-          <h1 className="text-lg font-semibold">Pixels do Facebook</h1>
+          <h1 className="text-lg font-semibold flex items-center gap-x-2">
+            {!isPremium && (
+              <Tooltip
+                content="Disponível apenas para usuários Premium."
+                positioning={{ placement: "right" }}
+                contentProps={{
+                  color: "#e2a011",
+                  background: "#2e2c2c",
+                  fontSize: "14px",
+                }}
+              >
+                <Badge bg={"#cac0393c"} color={"#ffc444"} p={"7px"}>
+                  <FaCrown size={20} />
+                </Badge>
+              </Tooltip>
+            )}
+            Pixels do Facebook
+          </h1>
           <ModalCreateFlow
             trigger={
               <Button variant="outline" size={"sm"}>

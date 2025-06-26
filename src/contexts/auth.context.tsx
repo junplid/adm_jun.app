@@ -23,6 +23,7 @@ export interface Account {
   email: string;
   emailVerified: boolean;
   onboarded: boolean;
+  isPremium: boolean;
 }
 
 interface IFlowContextProps {

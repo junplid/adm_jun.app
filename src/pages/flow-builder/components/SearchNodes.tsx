@@ -29,8 +29,13 @@ import {
 } from "react-icons/md";
 import { VscMic } from "react-icons/vsc";
 import { LuBrainCircuit, LuBriefcaseBusiness } from "react-icons/lu";
+import { FaCrown } from "react-icons/fa";
+import { AuthContext } from "@contexts/auth.context";
 
 export function SearchNodesComponents(): JSX.Element {
+  const {
+    account: { isPremium },
+  } = useContext(AuthContext);
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLInputElement | null>(null);
   const bg = useColorModeValue("#ffffffd8", "#252525d5");
@@ -109,14 +114,24 @@ export function SearchNodesComponents(): JSX.Element {
           <ul>
             {nodeListFilter.map((node) => (
               <li
-                key={node.id}
-                className="dndnode flex min-h-[52px] items-center gap-3.5 select-none cursor-grab dark:hover:bg-zinc-700/40 hover:bg-zinc-300/50 p-1.5 rounded-lg px-3"
+                className={`${!isPremium && node.premium ? "" : "dndnode cursor-grab dark:hover:bg-zinc-700/40 hover:bg-zinc-300/50"} flex min-h-[52px] items-center gap-3.5 select-none p-1.5 rounded-lg px-3`}
                 onDragStart={(event) => {
+                  if (!isPremium && node.premium) return;
                   onDragStart(event, node.type);
                 }}
-                draggable
+                draggable={isPremium ? true : !node.premium}
+                key={node.id}
               >
-                {node.icon}
+                <div className="relative">
+                  {!isPremium && node.premium && (
+                    <FaCrown
+                      color={"#ffc444"}
+                      className="absolute -top-3 -left-3"
+                      size={17}
+                    />
+                  )}
+                  {node.icon}
+                </div>
                 <div>
                   <span className="font-medium">
                     {node.name}{" "}
@@ -146,6 +161,7 @@ const nodesList: {
   id: string;
   type: TypesNodes;
   new?: boolean;
+  premium?: boolean;
 }[] = [
   {
     icon: (
@@ -177,6 +193,7 @@ const nodesList: {
     id: "1aa5",
     type: "NodeFbPixel",
     new: true,
+    premium: true,
   },
   {
     icon: (
@@ -260,6 +277,7 @@ const nodesList: {
     id: "8",
     type: "NodeSendAudiosLive",
     new: true,
+    premium: true,
   },
   {
     icon: (
@@ -351,6 +369,7 @@ const nodesList: {
     id: "00",
     type: "NodeAgentAI",
     new: true,
+    premium: true,
   },
   {
     icon: (
