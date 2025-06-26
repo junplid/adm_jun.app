@@ -255,7 +255,7 @@ export const CampaignsPage: React.FC = (): JSX.Element => {
           </h1>
           <ModalCreateCampaign
             trigger={
-              <Button variant="outline" size={"sm"}>
+              <Button disabled={!isPremium} variant="outline" size={"sm"}>
                 <IoAdd /> Adicionar
               </Button>
             }

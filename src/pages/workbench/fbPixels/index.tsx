@@ -145,7 +145,7 @@ export const FbPixelsPage: React.FC = (): JSX.Element => {
           </div>
           <ModalCreateFlow
             trigger={
-              <Button variant="outline" size={"sm"}>
+              <Button disabled={!isPremium} variant="outline" size={"sm"}>
                 <IoAdd /> Adicionar
               </Button>
             }

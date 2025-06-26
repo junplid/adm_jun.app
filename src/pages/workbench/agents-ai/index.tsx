@@ -137,7 +137,7 @@ export const AgentsAIPage: React.FC = (): JSX.Element => {
           </div>
           <ModalCreateAgentAI
             trigger={
-              <Button variant="outline" size={"sm"}>
+              <Button disabled={!isPremium} variant="outline" size={"sm"}>
                 <IoAdd /> Adicionar
               </Button>
             }

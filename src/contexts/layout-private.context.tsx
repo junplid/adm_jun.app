@@ -180,7 +180,7 @@ export function LayoutPrivateProvider(): JSX.Element {
                   width: 90,
                   height: "auto",
                   transform: toggledMenu ? "translateX(0)" : "translateX(30px)",
-                  transition: "transform 0.3s ease-in-out",
+                  opacity: toggledMenu ? 1 : 0,
                 }}
                 alt="UNPLID"
               />
