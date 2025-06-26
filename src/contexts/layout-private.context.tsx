@@ -9,8 +9,8 @@ import {
   useState,
 } from "react";
 import { IoClose, IoHelpCircleOutline, IoLogoWhatsapp } from "react-icons/io5";
-import { PiBracketsCurlyBold, PiProjectorScreenBold } from "react-icons/pi";
-import { GrConnect, GrSend, GrStorage } from "react-icons/gr";
+import { PiPicnicTableBold, PiProjectorScreenBold } from "react-icons/pi";
+import { GrConnect, GrSend } from "react-icons/gr";
 import { Menu, MenuItem, Sidebar, SubMenu } from "react-pro-sidebar";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { InViewComponent } from "@components/InView";
@@ -18,19 +18,13 @@ import { JSX } from "@emotion/react/jsx-runtime";
 import { HiMenu } from "react-icons/hi";
 import { useColorModeValue } from "@components/ui/color-mode";
 import { Tooltip } from "@components/ui/tooltip";
-import { TbDoorExit, TbTags } from "react-icons/tb";
-import { GoWorkflow } from "react-icons/go";
-import {
-  LuBotMessageSquare,
-  LuBrainCircuit,
-  LuChartNoAxesCombined,
-} from "react-icons/lu";
+import { TbDoorExit } from "react-icons/tb";
+import { LuBotMessageSquare, LuChartNoAxesCombined } from "react-icons/lu";
 import { Badge } from "@chakra-ui/react";
 import { AuthContext } from "./auth.context";
 import { ModalOnboarded } from "./ModalOnboarded";
 import { updateAccount } from "../services/api/Account";
 import { FiInbox } from "react-icons/fi";
-import { MdInsights } from "react-icons/md";
 
 export const ShadowTopMemoComponent = memo(() => {
   const [showShadowTop, setShowShadowTop] = useState(true);
@@ -265,54 +259,28 @@ export function LayoutPrivateProvider(): JSX.Element {
                 Conexões WA
               </MenuItem>
               <MenuItem
-                icon={<GrStorage size={20} />}
-                component={<Link to={"/auth/storage"} />}
-                active={pathname === "/auth/storage"}
+                icon={<PiPicnicTableBold size={22} />}
+                component={<Link to={"/auth/workbench/storage"} />}
+                active={pathname.includes("workbench")}
               >
-                Storage <Badge colorPalette={"green"}>NEW</Badge>
+                Workbench
               </MenuItem>
               <MenuItem
                 icon={<FiInbox size={22} />}
                 component={<Link to={"/auth/inboxes/attendants"} />}
-                active={pathname === "/auth/inboxes/attendants"}
+                active={pathname.includes("inboxes")}
               >
                 Inboxes <Badge colorPalette={"green"}>NEW</Badge>
               </MenuItem>
-              <MenuItem
-                icon={<LuBrainCircuit size={20} />}
-                component={<Link to={"/auth/agents-ai"} />}
-                active={pathname === "/auth/agents-ai"}
-              >
-                Agentes IA <Badge colorPalette={"green"}>NEW</Badge>
-              </MenuItem>
-              <MenuItem
-                icon={<TbTags size={21} />}
-                component={<Link to={"/auth/tags"} />}
-                active={pathname === "/auth/tags"}
-              >
-                Etiquetas
-              </MenuItem>
-              <MenuItem
-                icon={<PiBracketsCurlyBold size={19} />}
-                component={<Link to={"/auth/variables"} />}
-                active={pathname === "/auth/variables"}
-              >
-                Variáveis
-              </MenuItem>
-              <MenuItem
-                icon={<MdInsights size={19} />}
-                component={<Link to={"/auth/fb-pixels"} />}
-                active={pathname === "/auth/fb-pixels"}
-              >
-                Pixels do Facebook <Badge colorPalette={"green"}>NEW</Badge>
-              </MenuItem>
-              <MenuItem
-                icon={<GoWorkflow size={20} />}
-                component={<Link to={"/auth/flows"} />}
-                active={pathname === "/auth/flows"}
-              >
-                Construtores de fluxos
-              </MenuItem>
+              {/*  
+              active={pathname === "/auth/storage"}
+              active={pathname === "/auth/agents-ai"}
+              active={pathname === "/auth/tags"}
+              active={pathname === "/auth/variables"}
+              active={pathname === "/auth/fb-pixels"}
+              active={pathname === "/auth/flows"}
+            
+               */}
               <MenuItem
                 icon={<LuBotMessageSquare size={22} />}
                 active={pathname === "/auth/chatbots"}

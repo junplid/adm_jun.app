@@ -10,10 +10,9 @@ import { LoginPage } from "./pages/login";
 import { SignupPage } from "./pages/signup";
 import { AuthProvider } from "@contexts/auth.context";
 import { BusinessesPage } from "./pages/businesses";
-import { FlowsPage } from "./pages/flows";
-import { VariablesPage } from "./pages/variables";
+import { FlowsPage } from "./pages/workbench/flows";
+import { VariablesPage } from "./pages/workbench/variables";
 import { DialogProvider } from "@contexts/dialog.context";
-import { TagsPage } from "./pages/tags";
 import { ConnectionsWAPage } from "./pages/connectionswa";
 import { SocketProvider } from "@contexts/socket.context";
 import { ChatbotsPage } from "./pages/chatbots";
@@ -21,12 +20,14 @@ import { ReleasesPage } from "./pages/releases";
 import { TermsOfServicePage } from "./pages/terms-of-service";
 import { PrivacyPolicyPage } from "./pages/privacy-terms";
 import { CampaignsPage } from "./pages/campaigns";
-import { StoragePage } from "./pages/storage";
-import { AgentsAIPage } from "./pages/agents-ai";
+import { StoragePage } from "./pages/workbench/storage";
+import { AgentsAIPage } from "./pages/workbench/agents-ai";
 import { LayoutInboxesPageProvider } from "./pages/inboxes/page.context";
 import { InboxUsersPage } from "./pages/inboxes/users";
 import { InboxDepartmentsPage } from "./pages/inboxes/departments";
-import { FbPixelsPage } from "./pages/fbPixels";
+import { FbPixelsPage } from "./pages/workbench/fbPixels";
+import { LayoutWorkbenchPageProvider } from "./pages/workbench/page.context";
+import { TagsPage } from "./pages/workbench/tags";
 
 // import { NodeMessage } from "./flow-lib/nodes/Message";
 // import { NodeReply } from "./flow-lib/nodes/Reply";
@@ -94,7 +95,6 @@ export default function App() {
             />
             <Route path="flows" caseSensitive element={<FlowsPage />} />
             <Route path="variables" caseSensitive element={<VariablesPage />} />
-            <Route path="tags" caseSensitive element={<TagsPage />} />
             <Route
               path="connectionswa"
               caseSensitive
@@ -105,8 +105,6 @@ export default function App() {
             <Route path="help" caseSensitive>
               <Route path="releases" caseSensitive element={<ReleasesPage />} />
             </Route>
-            <Route path="storage" caseSensitive element={<StoragePage />} />
-            <Route path="agents-ai" caseSensitive element={<AgentsAIPage />} />
             <Route caseSensitive element={<LayoutInboxesPageProvider />}>
               <Route
                 path="inboxes/attendants"
@@ -119,7 +117,38 @@ export default function App() {
                 element={<InboxDepartmentsPage />}
               />
             </Route>
-            <Route path="fb-pixels" caseSensitive element={<FbPixelsPage />} />
+            <Route caseSensitive element={<LayoutWorkbenchPageProvider />}>
+              <Route
+                path="workbench/storage"
+                caseSensitive
+                element={<StoragePage />}
+              />
+              <Route
+                path="workbench/variables"
+                caseSensitive
+                element={<VariablesPage />}
+              />
+              <Route
+                path="workbench/tags"
+                caseSensitive
+                element={<TagsPage />}
+              />
+              <Route
+                path="workbench/agents-ai"
+                caseSensitive
+                element={<AgentsAIPage />}
+              />
+              <Route
+                path="workbench/fb-pixels"
+                caseSensitive
+                element={<FbPixelsPage />}
+              />
+              <Route
+                path="workbench/flows"
+                caseSensitive
+                element={<FlowsPage />}
+              />
+            </Route>
           </Route>
 
           <Route

@@ -5,9 +5,14 @@ import { Link, Outlet, useLocation } from "react-router-dom";
 import { JSX } from "@emotion/react/jsx-runtime";
 import { HiMenu } from "react-icons/hi";
 import { useColorModeValue } from "@components/ui/color-mode";
-import { TbUsers } from "react-icons/tb";
-import { LuBriefcaseBusiness } from "react-icons/lu";
-import { LayoutInboxesPageContext } from "./contexts";
+import { TbTags } from "react-icons/tb";
+import { LuBrainCircuit } from "react-icons/lu";
+import { LayoutWorkbenchPageContext } from "./contexts";
+import { PiBracketsCurlyBold } from "react-icons/pi";
+import { Badge } from "@chakra-ui/react";
+import { MdInsights } from "react-icons/md";
+import { GoWorkflow } from "react-icons/go";
+import { GrStorage } from "react-icons/gr";
 
 interface IToggleMenuProps {
   toggledMenu: boolean;
@@ -32,7 +37,7 @@ const ToggleMenu = ({
   </button>
 );
 
-export function LayoutInboxesPageProvider(): JSX.Element {
+export function LayoutWorkbenchPageProvider(): JSX.Element {
   const [toggledMenu, setToggledMenu] = useState(true);
   const { pathname } = useLocation();
 
@@ -50,15 +55,15 @@ export function LayoutInboxesPageProvider(): JSX.Element {
   );
 
   return (
-    <LayoutInboxesPageContext.Provider value={dataValue}>
+    <LayoutWorkbenchPageContext.Provider value={dataValue}>
       <div className="h-full gap-y-2 flex flex-col">
         <div className="flex flex-col gap-y-0.5">
           <div className="flex items-center gap-x-5">
-            <h1 className="text-lg font-semibold">Inboxes</h1>
+            <h1 className="text-lg font-semibold">Workbench</h1>
           </div>
           <p className="text-white/60 font-light">
-            Inboxes para centralizar e agilizar o suporte humano aos seus
-            contatos em tempo real.
+            Sua bancada de trabalho feita para otimizar e automatizar seus
+            processos.
           </p>
         </div>
         <div
@@ -120,18 +125,46 @@ export function LayoutInboxesPageProvider(): JSX.Element {
                 }}
               >
                 <MenuItem
-                  icon={<TbUsers size={20} />}
-                  active={pathname === "/auth/inboxes/attendants"}
-                  component={<Link to={"inboxes/attendants"} />}
+                  icon={<GrStorage size={20} />}
+                  active={pathname === "/auth/workbench/storage"}
+                  component={<Link to={"workbench/storage"} />}
                 >
-                  Atendentes
+                  Storage <Badge colorPalette={"green"}>NEW</Badge>
                 </MenuItem>
                 <MenuItem
-                  icon={<LuBriefcaseBusiness size={20} />}
-                  active={pathname === "/auth/inboxes/departments"}
-                  component={<Link to={"inboxes/departments"} />}
+                  icon={<PiBracketsCurlyBold size={20} />}
+                  active={pathname === "/auth/workbench/variables"}
+                  component={<Link to={"workbench/variables"} />}
                 >
-                  Departamentos
+                  Variáveis
+                </MenuItem>
+                <MenuItem
+                  icon={<TbTags size={20} />}
+                  active={pathname === "/auth/workbench/tags"}
+                  component={<Link to={"workbench/tags"} />}
+                >
+                  Etiquetas
+                </MenuItem>
+                <MenuItem
+                  icon={<LuBrainCircuit size={19} />}
+                  active={pathname === "/auth/workbench/agents-ai"}
+                  component={<Link to={"workbench/agents-ai"} />}
+                >
+                  Agentes IA <Badge colorPalette={"green"}>NEW</Badge>
+                </MenuItem>
+                <MenuItem
+                  icon={<MdInsights size={20} />}
+                  active={pathname === "/auth/workbench/fb-pixels"}
+                  component={<Link to={"workbench/fb-pixels"} />}
+                >
+                  Pixel Facebook <Badge colorPalette={"green"}>NEW</Badge>
+                </MenuItem>
+                <MenuItem
+                  icon={<GoWorkflow size={20} />}
+                  active={pathname === "/auth/workbench/flows"}
+                  component={<Link to={"workbench/flows"} />}
+                >
+                  Construtor de fluxos
                 </MenuItem>
               </Menu>
             </div>
@@ -139,6 +172,6 @@ export function LayoutInboxesPageProvider(): JSX.Element {
           <Outlet />
         </div>
       </div>
-    </LayoutInboxesPageContext.Provider>
+    </LayoutWorkbenchPageContext.Provider>
   );
 }
