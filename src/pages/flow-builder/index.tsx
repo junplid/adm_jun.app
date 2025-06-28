@@ -67,6 +67,8 @@ import { AxiosError } from "axios";
 import { AuthContext } from "@contexts/auth.context";
 import { ErrorResponse_I } from "../../services/api/ErrorResponse";
 import { NodeFbPixel } from "./nodes/FbPixel";
+import { NodeListenReaction } from "./nodes/ListenReaction";
+import { NodeExtractVariable } from "./nodes/ExtractVariable";
 
 type NodeTypesGeneric = {
   [x in TypesNodes]: any;
@@ -92,7 +94,9 @@ export type TypesNodes =
   | "NodeRemoveTags"
   | "NodeTransferDepartment"
   | "NodeAgentAI"
-  | "NodeFbPixel";
+  | "NodeFbPixel"
+  | "NodeListenReaction"
+  | "NodeExtractVariable";
 
 const edgeTypes = {
   customedge: CustomEdge,
@@ -259,6 +263,8 @@ function Body(props: IBody): JSX.Element {
       NodeAgentAI: NodeAgentAI,
       NodeTransferDepartment: NodeTransferDepartment,
       NodeFbPixel: NodeFbPixel,
+      NodeListenReaction: NodeListenReaction,
+      NodeExtractVariable: NodeExtractVariable,
     }),
     []
   );
@@ -321,6 +327,10 @@ function Body(props: IBody): JSX.Element {
       } else if (typeN === "NodeMessage") {
         newNode.data = {
           messages: [{ text: "", key: nanoid(), interval: 0 }],
+        };
+      } else if (typeN === "NodeExtractVariable") {
+        newNode.data = {
+          flags: [],
         };
       }
 

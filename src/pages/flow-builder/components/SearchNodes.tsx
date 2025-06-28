@@ -9,7 +9,7 @@ import {
   PopoverTrigger,
 } from "@components/ui/popover";
 import { JSX, ReactNode, useContext, useMemo, useRef, useState } from "react";
-import { BsChatLeftDots } from "react-icons/bs";
+import { BsChatLeftDots, BsRegex } from "react-icons/bs";
 import { IoSearchSharp } from "react-icons/io5";
 import {
   PiBracketsCurlyBold,
@@ -302,6 +302,15 @@ const nodesList: {
     type: "NodeAddTags",
   },
   {
+    icon: <BsRegex className="dark:text-white/70 w-8" size={29} />,
+    name: "Extrair da variável",
+    description: "Extrai texto de uma variável para outra com regex",
+    id: "rexx",
+    type: "NodeExtractVariable",
+    new: true,
+    premium: true,
+  },
+  {
     icon: (
       <PiBracketsCurlyBold
         className="dark:text-green-300 text-green-800 w-8"
@@ -332,6 +341,22 @@ const nodesList: {
     id: "13",
     type: "NodeNotifyWA",
     new: true,
+    premium: true,
+  },
+  {
+    icon: (
+      <MdOutlineNotificationsActive
+        className="dark:text-green-500 text-green-600 w-8"
+        size={29}
+      />
+    ),
+    name: "Escutar reações",
+    description:
+      "Escuta reações de mensagens enviadas por esse fluxo de conversa",
+    id: "z1a3",
+    type: "NodeListenReaction",
+    new: true,
+    premium: true,
   },
   {
     icon: (

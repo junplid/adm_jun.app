@@ -14,7 +14,7 @@ export const NodeInitial: React.FC<Node> = ({ id }) => {
         handleId="main"
         position={Position.Right}
         type="source"
-        style={{ right: -8 }}
+        style={{ right: -8, top: "calc(50% + 3px)" }}
         isConnectable={true}
       />
     </PatternNode.PatternContainer>

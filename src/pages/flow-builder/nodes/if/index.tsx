@@ -142,6 +142,7 @@ function BodyNode({ id }: { id: string }): JSX.Element {
                     <SelectTags
                       isMulti={true}
                       isClearable
+                      isFlow
                       menuPlacement="bottom"
                       value={node.data.list![index].tagIds}
                       onChange={(e: any) => {
@@ -164,6 +165,7 @@ function BodyNode({ id }: { id: string }): JSX.Element {
                     <SelectTags
                       isMulti={true}
                       isClearable
+                      isFlow
                       menuPlacement="bottom"
                       value={node.data.list![index].tagIds}
                       onChange={(e: any) => {

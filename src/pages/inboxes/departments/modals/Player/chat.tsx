@@ -68,6 +68,7 @@ const background = {
   system: "#5c3600cd",
   contact: "#202024",
   user: "#30573c",
+  bot: "#30573c",
 };
 
 type MessageType = {
@@ -886,7 +887,7 @@ const TextBubbleComponent: FC<{
   message: string;
   createAt: Moment;
   isArrow?: boolean;
-  sentBy: "contact" | "user" | "system";
+  sentBy: "contact" | "user" | "system" | "bot";
 }> = ({ message, createAt, sentBy, isArrow }): JSX.Element => {
   const time = useMemo(() => {
     if (Math.abs(moment(createAt).diff(moment(), "day")) > 0) {
@@ -963,7 +964,7 @@ const ImageBubbleComponent: FC<{
   createAt: Moment;
   isArrow?: boolean;
   caption?: string;
-  sentBy: "contact" | "user" | "system";
+  sentBy: "contact" | "user" | "system" | "bot";
 }> = ({ fileName, createAt, isArrow, sentBy, caption }): JSX.Element => {
   const time = useMemo(() => {
     if (Math.abs(moment(createAt).diff(moment(), "day")) > 0) {

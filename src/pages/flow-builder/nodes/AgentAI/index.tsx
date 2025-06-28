@@ -1,7 +1,7 @@
 import { JSX } from "react";
 import { Handle, Node, Position, useUpdateNodeInternals } from "@xyflow/react";
 import { PatternNode } from "../Pattern";
-import { useDBNodes } from "../../../../db";
+import { useDBNodes, useVariables } from "../../../../db";
 import useStore from "../../flowStore";
 import { RxLapTimer } from "react-icons/rx";
 import { useColorModeValue } from "@components/ui/color-mode";
@@ -17,19 +17,19 @@ type DataNode = {
 };
 
 const itemsCorporation = [
-  { name: "[atribuir_variavel, <Nome da variavel>, <Qual o valor?>" },
-  { name: "[add_var, <Nome da variavel>, <Qual o valor?>" },
-  { name: "[remove_variavel, <Nome da variavel>" },
-  { name: "[remove_var, <Nome da variavel>" },
-  { name: "[add_tag, <Nome da etiqueta>" },
-  { name: "[add_etiqueta, <Nome da etiqueta>" },
-  { name: "[remove_tag, <Nome da etiqueta>" },
-  { name: "[remove_etiqueta, <Nome da etiqueta>" },
-  { name: "[notificar_wa, <Número de WhatsApp>, <Mensagem>" },
-  { name: '[notify_wa, <999999999>, "<MSG>"' },
-  { name: "[pausar, <VALOR>, <Qual o tipo de tempo?>" },
+  { name: "[atribuir_variavel, <Nome da variavel>, <Qual o valor?>]" },
+  { name: "[add_var, <Nome da variavel>, <Qual o valor?>]" },
+  { name: "[remove_variavel, <Nome da variavel>]" },
+  { name: "[remove_var, <Nome da variavel>]" },
+  { name: "[add_tag, <Nome da etiqueta>]" },
+  { name: "[add_etiqueta, <Nome da etiqueta>]" },
+  { name: "[remove_tag, <Nome da etiqueta>]" },
+  { name: "[remove_etiqueta, <Nome da etiqueta>]" },
+  { name: "[notificar_wa, <Número de WhatsApp>, <Mensagem>]" },
+  { name: '[notify_wa, <999999999>, "<MSG>"]' },
+  { name: "[pausar, <VALOR>, <Qual o tipo de tempo?>]" },
   // { name: '[if, ""' },
-  { name: "[sair_node, <Nome da saída>" },
+  { name: "[sair_node, <Nome da saída>]" },
 ];
 
 function pickExistNode(text: string) {
@@ -41,7 +41,7 @@ function pickExistNode(text: string) {
 function BodyNode({ id }: { id: string }): JSX.Element {
   const updateNodeInternals = useUpdateNodeInternals();
   const nodes = useDBNodes();
-  // const variables = useVariables();
+  const variables = useVariables();
   const { updateNode, delEdge } = useStore((s) => ({
     updateNode: s.updateNode,
     delEdge: s.delEdge,
@@ -83,11 +83,13 @@ function BodyNode({ id }: { id: string }): JSX.Element {
       <div className="w-full flex flex-col gap-y-2">
         <AutocompleteTextField
           // @ts-expect-error
-          trigger={["/"]}
-          spacer={"] "}
+          trigger={["/", "{{"]}
           maxOptions={20}
           matchAny
-          options={{ "/": itemsCorporation.map((s) => s.name) }}
+          options={{
+            "/": itemsCorporation.map((s) => s.name),
+            "{{": variables.map((s) => s.name + "}} "),
+          }}
           maxRows={14}
           minRows={5}
           defaultValue={node.data.prompt || ""}
@@ -99,7 +101,6 @@ function BodyNode({ id }: { id: string }): JSX.Element {
             const itemsDell = preview?.property?.filter(
               (s: string) => !listExistNode.includes(s)
             );
-            console.log("itemsDell", itemsDell);
             for await (const item of itemsDell || []) {
               delEdge(item);
               updateNodeInternals(id);
