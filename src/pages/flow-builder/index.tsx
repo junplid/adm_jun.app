@@ -69,6 +69,7 @@ import { ErrorResponse_I } from "../../services/api/ErrorResponse";
 import { NodeFbPixel } from "./nodes/FbPixel";
 import { NodeListenReaction } from "./nodes/ListenReaction";
 import { NodeExtractVariable } from "./nodes/ExtractVariable";
+import { NodeSwitchVariable } from "./nodes/SwitchVariable";
 
 type NodeTypesGeneric = {
   [x in TypesNodes]: any;
@@ -96,7 +97,8 @@ export type TypesNodes =
   | "NodeAgentAI"
   | "NodeFbPixel"
   | "NodeListenReaction"
-  | "NodeExtractVariable";
+  | "NodeExtractVariable"
+  | "NodeSwitchVariable";
 
 const edgeTypes = {
   customedge: CustomEdge,
@@ -265,6 +267,7 @@ function Body(props: IBody): JSX.Element {
       NodeFbPixel: NodeFbPixel,
       NodeListenReaction: NodeListenReaction,
       NodeExtractVariable: NodeExtractVariable,
+      NodeSwitchVariable: NodeSwitchVariable,
     }),
     []
   );
@@ -332,6 +335,9 @@ function Body(props: IBody): JSX.Element {
         newNode.data = {
           flags: [],
         };
+      } else if (typeN === "NodeSwitchVariable") {
+        newNode.preview = [];
+        newNode.data = { values: [] };
       }
 
       await db.nodes.add({

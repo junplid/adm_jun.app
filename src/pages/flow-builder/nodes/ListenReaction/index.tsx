@@ -26,16 +26,17 @@ function BodyNode({ id }: { id: string }): JSX.Element {
       <Field label="Variável para guardar a reação">
         <SelectVariables
           isMulti={false}
-          isClearable
+          isClearable={false}
           placeholder="Selecione uma variável"
           menuPlacement="bottom"
           isFlow
           value={node.data.varIdToReaction}
-          onChange={(e: any) => {
-            updateNode(id, {
-              data: { ...node.data, varIdToReaction: e.value },
-            });
-          }}
+          // onChange={(e: any) => {
+          //   console.log(e);
+          //   updateNode(id, {
+          //     data: { ...node.data, varIdToReaction: e.value },
+          //   });
+          // }}
           onCreate={(d) => {
             updateNode(id, { data: { ...node.data, varIdToReaction: d.id } });
           }}

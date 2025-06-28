@@ -37,7 +37,7 @@ const SelectTags = forwardRef<any, ISelectTagsProps>(
         const handleKey = async (e: KeyboardEvent) => {
           if (canTriggerCreate.current && e.key === "Enter") {
             e.preventDefault();
-            const cloneName = structuredClone(newTagName);
+            const cloneName = structuredClone(newTagName).replace(/\s/g, "_");
             const { id } = await createTag({
               name: cloneName,
               type: "contactwa",

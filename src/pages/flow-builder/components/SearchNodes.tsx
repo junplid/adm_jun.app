@@ -31,6 +31,7 @@ import { VscMic } from "react-icons/vsc";
 import { LuBrainCircuit, LuBriefcaseBusiness } from "react-icons/lu";
 import { FaCrown } from "react-icons/fa";
 import { AuthContext } from "@contexts/auth.context";
+import { GiDirectionSigns } from "react-icons/gi";
 
 export function SearchNodesComponents(): JSX.Element {
   const {
@@ -218,6 +219,14 @@ const nodesList: {
     description: "Espera a resposta do lead",
     id: "4",
     type: "NodeReply",
+  },
+
+  {
+    icon: <GiDirectionSigns className="dark:text-white/70 w-8" size={27} />,
+    name: "Switch de variável",
+    description: "Verifica e direciona o fluxo",
+    id: "1a5x",
+    type: "NodeSwitchVariable",
   },
   {
     icon: (

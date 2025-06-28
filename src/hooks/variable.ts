@@ -70,14 +70,10 @@ export function useGetVariables(params?: { name?: string; page?: number }) {
   });
 }
 
-export function useGetVariablesOptions({
-  enabled,
-  ...params
-}: {
+export function useGetVariablesOptions(params?: {
   name?: string;
   businessIds?: number[];
   type?: VariableService.VariableType[];
-  enabled?: boolean;
 }) {
   const { logout } = useContext(AuthContext);
   return useQuery({
@@ -96,7 +92,6 @@ export function useGetVariablesOptions({
         throw error;
       }
     },
-    enabled,
   });
 }
 
@@ -128,10 +123,12 @@ export function useCreateVariable(props?: {
         });
       }
 
+      console.log("setQueryData variables-options");
+      console.log(queryClient.getQueryData<any>(["variables-options"]));
       if (queryClient.getQueryData<any>(["variables-options", null])) {
         queryClient.setQueryData(["variables-options", null], (old: any) => [
           ...(old || []),
-          { id: data.id, name: body.name },
+          { id: data.id, name: body.name, type: body.type },
         ]);
       }
     },

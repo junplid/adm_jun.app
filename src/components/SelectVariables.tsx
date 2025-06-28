@@ -9,6 +9,11 @@ interface ISelectTagsProps extends SelectProps {
   value?: number[] | number | null;
   isFlow?: boolean;
   isCreatable?: boolean;
+  params?: {
+    name?: string;
+    businessIds?: number[];
+    type?: VariableType[];
+  };
   filter?: (
     opt: {
       id: number;
@@ -24,7 +29,10 @@ interface ISelectTagsProps extends SelectProps {
 }
 
 const SelectVariables = forwardRef<any, ISelectTagsProps>(
-  ({ isMulti, value, isCreatable = true, ...props }, ref): JSX.Element => {
+  (
+    { isMulti, value, isCreatable = true, params, ...props },
+    ref
+  ): JSX.Element => {
     const canTriggerCreate = useRef(null);
     const [newTagName, setNewTagName] = useState("");
 
@@ -33,7 +41,7 @@ const SelectVariables = forwardRef<any, ISelectTagsProps>(
       isFetching,
       isLoading,
       isPending,
-    } = useGetVariablesOptions({});
+    } = useGetVariablesOptions(params);
     const { mutateAsync: createVariable, isPending: isPendingCreate } =
       useCreateVariable();
 
@@ -42,7 +50,7 @@ const SelectVariables = forwardRef<any, ISelectTagsProps>(
         const handleKey = async (e: KeyboardEvent) => {
           if (canTriggerCreate.current && e.key === "Enter") {
             e.preventDefault();
-            const cloneName = structuredClone(newTagName);
+            const cloneName = structuredClone(newTagName).replace(/\s/g, "_");
             const { id } = await createVariable({
               name: cloneName,
               type: "dynamics",
