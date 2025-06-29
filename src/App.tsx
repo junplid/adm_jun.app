@@ -28,6 +28,8 @@ import { InboxDepartmentsPage } from "./pages/inboxes/departments";
 import { FbPixelsPage } from "./pages/workbench/fbPixels";
 import { LayoutWorkbenchPageProvider } from "./pages/workbench/page.context";
 import { TagsPage } from "./pages/workbench/tags";
+import { LayoutIntegrationsPageProvider } from "./pages/integrations/page.context";
+import { PaymentsPage } from "./pages/integrations/payments";
 
 // import { NodeMessage } from "./flow-lib/nodes/Message";
 // import { NodeReply } from "./flow-lib/nodes/Reply";
@@ -147,6 +149,13 @@ export default function App() {
                 path="workbench/flows"
                 caseSensitive
                 element={<FlowsPage />}
+              />
+            </Route>
+            <Route caseSensitive element={<LayoutIntegrationsPageProvider />}>
+              <Route
+                path="integrations/payments"
+                caseSensitive
+                element={<PaymentsPage />}
               />
             </Route>
           </Route>

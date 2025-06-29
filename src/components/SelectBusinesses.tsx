@@ -1,4 +1,4 @@
-import { forwardRef, JSX, useEffect, useRef, useState } from "react";
+import { forwardRef, JSX, useEffect, useMemo, useRef, useState } from "react";
 import SelectComponent from "./Select";
 import { Props as SelectProps } from "react-select";
 import { useCreateBusiness, useGetBusinessesOptions } from "../hooks/business";
@@ -7,10 +7,11 @@ interface ISelectBusinessesProps extends SelectProps {
   onCreate?: (business: { id: number; name: string }) => void;
   value?: number[] | number | null;
   setError?(props: { name: string; message?: string }): void;
+  filter?: (opt: { id: number; name: string }[]) => any;
 }
 
 const SelectBusinesses = forwardRef<any, ISelectBusinessesProps>(
-  ({ isMulti, value, setError, ...props }, ref): JSX.Element => {
+  ({ isMulti, value, setError, filter, ...props }, ref): JSX.Element => {
     const canTriggerCreate = useRef(null);
     const [newBusinessName, setNewBusinessName] = useState("");
 
@@ -44,12 +45,17 @@ const SelectBusinesses = forwardRef<any, ISelectBusinessesProps>(
       return () => window.removeEventListener("keydown", handleKey);
     }, [newBusinessName]);
 
+    const resolveOpt = useMemo(() => {
+      if (filter) return filter(opt || []);
+      return opt || [];
+    }, [opt]);
+
     return (
       <SelectComponent
         ref={ref}
         isLoading={isLoading || isFetching || isPending}
         placeholder={`Selecione ${isMulti ? "os projetos" : "o projeto"}`}
-        options={(opt || []).map((item) => ({
+        options={resolveOpt.map((item: any) => ({
           label: item.name,
           value: item.id,
         }))}

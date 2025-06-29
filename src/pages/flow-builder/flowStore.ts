@@ -105,6 +105,7 @@ const useStore = create<AppState>((set, get) => ({
           // aparentemente ta vindo o srourceHandle definido.
           // id: connection.sourceHandle || nanoid(),
           type: "customedge",
+          animated: connection.sourceHandle?.includes("animated"),
           style: {
             stroke: isColor
               ? connection.sourceHandle?.split(/\s/)[0]

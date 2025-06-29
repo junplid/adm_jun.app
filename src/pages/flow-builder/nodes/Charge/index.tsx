@@ -7,8 +7,10 @@ import AutocompleteTextField from "@components/Autocomplete";
 import { CustomHandle } from "../../customs/node";
 import { Field } from "@components/ui/field";
 import SelectVariables from "@components/SelectVariables";
-import { MdPix } from "react-icons/md";
+import { MdErrorOutline, MdPix, MdCheckCircleOutline } from "react-icons/md";
 import { RiMoneyDollarCircleLine } from "react-icons/ri";
+import SelectPaymentIntegrations from "@components/SelectPaymentIntegrations";
+import SelectBusinesses from "@components/SelectBusinesses";
 
 type TypeMethodCharge = "pix";
 
@@ -28,7 +30,10 @@ type DataNode = {
 function BodyNode({ id }: { id: string }): JSX.Element {
   const nodes = useDBNodes();
   const node = nodes.find((s) => s.id === id) as Node<DataNode> | undefined;
-  const updateNode = useStore((s) => s.updateNode);
+  const { updateNode, businessIds } = useStore((s) => ({
+    updateNode: s.updateNode,
+    businessIds: s.businessIds,
+  }));
   const variables = useVariables();
 
   if (!node) {
@@ -38,34 +43,38 @@ function BodyNode({ id }: { id: string }): JSX.Element {
   return (
     <div className="flex flex-col -mt-3 gap-y-2 min-h-60">
       <Field label="Integração de pagamento">
-        <SelectVariables
+        <SelectPaymentIntegrations
           isMulti={false}
-          isClearable
-          placeholder="Selecione uma integração"
+          isClearable={false}
           menuPlacement="bottom"
           isFlow
-          // value={node.data.var1Id}
+          value={node.data.paymentIntegrationId}
           onChange={(e: any) => {
             updateNode(id, {
-              data: { ...node.data, var1Id: e.value },
+              data: { ...node.data, paymentIntegrationId: e.value },
             });
           }}
         />
       </Field>
       <Field
         label="Projeto"
-        helperText={"Selecione um projeto cuja cobrança será anexada."}
+        helperText={
+          "Caso não selecione, será anexada a todos os projetos existentes e aos futuros."
+        }
       >
-        <SelectVariables
+        <SelectBusinesses
           isMulti={false}
-          isClearable
-          placeholder="Selecione uma integração"
+          isClearable={false}
           menuPlacement="bottom"
-          isFlow
-          // value={node.data.var1Id}
+          filter={
+            businessIds.length
+              ? (opt) => opt.filter((s) => businessIds.includes(s.id))
+              : undefined
+          }
+          value={node.data.businessId}
           onChange={(e: any) => {
             updateNode(id, {
-              data: { ...node.data, var1Id: e.value },
+              data: { ...node.data, businessId: e.value },
             });
           }}
         />
@@ -101,10 +110,10 @@ function BodyNode({ id }: { id: string }): JSX.Element {
             options={{ "{{": variables.map((s) => s.name) }}
             spacer={"}}"}
             placeholder="10 ou {{valor}}"
-            // defaultValue={node.data.value || ""}
+            defaultValue={node.data.total || ""}
             // @ts-expect-error
             onBlur={({ target }) => {
-              updateNode(id, { data: { ...node.data, value: target.value } });
+              updateNode(id, { data: { ...node.data, total: target.value } });
             }}
           />
         </div>
@@ -136,10 +145,10 @@ function BodyNode({ id }: { id: string }): JSX.Element {
         type="textarea"
         minRows={3}
         placeholder="Descrição ou {{CONTEUDO}} da cobrança"
-        // defaultValue={node.data.value || ""}
+        defaultValue={node.data.content || ""}
         // @ts-expect-error
         onBlur={({ target }) => {
-          updateNode(id, { data: { ...node.data, value: target.value } });
+          updateNode(id, { data: { ...node.data, content: target.value } });
         }}
         style={{ marginTop: "10px" }}
       />
@@ -195,55 +204,69 @@ function BodyNode({ id }: { id: string }): JSX.Element {
       </div>
       <div className="flex flex-col gap-y-2 mt-2">
         <div className="flex flex-col items-center">
-          <span className="text-center font-medium">
-            Monitora o status do pagamento
-          </span>
+          <span className="text-center font-medium">Canais de saída</span>
           <span className="text-center text-sm text-white/60">
-            Cada mudança acionará uma das saídas de canal abaixo.
+            Continue a conversa pelos canais abaixo.
           </span>
         </div>
         <div className="flex flex-col gap-y-0.5">
-          <div className="flex items-center justify-between gap-x-2 text-blue-500 bg-blue-500/5 p-2">
-            <div className="flex flex-col">
-              <span className="font-medium">CREATED</span>
-              <p className="text-white/80 leading-3">Gerada com sucesso</p>
-            </div>
-            <span className="w-3 h-3 rounded-full bg-blue-500/80" />
-          </div>
-          <div className="flex items-center justify-between gap-x-2 text-yellow-500 bg-yellow-500/5 p-2">
-            <div className="flex flex-col">
-              <span className="font-medium">PENDING</span>
-              <p className="text-white/80 leading-3">Aguardando pagamento</p>
-            </div>
-            <span className="w-3 h-3 rounded-full bg-yellow-500/80" />
-          </div>
           <div className="flex items-center justify-between gap-x-2 text-green-500 bg-green-500/5 p-2">
+            <div className="flex flex-col">
+              <span className="font-medium">CRIADA</span>
+              <p className="text-white/80 leading-3">
+                Cobrança gerada com sucesso
+              </p>
+            </div>
+            <MdCheckCircleOutline size={24} />
+          </div>
+          <div className="flex items-center justify-between gap-x-2 text-red-500 bg-red-500/5 p-2">
+            <div className="flex flex-col">
+              <span className="font-medium">ERROR</span>
+              <p className="text-white/80 leading-3">
+                Não conseguiu gerar a cobrança
+              </p>
+            </div>
+            <MdErrorOutline size={24} />
+          </div>
+        </div>
+      </div>
+      <div className="flex flex-col gap-y-2 mt-2">
+        <div className="flex flex-col items-center">
+          <span className="text-center font-medium">
+            Notifica o status da cobrança
+          </span>
+          <span className="text-center text-sm text-white/60">
+            Não continue a conversa pelos canais abaixo.
+          </span>
+        </div>
+        <div className="flex flex-col gap-y-0.5">
+          <div className="flex items-center justify-between gap-x-2 text-green-500/70 bg-green-500/5 p-2">
             <div className="flex flex-col">
               <span className="font-medium">APPROVED</span>
               <p className="text-white/80 leading-3">Pagamento efetuado</p>
             </div>
-            <span className="w-3 h-3 rounded-full bg-green-500/80" />
+            <span className="w-3 h-3 rounded-full bg-green-500/40" />
           </div>
-          <div className="flex items-center justify-between gap-x-2 text-red-500 bg-red-500/5 p-2">
+          <div className="flex items-center justify-between gap-x-2 text-red-500/70 bg-red-500/5 p-2">
             <div className="flex flex-col">
               <span className="font-medium">REFUSED</span>
               <p className="text-white/80 leading-3">Pagamento recusado</p>
             </div>
-            <span className="w-3 h-3 rounded-full bg-red-500/80" />
+            <span className="w-3 h-3 rounded-full bg-red-500/40" />
           </div>
-          <div className="flex items-center justify-between gap-x-2 text-teal-500 bg-teal-500/5 p-2">
+          <div className="flex items-center justify-between gap-x-2 text-teal-500/70 bg-teal-500/5 p-2">
             <div className="flex flex-col">
               <span className="font-medium">REFUNDED</span>
               <p className="text-white/80 leading-3">Pagamento reembolsado</p>
             </div>
-            <span className="w-3 h-3 rounded-full bg-teal-500/80" />
+            <span className="w-3 h-3 rounded-full bg-teal-500/40" />
           </div>
-          <div className="flex items-center justify-between gap-x-2 text-gray-500 bg-gray-500/5 p-2">
+          <div className="flex items-center justify-between gap-x-2 text-gray-500/70 bg-gray-500/5 p-2">
             <div className="flex flex-col">
               <span className="font-medium">CANCELLED</span>
               <p className="text-white/80 leading-3">Pagamento cancelado</p>
             </div>
-            <span className="w-3 h-3 rounded-full bg-gray-500/80" />
+            <span className="w-3 h-3 rounded-full bg-gray-500/40" />
           </div>
         </div>
       </div>
@@ -255,13 +278,13 @@ export const NodeCharge: React.FC<Node<DataNode>> = ({ id }) => {
   return (
     <div>
       <PatternNode.PatternPopover
-        size="300px"
+        size="320px"
         title="Gerar cobrança"
         description="Crie uma cobrança e fica escutando o status do pagamento."
         positioning={{ flip: ["left", "right"], placement: "left" }}
         node={{
           children: (
-            <div className="p-1 relative h-[60px] flex items-center justify-center">
+            <div className="p-1 relative h-[65px] flex items-center justify-center">
               <div className="flex justify-end absolute -top-1 -right-1 opacity-10 group-hover:opacity-100 duration-200">
                 <PatternNode.Actions id={id} />
               </div>
@@ -279,76 +302,83 @@ export const NodeCharge: React.FC<Node<DataNode>> = ({ id }) => {
       </PatternNode.PatternPopover>
 
       <Handle type="target" position={Position.Left} style={{ left: -8 }} />
+
       <CustomHandle
         nodeId={id}
-        handleId="#3f85a0 created"
+        handleId="#0ebd17 success"
         position={Position.Right}
         type="source"
-        style={{ right: -20, top: 6 }}
+        style={{ right: -20, top: 5 }}
         isConnectable={true}
-        className="relative dark:text-blue-400 text-blue-500 dark:!border-blue-400/60 dark:!bg-blue-400/15 !border-blue-500/70 !bg-blue-500/15"
-        title="Gerada com sucesso"
+        className="relative dark:!border-green-600 dark:!bg-green-600/30 !border-green-600 !bg-green-600/30"
+        title="Error ao tentar criar cobrança"
       >
-        <span className="w-2.5 h-2.5 rounded-full bg-blue-500 absolute -top-[0.5px] -left-[13px]" />
+        <span className="text-green-600 absolute -top-[1.5px] -left-[14px]">
+          <MdCheckCircleOutline size={12} />
+        </span>
       </CustomHandle>
       <CustomHandle
         nodeId={id}
-        handleId="#999342 pending"
+        handleId="#e60000 error"
         position={Position.Right}
         type="source"
-        style={{ right: -20, top: 18 }}
+        style={{ right: -20, top: 17 }}
         isConnectable={true}
-        className="relative dark:text-yellow-400 text-yellow-500 dark:!border-yellow-400/60 dark:!bg-yellow-400/15 !border-yellow-500/70 !bg-yellow-500/15"
+        className="relative dark:!border-red-600 dark:!bg-red-600/30 !border-red-600 !bg-red-600/30"
+        title="Error ao tentar criar cobrança"
       >
-        <span className="w-2.5 h-2.5 rounded-full bg-yellow-500 absolute -top-[0.5px] -left-[13px]" />
+        <span className="text-red-600 absolute -top-[1.5px] -left-[14px]">
+          <MdErrorOutline size={12} />
+        </span>
       </CustomHandle>
+
       <CustomHandle
         nodeId={id}
-        handleId="#56a33b approved"
+        handleId="#18ad52 approved animated"
         position={Position.Right}
         type="source"
-        style={{ right: -20, top: 30 }}
+        style={{ right: -20, top: 36 }}
         isConnectable={true}
-        className="relative dark:text-green-400 text-green-500 dark:!border-green-400/60 dark:!bg-green-400/15 !border-green-500/70 !bg-green-500/15"
+        className="relative dark:!border-green-400/40 dark:!bg-green-400/15 !border-green-500/40 !bg-green-500/15"
         title="Pagamento efetuado"
       >
-        <span className="w-2.5 h-2.5 rounded-full bg-green-500 absolute -top-[0.5px] -left-[13px]" />
+        <span className="w-2.5 h-2.5 rounded-full bg-green-500/40 absolute -top-[0.5px] -left-[13px]" />
       </CustomHandle>
       <CustomHandle
         nodeId={id}
-        handleId="#B1474A refused"
+        handleId="#eb0e15 refused animated"
         position={Position.Right}
         type="source"
-        style={{ right: -20, top: 42 }}
+        style={{ right: -20, top: 48 }}
         isConnectable={true}
-        className="relative dark:text-red-400 text-red-500 dark:!border-red-400/60 dark:!bg-red-400/15 !border-red-500/70 !bg-red-500/15"
+        className="relative dark:!border-red-500/40 dark:!bg-red-500/15 !border-red-500/40 !bg-red-500/15"
         title="Pagamento recusado"
       >
-        <span className="w-2.5 h-2.5 rounded-full bg-red-500 absolute -top-[0.5px] -left-[13px]" />
+        <span className="w-2.5 h-2.5 rounded-full bg-red-500/40 absolute -top-[0.5px] -left-[13px]" />
       </CustomHandle>
       <CustomHandle
         nodeId={id}
-        handleId="#3c8b6d refunded"
+        handleId="#2d5a49 refunded animated"
         position={Position.Right}
         type="source"
-        style={{ right: -20, top: 54 }}
+        style={{ right: -20, top: 60 }}
         isConnectable={true}
-        className="relative dark:text-teal-400 text-teal-500 dark:!border-teal-400/60 dark:!bg-teal-400/15 !border-teal-500/70 !bg-teal-500/15"
+        className="relative dark:!border-teal-400/40 dark:!bg-teal-400/15 !border-teal-500/40 !bg-teal-500/15"
         title="Pagamento reembolsado"
       >
-        <span className="w-2.5 h-2.5 rounded-full bg-teal-500 absolute -top-[0.5px] -left-[13px]" />
+        <span className="w-2.5 h-2.5 rounded-full bg-teal-500/40 absolute -top-[0.5px] -left-[13px]" />
       </CustomHandle>
       <CustomHandle
         nodeId={id}
-        handleId="#757575 cancelled"
+        handleId="#4b4a4a cancelled animated"
         position={Position.Right}
         type="source"
-        style={{ right: -20, top: 66 }}
+        style={{ right: -20, top: 72 }}
         isConnectable={true}
-        className="relative dark:text-gray-400 text-gray-500 dark:!border-gray-400/60 dark:!bg-gray-400/15 !border-gray-500/70 !bg-gray-500/15"
+        className="relative dark:!border-gray-400/40 dark:!bg-gray-400/15 !border-gray-500/40 !bg-gray-500/15"
         title="Pagamento cancelado"
       >
-        <span className="w-2.5 h-2.5 rounded-full bg-gray-500 absolute -top-[0.5px] -left-[13px]" />
+        <span className="w-2.5 h-2.5 rounded-full bg-gray-500/40 absolute -top-[0.5px] -left-[13px]" />
       </CustomHandle>
     </div>
   );

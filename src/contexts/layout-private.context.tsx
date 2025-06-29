@@ -25,6 +25,7 @@ import { AuthContext } from "./auth.context";
 import { ModalOnboarded } from "./ModalOnboarded";
 import { updateAccount } from "../services/api/Account";
 import { FiInbox } from "react-icons/fi";
+import { PiPuzzlePieceBold } from "react-icons/pi";
 
 export const ShadowTopMemoComponent = memo(() => {
   const [showShadowTop, setShowShadowTop] = useState(true);
@@ -265,6 +266,14 @@ export function LayoutPrivateProvider(): JSX.Element {
               >
                 Conexões WA
               </MenuItem>
+
+              <MenuItem
+                icon={<PiPuzzlePieceBold size={22} />}
+                component={<Link to={"/auth/integrations/payments"} />}
+                active={pathname.includes("integrations")}
+              >
+                Integrações <Badge colorPalette={"green"}>NEW</Badge>
+              </MenuItem>
               <MenuItem
                 icon={<PiPicnicTableBold size={22} />}
                 component={<Link to={"/auth/workbench/storage"} />}
@@ -279,15 +288,6 @@ export function LayoutPrivateProvider(): JSX.Element {
               >
                 Inboxes <Badge colorPalette={"green"}>NEW</Badge>
               </MenuItem>
-              {/*  
-              active={pathname === "/auth/storage"}
-              active={pathname === "/auth/agents-ai"}
-              active={pathname === "/auth/tags"}
-              active={pathname === "/auth/variables"}
-              active={pathname === "/auth/fb-pixels"}
-              active={pathname === "/auth/flows"}
-            
-               */}
               <MenuItem
                 icon={<LuBotMessageSquare size={22} />}
                 active={pathname === "/auth/chatbots"}
