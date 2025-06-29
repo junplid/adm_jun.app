@@ -32,6 +32,7 @@ import { LuBrainCircuit, LuBriefcaseBusiness } from "react-icons/lu";
 import { FaCrown } from "react-icons/fa";
 import { AuthContext } from "@contexts/auth.context";
 import { GiDirectionSigns } from "react-icons/gi";
+import { RiMoneyDollarCircleLine } from "react-icons/ri";
 
 export function SearchNodesComponents(): JSX.Element {
   const {
@@ -121,7 +122,7 @@ export function SearchNodesComponents(): JSX.Element {
                   onDragStart(event, node.type);
                 }}
                 draggable={isPremium ? true : !node.premium}
-                key={node.id}
+                key={node.type}
               >
                 <div className="relative">
                   {!isPremium && node.premium && (
@@ -159,7 +160,6 @@ const nodesList: {
   name: string;
   description?: string;
   icon: ReactNode;
-  id: string;
   type: TypesNodes;
   new?: boolean;
   premium?: boolean;
@@ -170,7 +170,6 @@ const nodesList: {
     ),
     name: "Enviar texto",
     description: "Envie vários balões de texto",
-    id: "1",
     type: "NodeMessage",
   },
   {
@@ -182,7 +181,6 @@ const nodesList: {
     ),
     name: "Aguardar tempo",
     description: "Pausa o fluxo por um tempo",
-    id: "2",
     type: "NodeTimer",
   },
   {
@@ -191,7 +189,6 @@ const nodesList: {
     ),
     name: "Rastrear pixel de conversão",
     description: "Rastreia evento do Facebook Pixel",
-    id: "1aa5",
     type: "NodeFbPixel",
     new: true,
     premium: true,
@@ -205,7 +202,6 @@ const nodesList: {
     ),
     name: "Menu",
     description: "Envia um menu de opções",
-    id: "3",
     type: "NodeMenu",
   },
   {
@@ -217,7 +213,6 @@ const nodesList: {
     ),
     name: "Receber resposta",
     description: "Espera a resposta do lead",
-    id: "4",
     type: "NodeReply",
   },
 
@@ -225,7 +220,6 @@ const nodesList: {
     icon: <GiDirectionSigns className="dark:text-white/70 w-8" size={27} />,
     name: "Switch de variável",
     description: "Verifica e direciona o fluxo",
-    id: "1a5x",
     type: "NodeSwitchVariable",
   },
   {
@@ -237,7 +231,6 @@ const nodesList: {
     ),
     name: "Transferir para departamento",
     description: "Transfere a conversa para um departamento",
-    id: "1a5",
     type: "NodeTransferDepartment",
     new: true,
   },
@@ -247,7 +240,6 @@ const nodesList: {
     ),
     name: "Enviar documentos",
     description: "Envie vários documentos",
-    id: "5",
     type: "NodeSendFiles",
     new: true,
   },
@@ -260,7 +252,6 @@ const nodesList: {
     ),
     name: "Enviar imagens",
     description: "Envie várias imagens",
-    id: "6",
     type: "NodeSendImages",
     new: true,
   },
@@ -273,7 +264,6 @@ const nodesList: {
     ),
     name: "Enviar vídeos",
     description: "Envie vários vídeos",
-    id: "7",
     type: "NodeSendVideos",
     new: true,
   },
@@ -283,7 +273,6 @@ const nodesList: {
     ),
     name: "Enviar áudios gravados",
     description: "Envie áudios como se fossem grava...",
-    id: "8",
     type: "NodeSendAudiosLive",
     new: true,
     premium: true,
@@ -297,7 +286,6 @@ const nodesList: {
     ),
     name: "Enviar áudios",
     description: "Envie vários áudios",
-    id: "9",
     type: "NodeSendAudios",
     new: true,
   },
@@ -307,14 +295,12 @@ const nodesList: {
     ),
     name: "Adicionar etiquetas",
     description: "Adicione várias tags/etiquetas",
-    id: "10",
     type: "NodeAddTags",
   },
   {
     icon: <BsRegex className="dark:text-white/70 w-8" size={29} />,
     name: "Extrair da variável",
     description: "Extrai texto de uma variável para outra com regex",
-    id: "rexx",
     type: "NodeExtractVariable",
     new: true,
     premium: true,
@@ -328,14 +314,12 @@ const nodesList: {
     ),
     name: "Adicionar variáveis",
     description: "Atribua/Sobrescreva várias variáveis",
-    id: "11",
     type: "NodeAddVariables",
   },
   {
     icon: <TbTags className="dark:text-red-300 text-red-800 w-8" size={29} />,
     name: "Remover etiquetas",
     description: "Remova várias tags/etiquetas",
-    id: "12",
     type: "NodeRemoveTags",
   },
   {
@@ -347,7 +331,6 @@ const nodesList: {
     ),
     name: "Notificar WhatsApps",
     description: "Notifique números de WhatsApp",
-    id: "13",
     type: "NodeNotifyWA",
     new: true,
     premium: true,
@@ -362,7 +345,6 @@ const nodesList: {
     name: "Escutar reações",
     description:
       "Escuta reações de mensagens enviadas por esse fluxo de conversa",
-    id: "z1a3",
     type: "NodeListenReaction",
     new: true,
     premium: true,
@@ -376,8 +358,18 @@ const nodesList: {
     ),
     name: "Remover variáveis",
     description: "Remova várias variáveis",
-    id: "14",
     type: "NodeRemoveVariables",
+  },
+
+  {
+    icon: (
+      <RiMoneyDollarCircleLine className="dark:text-white/70 w-8" size={31} />
+    ),
+    name: "Gerar cobrança",
+    description: "Cria cobrança e fica monitorando os status do pagamento",
+    type: "NodeCharge",
+    new: true,
+    premium: true,
   },
   {
     icon: (
@@ -388,7 +380,6 @@ const nodesList: {
     ),
     name: "Enviar fluxos",
     description: "Envie para outro fluxo de conversa",
-    id: "15",
     type: "NodeSendFlow",
   },
   {
@@ -400,7 +391,6 @@ const nodesList: {
     ),
     name: "Chama agente IA",
     description: "Chama um agente de IA",
-    id: "00",
     type: "NodeAgentAI",
     new: true,
     premium: true,
@@ -413,7 +403,6 @@ const nodesList: {
     ),
     name: "Condição lógica",
     description: "Crie condições IF..else 'E' - 'OU'",
-    id: "16",
     type: "NodeIF",
   },
 ];

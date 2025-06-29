@@ -70,6 +70,7 @@ import { NodeFbPixel } from "./nodes/FbPixel";
 import { NodeListenReaction } from "./nodes/ListenReaction";
 import { NodeExtractVariable } from "./nodes/ExtractVariable";
 import { NodeSwitchVariable } from "./nodes/SwitchVariable";
+import { NodeCharge } from "./nodes/Charge";
 
 type NodeTypesGeneric = {
   [x in TypesNodes]: any;
@@ -98,7 +99,8 @@ export type TypesNodes =
   | "NodeFbPixel"
   | "NodeListenReaction"
   | "NodeExtractVariable"
-  | "NodeSwitchVariable";
+  | "NodeSwitchVariable"
+  | "NodeCharge";
 
 const edgeTypes = {
   customedge: CustomEdge,
@@ -268,6 +270,7 @@ function Body(props: IBody): JSX.Element {
       NodeListenReaction: NodeListenReaction,
       NodeExtractVariable: NodeExtractVariable,
       NodeSwitchVariable: NodeSwitchVariable,
+      NodeCharge: NodeCharge,
     }),
     []
   );
