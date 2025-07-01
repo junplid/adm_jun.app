@@ -71,6 +71,8 @@ import { NodeListenReaction } from "./nodes/ListenReaction";
 import { NodeExtractVariable } from "./nodes/ExtractVariable";
 import { NodeSwitchVariable } from "./nodes/SwitchVariable";
 import { NodeCharge } from "./nodes/Charge";
+import { NodeRandomCode } from "./nodes/RandomCode";
+import { NodeFinish } from "./nodes/Finish";
 
 type NodeTypesGeneric = {
   [x in TypesNodes]: any;
@@ -78,6 +80,7 @@ type NodeTypesGeneric = {
 
 export type TypesNodes =
   | "NodeInitial"
+  | "NodeFinish"
   | "NodeMessage"
   | "NodeReply"
   | "NodeAddTags"
@@ -100,7 +103,8 @@ export type TypesNodes =
   | "NodeListenReaction"
   | "NodeExtractVariable"
   | "NodeSwitchVariable"
-  | "NodeCharge";
+  | "NodeCharge"
+  | "NodeRandomCode";
 
 const edgeTypes = {
   customedge: CustomEdge,
@@ -248,6 +252,7 @@ function Body(props: IBody): JSX.Element {
   const nodeTypes: NodeTypesGeneric = useMemo(
     () => ({
       NodeInitial: NodeInitial,
+      NodeFinish: NodeFinish,
       NodeMessage: NodeMessage,
       NodeReply: NodeReply,
       NodeTimer: NodeTimer,
@@ -271,6 +276,7 @@ function Body(props: IBody): JSX.Element {
       NodeExtractVariable: NodeExtractVariable,
       NodeSwitchVariable: NodeSwitchVariable,
       NodeCharge: NodeCharge,
+      NodeRandomCode: NodeRandomCode,
     }),
     []
   );

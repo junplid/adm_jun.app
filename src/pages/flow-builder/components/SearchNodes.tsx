@@ -17,7 +17,7 @@ import {
   PiFileVideoFill,
   PiFlowArrowBold,
 } from "react-icons/pi";
-import { TbHeadphones, TbTags, TbTextSize } from "react-icons/tb";
+import { TbHeadphones, TbNumber123, TbTags, TbTextSize } from "react-icons/tb";
 import { TypesNodes } from "..";
 import { DnDContext } from "@contexts/DnD.context";
 import removeAccents from "remove-accents";
@@ -27,7 +27,7 @@ import {
   MdOutlineImage,
   MdOutlineNotificationsActive,
 } from "react-icons/md";
-import { VscMic } from "react-icons/vsc";
+import { VscDebugStop, VscMic } from "react-icons/vsc";
 import { LuBrainCircuit, LuBriefcaseBusiness } from "react-icons/lu";
 import { FaCrown } from "react-icons/fa";
 import { AuthContext } from "@contexts/auth.context";
@@ -344,7 +344,7 @@ const nodesList: {
     ),
     name: "Escutar reações",
     description:
-      "Escuta reações de mensagens enviadas por esse fluxo de conversa",
+      "Escuta reações de mensagens enviadas pela conexão WA do fluxo.",
     type: "NodeListenReaction",
     new: true,
     premium: true,
@@ -404,5 +404,25 @@ const nodesList: {
     name: "Condição lógica",
     description: "Crie condições IF..else 'E' - 'OU'",
     type: "NodeIF",
+  },
+  {
+    icon: (
+      <TbNumber123 className="dark:text-white/70 text-black/70 w-8" size={31} />
+    ),
+    name: "Código randômico",
+    description: "Gera código numérico randômico",
+    type: "NodeRandomCode",
+    new: true,
+  },
+  {
+    icon: (
+      <VscDebugStop
+        className="dark:text-zinc-100 text-zinc-800 w-8"
+        size={31}
+      />
+    ),
+    name: "Finaliza fluxo",
+    description: "Encerra o fluxo de atendimento",
+    type: "NodeFinish",
   },
 ];

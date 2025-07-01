@@ -22,6 +22,7 @@ import { z } from "zod";
 import SelectBusinesses from "@components/SelectBusinesses";
 import { useCreateVariable } from "../../../../hooks/variable";
 import SelectComponent from "@components/Select";
+import TextareaAutosize from "react-textarea-autosize";
 
 interface IProps {
   onCreate?(business: VariableRow): Promise<void>;
@@ -221,10 +222,13 @@ export function ModalCreateVariable({
                 invalid={!!errors.value}
                 label="Valor"
               >
-                <Input
-                  {...register("value")}
-                  autoComplete="off"
+                <TextareaAutosize
+                  minRows={1}
+                  maxRows={12}
+                  className="p-3 py-2.5 rounded-sm w-full resize-none dark:border-white/10 border-black/10 border"
                   placeholder="Digite o valor da variável"
+                  autoComplete="off"
+                  {...register("value")}
                 />
               </Field>
             )}

@@ -70,7 +70,7 @@ export const NodeListenReaction: React.FC<Node<DataNode>> = ({ id }) => {
     <div>
       <PatternNode.PatternPopover
         title="Node escutar reações"
-        description="Escuta reações de mensagens enviadas por esse fluxo de conversa. Incluido mensagens enviadas pelo node de Notificar WhatsApps."
+        description="Escuta reações de todas as mensagens enviadas pela conexão WA do fluxo."
         node={{
           children: (
             <div className="p-1 relative">
