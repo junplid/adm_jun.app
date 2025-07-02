@@ -2,8 +2,8 @@ import { Handle, Node, Position, useUpdateNodeInternals } from "@xyflow/react";
 import { PatternNode } from "../Pattern";
 import useStore from "../../flowStore";
 import { JSX } from "react";
-import { Button, IconButton, Input } from "@chakra-ui/react";
-import { useDBNodes } from "../../../../db";
+import { Button, IconButton } from "@chakra-ui/react";
+import { useDBNodes, useVariables } from "../../../../db";
 import { CustomHandle } from "../../customs/node";
 import { Field } from "@components/ui/field";
 import SelectVariables from "@components/SelectVariables";
@@ -12,6 +12,7 @@ import { GiDirectionSigns } from "react-icons/gi";
 import { useColorModeValue } from "@components/ui/color-mode";
 import { MdReportGmailerrorred } from "react-icons/md";
 import { nanoid } from "nanoid";
+import AutocompleteTextField from "@components/Autocomplete";
 
 type DataNode = {
   id: number;
@@ -21,6 +22,7 @@ type DataNode = {
 function BodyNode({ id }: { id: string }): JSX.Element {
   const updateNodeInternals = useUpdateNodeInternals();
   const nodes = useDBNodes();
+  const variables = useVariables();
   const node = nodes.find((s) => s.id === id) as Node<DataNode> | undefined;
   const { updateNode, delEdge } = useStore((s) => ({
     updateNode: s.updateNode,
@@ -87,11 +89,14 @@ function BodyNode({ id }: { id: string }): JSX.Element {
                     <IoMdClose />
                   </IconButton>
 
-                  <Input
-                    placeholder="Digite o valor"
+                  <AutocompleteTextField
+                    // @ts-expect-error
+                    trigger={["{{"]}
+                    options={{ "{{": variables.map((s) => s.name) }}
+                    spacer={"}} "}
+                    placeholder="Digite o valor ou {{valor}}"
                     defaultValue={item.v || ""}
-                    size={"xs"}
-                    fontSize={14}
+                    // @ts-expect-error
                     onBlur={({ target }) => {
                       preview[index].v = target.value;
                       node.data.values[index].v = target.value;
