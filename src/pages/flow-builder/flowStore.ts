@@ -1,9 +1,36 @@
 import { create } from "zustand";
-import { addEdge, applyNodeChanges, applyEdgeChanges } from "@xyflow/react";
+import {
+  addEdge,
+  applyNodeChanges,
+  applyEdgeChanges,
+  NodeChange,
+  EdgeChange,
+} from "@xyflow/react";
 import { type AppState } from "./types";
 import { type AppNode } from "./types";
 import { db } from "../../db";
 // import { nanoid } from "nanoid";
+import { unstable_batchedUpdates as batch } from "react-dom";
+import throttle from "lodash.throttle";
+
+// buffers de mudanças
+let nodeQueue: NodeChange[] = [];
+let edgeQueue: EdgeChange[] = [];
+
+/** despeja o que acumulou a cada ~16 ms (≈ 60 fps) */
+const flushNodes = throttle((setFn: AppState["setNodes"]) => {
+  const changes = nodeQueue;
+  nodeQueue = [];
+  // @ts-expect-error
+  batch(() => setFn((nds) => applyNodeChanges(changes, nds)));
+}, 16);
+
+const flushEdges = throttle((setFn: AppState["setEdges"]) => {
+  const changes = edgeQueue;
+  edgeQueue = [];
+  // @ts-expect-error
+  batch(() => setFn((eds) => applyEdgeChanges(changes, eds)));
+}, 16);
 
 const useStore = create<AppState>((set, get) => ({
   nodes: [],
@@ -42,9 +69,15 @@ const useStore = create<AppState>((set, get) => ({
     set({ changes: { edges: [], nodes: [] } });
   },
   onNodesChange: (changes) => {
-    set((state) => ({
-      nodes: applyNodeChanges(changes, state.nodes),
-    }));
+    nodeQueue.push(...changes);
+    flushNodes((updateFn) =>
+      // @ts-expect-error
+      set((state) => ({ nodes: updateFn(state.nodes) }))
+    );
+
+    // set((state) => ({
+    //   nodes: applyNodeChanges(changes, state.nodes),
+    // }));
     // changes.forEach((c) => {
     //   if (c.type === "remove") {
     //     get().setChange("nodes", { type: "delete", id: c.id });
@@ -92,9 +125,14 @@ const useStore = create<AppState>((set, get) => ({
     // });
   },
   onEdgesChange: (changes) => {
-    set({
-      edges: applyEdgeChanges(changes, get().edges),
-    });
+    edgeQueue.push(...changes);
+    flushEdges((updateFn) =>
+      // @ts-expect-error
+      set((state) => ({ edges: updateFn(state.edges) }))
+    );
+    // set({
+    //   edges: applyEdgeChanges(changes, get().edges),
+    // });
   },
   onConnect: (connection) => {
     const isColor = /\s/.test(connection.sourceHandle ?? "");

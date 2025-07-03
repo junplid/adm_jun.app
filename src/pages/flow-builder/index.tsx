@@ -493,8 +493,8 @@ function Body(props: IBody): JSX.Element {
         onConnect={onConnect}
         nodeTypes={nodeTypes}
         onInit={() => setViewReady(true)}
-        snapToGrid={true}
-        snapGrid={[8, 8]}
+        // snapToGrid={true}
+        // snapGrid={[8, 8]}
         edgeTypes={edgeTypes}
         onEdgeClick={onEdgeClick}
         onDrop={onDrop}

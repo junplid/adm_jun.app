@@ -17,6 +17,13 @@ import { ErrorResponse_I } from "../services/api/ErrorResponse";
 import { api } from "../services/api";
 import { Spinner } from "@chakra-ui/react";
 
+const isDesktopDevice = () =>
+  typeof navigator === "undefined"
+    ? true
+    : !/Mobi|Android|iPhone|iPad|iPod|Windows Phone|BlackBerry|Opera Mini/i.test(
+        navigator.userAgent
+      );
+
 export interface Account {
   id: number;
   name: string;
@@ -42,6 +49,7 @@ export function AuthProvider(props: IProps): JSX.Element {
   const [account, setAccount] = useState<Account | null>(null);
   const [load, setLoad] = useState<boolean>(false);
   const [statusAPI, setStatusAPI] = useState<boolean>(false);
+  const [isDesktop, setIsDesktop] = useState<boolean>(isDesktopDevice());
 
   const navigate = useNavigate();
 
@@ -79,6 +87,9 @@ export function AuthProvider(props: IProps): JSX.Element {
         }
       }
     })();
+    const handleResize = () => setIsDesktop(isDesktopDevice());
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   const dataValue = useMemo(
@@ -112,7 +123,20 @@ export function AuthProvider(props: IProps): JSX.Element {
             </div>
           </div>
         )}
-        {load && statusAPI && props.children}
+        {load && statusAPI && !isDesktop && (
+          <div className="grid h-screen place-items-center">
+            <div className="max-w-80 flex flex-col gap-y-2 text-center">
+              <h1 className="text-lg font-semibold">
+                Versão mobile em breve 🚧
+              </h1>
+              <p className="font-extralight text-white/75">
+                Este aplicativo foi otimizado para uso em computadores. Acesse
+                pelo desktop para a melhor experiência. 😉
+              </p>
+            </div>
+          </div>
+        )}
+        {load && statusAPI && isDesktop && props.children}
       </AuthContext.Provider>
     </div>
   );
