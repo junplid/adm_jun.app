@@ -106,6 +106,35 @@ export type TypesNodes =
   | "NodeCharge"
   | "NodeRandomCode";
 
+const nodeTypes: NodeTypesGeneric = {
+  NodeInitial: NodeInitial,
+  NodeFinish: NodeFinish,
+  NodeMessage: NodeMessage,
+  NodeReply: NodeReply,
+  NodeTimer: NodeTimer,
+  NodeAddTags: NodeAddTags,
+  NodeRemoveTags: NodeRemoveTags,
+  NodeAddVariables: NodeAddVariables,
+  NodeRemoveVariables: NodeRemoveVariables,
+  NodeIF: NodeIF,
+  NodeSendFlow: NodeSendFlow,
+  NodeMenu: NodeMenu,
+  NodeNotifyWA: NodeNotifyWA,
+  NodeSendFiles: NodeSendFiles,
+  NodeSendImages: NodeSendImages,
+  NodeSendVideos: NodeSendVideos,
+  NodeSendAudiosLive: NodeSendAudiosLive,
+  NodeSendAudios: NodeSendAudios,
+  NodeAgentAI: NodeAgentAI,
+  NodeTransferDepartment: NodeTransferDepartment,
+  NodeFbPixel: NodeFbPixel,
+  NodeListenReaction: NodeListenReaction,
+  NodeExtractVariable: NodeExtractVariable,
+  NodeSwitchVariable: NodeSwitchVariable,
+  NodeCharge: NodeCharge,
+  NodeRandomCode: NodeRandomCode,
+};
+
 const edgeTypes = {
   customedge: CustomEdge,
 };
@@ -248,38 +277,6 @@ function Body(props: IBody): JSX.Element {
   const isSave = useMemo(() => {
     return !!(changes.nodes.length || changes.edges.length);
   }, [changes.edges, changes.nodes]);
-
-  const nodeTypes: NodeTypesGeneric = useMemo(
-    () => ({
-      NodeInitial: NodeInitial,
-      NodeFinish: NodeFinish,
-      NodeMessage: NodeMessage,
-      NodeReply: NodeReply,
-      NodeTimer: NodeTimer,
-      NodeAddTags: NodeAddTags,
-      NodeRemoveTags: NodeRemoveTags,
-      NodeAddVariables: NodeAddVariables,
-      NodeRemoveVariables: NodeRemoveVariables,
-      NodeIF: NodeIF,
-      NodeSendFlow: NodeSendFlow,
-      NodeMenu: NodeMenu,
-      NodeNotifyWA: NodeNotifyWA,
-      NodeSendFiles: NodeSendFiles,
-      NodeSendImages: NodeSendImages,
-      NodeSendVideos: NodeSendVideos,
-      NodeSendAudiosLive: NodeSendAudiosLive,
-      NodeSendAudios: NodeSendAudios,
-      NodeAgentAI: NodeAgentAI,
-      NodeTransferDepartment: NodeTransferDepartment,
-      NodeFbPixel: NodeFbPixel,
-      NodeListenReaction: NodeListenReaction,
-      NodeExtractVariable: NodeExtractVariable,
-      NodeSwitchVariable: NodeSwitchVariable,
-      NodeCharge: NodeCharge,
-      NodeRandomCode: NodeRandomCode,
-    }),
-    []
-  );
 
   const onDragOver = useCallback((event: any) => {
     event.preventDefault();
