@@ -8,7 +8,77 @@ export const ReleasesPage: React.FC = (): JSX.Element => {
 
       <div className="flex flex-col gap-1">
         <h3>
-          <Badge colorPalette={"blue"}>Atual</Badge> v0.8.00
+          <Badge colorPalette={"blue"}>Atual</Badge> v0.10.00
+          <span className="text-white/50">-alpha</span> 02/07/2025
+        </h3>
+        <div className="pl-2">
+          <p className="text-green-200">+ Integrações {">"} Pagamentos</p>
+          <p className="text-white/70 pl-3">
+            Receba seus pagamentos direto na conta bancária, sem intermediários.
+          </p>
+        </div>
+        <div className="pl-2">
+          <p className="text-green-200">
+            + Contrutores de fluxos {">"} Node de gerar cobrança
+          </p>
+          <p className="text-white/70 pl-3">
+            Crie uma cobrança PIX e notifique quem quiser quando o pagamento for
+            efetivado.
+          </p>
+        </div>
+        <div className="pl-2">
+          <p className="text-green-200">
+            + Contrutores de fluxos {">"} Node de escutar reações
+          </p>
+          <p className="text-white/70 pl-3">
+            Feito para identificar reações nas mensagens enviadas pelo chatbot.
+            Simples mas poderoso!
+          </p>
+        </div>
+        <div className="pl-2">
+          <p className="text-green-200">
+            + Contrutores de fluxos {">"} Node Switch de variável
+          </p>
+          <p className="text-white/70 pl-3">
+            Feito para verificar os valores de variáveis e direcionar o fluxo.
+          </p>
+        </div>
+        <div className="pl-2">
+          <p className="text-green-200">
+            + Contrutores de fluxos {">"} Node Extrair da variável
+          </p>
+          <p className="text-white/70 pl-3">
+            Feito para extrair valores de um variável para outra usando regex
+          </p>
+        </div>
+        <div className="pl-2">
+          <p className="text-green-200">
+            + Contrutores de fluxos {">"} Node Finalizar fluxo
+          </p>
+          <p className="text-white/70 pl-3">
+            Agora os fluxos não são finalizados caso não exista os proximos
+            Nodes, o fluxo é enviado para o inicio automaticamente. Uso o Node
+            Finalizar fluxo, caso queira realmente finalizar o atendimento.
+          </p>
+        </div>
+      </div>
+      <div className="flex flex-col gap-1">
+        <h3>
+          v0.9.0
+          <span className="text-white/50">-alpha</span> 27/06/2025
+        </h3>
+        <div className="pl-2">
+          <p className="text-green-200">
+            + Contrutores de fluxos {">"} Node Código randômico
+          </p>
+          <p className="text-white/70 pl-3">
+            Gera código númerico randômico e salva em uma variável
+          </p>
+        </div>
+      </div>
+      <div className="flex flex-col gap-1">
+        <h3>
+          v0.8.0
           <span className="text-white/50">-alpha</span> 24/06/2025
         </h3>
         <div className="pl-2">
@@ -34,7 +104,7 @@ export const ReleasesPage: React.FC = (): JSX.Element => {
         </div>
         <div className="pl-2">
           <p className="text-green-200">
-            + Contrutores de fluxos {">"} Bloco de Rastrear Pixel
+            + Contrutores de fluxos {">"} Node de Rastrear Pixel
           </p>
           <p className="text-white/70 pl-3">
             Usado para disparar eventos do Facebook Pixel diretamente do fluxo
@@ -44,7 +114,7 @@ export const ReleasesPage: React.FC = (): JSX.Element => {
       </div>
       <div className="flex flex-col gap-1">
         <h3>
-          v0.7.00
+          v0.7.0
           <span className="text-white/50">-alpha</span> 20/06/2025
         </h3>
         <div className="pl-2">
@@ -58,7 +128,7 @@ export const ReleasesPage: React.FC = (): JSX.Element => {
         </div>
         <div className="pl-2">
           <p className="text-green-200">
-            + Contrutores de fluxos {">"} Bloco de transferir para um
+            + Contrutores de fluxos {">"} Node de transferir para um
             departamento
           </p>
           <p className="text-white/70 pl-3">
@@ -70,7 +140,7 @@ export const ReleasesPage: React.FC = (): JSX.Element => {
       </div>
       <div className="flex flex-col gap-1">
         <h3>
-          v0.6.00
+          v0.6.0
           <span className="text-white/50">-alpha</span> 12/06/2025
         </h3>
         <div className="pl-2">
@@ -87,7 +157,7 @@ export const ReleasesPage: React.FC = (): JSX.Element => {
       </div>
       <div className="flex flex-col gap-1">
         <h3>
-          v0.5.00
+          v0.5.0
           <span className="text-white/50">-alpha</span> 05/06/2025
         </h3>
         <div className="pl-2">
@@ -102,12 +172,12 @@ export const ReleasesPage: React.FC = (): JSX.Element => {
       </div>
       <div className="flex flex-col gap-1">
         <h3>
-          v0.4.00
+          v0.4.0
           <span className="text-white/50">-alpha</span> 03/06/2025
         </h3>
         <div className="pl-2">
           <p className="text-green-200">
-            + Contrutores de fluxos {">"} Bloco de notificar WhatsApp
+            + Contrutores de fluxos {">"} Node de notificar WhatsApp
           </p>
           <p className="text-white/70 pl-3">
             Feito para enviar mensagens de texto para números de WhatsApp
@@ -118,7 +188,7 @@ export const ReleasesPage: React.FC = (): JSX.Element => {
       </div>
       <div className="flex flex-col gap-1">
         <h3>
-          v0.3.00
+          v0.3.0
           <span className="text-white/50">-alpha</span> 30/05/2025
         </h3>
         <div className="pl-2">
@@ -138,14 +208,14 @@ export const ReleasesPage: React.FC = (): JSX.Element => {
         <div className="pl-2">
           <p className="text-orange-200">* Correções</p>
           <p className="text-white/70 pl-3">
-            - O fluxo de conversa não era executado corretamente quando o bloco
-            "Receber resposta" estava posicionado após o bloco "Inicia fluxo".
+            - O fluxo de conversa não era executado corretamente quando o Node
+            "Receber resposta" estava posicionado após o Node "Inicia fluxo".
           </p>
         </div>
       </div>
       <div className="flex flex-col gap-1">
         <h3>
-          v0.2.00<span className="text-white/50">-alpha</span> 25/05/2025
+          v0.2.0<span className="text-white/50">-alpha</span> 25/05/2025
         </h3>
         <div className="pl-2">
           <p className="text-green-200">
@@ -171,7 +241,7 @@ export const ReleasesPage: React.FC = (): JSX.Element => {
       </div>
       <div className="flex flex-col gap-1">
         <h3>
-          v0.1.01<span className="text-white/50">-alpha</span> 23/05/2025
+          v0.1.1<span className="text-white/50">-alpha</span> 23/05/2025
         </h3>
         <div className="pl-2">
           <p className="text-orange-200">* Correções</p>

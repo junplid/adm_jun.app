@@ -34,7 +34,7 @@ export function LayoutMain(): JSX.Element {
           <span className="font-light">
             Este produto não representa a sua versão final.
           </span>
-          <span className="font-medium text-white">v0.8.00-alpha</span>
+          <span className="font-medium text-white">v0.10.0-alpha</span>
         </div>
       </footer>
     </div>
