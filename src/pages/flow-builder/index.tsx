@@ -73,6 +73,7 @@ import { NodeSwitchVariable } from "./nodes/SwitchVariable";
 import { NodeCharge } from "./nodes/Charge";
 import { NodeRandomCode } from "./nodes/RandomCode";
 import { NodeFinish } from "./nodes/Finish";
+import { NodeSendTextGroup } from "./nodes/SendTextGroup";
 
 type NodeTypesGeneric = {
   [x in TypesNodes]: any;
@@ -104,7 +105,8 @@ export type TypesNodes =
   | "NodeExtractVariable"
   | "NodeSwitchVariable"
   | "NodeCharge"
-  | "NodeRandomCode";
+  | "NodeRandomCode"
+  | "NodeSendTextGroup";
 
 const nodeTypes: NodeTypesGeneric = {
   NodeInitial: NodeInitial,
@@ -133,6 +135,7 @@ const nodeTypes: NodeTypesGeneric = {
   NodeSwitchVariable: NodeSwitchVariable,
   NodeCharge: NodeCharge,
   NodeRandomCode: NodeRandomCode,
+  NodeSendTextGroup: NodeSendTextGroup,
 };
 
 const edgeTypes = {

@@ -33,6 +33,7 @@ import { FaCrown } from "react-icons/fa";
 import { AuthContext } from "@contexts/auth.context";
 import { GiDirectionSigns } from "react-icons/gi";
 import { RiMoneyDollarCircleLine } from "react-icons/ri";
+import { HiOutlineUserGroup } from "react-icons/hi";
 
 export function SearchNodesComponents(): JSX.Element {
   const {
@@ -171,6 +172,19 @@ const nodesList: {
     name: "Enviar texto",
     description: "Envie vários balões de texto",
     type: "NodeMessage",
+  },
+  {
+    icon: (
+      <HiOutlineUserGroup
+        className="dark:text-teal-600 text-teal-800 w-8"
+        size={31}
+      />
+    ),
+    name: "Enviar mensagem para grupo",
+    description: "Envie vários balões de texto para um grupo",
+    type: "NodeSendTextGroup",
+    new: true,
+    premium: true,
   },
   {
     icon: (
