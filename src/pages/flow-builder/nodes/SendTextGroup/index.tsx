@@ -42,6 +42,7 @@ function BodyNode({ id }: { id: string }): JSX.Element {
       >
         <Input
           name="groupName"
+          defaultValue={data.groupName || ""}
           onBlur={({ target }) => {
             updateNode(id, {
               data: { ...data, groupName: target.value },
@@ -62,6 +63,7 @@ function BodyNode({ id }: { id: string }): JSX.Element {
                 onClick={() => {
                   updateNode(id, {
                     data: {
+                      ...data,
                       messages: data.messages!.filter((s) => s.key !== msg.key),
                     },
                   });
@@ -86,7 +88,7 @@ function BodyNode({ id }: { id: string }): JSX.Element {
                   }
                   return m;
                 });
-                updateNode(id, { data: { messages: nextMessages } });
+                updateNode(id, { data: { ...data, messages: nextMessages } });
               }}
             >
               <div className="flex w-full justify-between px-2">
@@ -116,7 +118,7 @@ function BodyNode({ id }: { id: string }): JSX.Element {
                   if (m.key === msg.key) m.text = target.value;
                   return m;
                 });
-                updateNode(id, { data: { messages: nextMessages } });
+                updateNode(id, { data: { ...data, messages: nextMessages } });
               }}
             />
           </div>
@@ -126,6 +128,7 @@ function BodyNode({ id }: { id: string }): JSX.Element {
         onClick={() => {
           updateNode(id, {
             data: {
+              ...data,
               messages: [...(data.messages || []), { key: nanoid(), text: "" }],
             },
           });
