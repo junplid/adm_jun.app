@@ -168,7 +168,7 @@ export const NodeSwitchVariable: React.FC<Node<DataNode>> = (props) => {
             <div
               style={{
                 height:
-                  props.data.preview.filter((s) => s.v).filter((s) => s.v)
+                  props.data.preview?.filter((s) => s.v).filter((s) => s.v)
                     ?.length >= 2
                     ? 14 * props.data.preview.filter((s) => s.v)?.length +
                       42 -
@@ -191,8 +191,8 @@ export const NodeSwitchVariable: React.FC<Node<DataNode>> = (props) => {
       </PatternNode.PatternPopover>
 
       <Handle type="target" position={Position.Left} style={{ left: -8 }} />
-      {props.data.preview
-        .filter((s) => s.v)
+      {props.data?.preview
+        ?.filter((s) => s.v)
         ?.map((p, index: number) => (
           <CustomHandle
             nodeId={props.id}
@@ -219,7 +219,7 @@ export const NodeSwitchVariable: React.FC<Node<DataNode>> = (props) => {
           </CustomHandle>
         ))}
 
-      {!!props.data.preview.filter((s) => s.v).length && (
+      {!!props.data.preview?.filter((s) => s.v).length && (
         <CustomHandle
           nodeId={props.id}
           handleId={`${colorFailed} failed`}

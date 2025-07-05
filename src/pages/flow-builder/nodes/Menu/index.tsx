@@ -371,7 +371,7 @@ export const NodeMenu: React.FC<Node<DataNode & { preview: string[] }>> = (
             <div
               style={{
                 height:
-                  props.data.preview.length >= 2
+                  props.data.preview?.length >= 2
                     ? 14 * props.data.preview.length + 50 - 35
                     : 35,
               }}

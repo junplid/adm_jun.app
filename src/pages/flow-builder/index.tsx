@@ -561,8 +561,7 @@ function Body(props: IBody): JSX.Element {
               <strong className="text-[#78a5ec] absolute -right-3 text-xl -top-2">
                 *
               </strong>
-            )}{" "}
-            {nodes.length}
+            )}
           </span>
         </Panel>
         <Background color={colorDotFlow} gap={9} size={0.8} />
