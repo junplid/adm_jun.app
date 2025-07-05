@@ -235,61 +235,6 @@ export const SignupPage: React.FC = (): JSX.Element => {
                   </strong>
                   .
                 </p>
-                <div className="pt-2 flex flex-col gap-y-4 mt-3">
-                  <Field
-                    invalid={!!errors.name}
-                    label="Endereço completo do titular"
-                    errorText={errors.name?.message}
-                    disabled={isPending || !av}
-                  >
-                    <Input
-                      {...register("name")}
-                      autoComplete="nope"
-                      type="text"
-                    />
-                  </Field>
-                  <div className="grid grid-cols-[1fr_0.7fr] items-end gap-x-2">
-                    <Field
-                      invalid={!!errors.name}
-                      label={
-                        <div className="flex flex-col -space-y-1">
-                          <span>CEP do</span>
-                          <span className="text-white/70 font-light">
-                            titular
-                          </span>
-                        </div>
-                      }
-                      errorText={errors.name?.message}
-                      disabled={isPending || !av}
-                    >
-                      <Input
-                        {...register("name")}
-                        autoComplete="nope"
-                        type="text"
-                      />
-                    </Field>
-                    <Field
-                      invalid={!!errors.name}
-                      label={
-                        <div className="flex flex-col -space-y-1">
-                          <span>Número do</span>
-                          <span className="text-white/70 font-light">
-                            endereço
-                          </span>
-                        </div>
-                      }
-                      errorText={errors.name?.message}
-                      disabled={isPending || !av}
-                    >
-                      <Input
-                        {...register("name")}
-                        autoComplete="nope"
-                        type="text"
-                      />
-                    </Field>
-                  </div>
-                </div>
-                <div className="border-b border-white/40 my-2 mt-5"></div>
                 <div className="pt-2 flex flex-col gap-y-4">
                   <Field
                     invalid={!!errors.name}
