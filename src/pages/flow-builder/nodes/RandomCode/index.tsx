@@ -3,7 +3,6 @@ import { Handle, Node, Position } from "@xyflow/react";
 import { PatternNode } from "../Pattern";
 import { TbNumber123 } from "react-icons/tb";
 import useStore from "../../flowStore";
-import { useDBNodes } from "../../../../db";
 import { CustomHandle } from "../../customs/node";
 import SelectVariables from "@components/SelectVariables";
 
@@ -12,12 +11,8 @@ type DataNode = {
   id: number;
 };
 
-function BodyNode({ id }: { id: string }): JSX.Element {
-  const nodes = useDBNodes();
+function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
   const updateNode = useStore((s) => s.updateNode);
-  const node = nodes.find((s) => s.id === id) as Node<DataNode> | undefined;
-
-  if (!node) return <span>Não encontrado</span>;
 
   return (
     <div className="flex flex-col gap-y-5 -mt-3">
@@ -26,7 +21,7 @@ function BodyNode({ id }: { id: string }): JSX.Element {
         isClearable
         menuPlacement="bottom"
         isFlow
-        value={node.data.id}
+        value={data.id}
         onChange={(e: any) => updateNode(id, { data: { id: e.value } })}
         onCreate={(tag) => updateNode(id, { data: { id: tag.id } })}
       />
@@ -34,7 +29,7 @@ function BodyNode({ id }: { id: string }): JSX.Element {
   );
 }
 
-export const NodeRandomCode: React.FC<Node<DataNode>> = ({ id }) => {
+export const NodeRandomCode: React.FC<Node<DataNode>> = ({ id, data }) => {
   return (
     <div>
       <PatternNode.PatternPopover
@@ -56,7 +51,7 @@ export const NodeRandomCode: React.FC<Node<DataNode>> = ({ id }) => {
           description: "Código",
         }}
       >
-        <BodyNode id={id} />
+        <BodyNode id={id} data={data} />
       </PatternNode.PatternPopover>
 
       <Handle type="target" position={Position.Left} style={{ left: -8 }} />

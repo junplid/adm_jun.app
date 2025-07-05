@@ -2,7 +2,6 @@ import { JSX } from "react";
 import { Node, Position } from "@xyflow/react";
 import { PatternNode } from "../Pattern";
 import useStore from "../../flowStore";
-import { useDBNodes } from "../../../../db";
 import SelectVariables from "@components/SelectVariables";
 import { CustomHandle } from "../../customs/node";
 import { Field } from "@components/ui/field";
@@ -14,12 +13,8 @@ type DataNode = {
   varIdToMessage?: number;
 };
 
-function BodyNode({ id }: { id: string }): JSX.Element {
-  const nodes = useDBNodes();
+function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
   const updateNode = useStore((s) => s.updateNode);
-  const node = nodes.find((s) => s.id === id) as Node<DataNode> | undefined;
-
-  if (!node) return <span>Não encontrado</span>;
 
   return (
     <div className="flex flex-col gap-y-5 -mt-3">
@@ -30,15 +25,12 @@ function BodyNode({ id }: { id: string }): JSX.Element {
           placeholder="Selecione uma variável"
           menuPlacement="bottom"
           isFlow
-          value={node.data.varIdToReaction}
-          // onChange={(e: any) => {
-          //   console.log(e);
-          //   updateNode(id, {
-          //     data: { ...node.data, varIdToReaction: e.value },
-          //   });
-          // }}
+          value={data.varIdToReaction}
+          onChange={(e: any) => {
+            updateNode(id, { data: { ...data, varIdToReaction: e.value } });
+          }}
           onCreate={(d) => {
-            updateNode(id, { data: { ...node.data, varIdToReaction: d.id } });
+            updateNode(id, { data: { ...data, varIdToReaction: d.id } });
           }}
         />
       </Field>
@@ -52,12 +44,12 @@ function BodyNode({ id }: { id: string }): JSX.Element {
           placeholder="Selecione uma variável"
           menuPlacement="bottom"
           isFlow
-          value={node.data.varIdToMessage}
+          value={data.varIdToMessage}
           onChange={(e: any) => {
-            updateNode(id, { data: { ...node.data, varIdToMessage: e.value } });
+            updateNode(id, { data: { ...data, varIdToMessage: e.value } });
           }}
           onCreate={(d) => {
-            updateNode(id, { data: { ...node.data, varIdToMessage: d.id } });
+            updateNode(id, { data: { ...data, varIdToMessage: d.id } });
           }}
         />
       </Field>
@@ -65,7 +57,7 @@ function BodyNode({ id }: { id: string }): JSX.Element {
   );
 }
 
-export const NodeListenReaction: React.FC<Node<DataNode>> = ({ id }) => {
+export const NodeListenReaction: React.FC<Node<DataNode>> = ({ id, data }) => {
   return (
     <div>
       <PatternNode.PatternPopover
@@ -91,7 +83,7 @@ export const NodeListenReaction: React.FC<Node<DataNode>> = ({ id }) => {
           description: "Escutar",
         }}
       >
-        <BodyNode id={id} />
+        <BodyNode id={id} data={data} />
       </PatternNode.PatternPopover>
 
       <CustomHandle

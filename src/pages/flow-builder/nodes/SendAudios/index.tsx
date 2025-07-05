@@ -1,7 +1,6 @@
 import { JSX } from "react";
 import { Handle, Node, Position } from "@xyflow/react";
 import { PatternNode } from "../Pattern";
-import { useDBNodes } from "../../../../db";
 import useStore from "../../flowStore";
 import { ModalStorageFiles } from "@components/Modals/StorageFiles";
 import { Button } from "@chakra-ui/react";
@@ -15,16 +14,8 @@ type DataNode = {
   files: { id: number; fileName: string | null; originalName: string }[];
 };
 
-function BodyNode({ id }: { id: string }): JSX.Element {
-  const nodes = useDBNodes();
+function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
   const updateNode = useStore((s) => s.updateNode);
-  const node = nodes.find((s) => s.id === id) as Node<DataNode> | undefined;
-
-  if (!node) {
-    return <span>Não encontrado</span>;
-  }
-
-  const { data } = node;
 
   return (
     <div>
@@ -82,7 +73,7 @@ function BodyNode({ id }: { id: string }): JSX.Element {
   );
 }
 
-export const NodeSendAudios: React.FC<Node<DataNode>> = ({ id }) => {
+export const NodeSendAudios: React.FC<Node<DataNode>> = ({ id, data }) => {
   return (
     <div>
       <PatternNode.PatternPopover
@@ -104,7 +95,7 @@ export const NodeSendAudios: React.FC<Node<DataNode>> = ({ id }) => {
           description: "Envia",
         }}
       >
-        <BodyNode id={id} />
+        <BodyNode id={id} data={data} />
       </PatternNode.PatternPopover>
 
       <Handle type="target" position={Position.Left} style={{ left: -8 }} />

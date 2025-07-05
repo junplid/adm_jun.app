@@ -6,62 +6,57 @@ import useStore from "../../flowStore";
 import { JSX, useMemo } from "react";
 import { Highlight } from "@chakra-ui/react";
 import { useColorModeValue } from "@components/ui/color-mode";
-import { useDBNodes, useVariables } from "../../../../db";
 import { GrClose } from "react-icons/gr";
 import { CustomHandle } from "../../customs/node";
+import { useGetVariablesOptions } from "../../../../hooks/variable";
 
 type DataNode = {
   list: number[];
 };
 
-function BodyNode({ id }: { id: string }): JSX.Element {
-  const nodes = useDBNodes();
+function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
   const colorQuery = useColorModeValue("#000000", "#ffffff");
-  const variables = useVariables();
-
   const { updateNode } = useStore((s) => ({ updateNode: s.updateNode }));
-  const node = nodes.find((s) => s.id === id) as Node<DataNode> | undefined;
+  const { data: variables } = useGetVariablesOptions();
 
   const suggestions = useMemo(() => {
-    return variables
-      .filter(
-        (s) => s.type === "dynamics" && !node?.data.list.some((v) => v === s.id)
+    return (variables || [])
+      ?.filter(
+        (s) => s.type === "dynamics" && !data.list.some((v) => v === s.id)
       )
       .map((s) => ({
         id: String(s.id),
         text: s.name,
         className: "",
       }));
-  }, [variables, node?.data.list]);
-
-  if (!node) return <span>Não encontrado</span>;
+  }, [variables, data.list]);
 
   const handleDelete = (index: number) => {
-    if (!index && node.data.list.length === 1) {
+    if (!index && data.list.length === 1) {
       updateNode(id, {
-        data: { list: node.data.list.filter((_, i) => i !== index) },
+        data: { list: data.list.filter((_, i) => i !== index) },
       });
     } else {
       updateNode(id, {
-        data: { list: node.data.list.filter((_, i) => i !== index) },
+        data: { list: data.list.filter((_, i) => i !== index) },
       });
     }
   };
 
   const handleAddition = async (tag: Tag) => {
     const nextName = tag.text.trim().replace(/\s/g, "_");
-    const exist = variables.find((s) => s.name === nextName);
+    const exist = (variables || []).find((s) => s.name === nextName);
     if (!exist) return;
-    updateNode(id, { data: { list: [...node.data.list, Number(tag.id)] } });
+    updateNode(id, { data: { list: [...data.list, Number(tag.id)] } });
   };
 
   return (
     <div className="flex flex-col gap-y-3 -mt-3">
-      {!node.data.list.length ? (
+      {!data.list.length ? (
         <span className="text-white/70">*Nenhuma variável selecionada</span>
       ) : (
         <div className="flex flex-col gap-y-1.5 mt-1">
-          {node.data.list.map((idItem, index) => (
+          {data.list.map((idItem, index) => (
             <div key={idItem} className="flex items-center gap-x-1">
               <button
                 className="hover:bg-white/5 duration-200 rounded-sm p-1.5 cursor-pointer"
@@ -71,7 +66,7 @@ function BodyNode({ id }: { id: string }): JSX.Element {
                 <GrClose size={15} color="#d36060" />
               </button>
               <span>
-                {`{{${variables.find((s) => s.id === idItem)?.name || "..."}}}`}
+                {`{{${(variables || []).find((s) => s.id === idItem)?.name || "..."}}}`}
               </span>
             </div>
           ))}
@@ -127,7 +122,7 @@ function BodyNode({ id }: { id: string }): JSX.Element {
   );
 }
 
-export const NodeRemoveVariables: React.FC<Node<DataNode>> = ({ id }) => {
+export const NodeRemoveVariables: React.FC<Node<DataNode>> = ({ id, data }) => {
   return (
     <div>
       <PatternNode.PatternPopover
@@ -149,7 +144,7 @@ export const NodeRemoveVariables: React.FC<Node<DataNode>> = ({ id }) => {
           description: "Remover",
         }}
       >
-        <BodyNode id={id} />
+        <BodyNode data={data} id={id} />
       </PatternNode.PatternPopover>
 
       <Handle type="target" position={Position.Left} style={{ left: -8 }} />

@@ -3,7 +3,6 @@ import { PatternNode } from "../Pattern";
 import { TbTags } from "react-icons/tb";
 import useStore from "../../flowStore";
 import { JSX } from "react";
-import { useDBNodes } from "../../../../db";
 import SelectTags from "@components/SelectTags";
 import { CustomHandle } from "../../customs/node";
 
@@ -11,12 +10,8 @@ type DataNode = {
   list: number[];
 };
 
-function BodyNode({ id }: { id: string }): JSX.Element {
-  const nodes = useDBNodes();
+function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
   const { updateNode } = useStore((s) => ({ updateNode: s.updateNode }));
-  const node = nodes.find((s) => s.id === id) as Node<DataNode> | undefined;
-
-  if (!node) return <span>Não encontrado</span>;
 
   return (
     <div className="flex flex-col gap-y-5 -mt-3">
@@ -27,21 +22,21 @@ function BodyNode({ id }: { id: string }): JSX.Element {
         menuPlacement="bottom"
         isFlow
         isCreatable={false}
-        value={node.data.list}
+        value={data.list}
         onChange={(e: any) => {
-          node.data.list = e.map((item: any) => item.value);
-          updateNode(id, { data: { list: node.data.list } });
+          data.list = e.map((item: any) => item.value);
+          updateNode(id, { data: { list: data.list } });
         }}
         onCreate={(tag) => {
-          node.data.list.push(tag.id);
-          updateNode(id, { data: { list: node.data.list } });
+          data.list.push(tag.id);
+          updateNode(id, { data: { list: data.list } });
         }}
       />
     </div>
   );
 }
 
-export const NodeRemoveTags: React.FC<Node<DataNode>> = ({ id }) => {
+export const NodeRemoveTags: React.FC<Node<DataNode>> = ({ id, data }) => {
   return (
     <div>
       <PatternNode.PatternPopover
@@ -60,7 +55,7 @@ export const NodeRemoveTags: React.FC<Node<DataNode>> = ({ id }) => {
           description: "Remove",
         }}
       >
-        <BodyNode id={id} />
+        <BodyNode id={id} data={data} />
       </PatternNode.PatternPopover>
 
       <Handle type="target" position={Position.Left} style={{ left: -8 }} />

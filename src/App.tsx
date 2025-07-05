@@ -4,7 +4,6 @@ import { FlowBuilderPage } from "./pages/flow-builder";
 import { LayoutPrivateProvider } from "@contexts/layout-private.context";
 import { LayoutMain } from "./layouts/main";
 import { DashboardPage } from "./pages/dashboard";
-import { DnDProvider } from "@contexts/DnD.context";
 import { ReactFlowProvider } from "@xyflow/react";
 import { LoginPage } from "./pages/login";
 import { SignupPage } from "./pages/signup";
@@ -165,9 +164,7 @@ export default function App() {
             caseSensitive
             element={
               <ReactFlowProvider>
-                <DnDProvider>
-                  <FlowBuilderPage />
-                </DnDProvider>
+                <FlowBuilderPage />
               </ReactFlowProvider>
             }
           />

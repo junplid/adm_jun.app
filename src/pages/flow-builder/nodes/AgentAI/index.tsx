@@ -1,7 +1,6 @@
-import { JSX } from "react";
+import { JSX, useEffect, useState } from "react";
 import { Handle, Node, Position, useUpdateNodeInternals } from "@xyflow/react";
 import { PatternNode } from "../Pattern";
-import { useDBNodes, useVariables } from "../../../../db";
 import useStore from "../../flowStore";
 import { RxLapTimer } from "react-icons/rx";
 import { useColorModeValue } from "@components/ui/color-mode";
@@ -10,10 +9,12 @@ import { LuBrainCircuit } from "react-icons/lu";
 import SelectAgentsAI from "@components/SelectAgentsAI";
 import { Field } from "@components/ui/field";
 import AutocompleteTextField from "@components/Autocomplete";
+import { useGetVariablesOptions } from "../../../../hooks/variable";
 
 type DataNode = {
   prompt?: string;
   agentId: number;
+  preview?: { first?: string[]; property: string[] };
 };
 
 const itemsCorporation = [
@@ -38,34 +39,44 @@ function pickExistNode(text: string) {
   return math.map((s) => s.replace(/\/\[sair_node,\s(.+)\]/, "$1"));
 }
 
-function BodyNode({ id }: { id: string }): JSX.Element {
+function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
   const updateNodeInternals = useUpdateNodeInternals();
-  const nodes = useDBNodes();
-  const variables = useVariables();
   const { updateNode, delEdge } = useStore((s) => ({
     updateNode: s.updateNode,
     delEdge: s.delEdge,
   }));
-  const node = nodes.find((s) => s.id === id) as
-    | (Node<DataNode> & { preview?: string[] })
-    | undefined;
+  const { data: variables } = useGetVariablesOptions();
 
-  const getNodePreview = useStore((s) => s.getNodePreview);
-  const preview = getNodePreview(id);
+  const [dataMok, setDataMok] = useState(data as DataNode);
+  const [init, setInit] = useState(false);
+  useEffect(() => {
+    if (!init) {
+      setInit(true);
+      return;
+    }
+    return () => {
+      setInit(false);
+    };
+  }, [init]);
 
-  if (!node) return <span>Não encontrado</span>;
+  useEffect(() => {
+    if (!init) return;
+    const debounce = setTimeout(() => updateNode(id, { data: dataMok }), 200);
+    return () => {
+      clearTimeout(debounce);
+    };
+  }, [dataMok]);
 
   return (
     <div className="flex flex-col -mt-3 mb-5 gap-y-3">
       <Field label="Selecione o agente IA">
         <SelectAgentsAI
-          value={node.data.agentId}
+          value={data.agentId}
           isMulti={false}
           isClearable={false}
           onChange={(v: any) => {
             updateNode(id, {
-              ...node,
-              data: { ...node.data, agentId: v.value },
+              data: { ...data, agentId: v.value },
             });
           }}
           menuPlacement="bottom"
@@ -88,30 +99,26 @@ function BodyNode({ id }: { id: string }): JSX.Element {
           matchAny
           options={{
             "/": itemsCorporation.map((s) => s.name),
-            "{{": variables.map((s) => s.name + "}} "),
+            "{{": variables?.map((s) => s.name + "}} ") || [],
           }}
           maxRows={14}
           minRows={5}
-          defaultValue={node.data.prompt || ""}
+          defaultValue={data.prompt || ""}
           type="textarea"
           placeholder={`- Faça /[add_tag, LEAD_FRIO], ao inicia a conversa`}
-          // @ts-expect-error
-          onBlur={async ({ target }) => {
-            const listExistNode = pickExistNode(target.value);
-            const itemsDell = preview?.property?.filter(
+          onChange={async (target: string) => {
+            const listExistNode = pickExistNode(target);
+            const itemsDell = data.preview?.property?.filter(
               (s: string) => !listExistNode.includes(s)
             );
             for await (const item of itemsDell || []) {
               delEdge(item);
               updateNodeInternals(id);
             }
-            updateNode(id, {
-              ...node,
-              preview: {
-                ...preview,
-                property: listExistNode,
-              },
-              data: { ...node.data, prompt: target.value },
+            setDataMok({
+              ...data,
+              prompt: target,
+              preview: { ...data.preview, property: listExistNode },
             });
             updateNodeInternals(id);
           }}
@@ -125,14 +132,17 @@ function BodyNode({ id }: { id: string }): JSX.Element {
   );
 }
 
-export const NodeAgentAI: React.FC<Node<DataNode>> = ({ id }) => {
-  const getNodePreview = useStore((s) => s.getNodePreview);
-  const preview = getNodePreview(id) as { first: string[]; property: string[] };
+export const NodeAgentAI: React.FC<
+  Node<DataNode & { preview: { first: string[]; property: string[] } }>
+> = ({ id, data }) => {
   const colorTimeout = useColorModeValue("#F94A65", "#B1474A");
   // const colorFailed = useColorModeValue("#ee9e42", "#a55d29");
 
   const previewUnique = [
-    ...new Set([...(preview?.first || []), ...(preview?.property || [])]),
+    ...new Set([
+      ...(data.preview?.first || []),
+      ...(data.preview?.property || []),
+    ]),
   ];
 
   return (
@@ -166,7 +176,7 @@ export const NodeAgentAI: React.FC<Node<DataNode>> = ({ id }) => {
           description: "Chama",
         }}
       >
-        <BodyNode id={id} />
+        <BodyNode id={id} data={data} />
       </PatternNode.PatternPopover>
 
       <Handle type="target" position={Position.Left} style={{ left: -8 }} />

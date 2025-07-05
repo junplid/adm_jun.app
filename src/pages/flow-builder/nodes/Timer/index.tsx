@@ -4,10 +4,9 @@ import {
   Span,
   Stack,
 } from "@chakra-ui/react";
-import { JSX } from "react";
+import { JSX, useEffect, useState } from "react";
 import { Handle, Node, Position } from "@xyflow/react";
 import { PatternNode } from "../Pattern";
-import { useDBNodes } from "../../../../db";
 import useStore from "../../flowStore";
 import { LiaHourglassHalfSolid } from "react-icons/lia";
 import {
@@ -50,14 +49,28 @@ type DataNode = {
   type: ["seconds" | "minutes" | "hours" | "days"];
 };
 
-function BodyNode({ id }: { id: string }): JSX.Element {
-  const nodes = useDBNodes();
+function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
   const updateNode = useStore((s) => s.updateNode);
-  const node = nodes.find((s) => s.id === id) as Node<DataNode> | undefined;
 
-  if (!node) {
-    return <span>Não encontrado</span>;
-  }
+  const [dataMok, setDataMok] = useState(data as DataNode);
+  const [init, setInit] = useState(false);
+  useEffect(() => {
+    if (!init) {
+      setInit(true);
+      return;
+    }
+    return () => {
+      setInit(false);
+    };
+  }, [init]);
+
+  useEffect(() => {
+    if (!init) return;
+    const debounce = setTimeout(() => updateNode(id, { data: dataMok }), 200);
+    return () => {
+      clearTimeout(debounce);
+    };
+  }, [dataMok]);
 
   return (
     <div className="-mt-3 flex flex-col gap-2">
@@ -72,32 +85,24 @@ function BodyNode({ id }: { id: string }): JSX.Element {
           min={0}
           max={60}
           size={"md"}
-          value={node.data?.value ? String(node.data.value) : "0"}
+          value={data?.value ? String(data.value) : "0"}
           defaultValue="0"
         >
           <NumberInput.Input
-            style={{
-              borderColor: node.data.value ? "transparent" : "",
-            }}
+            style={{ borderColor: data.value ? "transparent" : "" }}
             maxW={"43px"}
-            onBlur={({ target }) => {
-              updateNode(id, {
-                data: {
-                  ...node.data,
-                  value: Number(target.value),
-                },
-              });
+            onChange={({ target }) => {
+              setDataMok({ ...data, value: Number(target.value) });
             }}
           />
         </NumberInput.Root>
         <SelectRoot
-          value={node.data?.type}
+          value={data?.type}
           onValueChange={(e) => {
-            updateNode(id, {
-              data: {
-                ...node.data,
-                type: e.value,
-              },
+            setDataMok({
+              ...data,
+              // @ts-expect-error
+              type: e.value,
             });
           }}
           collection={timesList}
@@ -123,7 +128,7 @@ function BodyNode({ id }: { id: string }): JSX.Element {
   );
 }
 
-export const NodeTimer: React.FC<Node<DataNode>> = ({ id }) => {
+export const NodeTimer: React.FC<Node<DataNode>> = ({ id, data }) => {
   return (
     <div>
       <PatternNode.PatternPopover
@@ -146,7 +151,7 @@ export const NodeTimer: React.FC<Node<DataNode>> = ({ id }) => {
         }}
         size="300px"
       >
-        <BodyNode id={id} />
+        <BodyNode id={id} data={data} />
       </PatternNode.PatternPopover>
 
       <Handle type="target" position={Position.Left} style={{ left: -8 }} />

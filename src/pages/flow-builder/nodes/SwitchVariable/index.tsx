@@ -1,9 +1,8 @@
 import { Handle, Node, Position, useUpdateNodeInternals } from "@xyflow/react";
 import { PatternNode } from "../Pattern";
 import useStore from "../../flowStore";
-import { JSX } from "react";
+import { JSX, useEffect, useState } from "react";
 import { Button, IconButton } from "@chakra-ui/react";
-import { useDBNodes, useVariables } from "../../../../db";
 import { CustomHandle } from "../../customs/node";
 import { Field } from "@components/ui/field";
 import SelectVariables from "@components/SelectVariables";
@@ -13,27 +12,41 @@ import { useColorModeValue } from "@components/ui/color-mode";
 import { MdReportGmailerrorred } from "react-icons/md";
 import { nanoid } from "nanoid";
 import AutocompleteTextField from "@components/Autocomplete";
+import { useGetVariablesOptions } from "../../../../hooks/variable";
 
 type DataNode = {
   id: number;
   values: { v: string; key: string }[];
+  preview: { key: string; v: string }[];
 };
 
-function BodyNode({ id }: { id: string }): JSX.Element {
+function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
   const updateNodeInternals = useUpdateNodeInternals();
-  const nodes = useDBNodes();
-  const variables = useVariables();
-  const node = nodes.find((s) => s.id === id) as Node<DataNode> | undefined;
   const { updateNode, delEdge } = useStore((s) => ({
     updateNode: s.updateNode,
     delEdge: s.delEdge,
   }));
-  const getNodePreview = useStore((s) => s.getNodePreview);
-  const preview = getNodePreview(id) as { key: string; v: string }[];
+  const { data: variables } = useGetVariablesOptions();
 
-  if (!node) {
-    return <span>Não encontrado</span>;
-  }
+  const [dataMok, setDataMok] = useState(data as DataNode);
+  const [init, setInit] = useState(false);
+  useEffect(() => {
+    if (!init) {
+      setInit(true);
+      return;
+    }
+    return () => {
+      setInit(false);
+    };
+  }, [init]);
+
+  useEffect(() => {
+    if (!init) return;
+    const debounce = setTimeout(() => updateNode(id, { data: dataMok }), 200);
+    return () => {
+      clearTimeout(debounce);
+    };
+  }, [dataMok]);
 
   return (
     <div className="flex flex-col -mt-3 gap-y-2">
@@ -45,25 +58,23 @@ function BodyNode({ id }: { id: string }): JSX.Element {
           menuPlacement="bottom"
           isFlow
           isCreatable={false}
-          value={node.data.id}
+          value={data.id}
           onChange={(e: any) => {
             updateNode(id, {
-              data: { ...node.data, id: e.value },
+              data: { ...data, id: e.value },
             });
           }}
         />
       </Field>
 
       <div className="my-1 flex flex-col gap-y-3">
-        {node.data.values?.length ? (
+        {data.values?.length ? (
           <div className="flex flex-col">
             <span className="font-medium text-center text-white/70">
-              {node.data.values?.length > 1
-                ? "Possíveis valores"
-                : "Possível valor"}
+              {data.values?.length > 1 ? "Possíveis valores" : "Possível valor"}
             </span>
             <ul className="space-y-1">
-              {node.data.values?.map((item, index) => (
+              {data.values?.map((item, index) => (
                 <li
                   key={item.key}
                   className="relative flex gap-2 items-center p-1"
@@ -73,15 +84,18 @@ function BodyNode({ id }: { id: string }): JSX.Element {
                     colorPalette={"red"}
                     onClick={() => {
                       delEdge(item.key);
-                      const nextItems = node.data.values.filter(
+                      const nextItems = data.values.filter(
                         (i) => i.key !== item.key
                       );
-                      const nextPreview = preview?.filter(
+                      const nextPreview = data.preview.filter(
                         (p) => p.key !== item.key
                       );
                       updateNode(id, {
-                        preview: nextPreview,
-                        data: { ...node.data, values: nextItems },
+                        data: {
+                          ...data,
+                          values: nextItems,
+                          preview: nextPreview,
+                        },
                       });
                       updateNodeInternals(id);
                     }}
@@ -92,19 +106,18 @@ function BodyNode({ id }: { id: string }): JSX.Element {
                   <AutocompleteTextField
                     // @ts-expect-error
                     trigger={["{{"]}
-                    options={{ "{{": variables.map((s) => s.name) }}
-                    spacer={"}} "}
+                    options={{ "{{": variables?.map((s) => s.name) || [] }}
+                    spacer={"}}"}
                     placeholder="Digite o valor ou {{valor}}"
                     defaultValue={item.v || ""}
-                    // @ts-expect-error
-                    onBlur={({ target }) => {
-                      preview[index].v = target.value;
-                      node.data.values[index].v = target.value;
+                    onChange={(target: string) => {
+                      data.preview[index].v = target;
+                      data.values[index].v = target;
                       updateNodeInternals(id);
-                      updateNode(id, {
-                        ...node,
-                        preview,
-                        data: { ...node.data, values: node.data.values },
+                      setDataMok({
+                        ...data,
+                        values: data.values,
+                        preview: data.preview,
                       });
                     }}
                   />
@@ -116,17 +129,16 @@ function BodyNode({ id }: { id: string }): JSX.Element {
         <Button
           onClick={() => {
             const itemId = nanoid();
-            const values = node.data.values.length
-              ? [...node.data.values, { key: itemId, v: "" }]
+            const values = data.values.length
+              ? [...data.values, { key: itemId, v: "" }]
               : [{ key: itemId, v: "" }];
 
-            const pp = preview?.length
-              ? [...preview, { key: itemId, v: "" }]
+            const pp = data.preview.length
+              ? [...data.preview, { key: itemId, v: "" }]
               : [{ key: itemId, v: "" }];
 
             updateNode(id, {
-              preview: pp,
-              data: { ...node.data, values },
+              data: { ...data, values, preview: pp },
             });
             updateNodeInternals(id);
           }}
@@ -142,9 +154,7 @@ function BodyNode({ id }: { id: string }): JSX.Element {
 }
 
 export const NodeSwitchVariable: React.FC<Node<DataNode>> = (props) => {
-  const getNodePreview = useStore((s) => s.getNodePreview);
   const colorFailed = useColorModeValue("#F94A65", "#B1474A");
-  const preview = getNodePreview(props.id) as { key: string; v: string }[];
 
   return (
     <div>
@@ -158,8 +168,11 @@ export const NodeSwitchVariable: React.FC<Node<DataNode>> = (props) => {
             <div
               style={{
                 height:
-                  preview.filter((s) => s.v).filter((s) => s.v)?.length >= 2
-                    ? 14 * preview.filter((s) => s.v)?.length + 42 - 35
+                  props.data.preview.filter((s) => s.v).filter((s) => s.v)
+                    ?.length >= 2
+                    ? 14 * props.data.preview.filter((s) => s.v)?.length +
+                      42 -
+                      35
                     : 35,
               }}
               className="p-1 relative items-center flex"
@@ -174,11 +187,11 @@ export const NodeSwitchVariable: React.FC<Node<DataNode>> = (props) => {
           description: "Switch de",
         }}
       >
-        <BodyNode id={props.id} />
+        <BodyNode data={props.data} id={props.id} />
       </PatternNode.PatternPopover>
 
       <Handle type="target" position={Position.Left} style={{ left: -8 }} />
-      {preview
+      {props.data.preview
         .filter((s) => s.v)
         ?.map((p, index: number) => (
           <CustomHandle
@@ -206,7 +219,7 @@ export const NodeSwitchVariable: React.FC<Node<DataNode>> = (props) => {
           </CustomHandle>
         ))}
 
-      {!!preview.filter((s) => s.v).length && (
+      {!!props.data.preview.filter((s) => s.v).length && (
         <CustomHandle
           nodeId={props.id}
           handleId={`${colorFailed} failed`}

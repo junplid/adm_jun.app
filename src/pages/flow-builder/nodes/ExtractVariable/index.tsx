@@ -1,15 +1,15 @@
 import { Handle, Node, Position } from "@xyflow/react";
 import { PatternNode } from "../Pattern";
 import useStore from "../../flowStore";
-import { JSX, useState } from "react";
+import { JSX, useEffect, useState } from "react";
 import { Button, Input, InputGroup, Menu, Portal } from "@chakra-ui/react";
-import { useDBNodes, useVariables } from "../../../../db";
 import AutocompleteTextField from "@components/Autocomplete";
 import { CustomHandle } from "../../customs/node";
 import { Field } from "@components/ui/field";
 import SelectVariables from "@components/SelectVariables";
 import { BsRegex } from "react-icons/bs";
 import { FaFontAwesomeFlag } from "react-icons/fa";
+import { useGetVariablesOptions } from "../../../../hooks/variable";
 
 type DataNode = {
   var1Id: number;
@@ -28,16 +28,32 @@ const items = [
   { title: "Sticky", value: "y" },
 ];
 
-function BodyNode({ id }: { id: string }): JSX.Element {
-  const nodes = useDBNodes();
-  const node = nodes.find((s) => s.id === id) as Node<DataNode> | undefined;
-  const updateNode = useStore((s) => s.updateNode);
-  const variables = useVariables();
+function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
+  const { updateNode } = useStore((s) => ({
+    updateNode: s.updateNode,
+  }));
+  const { data: variables } = useGetVariablesOptions();
   const [isOpen, setIsOpen] = useState(false);
+  const [dataMok, setDataMok] = useState(data as DataNode);
+  const [init, setInit] = useState(false);
 
-  if (!node) {
-    return <span>Não encontrado</span>;
-  }
+  useEffect(() => {
+    if (!init) {
+      setInit(true);
+      return;
+    }
+    return () => {
+      setInit(false);
+    };
+  }, [init]);
+
+  useEffect(() => {
+    if (!init) return;
+    const debounce = setTimeout(() => updateNode(id, { data: dataMok }), 200);
+    return () => {
+      clearTimeout(debounce);
+    };
+  }, [dataMok]);
 
   return (
     <div className="flex flex-col -mt-3 gap-y-2 min-h-60">
@@ -48,27 +64,20 @@ function BodyNode({ id }: { id: string }): JSX.Element {
           placeholder="Selecione uma variável"
           menuPlacement="bottom"
           isFlow
-          value={node.data.var1Id}
-          onChange={(e: any) => {
-            updateNode(id, {
-              data: { ...node.data, var1Id: e.value },
-            });
-          }}
+          value={data.var1Id}
+          onChange={(e: any) => setDataMok({ ...data, var1Id: e.value })}
         />
       </Field>
 
       <div className="flex items-center gap-1">
-        <InputGroup
-          startAddon="/"
-          endAddon={`/${node.data.flags?.join("") || ""}`}
-        >
+        <InputGroup startAddon="/" endAddon={`/${data.flags?.join("") || ""}`}>
           <Input
             placeholder="CODE=(\d+).*"
-            defaultValue={node.data.regex || ""}
+            defaultValue={data.regex || ""}
             size={"xs"}
             fontSize={14}
-            onBlur={({ target }) => {
-              updateNode(id, { data: { ...node.data, regex: target.value } });
+            onChange={({ target }) => {
+              setDataMok({ ...data, regex: target.value });
             }}
           />
         </InputGroup>
@@ -91,21 +100,17 @@ function BodyNode({ id }: { id: string }): JSX.Element {
                     <Menu.CheckboxItem
                       key={value}
                       value={value}
-                      checked={node.data.flags.includes(value)}
+                      checked={data.flags.includes(value)}
                       onCheckedChange={(e) => {
                         if (e) {
-                          updateNode(id, {
-                            data: {
-                              ...node.data,
-                              flags: [...node.data.flags, value],
-                            },
+                          setDataMok({
+                            ...data,
+                            flags: [...data.flags, value],
                           });
                         } else {
-                          updateNode(id, {
-                            data: {
-                              ...node.data,
-                              flags: node.data.flags.filter((f) => f !== value),
-                            },
+                          setDataMok({
+                            ...data,
+                            flags: data.flags.filter((f) => f !== value),
                           });
                         }
                       }}
@@ -125,13 +130,12 @@ function BodyNode({ id }: { id: string }): JSX.Element {
       <AutocompleteTextField
         // @ts-expect-error
         trigger={["{{"]}
-        options={{ "{{": variables.map((s) => s.name) }}
+        options={{ "{{": variables?.map((s) => s.name) || [] }}
         spacer={"}}"}
         placeholder="Exemplo: $1"
-        defaultValue={node.data.value || ""}
-        // @ts-expect-error
-        onBlur={({ target }) => {
-          updateNode(id, { data: { ...node.data, value: target.value } });
+        defaultValue={data.value || ""}
+        onChange={(target: string) => {
+          setDataMok({ ...data, value: target });
         }}
       />
       <Field label="Variável de destino">
@@ -142,22 +146,16 @@ function BodyNode({ id }: { id: string }): JSX.Element {
           menuPlacement="bottom"
           filter={(s) => s.filter((v) => v.type === "dynamics")}
           isFlow
-          value={node.data.var2Id}
-          onChange={(e: any) => {
-            updateNode(id, {
-              data: { ...node.data, var2Id: e.value },
-            });
-          }}
-          onCreate={(d) => {
-            updateNode(id, { data: { ...node.data, var2Id: d.id } });
-          }}
+          value={data.var2Id}
+          onChange={(e: any) => setDataMok({ ...data, var2Id: e.value })}
+          onCreate={(d) => setDataMok({ ...data, var2Id: d.id })}
         />
       </Field>
     </div>
   );
 }
 
-export const NodeExtractVariable: React.FC<Node<DataNode>> = ({ id }) => {
+export const NodeExtractVariable: React.FC<Node<DataNode>> = ({ id, data }) => {
   return (
     <div>
       <PatternNode.PatternPopover
@@ -177,7 +175,7 @@ export const NodeExtractVariable: React.FC<Node<DataNode>> = ({ id }) => {
           description: "Extrair da",
         }}
       >
-        <BodyNode id={id} />
+        <BodyNode id={id} data={data} />
       </PatternNode.PatternPopover>
 
       <Handle type="target" position={Position.Left} style={{ left: -8 }} />

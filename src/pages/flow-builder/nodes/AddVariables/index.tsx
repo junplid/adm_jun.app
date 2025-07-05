@@ -3,10 +3,12 @@ import { PatternNode } from "../Pattern";
 import { PiBracketsCurlyBold } from "react-icons/pi";
 import { WithContext as ReactTags, SEPARATORS, Tag } from "react-tag-input";
 import useStore from "../../flowStore";
-import { JSX, useMemo } from "react";
+import { JSX, useEffect, useMemo, useState } from "react";
 import { Highlight, Input, Presence, Spinner } from "@chakra-ui/react";
-import { db, useDBNodes, useVariables } from "../../../../db";
-import { useCreateVariable } from "../../../../hooks/variable";
+import {
+  useCreateVariable,
+  useGetVariablesOptions,
+} from "../../../../hooks/variable";
 import { GrClose } from "react-icons/gr";
 import { useColorModeValue } from "@components/ui/color-mode";
 import { CustomHandle } from "../../customs/node";
@@ -18,82 +20,86 @@ type DataNode = {
   }[];
 };
 
-function BodyNode({ id }: { id: string }): JSX.Element {
-  const nodes = useDBNodes();
+function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
   const colorQuery = useColorModeValue("#000000", "#ffffff");
-  const variables = useVariables();
-
   const { updateNode, businessIds } = useStore((s) => ({
     updateNode: s.updateNode,
     businessIds: s.businessIds,
   }));
-  const node = nodes.find((s) => s.id === id) as Node<DataNode> | undefined;
+  const { data: variables } = useGetVariablesOptions();
+  const { mutateAsync: createVariable, status } = useCreateVariable();
 
-  const { mutateAsync: createVariable, status } = useCreateVariable({});
+  const [dataMok, setDataMok] = useState(data as DataNode);
+  const [init, setInit] = useState(false);
+  useEffect(() => {
+    if (!init) {
+      setInit(true);
+      return;
+    }
+    return () => {
+      setInit(false);
+    };
+  }, [init]);
+
+  useEffect(() => {
+    if (!init) return;
+    const debounce = setTimeout(() => updateNode(id, { data: dataMok }), 200);
+    return () => {
+      clearTimeout(debounce);
+    };
+  }, [dataMok]);
 
   const suggestions = useMemo(() => {
     return variables
-      .filter(
-        (s) =>
-          s.type === "dynamics" && !node?.data.list.some((v) => v.id === s.id)
+      ?.filter(
+        (s) => s.type === "dynamics" && !data.list.some((v) => v.id === s.id)
       )
       .map((s) => ({
         id: String(s.id),
         text: s.name,
         className: "",
       }));
-  }, [variables, node?.data.list]);
-
-  if (!node) {
-    return <span>Não encontrado</span>;
-  }
+  }, [variables, data.list]);
 
   const handleDelete = (index: number) => {
-    if (!index && node.data.list.length === 1) {
+    if (!index && data.list.length === 1) {
       updateNode(id, {
-        data: { list: node.data.list.filter((_, i) => i !== index) },
+        data: { list: data.list.filter((_, i) => i !== index) },
       });
     } else {
       updateNode(id, {
-        data: { list: node.data.list.filter((_, i) => i !== index) },
+        data: { list: data.list.filter((_, i) => i !== index) },
       });
     }
   };
 
   const handleAddition = async (tag: Tag) => {
     const nextName = tag.text.trim().replace(/\s/g, "_");
-    const exist = variables.find((s) => s.name === nextName);
+    const exist = variables?.find((s) => s.name === nextName);
 
     if (!exist) {
-      const vv = await db.variables.add({ name: nextName, type: "dynamics" });
       const variable = await createVariable({
-        targetId: vv,
         name: nextName,
         businessIds,
         type: "dynamics",
       });
-      await db.variables.update(vv, { id: variable.id });
       updateNode(id, {
-        data: {
-          list: [...node.data.list, { id: variable.id, value: "" }],
-        },
+        data: { list: [...data.list, { id: variable.id, value: "" }] },
       });
     } else {
       updateNode(id, {
-        data: {
-          list: [...node.data.list, { id: Number(exist.id), value: "" }],
-        },
+        data: { list: [...data.list, { id: Number(exist.id), value: "" }] },
       });
     }
   };
 
   return (
     <div className="flex flex-col gap-y-3 -mt-3">
-      {!node.data.list.length ? (
+      {!data.list.length ? (
         <span className="text-white/70">*Nenhuma variável selecionada</span>
       ) : (
         <div className="flex flex-col gap-y-1.5 mt-1">
-          {node.data.list.map(({ id: idItem, value }, index) => (
+          {data.list.map(({ id: idItem, value }, index) => (
             <div key={idItem} className="flex items-center gap-x-1">
               <button
                 className="hover:bg-white/5 duration-200 rounded-sm p-1.5 cursor-pointer"
@@ -104,7 +110,7 @@ function BodyNode({ id }: { id: string }): JSX.Element {
               </button>
               <div className="flex items-center gap-x-2">
                 <span>
-                  {`{{${variables.find((s) => s.id === idItem)?.name || "..."}}}`}
+                  {`{{${variables?.find((s) => s.id === idItem)?.name || "..."}}}`}
                   :
                 </span>
                 <Input
@@ -112,9 +118,9 @@ function BodyNode({ id }: { id: string }): JSX.Element {
                   defaultValue={value}
                   size={"xs"}
                   fontSize={14}
-                  onBlur={({ target }) => {
-                    node.data.list[index].value = target.value;
-                    updateNode(id, { data: { list: node.data.list } });
+                  onChange={({ target }) => {
+                    data.list[index].value = target.value;
+                    setDataMok({ list: data.list });
                   }}
                 />
               </div>
@@ -188,7 +194,7 @@ function BodyNode({ id }: { id: string }): JSX.Element {
   );
 }
 
-export const NodeAddVariables: React.FC<Node<DataNode>> = ({ id }) => {
+export const NodeAddVariables: React.FC<Node<DataNode>> = ({ id, data }) => {
   return (
     <div>
       <PatternNode.PatternPopover
@@ -210,7 +216,7 @@ export const NodeAddVariables: React.FC<Node<DataNode>> = ({ id }) => {
           description: "Atribuir",
         }}
       >
-        <BodyNode id={id} />
+        <BodyNode data={data} id={id} />
       </PatternNode.PatternPopover>
 
       <Handle type="target" position={Position.Left} style={{ left: -8 }} />

@@ -36,23 +36,15 @@ import { NodeRemoveVariables } from "./nodes/RemoveVariables";
 import { NodeIF } from "./nodes/if";
 import { NodeSendFlow } from "./nodes/SendFlow";
 import { SearchNodesComponents } from "./components/SearchNodes";
-import { DnDContext } from "@contexts/DnD.context";
 import { AppNode } from "./types";
 import { toaster } from "@components/ui/toaster";
 import useSyncLoadStore from "./syncLoadStore";
 import { RiErrorWarningLine, RiSaveFill } from "react-icons/ri";
 import { useParams } from "react-router-dom";
-import { getOptionsVariables } from "../../services/api/Variable";
-import { db } from "../../db";
 import { useUpdateFlowData } from "../../hooks/flow";
 import { nanoid } from "nanoid";
 import CustomEdge from "./customs/edge";
-import {
-  FlowType,
-  getFlowData,
-  getOptionsFlows,
-} from "../../services/api/Flow";
-import { getOptionsTags } from "../../services/api/Tag";
+import { FlowType, getFlowData } from "../../services/api/Flow";
 import { NodeTimer } from "./nodes/Timer";
 import { NodeMenu } from "./nodes/Menu";
 import { NodeNotifyWA } from "./nodes/NotifyWA";
@@ -81,11 +73,11 @@ type NodeTypesGeneric = {
 
 export type TypesNodes =
   | "NodeInitial"
-  | "NodeFinish"
-  | "NodeMessage"
-  | "NodeReply"
   | "NodeAddTags"
   | "NodeAddVariables"
+  | "NodeReply"
+  | "NodeFinish"
+  | "NodeMessage"
   | "NodeRemoveVariables"
   | "NodeIF"
   | "NodeSendFlow"
@@ -110,13 +102,13 @@ export type TypesNodes =
 
 const nodeTypes: NodeTypesGeneric = {
   NodeInitial: NodeInitial,
+  NodeAddTags: NodeAddTags,
+  NodeAddVariables: NodeAddVariables,
   NodeFinish: NodeFinish,
   NodeMessage: NodeMessage,
   NodeReply: NodeReply,
   NodeTimer: NodeTimer,
-  NodeAddTags: NodeAddTags,
   NodeRemoveTags: NodeRemoveTags,
-  NodeAddVariables: NodeAddVariables,
   NodeRemoveVariables: NodeRemoveVariables,
   NodeIF: NodeIF,
   NodeSendFlow: NodeSendFlow,
@@ -158,6 +150,8 @@ function Body(props: IBody): JSX.Element {
     nodes,
     changes,
     edges,
+    typeDrag,
+    setTypeDrag,
     setNodes,
     setEdges,
     onNodesChange,
@@ -167,7 +161,6 @@ function Body(props: IBody): JSX.Element {
     onNodesDelete,
     onEdgeClick,
     setBusinessIds,
-    setIsPull,
   } = useStore(
     useShallow((s) => ({
       nodes: s.nodes,
@@ -184,11 +177,12 @@ function Body(props: IBody): JSX.Element {
       onEdgeClick: s.onEdgeClick,
       setBusinessIds: s.setBusinessIds,
       setIsPull: s.setIsPull,
+      typeDrag: s.typeDrag,
+      setTypeDrag: s.setTypeDrag,
     }))
   );
 
   const reactFlowWrapper = useRef(null);
-  const { type, setType } = useContext(DnDContext);
   const { screenToFlowPosition } = useReactFlow();
   const colorDotFlow = useColorModeValue("#c6c6c6", "#373737");
   const { load: syncLoad, setLoad } = useSyncLoadStore((s) => s);
@@ -211,7 +205,7 @@ function Body(props: IBody): JSX.Element {
       props.flowData.nodes.map((n: any) => ({
         id: n.id,
         type: n.type,
-        data: {},
+        data: n.data,
         position: n.position,
         deletable: n.deletable,
         preview: n.preview,
@@ -227,57 +221,15 @@ function Body(props: IBody): JSX.Element {
         targetHandle: e.targetHandle,
       }))
     );
-
-    (async () => {
-      await db.nodes.clear();
-      await db.variables.clear();
-      await db.flows.clear();
-      await db.tags.clear();
-
-      await db.nodes.bulkAdd(
-        props.flowData.nodes.map((n: any) => ({
-          id: n.id,
-          data: n.data,
-        }))
-      );
-      await db.variables.clear();
-      const variables = await getOptionsVariables({
-        businessIds: props.flowData.businessIds,
-      });
-      db.variables.bulkAdd(
-        variables.map((v) => ({ name: v.name, id: v.id, type: v.type }))
-      );
-
-      await db.tags.clear();
-      const tags = await getOptionsTags({
-        businessIds: props.flowData.businessIds,
-        type: "contactwa",
-      });
-      db.tags.bulkAdd(
-        tags.map((v) => ({ name: v.name, id: v.id, type: v.type }))
-      );
-
-      await db.flows.clear();
-      const flows = await getOptionsFlows({
-        businessIds: props.flowData.businessIds,
-      });
-      db.flows.bulkAdd(
-        flows.map((v) => ({ name: v.name, id: v.id, type: v.type }))
-      );
-      setIsPull(true);
-    })();
     return () => {
       setNodes([]);
       setEdges([]);
       resetChanges();
-      db.nodes.clear();
-      db.variables.clear();
-      db.flows.clear();
-      db.tags.clear();
     };
   }, [props.flowData.name]);
 
   const isSave = useMemo(() => {
+    // console.log(changes);
     return !!(changes.nodes.length || changes.edges.length);
   }, [changes.edges, changes.nodes]);
 
@@ -289,38 +241,35 @@ function Body(props: IBody): JSX.Element {
   const onDrop = useCallback(
     async (event: any) => {
       event.preventDefault();
-      if (!type) return;
+      if (!typeDrag) return;
       const { x, y } = screenToFlowPosition({
         x: event.clientX,
         y: event.clientY,
       });
       const newNode: AppNode = {
         id: nanoid(),
-        type,
+        type: typeDrag,
         position: { x: x - 25, y: y - 25 },
         data: {},
         deletable: true,
       };
-      const typeN = type as TypesNodes;
+      const typeN = typeDrag as TypesNodes;
       if (typeN === "NodeAddTags") {
         newNode.data = { list: [] };
       } else if (typeN === "NodeAddVariables") {
         newNode.data = { list: [] };
-      } else if (typeN === "NodeRemoveTags") {
-        newNode.data = { list: [] };
-      } else if (typeN === "NodeRemoveVariables") {
-        newNode.data = { list: [] };
+      } else if (typeN === "NodeExtractVariable") {
+        newNode.data = {
+          flags: [],
+        };
+      } else if (typeN === "NodeMessage") {
+        newNode.data = {
+          messages: [{ text: "", key: nanoid(), interval: 0 }],
+        };
       } else if (typeN === "NodeIF") {
         newNode.data = {
           list: [{ key: nanoid(), name: "has-tags", tagIds: [] }],
         };
-      } else if (typeN === "NodeReply") {
-        newNode.data = {
-          timeout: { value: 30, type: ["MINUTES"] },
-          list: [],
-        };
-      } else if (typeN === "NodeTimer") {
-        newNode.data = { value: 20, type: ["seconds"] };
       } else if (typeN === "NodeMenu") {
         newNode.data = {
           interval: 5,
@@ -330,33 +279,30 @@ function Body(props: IBody): JSX.Element {
             messageErrorAttempts: { interval: 3 },
           },
           timeout: { type: ["minutes"], value: 20 },
+          preview: [],
         };
-        newNode.preview = [];
       } else if (typeN === "NodeNotifyWA") {
         newNode.data = { numbers: [] };
+      } else if (typeN === "NodeRemoveVariables") {
+        newNode.data = { list: [] };
+      } else if (typeN === "NodeReply") {
+        newNode.data = {
+          timeout: { value: 30, type: ["MINUTES"] },
+          list: [],
+        };
       } else if (typeN === "NodeSendFiles") {
         newNode.data = { files: [] };
-      } else if (typeN === "NodeMessage") {
-        newNode.data = {
-          messages: [{ text: "", key: nanoid(), interval: 0 }],
-        };
-      } else if (typeN === "NodeExtractVariable") {
-        newNode.data = {
-          flags: [],
-        };
       } else if (typeN === "NodeSwitchVariable") {
-        newNode.preview = [];
-        newNode.data = { values: [] };
+        newNode.data = { values: [], preview: [] };
+      } else if (typeN === "NodeTimer") {
+        newNode.data = { value: 20, type: ["seconds"] };
+      } else if (typeN === "NodeRemoveTags") {
+        newNode.data = { list: [] };
       }
-
-      await db.nodes.add({
-        id: newNode.id,
-        data: newNode.data,
-      });
       onNodesChange([{ type: "add", item: newNode }]);
-      setType(null);
+      setTypeDrag(null);
     },
-    [screenToFlowPosition, type]
+    [screenToFlowPosition, typeDrag]
   );
 
   useEffect(() => {
@@ -368,7 +314,7 @@ function Body(props: IBody): JSX.Element {
           if (n.type === "delete") {
             return { type: n.type, node: { id: n.id } };
           }
-          const { position, type, deletable, preview } = nodes.find(
+          const { position, type, deletable, preview, data } = nodes.find(
             (node) => node.id === n.id
           )!;
           return {
@@ -379,7 +325,7 @@ function Body(props: IBody): JSX.Element {
               type,
               id: n.id,
               deletable,
-              data: (await db.nodes.get(n.id))?.data,
+              data,
             },
           };
         })
@@ -428,19 +374,12 @@ function Body(props: IBody): JSX.Element {
             if (n.type === "delete") {
               return { type: n.type, node: { id: n.id } };
             }
-            const { position, type, deletable, preview } = nodes.find(
+            const { position, type, deletable, preview, data } = nodes.find(
               (node) => node.id === n.id
             )!;
             return {
               type: n.type,
-              node: {
-                preview,
-                position,
-                type,
-                id: n.id,
-                deletable,
-                data: (await db.nodes.get(n.id))?.data,
-              },
+              node: { preview, position, type, id: n.id, deletable, data },
             };
           })
         );
@@ -622,7 +561,8 @@ function Body(props: IBody): JSX.Element {
               <strong className="text-[#78a5ec] absolute -right-3 text-xl -top-2">
                 *
               </strong>
-            )}
+            )}{" "}
+            {nodes.length}
           </span>
         </Panel>
         <Background color={colorDotFlow} gap={9} size={0.8} />

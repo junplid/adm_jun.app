@@ -14,7 +14,7 @@ import { RxLapTimer } from "react-icons/rx";
 import { useColorModeValue } from "@components/ui/color-mode";
 
 import { WithContext as ReactTags, SEPARATORS, Tag } from "react-tag-input";
-import { JSX, useMemo } from "react";
+import { JSX, useEffect, useMemo, useState } from "react";
 import useStore from "../../flowStore";
 import {
   SelectContent,
@@ -23,16 +23,15 @@ import {
   SelectTrigger,
   SelectValueText,
 } from "@components/ui/select";
-import { useDBNodes, useVariables } from "../../../../db/index";
-import { db } from "../../../../db";
 import { createVariable } from "../../../../services/api/Variable";
 import { CustomHandle } from "../../customs/node";
+import { useGetVariablesOptions } from "../../../../hooks/variable";
 
 type DataNode = {
   isSave?: boolean;
   list: number[];
   timeout?: {
-    type: ("SECONDS" | "MINUTES" | "HOURS" | "DAYS")[];
+    type?: ("SECONDS" | "MINUTES" | "HOURS" | "DAYS")[];
     value: number;
   };
 };
@@ -62,86 +61,88 @@ const timesList = createListCollection({
   ],
 });
 
-function BodyNode({ id }: { id: string }): JSX.Element {
+function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
   const { updateNode, businessIds } = useStore((s) => ({
     updateNode: s.updateNode,
     businessIds: s.businessIds,
   }));
   const colorQuery = useColorModeValue("#000000", "#ffffff");
-  const variables = useVariables();
+  const { data: variables } = useGetVariablesOptions();
 
-  const nodes = useDBNodes();
-  const node = nodes.find((s) => s.id === id) as Node<DataNode> | undefined;
+  const [dataMok, setDataMok] = useState(data as DataNode);
+  const [init, setInit] = useState(false);
+  useEffect(() => {
+    if (!init) {
+      setInit(true);
+      return;
+    }
+    return () => {
+      setInit(false);
+    };
+  }, [init]);
+
+  useEffect(() => {
+    if (!init) return;
+    const debounce = setTimeout(() => updateNode(id, { data: dataMok }), 200);
+    return () => {
+      clearTimeout(debounce);
+    };
+  }, [dataMok]);
 
   const suggestions = useMemo(() => {
-    return variables
+    return (variables || [])
       .filter(
-        (s) =>
-          s.type === "dynamics" && !node?.data.list?.some((v) => v === s.id)
+        (s) => s.type === "dynamics" && !data.list?.some((v) => v === s.id)
       )
       .map((s) => ({
         id: String(s.id),
         text: s.name,
         className: "",
       }));
-  }, [variables, node?.data.list]);
+  }, [variables, data.list]);
 
   const selecteds = useMemo(() => {
-    return node?.data.list
+    return data.list
       ?.map((id) => {
-        const exist = variables.find((v) => v.id === id);
+        const exist = (variables || []).find((v) => v.id === id);
         if (!exist) return null;
         return { id: String(id), text: exist?.name, className: "" };
       })
       .filter((s) => s !== null);
-  }, [node?.data.list, variables]);
-
-  if (!node) {
-    return <span>Não encontrado</span>;
-  }
+  }, [data.list, variables]);
 
   const handleAddition = async (tag: Tag) => {
     const nextName = tag.text.trim().replace(/\s/g, "_");
-    const exist = variables.find((s) => s.name === nextName);
+    const exist = (variables || []).find((s) => s.name === nextName);
 
     if (!exist) {
-      const vv = await db.variables.add({ name: nextName, type: "dynamics" });
       const variable = await createVariable({
-        targetId: vv,
         name: nextName,
         businessIds,
         type: "dynamics",
       });
-      await db.variables.update(vv, { id: variable.id });
-      updateNode(id, {
-        data: {
-          ...node.data,
-          list: [...node.data.list, variable.id],
-        },
-      });
+      updateNode(id, { data: { ...data, list: [...data.list, variable.id] } });
       return;
     }
 
-    updateNode(id, {
-      data: { ...node.data, list: [...node.data.list, Number(tag.id)] },
-    });
+    updateNode(id, { data: { ...data, list: [...data.list, Number(tag.id)] } });
   };
 
   const handleDelete = (index: number) => {
-    if (!index && node.data.list.length === 1) {
+    if (!index && data.list.length === 1) {
       updateNode(id, {
-        data: { list: node.data.list.filter((_, i) => i !== index) },
+        data: { list: data.list.filter((_, i) => i !== index) },
       });
     } else {
       updateNode(id, {
-        data: { list: node.data.list.filter((_, i) => i !== index) },
+        data: { list: data.list.filter((_, i) => i !== index) },
       });
     }
   };
 
   return (
     <div className="flex flex-col relative -mt-3 gap-y-5">
-      {!!node.data.isSave && (
+      {!!data.isSave && (
         <ReactTags
           tags={selecteds}
           suggestions={suggestions}
@@ -185,12 +186,12 @@ function BodyNode({ id }: { id: string }): JSX.Element {
 
       <Button
         onClick={() =>
-          updateNode(id, { data: { ...node.data, isSave: !node.data.isSave } })
+          updateNode(id, { data: { ...data, isSave: !data.isSave } })
         }
         size={"sm"}
-        colorPalette={node.data.isSave ? "red" : "green"}
+        colorPalette={data.isSave ? "red" : "green"}
       >
-        {node.data.isSave ? "Não salvar " : "Salvar "}a resposta
+        {data.isSave ? "Não salvar " : "Salvar "}a resposta
       </Button>
 
       <div className="grid grid-cols-[1fr_43px_75px] gap-x-1 w-full justify-between">
@@ -204,36 +205,32 @@ function BodyNode({ id }: { id: string }): JSX.Element {
           min={0}
           max={60}
           size={"md"}
-          value={
-            node.data.timeout?.value ? String(node.data.timeout.value) : "0"
-          }
+          value={data.timeout?.value ? String(data.timeout.value) : "0"}
           defaultValue="0"
         >
           <NumberInput.Input
             style={{
-              borderColor: node.data.timeout?.value ? "transparent" : "",
+              borderColor: data.timeout?.value ? "transparent" : "",
             }}
             maxW={"43px"}
-            onBlur={({ target }) => {
-              updateNode(id, {
-                data: {
-                  ...node.data,
-                  timeout: {
-                    ...node.data.timeout,
-                    value: Number(target.value),
-                  },
+            onChange={({ target }) => {
+              setDataMok({
+                ...data,
+                timeout: {
+                  ...data.timeout,
+                  value: Number(target.value),
                 },
               });
             }}
           />
         </NumberInput.Root>
         <SelectRoot
-          value={node.data.timeout?.type}
+          value={data.timeout?.type}
           onValueChange={(e) => {
             updateNode(id, {
               data: {
-                ...node.data,
-                timeout: { ...node.data.timeout, type: e.value },
+                ...data,
+                timeout: { ...data.timeout, type: e.value },
               },
             });
           }}
@@ -260,7 +257,7 @@ function BodyNode({ id }: { id: string }): JSX.Element {
   );
 }
 
-export const NodeReply: React.FC<Node<DataNode>> = ({ id }) => {
+export const NodeReply: React.FC<Node<DataNode>> = ({ id, data }) => {
   const colorTimeout = useColorModeValue("#F94A65", "#B1474A");
 
   return (
@@ -284,7 +281,7 @@ export const NodeReply: React.FC<Node<DataNode>> = ({ id }) => {
           description: "Receber",
         }}
       >
-        <BodyNode id={id} />
+        <BodyNode data={data} id={id} />
       </PatternNode.PatternPopover>
 
       <Handle type="target" position={Position.Left} style={{ left: -8 }} />

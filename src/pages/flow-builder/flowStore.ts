@@ -8,10 +8,10 @@ import {
 } from "@xyflow/react";
 import { type AppState } from "./types";
 import { type AppNode } from "./types";
-import { db } from "../../db";
 // import { nanoid } from "nanoid";
 import { unstable_batchedUpdates as batch } from "react-dom";
 import throttle from "lodash.throttle";
+import { TypesNodes } from ".";
 
 // buffers de mudanças
 let nodeQueue: NodeChange[] = [];
@@ -38,15 +38,15 @@ const useStore = create<AppState>((set, get) => ({
   businessIds: [],
   changes: { edges: [], nodes: [] },
   isPull: false,
+  typeDrag: null,
+  setTypeDrag: (type: TypesNodes | null) => set({ typeDrag: type }),
   setIsPull: (v) => set({ isPull: v }),
-  setBusinessIds: (businessIds: number[]) => {
-    set({ businessIds });
-  },
+  setBusinessIds: (businessIds: number[]) => set({ businessIds }),
   setChange: (
     type: "nodes" | "edges",
     change: { type: "upset" | "delete"; id: string }
   ) => {
-    if (!get().isPull) return;
+    // if (!get().isPull) return;
     const changes = get().changes[type];
     const isChange = changes.find((s) => s.id === change.id);
     if (isChange) {
@@ -192,13 +192,9 @@ const useStore = create<AppState>((set, get) => ({
   },
   updateNode: (nodeId: string, node: AppNode) => {
     get().setChange("nodes", { type: "upset", id: nodeId });
-    const { data, ...rest } = node;
-    db.nodes.update(nodeId, { data });
     set({
       nodes: get().nodes.map((nodeX) => {
-        if (nodeX.id === nodeId) {
-          return { ...nodeX, ...rest };
-        }
+        if (nodeX.id === nodeId) return { ...nodeX, ...node };
         return nodeX;
       }),
     });
@@ -221,10 +217,6 @@ const useStore = create<AppState>((set, get) => ({
       nodes: get().nodes.filter((s) => s.id !== id),
       edges: get().edges.filter((s) => !edgesIds.includes(s.id)),
     });
-  },
-  getNodePreview: (id: string) => {
-    const node = get().nodes.find((s) => s.id === id);
-    return node?.preview;
   },
   delEdge: (id: string) => {
     get().setChange("edges", { type: "delete", id });

@@ -1,8 +1,7 @@
 import { Handle, Node, Position } from "@xyflow/react";
 import { PatternNode } from "../Pattern";
 import useStore from "../../flowStore";
-import { JSX } from "react";
-import { useDBNodes, useVariables } from "../../../../db";
+import { JSX, useEffect, useState } from "react";
 import AutocompleteTextField from "@components/Autocomplete";
 import { CustomHandle } from "../../customs/node";
 import { Field } from "@components/ui/field";
@@ -11,12 +10,13 @@ import { MdErrorOutline, MdPix, MdCheckCircleOutline } from "react-icons/md";
 import { RiMoneyDollarCircleLine } from "react-icons/ri";
 import SelectPaymentIntegrations from "@components/SelectPaymentIntegrations";
 import SelectBusinesses from "@components/SelectBusinesses";
+import { useGetVariablesOptions } from "../../../../hooks/variable";
 
 type TypeMethodCharge = "pix";
 
 type DataNode = {
   paymentIntegrationId: number;
-  total: number;
+  total: string;
   currency?: string;
   businessId: number;
   method_type: TypeMethodCharge;
@@ -27,18 +27,33 @@ type DataNode = {
   varId_save_linkPayment?: number;
 };
 
-function BodyNode({ id }: { id: string }): JSX.Element {
-  const nodes = useDBNodes();
-  const node = nodes.find((s) => s.id === id) as Node<DataNode> | undefined;
+function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
   const { updateNode, businessIds } = useStore((s) => ({
     updateNode: s.updateNode,
     businessIds: s.businessIds,
   }));
-  const variables = useVariables();
+  const { data: variables } = useGetVariablesOptions();
 
-  if (!node) {
-    return <span>Não encontrado</span>;
-  }
+  const [dataMok, setDataMok] = useState(data as DataNode);
+  const [init, setInit] = useState(false);
+
+  useEffect(() => {
+    if (!init) {
+      setInit(true);
+      return;
+    }
+    return () => {
+      setInit(false);
+    };
+  }, [init]);
+
+  useEffect(() => {
+    if (!init) return;
+    const debounce = setTimeout(() => updateNode(id, { data: dataMok }), 200);
+    return () => {
+      clearTimeout(debounce);
+    };
+  }, [dataMok]);
 
   return (
     <div className="flex flex-col -mt-3 gap-y-2 min-h-60">
@@ -48,10 +63,10 @@ function BodyNode({ id }: { id: string }): JSX.Element {
           isClearable={false}
           menuPlacement="bottom"
           isFlow
-          value={node.data.paymentIntegrationId}
+          value={data.paymentIntegrationId}
           onChange={(e: any) => {
             updateNode(id, {
-              data: { ...node.data, paymentIntegrationId: e.value },
+              data: { ...data, paymentIntegrationId: e.value },
             });
           }}
         />
@@ -71,10 +86,10 @@ function BodyNode({ id }: { id: string }): JSX.Element {
               ? (opt) => opt.filter((s) => businessIds.includes(s.id))
               : undefined
           }
-          value={node.data.businessId}
+          value={data.businessId}
           onChange={(e: any) => {
             updateNode(id, {
-              data: { ...node.data, businessId: e.value },
+              data: { ...data, businessId: e.value },
             });
           }}
         />
@@ -107,13 +122,12 @@ function BodyNode({ id }: { id: string }): JSX.Element {
             // @ts-expect-error
             trigger={["{{"]}
             size={"xs"}
-            options={{ "{{": variables.map((s) => s.name) }}
+            options={{ "{{": variables?.map((s) => s.name) || [] }}
             spacer={"}}"}
             placeholder="10 ou {{valor}}"
-            defaultValue={node.data.total || ""}
-            // @ts-expect-error
-            onBlur={({ target }) => {
-              updateNode(id, { data: { ...node.data, total: target.value } });
+            defaultValue={data.total || ""}
+            onChange={(target: string) => {
+              setDataMok({ ...data, total: target });
             }}
           />
         </div>
@@ -129,10 +143,10 @@ function BodyNode({ id }: { id: string }): JSX.Element {
           placeholder="Selecione uma variável"
           menuPlacement="bottom"
           isFlow
-          value={node.data.varId_email}
+          value={data.varId_email}
           onChange={(e: any) => {
             updateNode(id, {
-              data: { ...node.data, varId_email: e.value },
+              data: { ...data, varId_email: e.value },
             });
           }}
         />
@@ -140,15 +154,14 @@ function BodyNode({ id }: { id: string }): JSX.Element {
       <AutocompleteTextField
         // @ts-expect-error
         trigger={["{{"]}
-        options={{ "{{": variables.map((s) => s.name) }}
+        options={{ "{{": variables?.map((s) => s.name) || [] }}
         spacer={"}}"}
         type="textarea"
         minRows={3}
         placeholder="Descrição ou {{CONTEUDO}} da cobrança"
-        defaultValue={node.data.content || ""}
-        // @ts-expect-error
-        onBlur={({ target }) => {
-          updateNode(id, { data: { ...node.data, content: target.value } });
+        defaultValue={data.content || ""}
+        onChange={(target: string) => {
+          setDataMok({ ...data, content: target });
         }}
         style={{ marginTop: "10px" }}
       />
@@ -163,10 +176,10 @@ function BodyNode({ id }: { id: string }): JSX.Element {
             placeholder="Selecione uma variável"
             menuPlacement="bottom"
             isFlow
-            value={node.data.varId_save_transactionId}
+            value={data.varId_save_transactionId}
             onChange={(e: any) => {
               updateNode(id, {
-                data: { ...node.data, varId_save_transactionId: e.value },
+                data: { ...data, varId_save_transactionId: e.value },
               });
             }}
           />
@@ -178,10 +191,10 @@ function BodyNode({ id }: { id: string }): JSX.Element {
             placeholder="Selecione uma variável"
             menuPlacement="bottom"
             isFlow
-            value={node.data.varId_save_qrCode}
+            value={data.varId_save_qrCode}
             onChange={(e: any) => {
               updateNode(id, {
-                data: { ...node.data, varId_save_qrCode: e.value },
+                data: { ...data, varId_save_qrCode: e.value },
               });
             }}
           />
@@ -193,10 +206,10 @@ function BodyNode({ id }: { id: string }): JSX.Element {
             placeholder="Selecione uma variável"
             menuPlacement="bottom"
             isFlow
-            value={node.data.varId_save_linkPayment}
+            value={data.varId_save_linkPayment}
             onChange={(e: any) => {
               updateNode(id, {
-                data: { ...node.data, varId_save_linkPayment: e.value },
+                data: { ...data, varId_save_linkPayment: e.value },
               });
             }}
           />
@@ -274,7 +287,7 @@ function BodyNode({ id }: { id: string }): JSX.Element {
   );
 }
 
-export const NodeCharge: React.FC<Node<DataNode>> = ({ id }) => {
+export const NodeCharge: React.FC<Node<DataNode>> = ({ id, data }) => {
   return (
     <div>
       <PatternNode.PatternPopover
@@ -298,7 +311,7 @@ export const NodeCharge: React.FC<Node<DataNode>> = ({ id }) => {
           description: "Gerar",
         }}
       >
-        <BodyNode id={id} />
+        <BodyNode data={data} id={id} />
       </PatternNode.PatternPopover>
 
       <Handle type="target" position={Position.Left} style={{ left: -8 }} />

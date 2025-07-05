@@ -2,7 +2,6 @@ import { Handle, Node, Position } from "@xyflow/react";
 import { PatternNode } from "../Pattern";
 import useStore from "../../flowStore";
 import { JSX } from "react";
-import { useDBNodes } from "../../../../db";
 import { CustomHandle } from "../../customs/node";
 import { Field } from "@components/ui/field";
 import SelectInboxDepartments from "@components/SelectInboxDepartments";
@@ -12,14 +11,8 @@ type DataNode = {
   id: number;
 };
 
-function BodyNode({ id }: { id: string }): JSX.Element {
-  const nodes = useDBNodes();
-  const node = nodes.find((s) => s.id === id) as Node<DataNode> | undefined;
+function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
   const { updateNode } = useStore((s) => ({ updateNode: s.updateNode }));
-
-  if (!node) {
-    return <span>Não encontrado</span>;
-  }
 
   return (
     <div className="flex flex-col -mt-3">
@@ -32,14 +25,17 @@ function BodyNode({ id }: { id: string }): JSX.Element {
           isFlow
           isClearable={false}
           onChange={(e: any) => updateNode(id, { data: { id: e.value } })}
-          value={node.data.id}
+          value={data.id}
         />
       </Field>
     </div>
   );
 }
 
-export const NodeTransferDepartment: React.FC<Node<DataNode>> = ({ id }) => {
+export const NodeTransferDepartment: React.FC<Node<DataNode>> = ({
+  id,
+  data,
+}) => {
   return (
     <div>
       <PatternNode.PatternPopover
@@ -63,7 +59,7 @@ export const NodeTransferDepartment: React.FC<Node<DataNode>> = ({ id }) => {
           description: "Transfere para",
         }}
       >
-        <BodyNode id={id} />
+        <BodyNode id={id} data={data} />
       </PatternNode.PatternPopover>
 
       <Handle type="target" position={Position.Left} style={{ left: -8 }} />

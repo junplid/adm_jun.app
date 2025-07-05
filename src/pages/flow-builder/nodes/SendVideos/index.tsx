@@ -1,7 +1,6 @@
-import { JSX } from "react";
+import { JSX, useEffect, useState } from "react";
 import { Handle, Node, Position } from "@xyflow/react";
 import { PatternNode } from "../Pattern";
-import { useDBNodes, useVariables } from "../../../../db";
 import useStore from "../../flowStore";
 import { ModalStorageFiles } from "@components/Modals/StorageFiles";
 import AutocompleteTextField from "@components/Autocomplete";
@@ -9,23 +8,36 @@ import { Button } from "@chakra-ui/react";
 import { GrClose } from "react-icons/gr";
 import { PiFileVideoFill } from "react-icons/pi";
 import { CustomHandle } from "../../customs/node";
+import { useGetVariablesOptions } from "../../../../hooks/variable";
 
 type DataNode = {
   files: { id: number; originalName: string | null }[];
   caption?: string;
 };
 
-function BodyNode({ id }: { id: string }): JSX.Element {
-  const nodes = useDBNodes();
-  const variables = useVariables();
+function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
   const updateNode = useStore((s) => s.updateNode);
-  const node = nodes.find((s) => s.id === id) as Node<DataNode> | undefined;
+  const { data: variables } = useGetVariablesOptions();
 
-  if (!node) {
-    return <span>Não encontrado</span>;
-  }
+  const [dataMok, setDataMok] = useState(data as DataNode);
+  const [init, setInit] = useState(false);
+  useEffect(() => {
+    if (!init) {
+      setInit(true);
+      return;
+    }
+    return () => {
+      setInit(false);
+    };
+  }, [init]);
 
-  const { data } = node;
+  useEffect(() => {
+    if (!init) return;
+    const debounce = setTimeout(() => updateNode(id, { data: dataMok }), 200);
+    return () => {
+      clearTimeout(debounce);
+    };
+  }, [dataMok]);
 
   return (
     <div>
@@ -76,14 +88,13 @@ function BodyNode({ id }: { id: string }): JSX.Element {
         <AutocompleteTextField
           // @ts-expect-error
           trigger={["{{"]}
-          options={{ "{{": variables.map((s) => s.name) }}
+          options={{ "{{": variables?.map((s) => s.name) || [] }}
           spacer={"}} "}
           type="textarea"
           placeholder="Adicione uma legenda..."
           defaultValue={data.caption || ""}
-          // @ts-expect-error
-          onBlur={({ target }) => {
-            updateNode(id, { data: { ...data, caption: target.value } });
+          onChange={(target: string) => {
+            setDataMok({ ...data, caption: target });
           }}
         />
       </div>
@@ -91,7 +102,7 @@ function BodyNode({ id }: { id: string }): JSX.Element {
   );
 }
 
-export const NodeSendVideos: React.FC<Node<DataNode>> = ({ id }) => {
+export const NodeSendVideos: React.FC<Node<DataNode>> = ({ id, data }) => {
   return (
     <div>
       <PatternNode.PatternPopover
@@ -113,7 +124,7 @@ export const NodeSendVideos: React.FC<Node<DataNode>> = ({ id }) => {
           description: "Envia",
         }}
       >
-        <BodyNode id={id} />
+        <BodyNode id={id} data={data} />
       </PatternNode.PatternPopover>
 
       <Handle type="target" position={Position.Left} style={{ left: -8 }} />

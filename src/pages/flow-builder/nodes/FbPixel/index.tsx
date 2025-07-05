@@ -1,8 +1,7 @@
-import { JSX, useMemo } from "react";
+import { JSX, useEffect, useMemo, useState } from "react";
 import { Handle, Node, Position } from "@xyflow/react";
 import { PatternNode } from "../Pattern";
 import { MdInsights } from "react-icons/md";
-import { useDBNodes, useVariables } from "../../../../db";
 import useStore from "../../flowStore";
 import { CustomHandle } from "../../customs/node";
 import { Field } from "@components/ui/field";
@@ -10,6 +9,7 @@ import SelectFbPixels from "@components/SelectFbPixels";
 import SelectComponent from "@components/Select";
 import AutocompleteTextField from "@components/Autocomplete";
 import { RiEye2Line, RiEyeCloseLine } from "react-icons/ri";
+import { useGetVariablesOptions } from "../../../../hooks/variable";
 
 type FbConversionEvents =
   | "AddPaymentInfo"
@@ -144,25 +144,41 @@ const fbFieldsOthers = [
   // falta o customContents: item[]
 ];
 
-function BodyNode({ id }: { id: string }): JSX.Element {
-  const nodes = useDBNodes();
+function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
   const updateNode = useStore((s) => s.updateNode);
-  const node = nodes.find((s) => s.id === id) as Node<DataNode> | undefined;
-  const variables = useVariables();
+  const { data: variables } = useGetVariablesOptions();
+
+  const [dataMok, setDataMok] = useState(data as DataNode);
+  const [init, setInit] = useState(false);
+  useEffect(() => {
+    if (!init) {
+      setInit(true);
+      return;
+    }
+    return () => {
+      setInit(false);
+    };
+  }, [init]);
+
+  useEffect(() => {
+    if (!init) return;
+    const debounce = setTimeout(() => updateNode(id, { data: dataMok }), 200);
+    return () => {
+      clearTimeout(debounce);
+    };
+  }, [dataMok]);
 
   const isFieldUser = useMemo(() => {
-    if (node?.data.viewFieldsUser) return true;
+    if (data.viewFieldsUser) return true;
     // @ts-ignore
-    return fbFieldsUser.some((field) => node?.data.event?.[field.name]);
-  }, [node?.data.viewFieldsUser, node?.data.event]);
+    return fbFieldsUser.some((field) => data.event?.[field.name]);
+  }, [data.viewFieldsUser, data.event]);
 
   const isFieldOthers = useMemo(() => {
-    if (node?.data.viewFieldsOthers) return true;
+    if (data.viewFieldsOthers) return true;
     // @ts-ignore
-    return fbFieldsOthers.some((field) => node?.data.event?.[field.name]);
-  }, [node?.data.viewFieldsOthers, node?.data.event]);
-
-  if (!node) return <span>Não encontrado</span>;
+    return fbFieldsOthers.some((field) => data.event?.[field.name]);
+  }, [data.viewFieldsOthers, data.event]);
 
   return (
     <div className="flex flex-col gap-y-3 -mt-3">
@@ -171,11 +187,9 @@ function BodyNode({ id }: { id: string }): JSX.Element {
           isMulti={false}
           menuPlacement="bottom"
           isFlow
-          onChange={(e: any) => {
-            updateNode(id, { data: { ...node.data, fbPixelId: e.value } });
-          }}
+          onChange={(e: any) => setDataMok({ ...data, fbPixelId: e.value })}
           isClearable={false}
-          value={node.data.fbPixelId}
+          value={data.fbPixelId}
         />
       </Field>
       <Field label="Selecione o evento">
@@ -183,11 +197,9 @@ function BodyNode({ id }: { id: string }): JSX.Element {
           isMulti={false}
           onChange={(e: any) => {
             if (e?.name) {
-              updateNode(id, {
-                data: {
-                  ...node.data,
-                  event: { ...node.data.event, name: e.name },
-                },
+              setDataMok({
+                ...data,
+                event: { ...data.event, name: e.name },
               });
             }
           }}
@@ -196,13 +208,12 @@ function BodyNode({ id }: { id: string }): JSX.Element {
           menuPlacement="bottom"
           options={optionsEvents}
           value={
-            node.data?.event?.name
+            data?.event?.name
               ? {
                   label:
-                    optionsEvents.find(
-                      (item) => item.name === node.data.event.name
-                    )?.label || "",
-                  value: node.data.event.name,
+                    optionsEvents.find((item) => item.name === data.event.name)
+                      ?.label || "",
+                  value: data.event.name,
                 }
               : null
           }
@@ -215,20 +226,18 @@ function BodyNode({ id }: { id: string }): JSX.Element {
           <button
             className="cursor-pointer flex items-center gap-x-1"
             onClick={() =>
-              updateNode(id, {
-                data: {
-                  ...node.data,
-                  viewFieldsUser: !node.data.viewFieldsUser,
-                },
+              setDataMok({
+                ...data,
+                viewFieldsUser: !data.viewFieldsUser,
               })
             }
           >
             <span className="text-xs text-white/70">
-              {node?.data.viewFieldsUser
+              {data.viewFieldsUser
                 ? "Ocultar não preenchidos"
                 : "Exibir todos os campos"}
             </span>
-            {node?.data.viewFieldsUser ? (
+            {data.viewFieldsUser ? (
               <RiEye2Line size={18} />
             ) : (
               <RiEyeCloseLine size={18} />
@@ -238,7 +247,7 @@ function BodyNode({ id }: { id: string }): JSX.Element {
         <div className="w-full p-1 flex gap-y-0.5 flex-col">
           {fbFieldsUser.map((field) => {
             // @ts-expect-error
-            if (!node?.data.viewFieldsUser && !node.data.event?.[field.name]) {
+            if (!data.viewFieldsUser && !data.event?.[field.name]) {
               return null;
             }
             return (
@@ -253,25 +262,21 @@ function BodyNode({ id }: { id: string }): JSX.Element {
                   <AutocompleteTextField
                     // @ts-expect-error
                     trigger={["{{"]}
-                    options={{ "{{": variables.map((s) => s.name) }}
+                    options={{ "{{": variables?.map((s) => s.name) || [] }}
                     spacer={"}} "}
                     placeholder="Digite o valor ou a {{variável}}"
                     className="!px-1.5 py-0.5 w-full !resize-none border-none !text-[12px] focus:!bg-white/10 !bg-white/5 !rounded-none !outline-none"
                     // @ts-expect-error
-                    defaultValue={node.data.event?.[field.name] || ""}
+                    defaultValue={data.event?.[field.name] || ""}
                     minRows={1}
                     type="textarea"
                     matchAny
-                    // @ts-expect-error
-                    onBlur={async ({ target }) => {
-                      updateNode(id, {
-                        ...node,
-                        data: {
-                          ...node.data,
-                          event: {
-                            ...node.data.event,
-                            [field.name]: target.value,
-                          },
+                    onChange={async (target: string) => {
+                      setDataMok({
+                        ...data,
+                        event: {
+                          ...data.event,
+                          [field.name]: target,
                         },
                       });
                     }}
@@ -280,7 +285,7 @@ function BodyNode({ id }: { id: string }): JSX.Element {
               </label>
             );
           })}
-          {!node?.data.viewFieldsUser && !isFieldUser && (
+          {!data.viewFieldsUser && !isFieldUser && (
             <div className="flex items-center justify-center text-white/70">
               Nenhum parâmetro preenchido
             </div>
@@ -294,20 +299,18 @@ function BodyNode({ id }: { id: string }): JSX.Element {
           <button
             className="cursor-pointer flex items-center gap-x-1"
             onClick={() =>
-              updateNode(id, {
-                data: {
-                  ...node.data,
-                  viewFieldsOthers: !node.data.viewFieldsOthers,
-                },
+              setDataMok({
+                ...data,
+                viewFieldsOthers: !data.viewFieldsOthers,
               })
             }
           >
             <span className="text-xs text-white/70">
-              {node?.data.viewFieldsOthers
+              {data.viewFieldsOthers
                 ? "Ocultar não preenchidos"
                 : "Exibir todos os campos"}
             </span>
-            {node?.data.viewFieldsOthers ? (
+            {data.viewFieldsOthers ? (
               <RiEye2Line size={18} />
             ) : (
               <RiEyeCloseLine size={18} />
@@ -317,9 +320,9 @@ function BodyNode({ id }: { id: string }): JSX.Element {
         <div className="w-full p-1 flex gap-y-0.5 flex-col">
           {fbFieldsOthers.map((field) => {
             if (
-              !node?.data.viewFieldsOthers &&
+              !data.viewFieldsOthers &&
               // @ts-expect-error
-              !node.data.event?.[field.name]
+              !data.event?.[field.name]
             ) {
               return null;
             }
@@ -335,27 +338,23 @@ function BodyNode({ id }: { id: string }): JSX.Element {
                   <AutocompleteTextField
                     // @ts-expect-error
                     trigger={["{{"]}
-                    options={{ "{{": variables.map((s) => s.name) }}
+                    options={{ "{{": variables?.map((s) => s.name) || [] }}
                     spacer={"}} "}
                     placeholder={
                       field.placeholder || "Digite o valor ou a {{variável}}"
                     }
                     className="!px-1.5 py-0.5 w-full !resize-none border-none !text-[12px] focus:!bg-white/10 !bg-white/5 !rounded-none !outline-none"
                     // @ts-expect-error
-                    defaultValue={node.data.event?.[field.name] || ""}
+                    defaultValue={data.event?.[field.name] || ""}
                     minRows={1}
                     type="textarea"
                     matchAny
-                    // @ts-expect-error
-                    onBlur={async ({ target }) => {
-                      updateNode(id, {
-                        ...node,
-                        data: {
-                          ...node.data,
-                          event: {
-                            ...node.data.event,
-                            [field.name]: target.value,
-                          },
+                    onChange={async (target: string) => {
+                      setDataMok({
+                        ...data,
+                        event: {
+                          ...data.event,
+                          [field.name]: target,
                         },
                       });
                     }}
@@ -364,7 +363,7 @@ function BodyNode({ id }: { id: string }): JSX.Element {
               </label>
             );
           })}
-          {!node?.data.viewFieldsOthers && !isFieldOthers && (
+          {!data.viewFieldsOthers && !isFieldOthers && (
             <div className="flex items-center justify-center text-white/70">
               Nenhum parâmetro preenchido
             </div>
@@ -375,7 +374,7 @@ function BodyNode({ id }: { id: string }): JSX.Element {
   );
 }
 
-export const NodeFbPixel: React.FC<Node<DataNode>> = ({ id }) => {
+export const NodeFbPixel: React.FC<Node<DataNode>> = ({ id, data }) => {
   return (
     <div>
       <PatternNode.PatternPopover
@@ -399,7 +398,7 @@ export const NodeFbPixel: React.FC<Node<DataNode>> = ({ id }) => {
           name: "Pixel",
         }}
       >
-        <BodyNode id={id} />
+        <BodyNode data={data} id={id} />
       </PatternNode.PatternPopover>
 
       <Handle type="target" position={Position.Left} style={{ left: -8 }} />

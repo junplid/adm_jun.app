@@ -7,6 +7,7 @@ import {
   OnNodesDelete,
 } from "@xyflow/react";
 import { MouseEvent } from "react";
+import { TypesNodes } from ".";
 
 export type AppNode = Node & { preview?: any };
 
@@ -15,6 +16,8 @@ export type AppState = {
     nodes: { type: "upset" | "delete"; id: string }[];
     edges: { type: "upset" | "delete"; id: string }[];
   };
+  typeDrag: null | TypesNodes;
+  setTypeDrag: (type: null | TypesNodes) => void;
   nodes: AppNode[];
   edges: Edge[];
   businessIds: number[];
@@ -35,7 +38,6 @@ export type AppState = {
   getEdgesNode: (nodeId: string) => Edge[];
   // addNode: (node: Omit<AppNode, "id">) => void;
   delNode: (id: string) => void;
-  getNodePreview: (id: string) => any;
   delEdge: (id: string) => void;
   resetChanges: () => void;
   onEdgeClick: (event: MouseEvent, edge: Edge) => void;

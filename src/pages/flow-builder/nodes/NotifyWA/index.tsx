@@ -1,7 +1,6 @@
-import { JSX } from "react";
+import { JSX, useEffect, useState } from "react";
 import { Handle, Node, Position } from "@xyflow/react";
 import { PatternNode } from "../Pattern";
-import { useDBNodes, useVariables } from "../../../../db";
 import useStore from "../../flowStore";
 import AutocompleteTextField from "@components/Autocomplete";
 import { Input, InputGroup } from "@chakra-ui/react";
@@ -10,32 +9,45 @@ import { MdOutlineNotificationsActive } from "react-icons/md";
 import { GrClose } from "react-icons/gr";
 import { nanoid } from "nanoid";
 import { CustomHandle } from "../../customs/node";
+import { useGetVariablesOptions } from "../../../../hooks/variable";
 
 type DataNode = {
   numbers: { key: string; number: string }[];
   text: string;
 };
 
-function BodyNode({ id }: { id: string }): JSX.Element {
-  const nodes = useDBNodes();
-  const variables = useVariables();
+function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
   const updateNode = useStore((s) => s.updateNode);
-  const node = nodes.find((s) => s.id === id) as Node<DataNode> | undefined;
+  const { data: variables } = useGetVariablesOptions();
 
-  if (!node) {
-    return <span>Não encontrado</span>;
-  }
+  const [dataMok, setDataMok] = useState(data as DataNode);
+  const [init, setInit] = useState(false);
+  useEffect(() => {
+    if (!init) {
+      setInit(true);
+      return;
+    }
+    return () => {
+      setInit(false);
+    };
+  }, [init]);
 
-  const { data } = node;
+  useEffect(() => {
+    if (!init) return;
+    const debounce = setTimeout(() => updateNode(id, { data: dataMok }), 200);
+    return () => {
+      clearTimeout(debounce);
+    };
+  }, [dataMok]);
 
   const handleDelete = (index: number) => {
-    if (!index && node.data.numbers.length === 1) {
+    if (!index && data.numbers.length === 1) {
       updateNode(id, {
-        data: { numbers: node.data.numbers.filter((_, i) => i !== index) },
+        data: { numbers: data.numbers.filter((_, i) => i !== index) },
       });
     } else {
       updateNode(id, {
-        data: { numbers: node.data.numbers.filter((_, i) => i !== index) },
+        data: { numbers: data.numbers.filter((_, i) => i !== index) },
       });
     }
   };
@@ -44,7 +56,7 @@ function BodyNode({ id }: { id: string }): JSX.Element {
     const exist = data.numbers.find((s) => s.number === number);
     if (exist) return;
     updateNode(id, {
-      data: { numbers: [...node.data.numbers, { key: nanoid(), number }] },
+      data: { numbers: [...data.numbers, { key: nanoid(), number }] },
     });
   };
 
@@ -91,21 +103,18 @@ function BodyNode({ id }: { id: string }): JSX.Element {
       <AutocompleteTextField
         // @ts-expect-error
         trigger={["{{"]}
-        options={{ "{{": variables.map((s) => s.name) }}
+        options={{ "{{": variables?.map((s) => s.name) || [] }}
         spacer={"}} "}
         type="textarea"
         placeholder="Insira a mensagem que será enviada aos números informados"
         defaultValue={data.text || ""}
-        // @ts-expect-error
-        onBlur={({ target }) => {
-          updateNode(id, { data: { ...data, text: target.value } });
-        }}
+        onChange={(target: string) => setDataMok({ ...data, text: target })}
       />
     </div>
   );
 }
 
-export const NodeNotifyWA: React.FC<Node> = ({ id }) => {
+export const NodeNotifyWA: React.FC<Node<DataNode>> = ({ id, data }) => {
   return (
     <div>
       <PatternNode.PatternPopover
@@ -127,7 +136,7 @@ export const NodeNotifyWA: React.FC<Node> = ({ id }) => {
           description: "Notifica",
         }}
       >
-        <BodyNode id={id} />
+        <BodyNode data={data} id={id} />
       </PatternNode.PatternPopover>
 
       <Handle type="target" position={Position.Left} style={{ left: -8 }} />

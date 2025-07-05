@@ -1,39 +1,51 @@
 import { Button, NumberInput } from "@chakra-ui/react";
-import { useDBNodes, useVariables } from "../../../../db/index";
 import { Handle, Node, Position } from "@xyflow/react";
 import { IoIosCloseCircle } from "react-icons/io";
 import { TbTextSize } from "react-icons/tb";
 import { PatternNode } from "../Pattern";
 import useStore from "../../flowStore";
-import { JSX } from "react";
+import { JSX, useEffect, useState } from "react";
 import { nanoid } from "nanoid";
 import AutocompleteTextField from "@components/Autocomplete";
 import { CustomHandle } from "../../customs/node";
+import { useGetVariablesOptions } from "../../../../hooks/variable";
 
 type DataNode = {
-  messages?: {
+  messages: {
     text: string;
     interval?: number;
     key: string;
   }[];
 };
 
-function BodyNode({ id }: { id: string }): JSX.Element {
-  const nodes = useDBNodes();
-  const variables = useVariables();
+function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
   const updateNode = useStore((s) => s.updateNode);
-  const node = nodes.find((s) => s.id === id) as Node<DataNode> | undefined;
+  const { data: variables } = useGetVariablesOptions();
 
-  if (!node) {
-    return <span>Não encontrado</span>;
-  }
+  const [dataMok, setDataMok] = useState(data as DataNode);
+  const [init, setInit] = useState(false);
+  useEffect(() => {
+    if (!init) {
+      setInit(true);
+      return;
+    }
+    return () => {
+      setInit(false);
+    };
+  }, [init]);
 
-  const { data } = node;
+  useEffect(() => {
+    if (!init) return;
+    const debounce = setTimeout(() => updateNode(id, { data: dataMok }), 200);
+    return () => {
+      clearTimeout(debounce);
+    };
+  }, [dataMok]);
 
   return (
     <div className="flex flex-col gap-y-5 -mt-3">
       {!!data.messages?.length &&
-        data.messages!.map((msg) => (
+        data.messages!.map((msg, index) => (
           <div
             key={msg.key}
             className="relative group gap-y-2 flex flex-col dark:bg-zinc-600/10 py-2.5 rounded-sm p-2"
@@ -60,15 +72,10 @@ function BodyNode({ id }: { id: string }): JSX.Element {
               max={60}
               size={"md"}
               defaultValue={msg.interval ? String(msg.interval) : "0"}
-              onBlur={(e) => {
-                const nextMessages = data.messages!.map((m) => {
-                  if (m.key === msg.key) {
-                    // @ts-expect-error
-                    m.interval = Number(e.target.value);
-                  }
-                  return m;
-                });
-                updateNode(id, { data: { messages: nextMessages } });
+              onChange={(e) => {
+                // @ts-expect-error
+                data.messages[index].interval = e.target.value;
+                setDataMok({ messages: data.messages });
               }}
             >
               <div className="flex w-full justify-between px-2">
@@ -87,18 +94,15 @@ function BodyNode({ id }: { id: string }): JSX.Element {
             <AutocompleteTextField
               // @ts-expect-error
               trigger={["{{"]}
-              options={{ "{{": variables.map((s) => s.name) }}
+              options={{ "{{": variables?.map((s) => s.name) || [] }}
               spacer={"}} "}
               type="textarea"
               placeholder="Digite sua mensagem aqui"
               defaultValue={msg.text}
               // @ts-expect-error
-              onBlur={({ target }) => {
-                const nextMessages = data.messages!.map((m) => {
-                  if (m.key === msg.key) m.text = target.value;
-                  return m;
-                });
-                updateNode(id, { data: { messages: nextMessages } });
+              onChange={(value) => {
+                data.messages[index].text = value;
+                setDataMok({ messages: data.messages });
               }}
             />
           </div>
@@ -121,7 +125,7 @@ function BodyNode({ id }: { id: string }): JSX.Element {
   );
 }
 
-export const NodeMessage: React.FC<Node<DataNode>> = ({ id }) => {
+export const NodeMessage: React.FC<Node<DataNode>> = ({ id, data }) => {
   return (
     <div>
       <PatternNode.PatternPopover
@@ -143,7 +147,7 @@ export const NodeMessage: React.FC<Node<DataNode>> = ({ id }) => {
           description: "Envia",
         }}
       >
-        <BodyNode id={id} />
+        <BodyNode data={data} id={id} />
       </PatternNode.PatternPopover>
 
       <Handle type="target" position={Position.Left} style={{ left: -8 }} />

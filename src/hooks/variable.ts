@@ -123,8 +123,6 @@ export function useCreateVariable(props?: {
         });
       }
 
-      console.log("setQueryData variables-options");
-      console.log(queryClient.getQueryData<any>(["variables-options"]));
       if (queryClient.getQueryData<any>(["variables-options", null])) {
         queryClient.setQueryData(["variables-options", null], (old: any) => [
           ...(old || []),

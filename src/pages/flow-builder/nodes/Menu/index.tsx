@@ -6,13 +6,12 @@ import {
   Span,
   Stack,
 } from "@chakra-ui/react";
-import { JSX } from "react";
+import { JSX, useEffect, useState } from "react";
 import { IoIosCloseCircle, IoMdAdd } from "react-icons/io";
 import { Handle, useUpdateNodeInternals, Node, Position } from "@xyflow/react";
 import { nanoid } from "nanoid";
 import { PatternNode } from "../Pattern";
 import { LiaListSolid } from "react-icons/lia";
-import { useDBNodes, useVariables } from "../../../../db";
 import useStore from "../../flowStore";
 import { Field } from "@components/ui/field";
 import { RxLapTimer } from "react-icons/rx";
@@ -28,6 +27,7 @@ import {
   SelectValueText,
 } from "@components/ui/select";
 import { CustomHandle } from "../../customs/node";
+import { useGetVariablesOptions } from "../../../../hooks/variable";
 
 const timesList = createListCollection({
   items: [
@@ -44,31 +44,43 @@ type DataNode = {
   items: { value: string; key: string }[];
   footer?: string;
   validateReply?: {
-    attempts: number;
+    attempts?: number;
     messageErrorAttempts?: { interval?: number; value?: string };
   };
   timeout?: {
-    type: ("seconds" | "minutes" | "hours" | "days")[];
+    type?: ("seconds" | "minutes" | "hours" | "days")[];
     value: number;
   };
+  preview: string[];
 };
 
-function BodyNode({ id }: { id: string }): JSX.Element {
+function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
   const updateNodeInternals = useUpdateNodeInternals();
-  const nodes = useDBNodes();
-  const variables = useVariables();
+  const { data: variables } = useGetVariablesOptions();
   const { updateNode, delEdge } = useStore((s) => ({
     updateNode: s.updateNode,
     delEdge: s.delEdge,
   }));
-  const node = nodes.find((s) => s.id === id) as
-    | (Node<DataNode> & { preview?: string[] })
-    | undefined;
 
-  const getNodePreview = useStore((s) => s.getNodePreview);
-  const preview = getNodePreview(id);
+  const [dataMok, setDataMok] = useState(data as DataNode);
+  const [init, setInit] = useState(false);
+  useEffect(() => {
+    if (!init) {
+      setInit(true);
+      return;
+    }
+    return () => {
+      setInit(false);
+    };
+  }, [init]);
 
-  if (!node) return <span>Não encontrado</span>;
+  useEffect(() => {
+    if (!init) return;
+    const debounce = setTimeout(() => updateNode(id, { data: dataMok }), 200);
+    return () => {
+      clearTimeout(debounce);
+    };
+  }, [dataMok]);
 
   return (
     <div className="flex flex-col -mt-3 mb-5">
@@ -76,12 +88,10 @@ function BodyNode({ id }: { id: string }): JSX.Element {
         min={0}
         max={60}
         size={"md"}
-        defaultValue={node.data.interval ? String(node.data.interval) : "0"}
-        onBlur={(e) => {
-          updateNode(id, {
-            // @ts-expect-error
-            data: { ...node.data, interval: Number(e.target.value) },
-          });
+        defaultValue={data.interval ? String(data.interval) : "0"}
+        onChange={(e) => {
+          // @ts-expect-error
+          setDataMok({ ...data, interval: Number(e.target.value) });
         }}
       >
         <div className="flex w-full justify-between px-2">
@@ -100,22 +110,20 @@ function BodyNode({ id }: { id: string }): JSX.Element {
         <div className="flex flex-col gap-y-1 py-3">
           <Field label="Título">
             <Input
-              onBlur={(e) => {
-                updateNode(id, {
-                  data: { ...node.data, header: e.target.value },
-                });
+              onChange={(e) => {
+                setDataMok({ ...data, header: e.target.value });
               }}
               autoComplete="off"
               size={"xs"}
-              defaultValue={node.data.header ? String(node.data.header) : ""}
+              defaultValue={data.header ? String(data.header) : ""}
             />
           </Field>
           <div className="my-1 flex flex-col gap-1">
             <span className="text-white/70 text-center">
-              Menu de opções {node.data?.items?.length}/8
+              Menu de opções {data?.items?.length}/8
             </span>
             <ul className="space-y-3 mb-3">
-              {node.data?.items?.map((item, index) => (
+              {data?.items?.map((item, index) => (
                 <li
                   key={item.key}
                   className="relative flex w-full items-center pl-2 gap-1.5 min-w-full"
@@ -124,15 +132,18 @@ function BodyNode({ id }: { id: string }): JSX.Element {
                     className="absolute -top-2 -left-2"
                     onClick={() => {
                       delEdge(item.key);
-                      const nextItems = node.data.items.filter(
+                      const nextItems = data.items.filter(
                         (i) => i.key !== item.key
                       );
-                      const nextPreview = preview?.filter(
+                      const nextPreview = data.preview.filter(
                         (key: string) => key !== item.key
                       );
                       updateNode(id, {
-                        preview: nextPreview,
-                        data: { ...node.data, items: nextItems },
+                        data: {
+                          ...data,
+                          items: nextItems,
+                          preview: nextPreview,
+                        },
                       });
                       updateNodeInternals(id);
                     }}
@@ -147,19 +158,17 @@ function BodyNode({ id }: { id: string }): JSX.Element {
                   </span>
                   <Field>
                     <Input
-                      onBlur={(e) => {
-                        node.data.items[index].value = e.target.value;
-                        updateNode(id, {
-                          data: { ...node.data, items: node.data.items },
-                        });
+                      onChange={(e) => {
+                        data.items[index].value = e.target.value;
+                        setDataMok({ ...data, items: data.items });
                       }}
                       bg={"#181818d6"}
                       autoComplete="off"
                       size={"xs"}
                       placeholder="Digite o nome da opção"
                       defaultValue={
-                        node.data.items[index].value
-                          ? String(node.data.items[index].value)
+                        data.items[index].value
+                          ? String(data.items[index].value)
                           : ""
                       }
                     />
@@ -167,19 +176,20 @@ function BodyNode({ id }: { id: string }): JSX.Element {
                 </li>
               ))}
             </ul>
-            {node.data?.items?.length < 8 && (
+            {data?.items?.length < 8 && (
               <Button
                 onClick={() => {
                   const itemId = nanoid();
 
-                  const items = node.data?.items?.length
-                    ? [...node.data.items, { key: itemId, value: "" }]
+                  const items = data?.items?.length
+                    ? [...data.items, { key: itemId, value: "" }]
                     : [{ key: itemId, value: "" }];
 
-                  const pp = preview?.length ? [...preview, itemId] : [itemId];
+                  const pp = data.preview.length
+                    ? [...data.preview, itemId]
+                    : [itemId];
                   updateNode(id, {
-                    preview: pp,
-                    data: { ...node.data, items },
+                    data: { ...data, items, preview: pp },
                   });
                   updateNodeInternals(id);
                 }}
@@ -194,14 +204,12 @@ function BodyNode({ id }: { id: string }): JSX.Element {
           </div>
           <Field label="Rodapé">
             <Input
-              onBlur={(e) => {
-                updateNode(id, {
-                  data: { ...node.data, footer: e.target.value },
-                });
+              onChange={(e) => {
+                setDataMok({ ...data, footer: e.target.value });
               }}
               autoComplete="off"
               size={"xs"}
-              defaultValue={node.data.footer ? String(node.data.footer) : ""}
+              defaultValue={data.footer ? String(data.footer) : ""}
             />
           </Field>
         </div>
@@ -215,14 +223,10 @@ function BodyNode({ id }: { id: string }): JSX.Element {
                 min={0}
                 max={60}
                 size={"md"}
-                defaultValue={
-                  node.data.interval ? String(node.data.interval) : "0"
-                }
-                onBlur={(e) => {
-                  updateNode(id, {
-                    // @ts-expect-error
-                    data: { ...node.data, interval: Number(e.target.value) },
-                  });
+                defaultValue={data.interval ? String(data.interval) : "0"}
+                onChange={(e) => {
+                  // @ts-expect-error
+                  setDataMok({ ...data, interval: Number(e.target.value) });
                 }}
               >
                 <div className="flex w-full gap-x-1 justify-between px-2">
@@ -241,23 +245,20 @@ function BodyNode({ id }: { id: string }): JSX.Element {
                 // @ts-expect-error
                 trigger={["{{"]}
                 type="textarea"
-                options={{ "{{": variables.map((s) => s.name) }}
+                options={{ "{{": variables?.map((s) => s.name) || [] }}
                 spacer={"}} "}
                 placeholder="Digite sua {{mensagem}} aqui"
                 defaultValue={
-                  node.data.validateReply?.messageErrorAttempts?.value || ""
+                  data.validateReply?.messageErrorAttempts?.value || ""
                 }
-                // @ts-expect-error
-                onBlur={({ target }) => {
-                  updateNode(id, {
-                    data: {
-                      ...node.data,
-                      validateReply: {
-                        ...node.data.validateReply,
-                        messageErrorAttempts: {
-                          ...node.data.validateReply?.messageErrorAttempts,
-                          value: target.value,
-                        },
+                onChange={(target: string) => {
+                  setDataMok({
+                    ...data,
+                    validateReply: {
+                      ...data.validateReply,
+                      messageErrorAttempts: {
+                        ...data.validateReply?.messageErrorAttempts,
+                        value: target,
                       },
                     },
                   });
@@ -270,12 +271,10 @@ function BodyNode({ id }: { id: string }): JSX.Element {
             min={0}
             max={60}
             size={"md"}
-            defaultValue={node.data.interval ? String(node.data.interval) : "0"}
-            onBlur={(e) => {
-              updateNode(id, {
-                // @ts-expect-error
-                data: { ...node.data, interval: Number(e.target.value) },
-              });
+            defaultValue={data.interval ? String(data.interval) : "0"}
+            onChange={(e) => {
+              // @ts-expect-error
+              setDataMok({ ...data, interval: Number(e.target.value) });
             }}
           >
             <div className="flex w-full gap-x-1 justify-between px-2">
@@ -304,36 +303,29 @@ function BodyNode({ id }: { id: string }): JSX.Element {
               min={0}
               max={60}
               size={"md"}
-              value={
-                node.data.timeout?.value ? String(node.data.timeout.value) : "0"
-              }
+              value={data.timeout?.value ? String(data.timeout.value) : "0"}
               defaultValue="0"
             >
               <NumberInput.Input
                 style={{
-                  borderColor: node.data.timeout?.value ? "transparent" : "",
+                  borderColor: data.timeout?.value ? "transparent" : "",
                 }}
                 maxW={"43px"}
-                onBlur={({ target }) => {
-                  updateNode(id, {
-                    data: {
-                      ...node.data,
-                      timeout: {
-                        ...node.data.timeout,
-                        value: Number(target.value),
-                      },
-                    },
+                onChange={({ target }) => {
+                  setDataMok({
+                    ...data,
+                    timeout: { ...data.timeout, value: Number(target.value) },
                   });
                 }}
               />
             </NumberInput.Root>
             <SelectRoot
-              value={node.data.timeout?.type}
+              value={data.timeout?.type}
               onValueChange={(e) => {
                 updateNode(id, {
                   data: {
-                    ...node.data,
-                    timeout: { ...node.data.timeout, type: e.value },
+                    ...data,
+                    timeout: { ...data.timeout, type: e.value },
                   },
                 });
               }}
@@ -362,9 +354,9 @@ function BodyNode({ id }: { id: string }): JSX.Element {
   );
 }
 
-export const NodeMenu: React.FC<Node<DataNode>> = (props) => {
-  const getNodePreview = useStore((s) => s.getNodePreview);
-  const preview = getNodePreview(props.id);
+export const NodeMenu: React.FC<Node<DataNode & { preview: string[] }>> = (
+  props
+) => {
   const colorTimeout = useColorModeValue("#F94A65", "#B1474A");
   const colorFailed = useColorModeValue("#ee9e42", "#a55d29");
 
@@ -379,7 +371,9 @@ export const NodeMenu: React.FC<Node<DataNode>> = (props) => {
             <div
               style={{
                 height:
-                  preview?.length >= 2 ? 14 * preview?.length + 50 - 35 : 35,
+                  props.data.preview.length >= 2
+                    ? 14 * props.data.preview.length + 50 - 35
+                    : 35,
               }}
               className="p-0.5 relative flex items-center"
             >
@@ -396,12 +390,12 @@ export const NodeMenu: React.FC<Node<DataNode>> = (props) => {
           description: "Envia",
         }}
       >
-        <BodyNode id={props.id} />
+        <BodyNode data={props.data} id={props.id} />
       </PatternNode.PatternPopover>
 
       <Handle type="target" position={Position.Left} style={{ left: -8 }} />
 
-      {preview?.map((id: any, index: number) => (
+      {props.data.preview?.map((id: string, index: number) => (
         <CustomHandle
           nodeId={props.id}
           isConnectable

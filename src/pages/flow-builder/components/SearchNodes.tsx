@@ -13,13 +13,13 @@ import { BsChatLeftDots, BsRegex } from "react-icons/bs";
 import { IoSearchSharp } from "react-icons/io5";
 import {
   PiBracketsCurlyBold,
+  PiEarBold,
   PiFile,
   PiFileVideoFill,
   PiFlowArrowBold,
 } from "react-icons/pi";
 import { TbHeadphones, TbNumber123, TbTags, TbTextSize } from "react-icons/tb";
 import { TypesNodes } from "..";
-import { DnDContext } from "@contexts/DnD.context";
 import removeAccents from "remove-accents";
 import { LiaHourglassHalfSolid, LiaListSolid } from "react-icons/lia";
 import {
@@ -28,12 +28,17 @@ import {
   MdOutlineNotificationsActive,
 } from "react-icons/md";
 import { VscDebugStop, VscMic } from "react-icons/vsc";
-import { LuBrainCircuit, LuBriefcaseBusiness } from "react-icons/lu";
+import {
+  LuBrainCircuit,
+  LuBriefcaseBusiness,
+  LuMessageCircleHeart,
+} from "react-icons/lu";
 import { FaCrown } from "react-icons/fa";
 import { AuthContext } from "@contexts/auth.context";
 import { GiDirectionSigns } from "react-icons/gi";
 import { RiMoneyDollarCircleLine } from "react-icons/ri";
 import { HiOutlineUserGroup } from "react-icons/hi";
+import useStore from "../flowStore";
 
 export function SearchNodesComponents(): JSX.Element {
   const {
@@ -43,10 +48,10 @@ export function SearchNodesComponents(): JSX.Element {
   const ref = useRef<HTMLInputElement | null>(null);
   const bg = useColorModeValue("#ffffffd8", "#252525d5");
   const [search, setSearch] = useState("");
-  const { setType } = useContext(DnDContext);
+  const setTypeDrag = useStore((s) => s.setTypeDrag);
 
   const onDragStart = (event: any, nodeType: TypesNodes) => {
-    setType(nodeType);
+    setTypeDrag(nodeType);
     event.dataTransfer.effectAllowed = "move";
   };
 
@@ -74,6 +79,8 @@ export function SearchNodesComponents(): JSX.Element {
       open={open}
       onOpenChange={(s) => setOpen(s.open)}
       onExitComplete={() => setSearch("")}
+      unmountOnExit
+      lazyMount
     >
       <PopoverTrigger>
         <InputGroup
@@ -229,12 +236,12 @@ const nodesList: {
     description: "Espera a resposta do lead",
     type: "NodeReply",
   },
-
   {
     icon: <GiDirectionSigns className="dark:text-white/70 w-8" size={27} />,
     name: "Switch de variável",
     description: "Verifica e direciona o fluxo",
     type: "NodeSwitchVariable",
+    new: true,
   },
   {
     icon: (
@@ -351,10 +358,16 @@ const nodesList: {
   },
   {
     icon: (
-      <MdOutlineNotificationsActive
-        className="dark:text-green-500 text-green-600 w-8"
-        size={29}
-      />
+      <div className="relative">
+        <PiEarBold
+          className="dark:text-white translate-x-1 text-black/70"
+          size={26.8}
+        />
+        <LuMessageCircleHeart
+          className="dark:text-red-300 absolute top-4 left-[1px] text-black/70"
+          size={13}
+        />
+      </div>
     ),
     name: "Escutar reações",
     description:
@@ -374,7 +387,6 @@ const nodesList: {
     description: "Remova várias variáveis",
     type: "NodeRemoveVariables",
   },
-
   {
     icon: (
       <RiMoneyDollarCircleLine className="dark:text-white/70 w-8" size={31} />

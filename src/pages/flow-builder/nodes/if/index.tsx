@@ -3,7 +3,7 @@ import { PatternNode } from "../Pattern";
 import { FaCheck, FaTimes } from "react-icons/fa";
 import { useColorModeValue } from "@components/ui/color-mode";
 import useStore from "../../flowStore";
-import { JSX } from "react";
+import { JSX, useEffect, useState } from "react";
 import { nanoid } from "nanoid";
 import { createListCollection, Select, Span, Stack } from "@chakra-ui/react";
 import {
@@ -13,7 +13,6 @@ import {
   SelectTrigger,
   SelectValueText,
 } from "@components/ui/select";
-import { useDBNodes, useVariables } from "../../../../db";
 import {
   TabsContent,
   TabsList,
@@ -23,6 +22,7 @@ import {
 import AutocompleteTextField from "@components/Autocomplete";
 import SelectTags from "@components/SelectTags";
 import { CustomHandle } from "../../customs/node";
+import { useGetVariablesOptions } from "../../../../hooks/variable";
 
 type NameEntity = "has-tags" | "no-tags" | "var";
 
@@ -67,19 +67,33 @@ type DataNode = {
   }[];
 };
 
-function BodyNode({ id }: { id: string }): JSX.Element {
-  const nodes = useDBNodes();
-  const node = nodes.find((s) => s.id === id) as Node<DataNode> | undefined;
+function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
   const updateNode = useStore((s) => s.updateNode);
-  const variables = useVariables();
+  const { data: variables } = useGetVariablesOptions();
 
-  if (!node) {
-    return <span>Não encontrado</span>;
-  }
+  const [dataMok, setDataMok] = useState(data as DataNode);
+  const [init, setInit] = useState(false);
+  useEffect(() => {
+    if (!init) {
+      setInit(true);
+      return;
+    }
+    return () => {
+      setInit(false);
+    };
+  }, [init]);
+
+  useEffect(() => {
+    if (!init) return;
+    const debounce = setTimeout(() => updateNode(id, { data: dataMok }), 200);
+    return () => {
+      clearTimeout(debounce);
+    };
+  }, [dataMok]);
 
   return (
     <div className="flex flex-col -mt-3 gap-y-4 min-h-60">
-      {node.data.list?.map((item, index) => {
+      {data.list?.map((item, index) => {
         let isDisabled = false;
         if (item.name === "var") {
           isDisabled = !item.value1 || !item.value2 || !item.operatorComparison;
@@ -96,8 +110,8 @@ function BodyNode({ id }: { id: string }): JSX.Element {
                 variant={"enclosed"}
                 value={item.name}
                 onValueChange={(e) => {
-                  node.data.list![index].name = e.value as NameEntity;
-                  updateNode(id, { data: { list: node.data.list } });
+                  data.list![index].name = e.value as NameEntity;
+                  updateNode(id, { data: { list: data.list } });
                 }}
                 className="h-full flex-1"
               >
@@ -144,18 +158,18 @@ function BodyNode({ id }: { id: string }): JSX.Element {
                       isClearable
                       isFlow
                       menuPlacement="bottom"
-                      value={node.data.list![index].tagIds}
+                      value={data.list![index].tagIds}
                       onChange={(e: any) => {
-                        node.data.list![index].tagIds = e.map(
+                        data.list![index].tagIds = e.map(
                           (item: any) => item.value
                         );
                         updateNode(id, {
-                          data: { list: node.data.list },
+                          data: { list: data.list },
                         });
                       }}
                       onCreate={(tag) => {
-                        node.data.list![index].tagIds.push(tag.id);
-                        updateNode(id, { data: { list: node.data.list } });
+                        data.list![index].tagIds.push(tag.id);
+                        updateNode(id, { data: { list: data.list } });
                       }}
                     />
                   </div>
@@ -167,18 +181,18 @@ function BodyNode({ id }: { id: string }): JSX.Element {
                       isClearable
                       isFlow
                       menuPlacement="bottom"
-                      value={node.data.list![index].tagIds}
+                      value={data.list![index].tagIds}
                       onChange={(e: any) => {
-                        node.data.list![index].tagIds = e.map(
+                        data.list![index].tagIds = e.map(
                           (item: any) => item.value
                         );
                         updateNode(id, {
-                          data: { list: node.data.list },
+                          data: { list: data.list },
                         });
                       }}
                       onCreate={(tag) => {
-                        node.data.list![index].tagIds.push(tag.id);
-                        updateNode(id, { data: { list: node.data.list } });
+                        data.list![index].tagIds.push(tag.id);
+                        updateNode(id, { data: { list: data.list } });
                       }}
                     />
                   </div>
@@ -188,18 +202,13 @@ function BodyNode({ id }: { id: string }): JSX.Element {
                     <AutocompleteTextField
                       // @ts-expect-error
                       trigger={["{{"]}
-                      options={{ "{{": variables.map((s) => s.name) }}
+                      options={{ "{{": variables?.map((s) => s.name) || [] }}
                       spacer={"}}"}
                       placeholder="Definir valor 1 ou {{variável_1}}"
                       defaultValue={item.value1 || ""}
-                      // @ts-expect-error
-                      onBlur={({ target }) => {
-                        console.log(target.value);
-                        const nextList = node.data.list!.map((it) => {
-                          if (it.key === item.key) it.value1 = target.value;
-                          return it;
-                        });
-                        updateNode(id, { data: { list: nextList } });
+                      onChange={(target: string) => {
+                        data.list![index].value1 = target;
+                        setDataMok({ list: data.list });
                       }}
                     />
 
@@ -208,9 +217,9 @@ function BodyNode({ id }: { id: string }): JSX.Element {
                         value={[item.operatorComparison || ""]}
                         disabled={!item.name}
                         onValueChange={(e) => {
-                          node.data.list![index].operatorComparison = e
+                          data.list![index].operatorComparison = e
                             .value[0] as any;
-                          updateNode(id, { data: { list: node.data.list } });
+                          updateNode(id, { data: { list: data.list } });
                         }}
                         collection={operatorComparisonList}
                         style={{ maxWidth: 90 }}
@@ -242,14 +251,15 @@ function BodyNode({ id }: { id: string }): JSX.Element {
                         <AutocompleteTextField
                           // @ts-expect-error
                           trigger={["{{"]}
-                          options={{ "{{": variables.map((s) => s.name) }}
+                          options={{
+                            "{{": variables?.map((s) => s.name) || [],
+                          }}
                           spacer={"}}"}
                           placeholder="Definir valor 2 ou {{variável_2}}"
                           defaultValue={item.value2 || ""}
-                          // @ts-expect-error
-                          onBlur={({ target }) => {
-                            node.data.list![index].value2 = target.value;
-                            updateNode(id, { data: { list: node.data.list } });
+                          onChange={(target: string) => {
+                            data.list![index].value2 = target;
+                            setDataMok({ list: data.list });
                           }}
                         />
                       )}
@@ -263,9 +273,9 @@ function BodyNode({ id }: { id: string }): JSX.Element {
                 value={[item.operatorLogic || ""]}
                 disabled={isDisabled}
                 onValueChange={(e) => {
-                  node.data.list![index].operatorLogic = e.value[0] as any;
+                  data.list![index].operatorLogic = e.value[0] as any;
                   updateNode(id, {
-                    data: { list: [...node.data.list!, { key: nanoid() }] },
+                    data: { list: [...data.list!, { key: nanoid() }] },
                   });
                 }}
                 collection={operatorLogicList}
@@ -303,7 +313,7 @@ function BodyNode({ id }: { id: string }): JSX.Element {
   );
 }
 
-export const NodeIF: React.FC<Node<DataNode>> = ({ id }) => {
+export const NodeIF: React.FC<Node<DataNode>> = ({ id, data }) => {
   const colorTrue = useColorModeValue("#00CE6B", "#179952");
   const colorFalse = useColorModeValue("#FB4F6A", "#FB4F6A");
 
@@ -326,7 +336,7 @@ export const NodeIF: React.FC<Node<DataNode>> = ({ id }) => {
           description: "Condição",
         }}
       >
-        <BodyNode id={id} />
+        <BodyNode data={data} id={id} />
       </PatternNode.PatternPopover>
 
       <Handle type="target" position={Position.Left} style={{ left: -8 }} />
