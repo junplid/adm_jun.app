@@ -10,6 +10,10 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+body {
+  overflow-y: scroll;
+}
+
 .rhap_additional-controls {
   display: none !important;
 }
