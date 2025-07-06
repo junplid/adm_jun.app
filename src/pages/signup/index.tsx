@@ -26,7 +26,7 @@ import {
   StepsList,
   StepsRoot,
 } from "@components/ui/steps";
-import { CardBrand, loadStripe, Stripe } from "@stripe/stripe-js";
+import { CardBrand, loadStripe } from "@stripe/stripe-js";
 import {
   Elements,
   useStripe,
@@ -193,7 +193,7 @@ export const FormSignup: React.FC = (): JSX.Element => {
   return (
     <div className="m-auto flex flex-col w-full flex-1 my-10 gap-y-5">
       <img src="/logo.svg" alt="Logo" className="max-w-40 mx-auto" />
-      <div className="min-h-full w-full max-w-sm mx-auto rounded-sm bg-[#f5f5f5] dark:bg-[#181616c5] shadow-xl border border-black/5 dark:border-none">
+      <div className="min-h-full w-full max-w-sm mx-auto rounded-sm bg-[#f5f5f5] dark:bg-[#111111] shadow-xl border border-black/5 dark:border-none">
         <div className="flex h-full w-full flex-1 items-center p-6 py-6">
           <form
             onSubmit={handleSubmit(signup, handleErrors)}
