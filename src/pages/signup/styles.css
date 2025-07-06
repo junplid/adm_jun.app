@@ -1,0 +1,7 @@
+.stripe-input {
+  width: 100%;
+}
+
+.stripe-input:focus {
+  border: 1px solid #fff;
+}

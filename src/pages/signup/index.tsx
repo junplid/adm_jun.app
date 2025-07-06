@@ -1,4 +1,6 @@
+import "./styles.css";
 import {
+  Box,
   Button,
   ButtonGroup,
   Collapsible,
@@ -6,7 +8,7 @@ import {
   InputGroup,
 } from "@chakra-ui/react";
 import { AxiosError } from "axios";
-import { JSX, useCallback, useState } from "react";
+import { JSX, useCallback, useMemo, useState } from "react";
 import { useCookies } from "react-cookie";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { api } from "../../services/api";
@@ -22,10 +24,22 @@ import {
   StepsContent,
   StepsItem,
   StepsList,
-  StepsNextTrigger,
   StepsRoot,
 } from "@components/ui/steps";
-import SelectComponent from "@components/Select";
+import { CardBrand, loadStripe, Stripe } from "@stripe/stripe-js";
+import {
+  Elements,
+  useStripe,
+  useElements,
+  CardNumberElement,
+  CardExpiryElement,
+  CardCvcElement,
+} from "@stripe/react-stripe-js";
+import { StripeCardNumberElement } from "@stripe/stripe-js";
+
+const stripePromise = loadStripe(
+  "pk_test_51RgqKVE4fh62j4klYds2XMpKiZGI6bf1aOeQSSLcsuYs6JMQstc9ayEgAbU0VPEAGm26pxrduWvMY6dia3slVieY00bLvTBAhI"
+);
 
 const FormSchema = z.object({
   name: z.string().min(6, "Campo nome completo inválido."),
@@ -39,26 +53,20 @@ const FormSchema = z.object({
     holderName: z
       .string({ message: "Campo obrigatório." })
       .min(1, "Campo obrigatório."),
-    number: z
-      .string({ message: "Campo obrigatório." })
-      .min(1, "Campo obrigatório."),
-    expiryMonth: z.enum(
-      ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"],
-      { message: "Campo obrigatório." }
-    ),
-    expiryYear: z
-      .string({ message: "Campo obrigatório." })
-      .length(4, "Campo obrigatório."),
-    ccv: z
-      .string({ message: "Campo obrigatório." })
-      .min(3, "Campo obrigatório.")
-      .max(4, "Campo obrigatório."),
   }),
 });
 
 type Fields = z.infer<typeof FormSchema>;
 
 export const SignupPage: React.FC = (): JSX.Element => {
+  return (
+    <Elements stripe={stripePromise}>
+      <FormSignup />
+    </Elements>
+  );
+};
+
+export const FormSignup: React.FC = (): JSX.Element => {
   const [_cookies, setCookies] = useCookies(["auth"]);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -73,24 +81,74 @@ export const SignupPage: React.FC = (): JSX.Element => {
     },
   });
 
+  const stripe = useStripe();
+  const elements = useElements();
+
   const {
     handleSubmit,
     register,
+    getValues,
+    watch,
     formState: { errors, isSubmitting },
     setError,
   } = useForm<Fields>({
     resolver: zodResolver(FormSchema),
   });
 
+  const { email, name, number, password } = watch();
+
   const registerWithMask = useHookFormMask(register);
+
+  const [brand, setBrand] = useState<CardBrand>("unknown");
+
+  const brandIcon = useMemo(() => {
+    const maps: Record<CardBrand, string> = {
+      eftpos_au: "",
+      visa: "/cards/visa.svg",
+      mastercard: "/cards/mastercard.svg",
+      amex: "/cards/amex.svg",
+      diners: "/cards/diners.svg",
+      jcb: "/cards/jcb.svg",
+      discover: "/cards/discover.svg",
+      unionpay: "/cards/unionpay.svg",
+      unknown: "/cards/unknown.svg",
+    };
+    return maps[brand];
+  }, [brand]);
 
   const signup = useCallback(async (fields: Fields) => {
     try {
+      if (!stripe || !elements) return;
+      const cardElement = elements.getElement(CardNumberElement);
+      if (!cardElement) return;
+
+      const { error, paymentMethod } = await stripe.createPaymentMethod({
+        type: "card",
+        card: cardElement as StripeCardNumberElement, // cast resolve o TS2769
+        billing_details: {
+          name: fields.creditCard.holderName,
+          email: fields.email,
+        },
+      });
+
+      if (error) {
+        toaster.create({
+          type: "error",
+          title: "Cartão não autorizado",
+          description: error.message,
+        });
+        return;
+      }
       const affiliate = searchParams.get("affiliate") || undefined;
-      const { data } = await api.post("/public/register-account", {
-        ...fields,
+      const { data } = await api.post("/public/register/account", {
+        name: fields.name,
+        email: fields.email,
+        number: fields.number,
+        password: fields.password,
+        paymentMethodId: paymentMethod.id,
         affiliate,
       });
+
       setCookies("auth", `BEARER ${data.token}`);
       navigate("/auth/dashboard");
     } catch (error) {
@@ -114,18 +172,33 @@ export const SignupPage: React.FC = (): JSX.Element => {
               // @ts-expect-error
               setError(path, { message: text })
             );
+            const isStep0 = dataError.input.some((s) => {
+              return /(email|password|name|number|cpfCnpj)/.test(s.path);
+            });
+            setStep(Number(!isStep0));
           }
         }
       }
     }
   }, []);
 
+  function handleErrors(err: any) {
+    if (err.name || err.number || err.email || err.password) {
+      setStep(0);
+      return;
+    }
+    setStep(1);
+  }
+
   return (
     <div className="m-auto flex flex-col w-full flex-1 my-10 gap-y-5">
       <img src="/logo.svg" alt="Logo" className="max-w-40 mx-auto" />
       <div className="min-h-full w-full max-w-sm mx-auto rounded-sm bg-[#f5f5f5] dark:bg-[#181616c5] shadow-xl border border-black/5 dark:border-none">
         <div className="flex h-full w-full flex-1 items-center p-6 py-6">
-          <form className="w-full flex-col flex gap-y-4">
+          <form
+            onSubmit={handleSubmit(signup, handleErrors)}
+            className="w-full flex-col flex gap-y-4"
+          >
             <h3 className="text-xl font-semibold text-black text-center dark:text-white">
               Cadastre-se e automatize já.
             </h3>
@@ -162,7 +235,7 @@ export const SignupPage: React.FC = (): JSX.Element => {
               </StepsList>
               <StepsContent index={0}>
                 <Collapsible.Root open={open}>
-                  <Collapsible.Trigger className="w-full pb-2">
+                  <Collapsible.Trigger className="w-full pb-2 text-start">
                     <Field
                       invalid={!!errors.email}
                       label="E-mail de acesso"
@@ -180,7 +253,7 @@ export const SignupPage: React.FC = (): JSX.Element => {
                       />
                     </Field>
                   </Collapsible.Trigger>
-                  <Collapsible.Content className="pt-2 flex flex-col gap-y-4">
+                  <Collapsible.Content className="pt-2 flex flex-col gap-y-4 text-start">
                     <Field
                       invalid={!!errors.name}
                       label="Nome completo"
@@ -235,88 +308,130 @@ export const SignupPage: React.FC = (): JSX.Element => {
                   </strong>
                   .
                 </p>
-                <div className="pt-2 flex flex-col gap-y-4">
+                <div className="pt-2 flex flex-col gap-y-4 mt-3">
                   <Field
-                    invalid={!!errors.name}
+                    invalid={!!errors.creditCard?.holderName}
                     label="Nome do cartão"
-                    errorText={errors.name?.message}
+                    errorText={errors.creditCard?.holderName?.message}
                     disabled={isPending || !av}
                   >
                     <Input
-                      {...register("name")}
+                      {...register("creditCard.holderName")}
                       autoComplete="nope"
                       type="text"
                     />
                   </Field>
-                  <Field
-                    invalid={!!errors.name}
-                    label="Número do cartão"
-                    errorText={errors.name?.message}
-                    disabled={isPending || !av}
-                  >
-                    <Input
-                      {...register("name")}
-                      autoComplete="nope"
-                      type="text"
-                    />
+                  <Field label="Número do cartão" disabled={isPending || !av}>
+                    <Box
+                      border="1px solid"
+                      borderColor="whiteAlpha.200"
+                      borderRadius="sm"
+                      px={3}
+                      py={2}
+                      _focusWithin={{
+                        borderColor: "#fff",
+                        boxShadow: "0 0 0 1px rgba(6,182,212,0.6)",
+                      }}
+                      className="w-full flex"
+                    >
+                      <CardNumberElement
+                        onChange={(e) => setBrand(e.brand)}
+                        options={{
+                          style: {
+                            base: {
+                              color: "#fff", // texto branco
+                              fontSize: "15px",
+                              "::placeholder": { color: "#9ca3af" },
+                              fontFamily: "inherit",
+                              ":focus": {},
+                            },
+                            invalid: { color: "#f87171" },
+                          },
+                          disableLink: true,
+                          disabled: isPending || !av,
+                        }}
+                        className="stripe-input"
+                      />
+                      {brandIcon && (
+                        <img
+                          src={brandIcon}
+                          alt={brand}
+                          style={{ width: 32, marginLeft: 8 }} // ajuste como preferir
+                        />
+                      )}
+                    </Box>
                   </Field>
-                  <div className="grid grid-cols-[1fr_0.7fr_60px] items-end gap-x-2">
+                  <div className="grid grid-cols-[1fr_70px] items-end gap-x-2">
                     <Field
-                      invalid={!!errors.name}
-                      label={
-                        <div className="flex flex-col -space-y-1">
-                          <span>Mês de</span>
-                          <span className="text-white/70 font-light">
-                            expiração
-                          </span>
-                        </div>
-                      }
-                      errorText={errors.name?.message}
+                      label={"Data de validade"}
                       disabled={isPending || !av}
                     >
-                      <SelectComponent
-                        isClearable={false}
-                        options={optionsMonth}
-                        placeholder=""
-                      />
+                      <Box
+                        border="1px solid"
+                        borderColor="whiteAlpha.200"
+                        borderRadius="sm"
+                        px={3}
+                        py={2}
+                        _focusWithin={{
+                          borderColor: "#fff",
+                          boxShadow: "0 0 0 1px rgba(6,182,212,0.6)",
+                        }}
+                        className="w-full"
+                      >
+                        <CardExpiryElement
+                          options={{
+                            style: {
+                              base: {
+                                color: "#fff", // texto branco
+                                fontSize: "15px",
+                                "::placeholder": { color: "#9ca3af" },
+                                fontFamily: "inherit",
+                              },
+                              invalid: { color: "#f87171" },
+                            },
+                            disabled: isPending || !av,
+                          }}
+                          className="stripe-input"
+                        />
+                      </Box>
                     </Field>
-                    <Field
-                      invalid={!!errors.name}
-                      label={
-                        <div className="flex flex-col -space-y-1">
-                          <span>Ano de</span>
-                          <span className="text-white/70 font-light">
-                            expiração
-                          </span>
-                        </div>
-                      }
-                      errorText={errors.name?.message}
-                      disabled={isPending || !av}
-                    >
-                      <Input
-                        {...registerWithMask("number", ["9999"])}
-                        autoComplete="nope"
-                        type="text"
-                      />
-                    </Field>
-                    <Field
-                      invalid={!!errors.name}
-                      label={
-                        <div className="flex flex-col">
-                          <span>CCV</span>
-                        </div>
-                      }
-                      errorText={errors.name?.message}
-                      disabled={isPending || !av}
-                    >
-                      <Input
-                        {...register("name")}
-                        autoComplete="nope"
-                        type="text"
-                      />
+
+                    <Field disabled={isPending || !av}>
+                      <Box
+                        border="1px solid"
+                        borderColor="whiteAlpha.200"
+                        borderRadius="sm"
+                        px={3}
+                        py={2}
+                        _focusWithin={{
+                          borderColor: "#fff",
+                          boxShadow: "0 0 0 1px rgba(6,182,212,0.6)",
+                        }}
+                        className="w-full"
+                      >
+                        <CardCvcElement
+                          options={{
+                            style: {
+                              base: {
+                                color: "#fff", // texto branco
+                                fontSize: "15px",
+                                "::placeholder": { color: "#9ca3af" },
+                                fontFamily: "inherit",
+                              },
+                              invalid: { color: "#f87171" },
+                            },
+                            disabled: isPending || !av,
+                          }}
+                          className="stripe-input"
+                        />
+                      </Box>
                     </Field>
                   </div>
                 </div>
+
+                <span className="text-red-400 mt-1 block h-13 -mb-2">
+                  {errors.creditCard?.message || ""}
+                </span>
               </StepsContent>
               {!!step && (
                 <p className="text-white text-sm leading-4">
@@ -333,11 +448,25 @@ export const SignupPage: React.FC = (): JSX.Element => {
               )}
               <ButtonGroup size="sm" variant="outline">
                 {!step && (
-                  <StepsNextTrigger asChild>
-                    <Button variant={"solid"} className="w-full" type="button">
-                      Continuar
-                    </Button>
-                  </StepsNextTrigger>
+                  <Button
+                    disabled={!email || !name || !number || !password}
+                    onClick={() => {
+                      const values = getValues();
+                      if (
+                        !values.email ||
+                        !values.name ||
+                        !values.number ||
+                        !values.password
+                      )
+                        return;
+                      setStep(1);
+                    }}
+                    variant={"solid"}
+                    className="w-full"
+                    type="button"
+                  >
+                    Continuar
+                  </Button>
                 )}
                 {step && (
                   <Button
@@ -376,102 +505,3 @@ export const SignupPage: React.FC = (): JSX.Element => {
     </div>
   );
 };
-
-const optionsMonth = [
-  {
-    label: (
-      <span>
-        01 <small className="text-white/70">Janeiro</small>{" "}
-      </span>
-    ),
-    value: "1",
-  },
-  {
-    label: (
-      <span>
-        02 <small className="text-white/70">Fevereiro</small>{" "}
-      </span>
-    ),
-    value: "2",
-  },
-  {
-    label: (
-      <span>
-        03 <small className="text-white/70">Março</small>{" "}
-      </span>
-    ),
-    value: "3",
-  },
-  {
-    label: (
-      <span>
-        04 <small className="text-white/70">Abril</small>{" "}
-      </span>
-    ),
-    value: "4",
-  },
-  {
-    label: (
-      <span>
-        05 <small className="text-white/70">Maio</small>{" "}
-      </span>
-    ),
-    value: "5",
-  },
-  {
-    label: (
-      <span>
-        06 <small className="text-white/70">Junho</small>{" "}
-      </span>
-    ),
-    value: "6",
-  },
-  {
-    label: (
-      <span>
-        07 <small className="text-white/70">Julho</small>{" "}
-      </span>
-    ),
-    value: "7",
-  },
-  {
-    label: (
-      <span>
-        08 <small className="text-white/70">Agosto</small>{" "}
-      </span>
-    ),
-    value: "8",
-  },
-  {
-    label: (
-      <span>
-        09 <small className="text-white/70">Setembro</small>{" "}
-      </span>
-    ),
-    value: "9",
-  },
-  {
-    label: (
-      <span>
-        10 <small className="text-white/70">Outubro</small>{" "}
-      </span>
-    ),
-    value: "10",
-  },
-  {
-    label: (
-      <span>
-        11 <small className="text-white/70">Novembro</small>{" "}
-      </span>
-    ),
-    value: "11",
-  },
-  {
-    label: (
-      <span>
-        12 <small className="text-white/70">Dezembro</small>{" "}
-      </span>
-    ),
-    value: "12",
-  },
-];

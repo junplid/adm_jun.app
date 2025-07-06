@@ -16,6 +16,8 @@
     "@emotion/react": "^11.14.0",
     "@flasd/whatsapp-formatting": "^0.1.4",
     "@hookform/resolvers": "^4.1.3",
+    "@stripe/react-stripe-js": "^3.7.0",
+    "@stripe/stripe-js": "^7.4.0",
     "@tailwindcss/vite": "^4.0.14",
     "@tanstack/react-query": "^5.71.10",
     "@tanstack/react-query-devtools": "^5.71.10",
