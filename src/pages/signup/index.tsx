@@ -102,8 +102,8 @@ export const FormSignup: React.FC = (): JSX.Element => {
   const [brand, setBrand] = useState<CardBrand>("unknown");
 
   const brandIcon = useMemo(() => {
-    const maps: Record<CardBrand, string> = {
-      eftpos_au: "",
+    const maps: Record<CardBrand, string | undefined> = {
+      eftpos_au: undefined,
       visa: "/cards/visa.svg",
       mastercard: "/cards/mastercard.svg",
       amex: "/cards/amex.svg",
@@ -111,7 +111,7 @@ export const FormSignup: React.FC = (): JSX.Element => {
       jcb: "/cards/jcb.svg",
       discover: "/cards/discover.svg",
       unionpay: "/cards/unionpay.svg",
-      unknown: "/cards/unknown.svg",
+      unknown: undefined,
     };
     return maps[brand];
   }, [brand]);
