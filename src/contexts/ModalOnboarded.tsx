@@ -31,7 +31,7 @@ export const ModalOnboarded: React.FC<IProps> = ({ onClose }): JSX.Element => {
               <h1 className="text-4xl font-bold mb-6">Bem-vindo</h1>
               <p className="text-lg mb-12 text-gray-300">
                 Transforme conexões em resultados. Descubra como nossa
-                ferramenta pode simplificar sua operações e impulsionar suas
+                ferramenta pode simplificar suas operações e impulsionar suas
                 vendas e estratégias de marketing
               </p>
             </div>

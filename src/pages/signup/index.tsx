@@ -37,17 +37,15 @@ import {
 } from "@stripe/react-stripe-js";
 import { StripeCardNumberElement } from "@stripe/stripe-js";
 
-const stripePromise = loadStripe(
-  "pk_test_51RgqKVE4fh62j4klYds2XMpKiZGI6bf1aOeQSSLcsuYs6JMQstc9ayEgAbU0VPEAGm26pxrduWvMY6dia3slVieY00bLvTBAhI"
-);
-
 const FormSchema = z.object({
   name: z.string().min(6, "Campo nome completo inválido."),
   number: z.string().min(1, "Esse campo é obrigatório."),
   email: z.string().email({
     message: "Campo de e-mail inválido.",
   }),
-  password: z.string().min(1, "Esse campo é obrigatório."),
+  password: z
+    .string({ message: "Campo obrigatório." })
+    .min(8, "Preciso ter no mínimo 8 caracteres."),
 
   creditCard: z.object({
     holderName: z
@@ -59,6 +57,8 @@ const FormSchema = z.object({
 type Fields = z.infer<typeof FormSchema>;
 
 export const SignupPage: React.FC = (): JSX.Element => {
+  const stripePromise = loadStripe(import.meta.env.STRIPE_PUBLIC_TOKEN);
+
   return (
     <Elements stripe={stripePromise}>
       <FormSignup />
@@ -124,7 +124,7 @@ export const FormSignup: React.FC = (): JSX.Element => {
 
       const { error, paymentMethod } = await stripe.createPaymentMethod({
         type: "card",
-        card: cardElement as StripeCardNumberElement, // cast resolve o TS2769
+        card: cardElement as StripeCardNumberElement,
         billing_details: {
           name: fields.creditCard.holderName,
           email: fields.email,
@@ -302,7 +302,8 @@ export const FormSignup: React.FC = (): JSX.Element => {
               </StepsContent>
               <StepsContent index={1}>
                 <p className="text-white/70 leading-5 text-center">
-                  Usaremos seu cartão apenas para confirmar sua identidade .{" "}
+                  Usaremos seu cartão de crédito apenas para confirmar sua
+                  identidade .{" "}
                   <strong className="text-green-300 font-medium">
                     Não há cobrança
                   </strong>
