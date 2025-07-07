@@ -118,9 +118,15 @@ export const FormSignup: React.FC = (): JSX.Element => {
 
   const signup = useCallback(async (fields: Fields) => {
     try {
-      if (!stripe || !elements) return;
+      if (!stripe || !elements) {
+        alert("AQUI 1");
+        return;
+      }
       const cardElement = elements.getElement(CardNumberElement);
-      if (!cardElement) return;
+      if (!cardElement) {
+        alert("AQUI 2");
+        return;
+      }
 
       const { error, paymentMethod } = await stripe.createPaymentMethod({
         type: "card",
