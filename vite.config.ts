@@ -29,7 +29,7 @@ export default defineConfig({
 
         debugProtection: false, // laço freeze → OFF
         selfDefending: false, // exige eval em runtime → OFF
-        disableConsoleOutput: true,
+        disableConsoleOutput: false,
 
         log: false,
         sourceMap: false,
