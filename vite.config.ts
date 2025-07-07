@@ -31,7 +31,7 @@ export default defineConfig({
         selfDefending: false, // exige eval em runtime → OFF
         disableConsoleOutput: true,
 
-        log: false,
+        // log: false,
         sourceMap: false,
       },
     }),
