@@ -31,7 +31,7 @@ export default defineConfig({
         selfDefending: false, // exige eval em runtime → OFF
         disableConsoleOutput: true,
 
-        // log: false,
+        log: false,
         sourceMap: false,
       },
     }),
@@ -43,8 +43,8 @@ export default defineConfig({
     terserOptions: {
       compress: {
         passes: 3,
-        drop_console: true,
-        drop_debugger: true,
+        // drop_console: true,
+        // drop_debugger: true,
       },
       mangle: { toplevel: true },
       format: { comments: false },
