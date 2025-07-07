@@ -120,7 +120,7 @@ export const FormSignup: React.FC = (): JSX.Element => {
   const signup = useCallback(async (fields: Fields) => {
     try {
       if (!stripe || !elements) {
-        alert("AQUI 1");
+        console.log({ stripe, elements });
         return;
       }
       const cardElement = elements.getElement(CardNumberElement);
