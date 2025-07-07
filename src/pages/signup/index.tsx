@@ -56,7 +56,6 @@ const FormSchema = z.object({
 
 type Fields = z.infer<typeof FormSchema>;
 
-console.log("STRIPE KEY →", import.meta.env.VITE_STRIPE_PUBLIC_TOKEN);
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_TOKEN);
 export const SignupPage: React.FC = (): JSX.Element => {
   return (
