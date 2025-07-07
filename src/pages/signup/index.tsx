@@ -115,77 +115,80 @@ export const FormSignup: React.FC = (): JSX.Element => {
     return maps[brand];
   }, [brand]);
 
-  const signup = useCallback(async (fields: Fields) => {
-    try {
-      if (!stripe || !elements) {
-        console.log({ stripe, elements });
-        return;
-      }
-      const cardElement = elements.getElement(CardNumberElement);
-      if (!cardElement) {
-        alert("AQUI 2");
-        return;
-      }
-
-      const { error, paymentMethod } = await stripe.createPaymentMethod({
-        type: "card",
-        card: cardElement as StripeCardNumberElement,
-        billing_details: {
-          name: fields.creditCard.holderName,
-          email: fields.email,
-        },
-      });
-
-      if (error) {
-        toaster.create({
-          type: "error",
-          title: "Cartão não autorizado",
-          description: error.message,
-        });
-        return;
-      }
-      const affiliate = searchParams.get("affiliate") || undefined;
-      const { data } = await api.post("/public/register/account", {
-        name: fields.name,
-        email: fields.email,
-        number: fields.number,
-        password: fields.password,
-        paymentMethodId: paymentMethod.id,
-        affiliate,
-      });
-
-      setCookies("auth", `BEARER ${data.token}`);
-      navigate("/auth/dashboard");
-    } catch (error) {
-      if (error instanceof AxiosError) {
-        if (error.code === "ERR_NETWORK") {
-          toaster.create({
-            type: "info",
-            title: "Servidor ocupado!",
-            description: "Por favor, tente novamente mais tarde.",
-          });
-
+  const signup = useCallback(
+    async (fields: Fields) => {
+      try {
+        if (!stripe || !elements) {
+          console.log({ stripe, elements });
           return;
         }
-        if (error.response?.status === 400) {
-          const dataError = error.response?.data as ErrorResponse_I;
-          if (dataError.toast.length) {
-            // dataError.toast.forEach(({ text, ...rest }) => toast(text, rest));
-          }
-          if (dataError.input.length) {
-            dataError.input.forEach(({ text, path }) =>
-              // @ts-expect-error
-              setError(path, { message: text })
-            );
-            const isStep0 = dataError.input.some((s) => {
-              return /(email|password|name|number|cpfCnpj)/.test(s.path);
+        const cardElement = elements.getElement(CardNumberElement);
+        if (!cardElement) {
+          alert("AQUI 2");
+          return;
+        }
+
+        const { error, paymentMethod } = await stripe.createPaymentMethod({
+          type: "card",
+          card: cardElement as StripeCardNumberElement,
+          billing_details: {
+            name: fields.creditCard.holderName,
+            email: fields.email,
+          },
+        });
+
+        if (error) {
+          toaster.create({
+            type: "error",
+            title: "Cartão não autorizado",
+            description: error.message,
+          });
+          return;
+        }
+        const affiliate = searchParams.get("affiliate") || undefined;
+        const { data } = await api.post("/public/register/account", {
+          name: fields.name,
+          email: fields.email,
+          number: fields.number,
+          password: fields.password,
+          paymentMethodId: paymentMethod.id,
+          affiliate,
+        });
+
+        setCookies("auth", `BEARER ${data.token}`);
+        navigate("/auth/dashboard");
+      } catch (error) {
+        if (error instanceof AxiosError) {
+          if (error.code === "ERR_NETWORK") {
+            toaster.create({
+              type: "info",
+              title: "Servidor ocupado!",
+              description: "Por favor, tente novamente mais tarde.",
             });
-            setStep(Number(!isStep0));
+
+            return;
+          }
+          if (error.response?.status === 400) {
+            const dataError = error.response?.data as ErrorResponse_I;
+            if (dataError.toast.length) {
+              // dataError.toast.forEach(({ text, ...rest }) => toast(text, rest));
+            }
+            if (dataError.input.length) {
+              dataError.input.forEach(({ text, path }) =>
+                // @ts-expect-error
+                setError(path, { message: text })
+              );
+              const isStep0 = dataError.input.some((s) => {
+                return /(email|password|name|number|cpfCnpj)/.test(s.path);
+              });
+              setStep(Number(!isStep0));
+            }
           }
         }
       }
-    }
-  }, []);
+    },
+    [stripe, elements]
+  );
 
   function handleErrors(err: any) {
     if (err.name || err.number || err.email || err.password) {
