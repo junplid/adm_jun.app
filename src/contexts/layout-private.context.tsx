@@ -333,12 +333,6 @@ export function LayoutPrivateProvider(): JSX.Element {
                 >
                   F.A.Q.
                 </MenuItem> */}
-                <MenuItem
-                  active={pathname === "/auth/help/whats-new"}
-                  component={<Link to={"/auth/help/releases"} />}
-                >
-                  Releases
-                </MenuItem>
                 <MenuItem component={<Link to={"/terms-of-service"} />}>
                   Termos e serviço
                 </MenuItem>

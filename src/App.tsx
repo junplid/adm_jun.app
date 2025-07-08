@@ -15,7 +15,6 @@ import { DialogProvider } from "@contexts/dialog.context";
 import { ConnectionsWAPage } from "./pages/connectionswa";
 import { SocketProvider } from "@contexts/socket.context";
 import { ChatbotsPage } from "./pages/chatbots";
-import { ReleasesPage } from "./pages/releases";
 import { TermsOfServicePage } from "./pages/terms-of-service";
 import { PrivacyPolicyPage } from "./pages/privacy-terms";
 import { CampaignsPage } from "./pages/campaigns";
@@ -103,9 +102,8 @@ export default function App() {
             />
             <Route path="campaigns" caseSensitive element={<CampaignsPage />} />
             <Route path="chatbots" caseSensitive element={<ChatbotsPage />} />
-            <Route path="help" caseSensitive>
-              <Route path="releases" caseSensitive element={<ReleasesPage />} />
-            </Route>
+            {/* <Route path="help" caseSensitive>
+            </Route> */}
             <Route caseSensitive element={<LayoutInboxesPageProvider />}>
               <Route
                 path="inboxes/attendants"
