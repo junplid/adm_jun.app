@@ -28,6 +28,7 @@ import { LayoutWorkbenchPageProvider } from "./pages/workbench/page.context";
 import { TagsPage } from "./pages/workbench/tags";
 import { LayoutIntegrationsPageProvider } from "./pages/integrations/page.context";
 import { PaymentsPage } from "./pages/integrations/payments";
+import { OrdersPage } from "./pages/orders";
 
 // import { NodeMessage } from "./flow-lib/nodes/Message";
 // import { NodeReply } from "./flow-lib/nodes/Reply";
@@ -88,11 +89,7 @@ export default function App() {
               element={<Navigate to="dashboard" />}
             />
             <Route path="dashboard" caseSensitive element={<DashboardPage />} />
-            <Route
-              path="businesses"
-              caseSensitive
-              element={<BusinessesPage />}
-            />
+            <Route path="projects" caseSensitive element={<BusinessesPage />} />
             <Route path="flows" caseSensitive element={<FlowsPage />} />
             <Route path="variables" caseSensitive element={<VariablesPage />} />
             <Route
@@ -155,6 +152,7 @@ export default function App() {
                 element={<PaymentsPage />}
               />
             </Route>
+            <Route path="orders" caseSensitive element={<OrdersPage />} />
           </Route>
 
           <Route

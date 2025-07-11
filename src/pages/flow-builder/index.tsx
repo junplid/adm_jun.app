@@ -66,6 +66,8 @@ import { NodeCharge } from "./nodes/Charge";
 import { NodeRandomCode } from "./nodes/RandomCode";
 import { NodeFinish } from "./nodes/Finish";
 import { NodeSendTextGroup } from "./nodes/SendTextGroup";
+import { NodeCreateOrder } from "./nodes/CreateOrder";
+import { NodeUpdateOrder } from "./nodes/UpdateOrder";
 
 type NodeTypesGeneric = {
   [x in TypesNodes]: any;
@@ -98,7 +100,9 @@ export type TypesNodes =
   | "NodeSwitchVariable"
   | "NodeCharge"
   | "NodeRandomCode"
-  | "NodeSendTextGroup";
+  | "NodeSendTextGroup"
+  | "NodeCreateOrder"
+  | "NodeUpdateOrder";
 
 const nodeTypes: NodeTypesGeneric = {
   NodeInitial: NodeInitial,
@@ -128,6 +132,8 @@ const nodeTypes: NodeTypesGeneric = {
   NodeCharge: NodeCharge,
   NodeRandomCode: NodeRandomCode,
   NodeSendTextGroup: NodeSendTextGroup,
+  NodeCreateOrder: NodeCreateOrder,
+  NodeUpdateOrder: NodeUpdateOrder,
 };
 
 const edgeTypes = {

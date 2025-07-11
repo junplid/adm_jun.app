@@ -19,7 +19,11 @@ import { HiMenu } from "react-icons/hi";
 import { useColorModeValue } from "@components/ui/color-mode";
 import { Tooltip } from "@components/ui/tooltip";
 import { TbDoorExit } from "react-icons/tb";
-import { LuBotMessageSquare, LuChartNoAxesCombined } from "react-icons/lu";
+import {
+  LuBotMessageSquare,
+  LuChartNoAxesCombined,
+  LuNotepadText,
+} from "react-icons/lu";
 import { Badge } from "@chakra-ui/react";
 import { AuthContext } from "./auth.context";
 import { ModalOnboarded } from "./ModalOnboarded";
@@ -254,10 +258,17 @@ export function LayoutPrivateProvider(): JSX.Element {
               </MenuItem>
               <MenuItem
                 icon={<PiProjectorScreenBold size={20} />}
-                component={<Link to={"/auth/businesses"} />}
-                active={pathname === "/auth/businesses"}
+                component={<Link to={"/auth/projects"} />}
+                active={pathname === "/auth/projects"}
               >
                 Projetos
+              </MenuItem>
+              <MenuItem
+                icon={<LuNotepadText size={20} />}
+                component={<Link to={"/auth/orders"} />}
+                active={pathname === "/auth/orders"}
+              >
+                Pedidos <Badge colorPalette={"green"}>NEW</Badge>
               </MenuItem>
               <MenuItem
                 icon={<GrConnect size={20} />}

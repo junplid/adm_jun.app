@@ -32,6 +32,7 @@ import {
   LuBrainCircuit,
   LuBriefcaseBusiness,
   LuMessageCircleHeart,
+  LuNotepadText,
 } from "react-icons/lu";
 import { FaCrown } from "react-icons/fa";
 import { AuthContext } from "@contexts/auth.context";
@@ -439,6 +440,32 @@ const nodesList: {
     description: "Gera código numérico randômico",
     type: "NodeRandomCode",
     new: true,
+  },
+  {
+    icon: (
+      <LuNotepadText
+        className="dark:text-green-400 text-green-700 w-8"
+        size={31}
+      />
+    ),
+    name: "Criar pedido",
+    description: "Cria um novo pedido/ordem",
+    type: "NodeCreateOrder",
+    new: true,
+    premium: true,
+  },
+  {
+    icon: (
+      <LuNotepadText
+        className="dark:text-blue-400 text-blue-700 w-8"
+        size={31}
+      />
+    ),
+    name: "Atualizar pedido",
+    description: "Atualiza um pedido/ordem",
+    type: "NodeUpdateOrder",
+    new: true,
+    premium: true,
   },
   {
     icon: (

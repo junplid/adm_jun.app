@@ -8,10 +8,14 @@ interface ISelectBusinessesProps extends SelectProps {
   value?: number[] | number | null;
   setError?(props: { name: string; message?: string }): void;
   filter?: (opt: { id: number; name: string }[]) => any;
+  isFlow?: boolean;
 }
 
 const SelectBusinesses = forwardRef<any, ISelectBusinessesProps>(
-  ({ isMulti, value, setError, filter, ...props }, ref): JSX.Element => {
+  (
+    { isMulti, value, setError, filter, isFlow, ...props },
+    ref
+  ): JSX.Element => {
     const canTriggerCreate = useRef(null);
     const [newBusinessName, setNewBusinessName] = useState("");
 
@@ -109,6 +113,39 @@ const SelectBusinesses = forwardRef<any, ISelectBusinessesProps>(
                 })),
               }
           : { value: null })}
+        menuPosition={isFlow ? "fixed" : "absolute"}
+        menuPortalTarget={isFlow ? document.body : undefined}
+        components={
+          isFlow
+            ? {
+                Option: (props) => {
+                  const handleMouseDown = (e: React.MouseEvent) => {
+                    e.stopPropagation();
+                    props.innerRef?.(e.currentTarget as HTMLDivElement);
+                    props.selectOption(props.data);
+                  };
+
+                  return (
+                    <div
+                      style={{
+                        backgroundColor: props.isFocused
+                          ? "#1f1e20"
+                          : "transparent",
+                        padding: "6px 8px",
+                        cursor: "pointer",
+                        fontSize: "15px",
+                        borderRadius: "0.125rem",
+                      }}
+                      onMouseDown={handleMouseDown}
+                      {...props.innerProps}
+                    >
+                      {props.children}
+                    </div>
+                  );
+                },
+              }
+            : undefined
+        }
         {...props}
       />
     );

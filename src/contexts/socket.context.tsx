@@ -4,12 +4,15 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { Socket, Manager } from "socket.io-client";
 import { AuthContext } from "./auth.context";
 import { toaster } from "@components/ui/toaster";
 import { queryClient } from "../main";
+import { useLocation, useNavigate } from "react-router-dom";
+import { LuNotepadText } from "react-icons/lu";
 
 type TStateSocket = "loading" | "disconnected" | "connected";
 
@@ -35,12 +38,22 @@ interface PropsInbox {
   id: number;
 }
 
+interface PropsNotifyOrder {
+  accountId: number;
+  title: string;
+  id: number;
+  action: "new" | "update";
+}
+
 export const SocketProvider = ({
   children,
 }: PropsProviderSocketContext_I): JSX.Element => {
   const [departmentOpenId, setdepartmentOpenId] = useState<number | null>(null);
   const { account } = useContext(AuthContext);
   const [_stateSocket, setStateSocket] = useState<TStateSocket>("loading");
+  const path = useLocation();
+  const navigate = useNavigate();
+  const audioOrderRef = useRef<HTMLAudioElement | null>(null);
 
   const manager = useMemo(() => {
     return new Manager(import.meta.env.VITE_API.split("/v1")[0], {
@@ -121,12 +134,50 @@ export const SocketProvider = ({
     };
   }, [socket, departmentOpenId]);
 
+  useEffect(() => {
+    if (socket) {
+      socket.on("notify-order", (data: PropsNotifyOrder) => {
+        if (data.accountId === account.id) {
+          if (path.pathname !== "/auth/orders") {
+            toaster.create({
+              title: (
+                <div className="flex items-center gap-x-2">
+                  <LuNotepadText
+                    className="dark:text-green-400 text-green-700"
+                    size={31}
+                  />{" "}
+                  <span text-green-300>{data.title}</span>
+                </div>
+              ),
+              duration: 4000,
+              action: {
+                label: "Ir para pedidos",
+                onClick() {
+                  navigate("/auth/orders");
+                },
+              },
+            });
+            audioOrderRef.current?.play();
+          }
+        }
+      });
+    }
+    return () => {
+      socket.off("inbox");
+    };
+  }, [socket, path.pathname]);
+
   const dataValue = useMemo(() => {
     return { socket: socket, setdepartmentOpenId, ns };
   }, [socket]);
 
   return (
     <SocketContext.Provider value={dataValue}>
+      <audio
+        className="hidden"
+        ref={audioOrderRef}
+        src="/audios/notify-fade-in.mp3"
+      />
       {children}
     </SocketContext.Provider>
   );
