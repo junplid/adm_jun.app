@@ -70,7 +70,7 @@ interface PropsFilter {
 
 export const OrdersPage: React.FC = (): JSX.Element => {
   const { socket } = useContext(SocketContext);
-  const { dialog: DialogModal, close, onOpen } = useDialogModal({});
+  const { dialog: DialogModal } = useDialogModal({});
   const [orders, setOrders] = useState<OrderRow[]>([]);
   const { logout, account } = useContext(AuthContext);
   const [filter, setFilter] = useState<PropsFilter>({});
@@ -79,7 +79,7 @@ export const OrdersPage: React.FC = (): JSX.Element => {
   async function get(props: PropsFilter) {
     try {
       setLoad(true);
-      const { orders: oL, meta } = await getOrders({ limit: 15, ...props });
+      const { orders: oL } = await getOrders({ limit: 15, ...props });
       setOrders(oL);
       setLoad(false);
     } catch (error) {

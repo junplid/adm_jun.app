@@ -15,7 +15,7 @@ import {
 } from "@components/ui/dialog";
 import { Field } from "@components/ui/field";
 import TextareaAutosize from "react-textarea-autosize";
-import { BusinessRow } from "..";
+import { OrderRow } from "..";
 import { AxiosError } from "axios";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -23,7 +23,7 @@ import { z } from "zod";
 import { useCreateBusiness } from "../../../hooks/business";
 
 interface IProps {
-  onCreate?(business: BusinessRow): Promise<void>;
+  onCreate?(business: OrderRow): Promise<void>;
   trigger: JSX.Element;
   placement?: "top" | "bottom" | "center";
 }
@@ -51,19 +51,19 @@ export function ModalCreateBusiness({
 
   const [open, setOpen] = useState(false);
 
-  const { mutateAsync: createBusiness, isPending } = useCreateBusiness({
+  const { isPending } = useCreateBusiness({
     setError,
     async onSuccess() {
       setOpen(false);
     },
   });
 
-  const create = useCallback(async (fields: Fields): Promise<void> => {
+  const create = useCallback(async (_fields: Fields): Promise<void> => {
     try {
-      const business = await createBusiness(fields);
-      const { name } = fields;
+      // const business = await createBusiness(fields);
+      // const { name } = fields;
       reset();
-      props.onCreate?.({ ...business, name });
+      // props.onCreate?.({ ...business, name });
     } catch (error) {
       if (error instanceof AxiosError) {
         console.log("Error-API", error);
