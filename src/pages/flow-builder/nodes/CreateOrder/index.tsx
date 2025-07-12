@@ -326,7 +326,7 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
                 <AutocompleteTextField
                   // @ts-expect-error
                   trigger={["{{"]}
-                  options={{ "{{": variables?.map((s) => s.name) || [] }}
+                  options={{ "{{": [] }}
                   spacer={"}} "}
                   placeholder="Digite o nome da ação"
                   defaultValue={msg.text}
