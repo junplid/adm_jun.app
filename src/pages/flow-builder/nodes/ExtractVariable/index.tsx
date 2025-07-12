@@ -10,6 +10,7 @@ import SelectVariables from "@components/SelectVariables";
 import { BsRegex } from "react-icons/bs";
 import { FaFontAwesomeFlag } from "react-icons/fa";
 import { useGetVariablesOptions } from "../../../../hooks/variable";
+import SelectComponent from "@components/Select";
 
 type DataNode = {
   var1Id: number;
@@ -17,6 +18,7 @@ type DataNode = {
   flags: string[];
   value: string;
   var2Id: number;
+  tools?: "match" | "replace";
 };
 
 const items = [
@@ -26,6 +28,11 @@ const items = [
   { title: "Single line", value: "s" },
   { title: "Unicode", value: "u" },
   { title: "Sticky", value: "y" },
+];
+
+const optionsTools = [
+  { label: "Pick (match)", value: "match" },
+  { label: "Substituir (replace)", value: "replace" },
 ];
 
 function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
@@ -127,12 +134,36 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
           </Portal>
         </Menu.Root>
       </div>
+      <Field label="Selecione a ferramenta" className="mt-3">
+        <SelectComponent
+          isMulti={false}
+          menuPlacement="bottom"
+          isFlow
+          placeholder={"Pick (match)"}
+          isClearable={false}
+          value={
+            data.tools
+              ? {
+                  label:
+                    optionsTools.find((s) => s.value === data.tools)?.label ||
+                    "",
+                  value: data.tools,
+                }
+              : null
+          }
+          options={optionsTools}
+          onChange={(e: any) =>
+            updateNode(id, { data: { ...data, tools: e.value } })
+          }
+        />
+      </Field>
+
       <AutocompleteTextField
         // @ts-expect-error
         trigger={["{{"]}
         options={{ "{{": variables?.map((s) => s.name) || [] }}
         spacer={"}}"}
-        placeholder="Exemplo: $1"
+        placeholder={data.tools === "match" ? "Exemplo: $[1]" : "Exemplo: $1"}
         defaultValue={data.value || ""}
         onChange={(target: string) => {
           setDataMok({ ...data, value: target });
