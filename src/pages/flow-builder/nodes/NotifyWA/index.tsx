@@ -10,10 +10,13 @@ import { GrClose } from "react-icons/gr";
 import { nanoid } from "nanoid";
 import { CustomHandle } from "../../customs/node";
 import { useGetVariablesOptions } from "../../../../hooks/variable";
+import SelectTags from "@components/SelectTags";
+import { Field } from "@components/ui/field";
 
 type DataNode = {
   numbers: { key: string; number: string }[];
   text: string;
+  tagIds: number[];
 };
 
 function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
@@ -56,7 +59,7 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
     const exist = data.numbers.find((s) => s.number === number);
     if (exist) return;
     updateNode(id, {
-      data: { numbers: [...data.numbers, { key: nanoid(), number }] },
+      data: { ...data, numbers: [...data.numbers, { key: nanoid(), number }] },
     });
   };
 
@@ -110,6 +113,28 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
         defaultValue={data.text || ""}
         onChange={(target: string) => setDataMok({ ...data, text: target })}
       />
+
+      <Field
+        label="Selecione etiquetas"
+        helperText="Selecione as etiquetas que deseja adicionar aos contatos notificados"
+        className="mt-2"
+      >
+        <SelectTags
+          isMulti={true}
+          isClearable
+          menuPlacement="bottom"
+          isFlow
+          value={data.tagIds}
+          onChange={(e: any) => {
+            data.tagIds = e.map((item: any) => item.value);
+            updateNode(id, { data: { ...data, tagIds: data.tagIds } });
+          }}
+          onCreate={(tag) => {
+            data.tagIds.push(tag.id);
+            updateNode(id, { data: { ...data, tagIds: data.tagIds } });
+          }}
+        />
+      </Field>
     </div>
   );
 }

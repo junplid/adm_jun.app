@@ -40,6 +40,7 @@ import { GiDirectionSigns } from "react-icons/gi";
 import { RiMoneyDollarCircleLine } from "react-icons/ri";
 import { HiOutlineUserGroup } from "react-icons/hi";
 import useStore from "../flowStore";
+import { HiOutlineQueueList } from "react-icons/hi2";
 
 export function SearchNodesComponents(): JSX.Element {
   const {
@@ -466,6 +467,17 @@ const nodesList: {
     type: "NodeUpdateOrder",
     new: true,
     premium: true,
+  },
+  {
+    icon: (
+      <HiOutlineQueueList
+        className="dark:text-zinc-100 text-zinc-800 w-8"
+        size={31}
+      />
+    ),
+    name: "Fila temporizada",
+    description: "Cria uma fila temporizada de anti-repique.",
+    type: "NodeTimedQueue",
   },
   {
     icon: (

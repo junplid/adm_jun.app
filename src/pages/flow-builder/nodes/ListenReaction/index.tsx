@@ -7,6 +7,7 @@ import { CustomHandle } from "../../customs/node";
 import { Field } from "@components/ui/field";
 import { PiEarBold } from "react-icons/pi";
 import { LuMessageCircleHeart } from "react-icons/lu";
+import { TiFlowParallel } from "react-icons/ti";
 
 type DataNode = {
   varIdToReaction?: number;
@@ -91,9 +92,25 @@ export const NodeListenReaction: React.FC<Node<DataNode>> = ({ id, data }) => {
         handleId="main"
         position={Position.Right}
         type="source"
-        style={{ right: -8 }}
+        style={{ right: -8, top: 15 }}
         isConnectable={true}
       />
+      <CustomHandle
+        nodeId={id}
+        handleId={`parallel`}
+        position={Position.Right}
+        type="source"
+        style={{ right: -20, bottom: 11, top: "initial" }}
+        isConnectable={true}
+        title="Canal paralelo independente"
+        className="relative dark:text-blue-300 text-blue-400 dark:!border-blue-300/60 dark:!bg-blue-200/15 !border-blue-4500/70 !bg-blue-400/15"
+      >
+        <TiFlowParallel
+          size={11}
+          style={{ left: -14, top: -1, position: "absolute" }}
+          className="rotate-45"
+        />
+      </CustomHandle>
     </div>
   );
 };

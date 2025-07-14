@@ -1,6 +1,6 @@
 import "./styles.css";
 import {
-  Box,
+  // Box,
   Button,
   ButtonGroup,
   Collapsible,
@@ -8,7 +8,12 @@ import {
   InputGroup,
 } from "@chakra-ui/react";
 import { AxiosError } from "axios";
-import { JSX, useCallback, useMemo, useState } from "react";
+import {
+  JSX,
+  useCallback,
+  // useMemo,
+  useState,
+} from "react";
 import { useCookies } from "react-cookie";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { api } from "../../services/api";
@@ -26,16 +31,16 @@ import {
   StepsList,
   StepsRoot,
 } from "@components/ui/steps";
-import { CardBrand, loadStripe } from "@stripe/stripe-js";
-import {
-  Elements,
-  useStripe,
-  useElements,
-  CardNumberElement,
-  CardExpiryElement,
-  CardCvcElement,
-} from "@stripe/react-stripe-js";
-import { StripeCardNumberElement } from "@stripe/stripe-js";
+// import { CardBrand, loadStripe } from "@stripe/stripe-js";
+// import {
+//   Elements,
+//   useStripe,
+//   useElements,
+//   CardNumberElement,
+//   CardExpiryElement,
+//   CardCvcElement,
+// } from "@stripe/react-stripe-js";
+// import { StripeCardNumberElement } from "@stripe/stripe-js";
 
 const FormSchema = z.object({
   name: z.string().min(6, "Campo nome completo inválido."),
@@ -47,21 +52,21 @@ const FormSchema = z.object({
     .string({ message: "Campo obrigatório." })
     .min(8, "Preciso ter no mínimo 8 caracteres."),
 
-  creditCard: z.object({
-    holderName: z
-      .string({ message: "Campo obrigatório." })
-      .min(1, "Campo obrigatório."),
-  }),
+  // creditCard: z.object({
+  //   holderName: z
+  //     .string({ message: "Campo obrigatório." })
+  //     .min(1, "Campo obrigatório."),
+  // }),
 });
 
 type Fields = z.infer<typeof FormSchema>;
 
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_TOKEN);
+// const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_TOKEN);
 export const SignupPage: React.FC = (): JSX.Element => {
   return (
-    <Elements stripe={stripePromise}>
-      <FormSignup />
-    </Elements>
+    // <Elements stripe={stripePromise}>
+    <FormSignup />
+    // </Elements>
   );
 };
 
@@ -80,115 +85,112 @@ export const FormSignup: React.FC = (): JSX.Element => {
     },
   });
 
-  const stripe = useStripe();
-  const elements = useElements();
+  // const stripe = useStripe();
+  // const elements = useElements();
 
   const {
     handleSubmit,
     register,
-    getValues,
-    watch,
+    // getValues,
+    // watch,
     formState: { errors, isSubmitting },
     setError,
   } = useForm<Fields>({
     resolver: zodResolver(FormSchema),
   });
 
-  const { email, name, number, password } = watch();
+  // const { email, name, number, password } = watch();
 
   const registerWithMask = useHookFormMask(register);
 
-  const [brand, setBrand] = useState<CardBrand>("unknown");
+  // const [brand, setBrand] = useState<CardBrand>("unknown");
 
-  const brandIcon = useMemo(() => {
-    const maps: Record<CardBrand, string | undefined> = {
-      eftpos_au: undefined,
-      visa: "/cards/visa.svg",
-      mastercard: "/cards/mastercard.svg",
-      amex: "/cards/amex.svg",
-      diners: "/cards/diners.svg",
-      jcb: "/cards/jcb.svg",
-      discover: "/cards/discover.svg",
-      unionpay: "/cards/unionpay.svg",
-      unknown: undefined,
-    };
-    return maps[brand];
-  }, [brand]);
+  // const brandIcon = useMemo(() => {
+  //   const maps: Record<CardBrand, string | undefined> = {
+  //     eftpos_au: undefined,
+  //     visa: "/cards/visa.svg",
+  //     mastercard: "/cards/mastercard.svg",
+  //     amex: "/cards/amex.svg",
+  //     diners: "/cards/diners.svg",
+  //     jcb: "/cards/jcb.svg",
+  //     discover: "/cards/discover.svg",
+  //     unionpay: "/cards/unionpay.svg",
+  //     unknown: undefined,
+  //   };
+  //   return maps[brand];
+  // }, [brand]);
 
-  const signup = useCallback(
-    async (fields: Fields) => {
-      try {
-        if (!stripe || !elements) {
-          console.log({ stripe, elements });
-          return;
-        }
-        const cardElement = elements.getElement(CardNumberElement);
-        if (!cardElement) {
-          alert("AQUI 2");
-          return;
-        }
+  const signup = useCallback(async (fields: Fields) => {
+    try {
+      // if (!stripe || !elements) {
+      //   console.log({ stripe, elements });
+      //   return;
+      // }
+      // const cardElement = elements.getElement(CardNumberElement);
+      // if (!cardElement) {
+      //   alert("AQUI 2");
+      //   return;
+      // }
 
-        const { error, paymentMethod } = await stripe.createPaymentMethod({
-          type: "card",
-          card: cardElement as StripeCardNumberElement,
-          billing_details: {
-            name: fields.creditCard.holderName,
-            email: fields.email,
-          },
-        });
+      // const { error, paymentMethod } = await stripe.createPaymentMethod({
+      //   type: "card",
+      //   card: cardElement as StripeCardNumberElement,
+      //   billing_details: {
+      //     name: fields.creditCard.holderName,
+      //     email: fields.email,
+      //   },
+      // });
 
-        if (error) {
+      // if (error) {
+      //   toaster.create({
+      //     type: "error",
+      //     title: "Cartão não autorizado",
+      //     description: error.message,
+      //   });
+      //   return;
+      // }
+      const affiliate = searchParams.get("affiliate") || undefined;
+      const { data } = await api.post("/public/register/account", {
+        name: fields.name,
+        email: fields.email,
+        number: fields.number,
+        password: fields.password,
+        // paymentMethodId: paymentMethod.id,
+        affiliate,
+      });
+
+      setCookies("auth", `BEARER ${data.token}`);
+      navigate("/auth/dashboard");
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        if (error.code === "ERR_NETWORK") {
           toaster.create({
-            type: "error",
-            title: "Cartão não autorizado",
-            description: error.message,
+            type: "info",
+            title: "Servidor ocupado!",
+            description: "Por favor, tente novamente mais tarde.",
           });
+
           return;
         }
-        const affiliate = searchParams.get("affiliate") || undefined;
-        const { data } = await api.post("/public/register/account", {
-          name: fields.name,
-          email: fields.email,
-          number: fields.number,
-          password: fields.password,
-          paymentMethodId: paymentMethod.id,
-          affiliate,
-        });
-
-        setCookies("auth", `BEARER ${data.token}`);
-        navigate("/auth/dashboard");
-      } catch (error) {
-        if (error instanceof AxiosError) {
-          if (error.code === "ERR_NETWORK") {
-            toaster.create({
-              type: "info",
-              title: "Servidor ocupado!",
-              description: "Por favor, tente novamente mais tarde.",
-            });
-
-            return;
+        if (error.response?.status === 400) {
+          const dataError = error.response?.data as ErrorResponse_I;
+          if (dataError.toast.length) {
+            // dataError.toast.forEach(({ text, ...rest }) => toast(text, rest));
           }
-          if (error.response?.status === 400) {
-            const dataError = error.response?.data as ErrorResponse_I;
-            if (dataError.toast.length) {
-              // dataError.toast.forEach(({ text, ...rest }) => toast(text, rest));
-            }
-            if (dataError.input.length) {
-              dataError.input.forEach(({ text, path }) =>
-                // @ts-expect-error
-                setError(path, { message: text })
-              );
-              const isStep0 = dataError.input.some((s) => {
-                return /(email|password|name|number|cpfCnpj)/.test(s.path);
-              });
-              setStep(Number(!isStep0));
-            }
+          if (dataError.input.length) {
+            dataError.input.forEach(({ text, path }) =>
+              // @ts-expect-error
+              setError(path, { message: text })
+            );
+            const isStep0 = dataError.input.some((s) => {
+              return /(email|password|name|number|cpfCnpj)/.test(s.path);
+            });
+            setStep(Number(!isStep0));
           }
         }
       }
-    },
-    [stripe, elements]
-  );
+    }
+  }, []);
 
   function handleErrors(err: any) {
     if (err.name || err.number || err.email || err.password) {
@@ -309,7 +311,8 @@ export const FormSignup: React.FC = (): JSX.Element => {
                 </Collapsible.Root>
               </StepsContent>
               <StepsContent index={1}>
-                <p className="text-white/70 leading-5 text-center">
+                <span></span>
+                {/* <p className="text-white/70 leading-5 text-center">
                   Usaremos seu cartão de crédito apenas para confirmar sua
                   identidade .{" "}
                   <strong className="text-green-300 font-medium">
@@ -440,7 +443,7 @@ export const FormSignup: React.FC = (): JSX.Element => {
 
                 <span className="text-red-400 mt-1 block h-13 -mb-2">
                   {errors.creditCard?.message || ""}
-                </span>
+                </span> */}
               </StepsContent>
               {!!step && (
                 <p className="text-white text-sm leading-4">
@@ -456,7 +459,7 @@ export const FormSignup: React.FC = (): JSX.Element => {
                 </p>
               )}
               <ButtonGroup size="sm" variant="outline">
-                {!step && (
+                {/* {!step && (
                   <Button
                     disabled={!email || !name || !number || !password}
                     onClick={() => {
@@ -476,8 +479,8 @@ export const FormSignup: React.FC = (): JSX.Element => {
                   >
                     Continuar
                   </Button>
-                )}
-                {step && (
+                )} */}
+                {!step && (
                   <Button
                     loadingText="Aguarde..."
                     loading={isSubmitting}

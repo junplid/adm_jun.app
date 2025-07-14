@@ -68,6 +68,7 @@ import { NodeFinish } from "./nodes/Finish";
 import { NodeSendTextGroup } from "./nodes/SendTextGroup";
 import { NodeCreateOrder } from "./nodes/CreateOrder";
 import { NodeUpdateOrder } from "./nodes/UpdateOrder";
+import { NodeTimedQueue } from "./nodes/TimedQueue";
 
 type NodeTypesGeneric = {
   [x in TypesNodes]: any;
@@ -102,7 +103,8 @@ export type TypesNodes =
   | "NodeRandomCode"
   | "NodeSendTextGroup"
   | "NodeCreateOrder"
-  | "NodeUpdateOrder";
+  | "NodeUpdateOrder"
+  | "NodeTimedQueue";
 
 const nodeTypes: NodeTypesGeneric = {
   NodeInitial: NodeInitial,
@@ -134,6 +136,7 @@ const nodeTypes: NodeTypesGeneric = {
   NodeSendTextGroup: NodeSendTextGroup,
   NodeCreateOrder: NodeCreateOrder,
   NodeUpdateOrder: NodeUpdateOrder,
+  NodeTimedQueue: NodeTimedQueue,
 };
 
 const edgeTypes = {
@@ -288,7 +291,7 @@ function Body(props: IBody): JSX.Element {
           preview: [],
         };
       } else if (typeN === "NodeNotifyWA") {
-        newNode.data = { numbers: [] };
+        newNode.data = { numbers: [], tagsIds: [] };
       } else if (typeN === "NodeRemoveVariables") {
         newNode.data = { list: [] };
       } else if (typeN === "NodeReply") {

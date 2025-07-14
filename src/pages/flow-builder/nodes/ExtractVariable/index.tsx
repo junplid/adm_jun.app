@@ -2,7 +2,7 @@ import { Handle, Node, Position } from "@xyflow/react";
 import { PatternNode } from "../Pattern";
 import useStore from "../../flowStore";
 import { JSX, useEffect, useState } from "react";
-import { Button, Input, InputGroup, Menu, Portal } from "@chakra-ui/react";
+import { Button, InputGroup, Menu, Portal } from "@chakra-ui/react";
 import AutocompleteTextField from "@components/Autocomplete";
 import { CustomHandle } from "../../customs/node";
 import { Field } from "@components/ui/field";
@@ -78,13 +78,17 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
 
       <div className="flex items-center gap-1">
         <InputGroup startAddon="/" endAddon={`/${data.flags?.join("") || ""}`}>
-          <Input
-            placeholder="CODE=(\d+).*"
-            defaultValue={data.regex || ""}
+          <AutocompleteTextField
+            // @ts-expect-error
+            trigger={["{{"]}
             size={"xs"}
+            placeholder="CODE=(\d+).*"
+            options={{ "{{": variables?.map((s) => s.name) || [] }}
+            spacer={"}}"}
             fontSize={14}
-            onChange={({ target }) => {
-              setDataMok({ ...data, regex: target.value });
+            defaultValue={data.regex || ""}
+            onChange={(target: string) => {
+              setDataMok({ ...data, regex: target });
             }}
           />
         </InputGroup>
