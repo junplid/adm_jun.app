@@ -46,11 +46,11 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
   const handleDelete = (index: number) => {
     if (!index && data.numbers.length === 1) {
       updateNode(id, {
-        data: { numbers: data.numbers.filter((_, i) => i !== index) },
+        data: { ...data, numbers: data.numbers.filter((_, i) => i !== index) },
       });
     } else {
       updateNode(id, {
-        data: { numbers: data.numbers.filter((_, i) => i !== index) },
+        data: { ...data, numbers: data.numbers.filter((_, i) => i !== index) },
       });
     }
   };
