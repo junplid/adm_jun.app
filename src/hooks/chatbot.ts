@@ -176,21 +176,21 @@ export function useUpdateChatbot(props?: {
   setError?: UseFormSetError<{
     name?: string;
     businessId?: number;
-    flowId?: string;
+    flowId?: string | null;
     connectionWAId?: number;
     status?: boolean;
-    description?: string;
+    description?: string | null;
     addLeadToAudiencesIds?: number[];
     addToLeadTagsIds?: number[];
     timeToRestart?: {
       value: number;
       type: "seconds" | "minutes" | "hours" | "days";
-    };
+    } | null;
     operatingDays?: {
       dayOfWeek: number;
       workingTimes?: { start: string; end: string }[];
     }[];
-    destLink?: string;
+    destLink?: string | null;
   }>;
   onSuccess?: () => Promise<void>;
 }) {
@@ -206,20 +206,22 @@ export function useUpdateChatbot(props?: {
         name?: string;
         businessId?: number;
         flowId?: string;
-        connectionWAId?: number;
-        status?: boolean;
-        description?: string;
+        connectionWAId?: number | null;
+        status?: boolean | null;
+        description?: string | null;
         addLeadToAudiencesIds?: number[];
         addToLeadTagsIds?: number[];
         timeToRestart?: {
           value?: number;
           type?: "seconds" | "minutes" | "hours" | "days";
-        };
-        operatingDays?: {
-          dayOfWeek: number;
-          workingTimes?: { start: string; end: string }[];
-        }[];
-        destLink?: string;
+        } | null;
+        operatingDays?:
+          | {
+              dayOfWeek: number;
+              workingTimes?: { start: string; end: string }[];
+            }[]
+          | null;
+        destLink?: string | null;
       };
     }) => ChatbotService.updateChatbot(id, body),
     async onSuccess(data, { id, body }) {

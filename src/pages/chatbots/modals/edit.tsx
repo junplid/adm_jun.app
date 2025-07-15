@@ -58,22 +58,22 @@ const FormSchema = z.object({
     .transform((v) => v || undefined),
   trigger: z
     .string()
-    .optional()
+    .nullish()
     .transform((v) => v || undefined),
   flowBId: z
     .string()
-    .optional()
+    .nullish()
     .transform((v) => v || undefined),
 
   flowId: z.string({ message: "Campo obrigatório." }),
-  connectionWAId: z.number({ message: "Campo obrigatório." }).optional(),
+  connectionWAId: z.number({ message: "Campo obrigatório." }).nullish(),
   addLeadToAudiencesIds: z
     .array(z.number())
-    .optional()
+    .nullish()
     .transform((v) => v || undefined),
   addToLeadTagsIds: z
     .array(z.number())
-    .optional()
+    .nullish()
     .transform((v) => v || undefined),
 
   timeToRestart: z
@@ -112,10 +112,10 @@ const FormSchema = z.object({
           .optional(),
       })
     )
-    .optional(),
+    .nullish(),
   destLink: z
     .string()
-    .optional()
+    .nullish()
     .transform((v) => v || undefined),
 });
 
