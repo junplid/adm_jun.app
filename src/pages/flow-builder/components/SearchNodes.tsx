@@ -41,6 +41,7 @@ import { RiMoneyDollarCircleLine } from "react-icons/ri";
 import { HiOutlineUserGroup } from "react-icons/hi";
 import useStore from "../flowStore";
 import { HiOutlineQueueList } from "react-icons/hi2";
+import { CgCalculator } from "react-icons/cg";
 
 export function SearchNodesComponents(): JSX.Element {
   const {
@@ -476,8 +477,16 @@ const nodesList: {
       />
     ),
     name: "Fila temporizada",
-    description: "Cria uma fila temporizada de anti-repique.",
+    description: "Cria uma fila temporizada de anti-repique",
     type: "NodeTimedQueue",
+    new: true,
+  },
+  {
+    icon: <CgCalculator className="dark:text-white text-black w-8" size={31} />,
+    name: "Calculadora",
+    description: "Faz cálculos matemáticos",
+    type: "NodeCalculator",
+    new: true,
   },
   {
     icon: (

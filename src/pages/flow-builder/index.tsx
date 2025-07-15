@@ -69,6 +69,7 @@ import { NodeSendTextGroup } from "./nodes/SendTextGroup";
 import { NodeCreateOrder } from "./nodes/CreateOrder";
 import { NodeUpdateOrder } from "./nodes/UpdateOrder";
 import { NodeTimedQueue } from "./nodes/TimedQueue";
+import { NodeCalculator } from "./nodes/Calculator";
 
 type NodeTypesGeneric = {
   [x in TypesNodes]: any;
@@ -104,7 +105,8 @@ export type TypesNodes =
   | "NodeSendTextGroup"
   | "NodeCreateOrder"
   | "NodeUpdateOrder"
-  | "NodeTimedQueue";
+  | "NodeTimedQueue"
+  | "NodeCalculator";
 
 const nodeTypes: NodeTypesGeneric = {
   NodeInitial: NodeInitial,
@@ -137,6 +139,7 @@ const nodeTypes: NodeTypesGeneric = {
   NodeCreateOrder: NodeCreateOrder,
   NodeUpdateOrder: NodeUpdateOrder,
   NodeTimedQueue: NodeTimedQueue,
+  NodeCalculator: NodeCalculator,
 };
 
 const edgeTypes = {
