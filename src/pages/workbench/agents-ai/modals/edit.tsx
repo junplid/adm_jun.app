@@ -156,19 +156,10 @@ export const FormSchema = z
 export type Fields = z.infer<typeof FormSchema>;
 
 const itemsCorporation = [
-  { name: "[atribuir_variavel, <Nome da variavel>, <Qual o valor?>" },
   { name: "[add_var, <Nome da variavel>, <Qual o valor?>" },
-  { name: "[remove_variavel, <Nome da variavel>" },
-  { name: "[remove_var, <Nome da variavel>" },
+  { name: "[rm_var, <Nome da variavel>" },
   { name: "[add_tag, <Nome da etiqueta>" },
-  { name: "[add_etiqueta, <Nome da etiqueta>" },
-  { name: "[remove_tag, <Nome da etiqueta>" },
-  { name: "[remove_etiqueta, <Nome da etiqueta>" },
-  { name: "[notificar_wa, <Número de WhatsApp>, <Mensagem>" },
-  { name: '[notify_wa, <999999999>, "<MSG>"' },
-  { name: "[pausar, <VALOR>, <Qual o tipo de tempo?>" },
-  // { name: '[if, ""' },
-  // { name: "[sair_node, <Nome da saída>" },
+  { name: "[rm_tag, <Nome da etiqueta>" },
 ];
 
 const IconPreviewFile = (p: { mimetype: string }): JSX.Element => {
@@ -242,7 +233,6 @@ const optionsModels = [
       </span>
     ),
     value: "o4-mini",
-    isDisabled: true,
   },
   {
     label: (
@@ -251,7 +241,6 @@ const optionsModels = [
       </span>
     ),
     value: "o3-mini",
-    isDisabled: true,
   },
 ];
 

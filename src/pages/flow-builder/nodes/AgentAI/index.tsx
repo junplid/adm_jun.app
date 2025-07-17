@@ -18,18 +18,10 @@ type DataNode = {
 };
 
 const itemsCorporation = [
-  { name: "[atribuir_variavel, <Nome da variavel>, <Qual o valor?>]" },
-  { name: "[add_var, <Nome da variavel>, <Qual o valor?>]" },
-  { name: "[remove_variavel, <Nome da variavel>]" },
-  { name: "[remove_var, <Nome da variavel>]" },
-  { name: "[add_tag, <Nome da etiqueta>]" },
-  { name: "[add_etiqueta, <Nome da etiqueta>]" },
-  { name: "[remove_tag, <Nome da etiqueta>]" },
-  { name: "[remove_etiqueta, <Nome da etiqueta>]" },
-  { name: "[notificar_wa, <Número de WhatsApp>, <Mensagem>]" },
-  { name: '[notify_wa, <999999999>, "<MSG>"]' },
-  { name: "[pausar, <VALOR>, <Qual o tipo de tempo?>]" },
-  // { name: '[if, ""' },
+  { name: "[add_var, <Nome da variavel>, <Qual o valor?>" },
+  { name: "[rm_var, <Nome da variavel>" },
+  { name: "[add_tag, <Nome da etiqueta>" },
+  { name: "[rm_tag, <Nome da etiqueta>" },
   { name: "[sair_node, <Nome da saída>]" },
 ];
 
@@ -85,7 +77,9 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
       </Field>
 
       <div className="flex flex-col items-center">
-        <span className="font-semibold text-center">Instruções do agente</span>
+        <span className="font-semibold text-center">
+          Instrução direta pro agente
+        </span>
         <span className="text-center text-white/70">
           Essas instruções serão priorizadas em relação as que já estão salvas
           no escopo do agente IA
@@ -126,6 +120,22 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
         <span className="text-white/70 text-center">
           Digite <strong className="text-green-400">/</strong> para abrir o menu
           de ferramentas.
+        </span>
+      </div>
+
+      <div className="flex flex-col">
+        <span className="font-semibold text-yellow-400 uppercase">
+          ⚠️ Importante !
+        </span>
+        <span className=" text-white/70">
+          Quanto mais nodes o contato percorre desse agente, mais{" "}
+          <span className="text-white font-medium">Instrução direta</span> entra
+          no histórico.
+        </span>
+        <span className=" text-white/70">
+          Isso faz o agente lembrar de tudo que já foi dito nesse fluxo,
+          incluindo as{" "}
+          <span className="text-white font-medium">Instrução direta</span>.
         </span>
       </div>
     </div>

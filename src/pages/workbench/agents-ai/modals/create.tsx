@@ -217,62 +217,17 @@ const IconPreviewFile = (p: { mimetype: string }): JSX.Element => {
 // ];
 
 const itemsCorporation = [
-  { name: "[atribuir_variavel, <Nome da variavel>, <Qual o valor?>" },
   { name: "[add_var, <Nome da variavel>, <Qual o valor?>" },
-  { name: "[remove_variavel, <Nome da variavel>" },
-  { name: "[remove_var, <Nome da variavel>" },
+  { name: "[rm_var, <Nome da variavel>" },
   { name: "[add_tag, <Nome da etiqueta>" },
-  { name: "[add_etiqueta, <Nome da etiqueta>" },
-  { name: "[remove_tag, <Nome da etiqueta>" },
-  { name: "[remove_etiqueta, <Nome da etiqueta>" },
-  { name: "[notificar_wa, <Número de WhatsApp>, <Mensagem>" },
-  { name: '[notify_wa, <999999999>, "<MSG>"' },
-  { name: "[pausar, <VALOR>, <Qual o tipo de tempo?>" },
-  // { name: '[if, ""' },
-  // { name: "[sair_node, <Nome da saída>" },
+  { name: "[rm_tag, <Nome da etiqueta>" },
 ];
 
 const optionsModels = [
   {
     label: (
       <span>
-        o1 <small className="text-white/70">~US$ 60/M</small>{" "}
-      </span>
-    ),
-    value: "o1",
-    isDisabled: true,
-  },
-  {
-    label: (
-      <span>
-        o3 <small className="text-white/70">~US$ 40/M</small>
-      </span>
-    ),
-    value: "o3",
-    isDisabled: true,
-  },
-  {
-    label: (
-      <span>
-        gpt-4-turbo <small className="text-white/70">~US$ 30/M</small>
-      </span>
-    ),
-    value: "gpt-4-turbo", // não ler arquivos
-    isDisabled: true,
-  },
-  {
-    label: (
-      <span>
-        gpt-4o <small className="text-white/70">~US$ 20/M</small>
-      </span>
-    ),
-    value: "gpt-4o",
-    isDisabled: true,
-  },
-  {
-    label: (
-      <span>
-        gpt-4.1 <small className="text-white/70">~US$ 8/M</small>
+        gpt-4.1 <small className="text-white/70">$8/M</small>
       </span>
     ),
     value: "gpt-4.1",
@@ -280,20 +235,130 @@ const optionsModels = [
   {
     label: (
       <span>
-        o4-mini <small className="text-white/70">~US$ 4.4/M</small>
+        gpt-4.1-mini <small className="text-white/70">$1.60/M</small>
       </span>
     ),
-    value: "o4-mini",
-    isDisabled: true,
+    value: "gpt-4.1-mini",
   },
   {
     label: (
       <span>
-        o3-mini <small className="text-white/70">~US$ 4.4/M</small>
+        gpt-4.1-nano <small className="text-white/70">$0.4/M</small>
+      </span>
+    ),
+    value: "gpt-4.1-nano",
+  },
+  {
+    label: (
+      <span>
+        gpt-4o <small className="text-white/70">$20/M</small>
+      </span>
+    ),
+    value: "gpt-4o",
+  },
+  {
+    label: (
+      <span>
+        gpt-4o-mini <small className="text-white/70">$2.40/M</small>
+      </span>
+    ),
+    value: "gpt-4o-mini",
+  },
+  {
+    label: (
+      <span>
+        o3-mini <small className="text-white/70">$4.40/M</small>
       </span>
     ),
     value: "o3-mini",
-    isDisabled: true,
+  },
+  {
+    label: (
+      <span>
+        o1 <small className="text-white/70">$60/M</small>{" "}
+      </span>
+    ),
+    value: "o1",
+  },
+  {
+    label: (
+      <span>
+        gpt-4-turbo <small className="text-white/70">$30/M</small>{" "}
+      </span>
+    ),
+    value: "gpt-4-turbo",
+  },
+  {
+    label: (
+      <span>
+        gpt-4-turbo-preview <small className="text-white/70">$30/M</small>{" "}
+      </span>
+    ),
+    value: "gpt-4-turbo-preview",
+  },
+  {
+    label: (
+      <span>
+        gpt-4-0125-preview <small className="text-white/70">$30/M</small>{" "}
+      </span>
+    ),
+    value: "gpt-4-0125-preview",
+  },
+  {
+    label: (
+      <span>
+        gpt-4-0613-preview <small className="text-white/70">$60/M</small>{" "}
+      </span>
+    ),
+    value: "gpt-4-0613-preview",
+  },
+  {
+    label: (
+      <span>
+        gpt-4-0613 <small className="text-white/70">$60/M</small>{" "}
+      </span>
+    ),
+    value: "gpt-4-0613",
+  },
+  {
+    label: (
+      <span>
+        gpt-4 <small className="text-white/70">$60/M</small>{" "}
+      </span>
+    ),
+    value: "gpt-4",
+  },
+  {
+    label: (
+      <span>
+        gpt-3.5-turbo <small className="text-white/70">$2/M</small>{" "}
+      </span>
+    ),
+    value: "gpt-3.5-turbo",
+  },
+  {
+    label: (
+      <span>
+        gpt-3.5-16k <small className="text-white/70">$4/M</small>{" "}
+      </span>
+    ),
+    value: "gpt-3.5-16k",
+  },
+  {
+    label: (
+      <span>
+        gpt-3.5-1106 <small className="text-white/70">$2/M</small>{" "}
+      </span>
+    ),
+    value: "gpt-3.5-1106",
+  },
+  {
+    label: (
+      <span>
+        gpt-3.5-0125 <small className="text-white/70">$2/M</small>{" "}
+      </span>
+    ),
+    value: "gpt-3.5-0125",
   },
 ];
 
