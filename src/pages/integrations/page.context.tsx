@@ -7,7 +7,7 @@ import { HiMenu } from "react-icons/hi";
 import { useColorModeValue } from "@components/ui/color-mode";
 import { LayoutIntegrationsPageContext } from "./contexts";
 import { Badge } from "@chakra-ui/react";
-import { RiMoneyDollarCircleLine } from "react-icons/ri";
+import { RiMoneyDollarCircleLine, RiTrelloLine } from "react-icons/ri";
 
 interface IToggleMenuProps {
   toggledMenu: boolean;
@@ -124,6 +124,13 @@ export function LayoutIntegrationsPageProvider(): JSX.Element {
                   component={<Link to={"integrations/payments"} />}
                 >
                   Pagamentos <Badge colorPalette={"green"}>NEW</Badge>
+                </MenuItem>
+                <MenuItem
+                  icon={<RiTrelloLine size={23} />}
+                  active={pathname === "/auth/integrations/trello"}
+                  component={<Link to={"integrations/trello"} />}
+                >
+                  Trello <Badge colorPalette={"green"}>NEW</Badge>
                 </MenuItem>
               </Menu>
             </div>

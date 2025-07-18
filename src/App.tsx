@@ -29,6 +29,7 @@ import { TagsPage } from "./pages/workbench/tags";
 import { LayoutIntegrationsPageProvider } from "./pages/integrations/page.context";
 import { PaymentsPage } from "./pages/integrations/payments";
 import { OrdersPage } from "./pages/orders";
+import { TrelloPage } from "./pages/integrations/trello";
 
 // import { NodeMessage } from "./flow-lib/nodes/Message";
 // import { NodeReply } from "./flow-lib/nodes/Reply";
@@ -150,6 +151,11 @@ export default function App() {
                 path="integrations/payments"
                 caseSensitive
                 element={<PaymentsPage />}
+              />
+              <Route
+                path="integrations/trello"
+                caseSensitive
+                element={<TrelloPage />}
               />
             </Route>
             <Route path="orders" caseSensitive element={<OrdersPage />} />
