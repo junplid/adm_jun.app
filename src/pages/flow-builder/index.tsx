@@ -70,6 +70,10 @@ import { NodeCreateOrder } from "./nodes/CreateOrder";
 import { NodeUpdateOrder } from "./nodes/UpdateOrder";
 import { NodeTimedQueue } from "./nodes/TimedQueue";
 import { NodeCalculator } from "./nodes/Calculator";
+import { NodeAddTrelloCard } from "./nodes/AddTrelloCard";
+import { NodeRemoveTrelloCard } from "./nodes/RemoveTrelloCard";
+import { NodeUpdateTrelloCard } from "./nodes/updateTrelloCard";
+import { NodeMoveTrelloCard } from "./nodes/MoveTrelloCard";
 
 type NodeTypesGeneric = {
   [x in TypesNodes]: any;
@@ -106,7 +110,11 @@ export type TypesNodes =
   | "NodeCreateOrder"
   | "NodeUpdateOrder"
   | "NodeTimedQueue"
-  | "NodeCalculator";
+  | "NodeCalculator"
+  | "NodeAddTrelloCard"
+  | "NodeRemoveTrelloCard"
+  | "NodeUpdateTrelloCard"
+  | "NodeMoveTrelloCard";
 
 const nodeTypes: NodeTypesGeneric = {
   NodeInitial: NodeInitial,
@@ -140,6 +148,10 @@ const nodeTypes: NodeTypesGeneric = {
   NodeUpdateOrder: NodeUpdateOrder,
   NodeTimedQueue: NodeTimedQueue,
   NodeCalculator: NodeCalculator,
+  NodeAddTrelloCard: NodeAddTrelloCard,
+  NodeRemoveTrelloCard: NodeRemoveTrelloCard,
+  NodeUpdateTrelloCard: NodeUpdateTrelloCard,
+  NodeMoveTrelloCard: NodeMoveTrelloCard,
 };
 
 const edgeTypes = {
@@ -310,6 +322,8 @@ function Body(props: IBody): JSX.Element {
         newNode.data = { value: 20, type: ["seconds"] };
       } else if (typeN === "NodeRemoveTags") {
         newNode.data = { list: [] };
+      } else if (typeN === "NodeUpdateTrelloCard") {
+        newNode.data = { fields: [] };
       }
       onNodesChange([{ type: "add", item: newNode }]);
       setTypeDrag(null);

@@ -72,6 +72,54 @@ export function useGetTrelloIntegrationsOptions(params?: {}) {
   });
 }
 
+export function useGetBoardsTrelloIntegrationOptions(id: number) {
+  const { logout } = useContext(AuthContext);
+  return useQuery({
+    queryKey: ["boards-trello-integration-options", id],
+    queryFn: async () => {
+      try {
+        return await TrelloIntegration.getBoardsTrelloIntegrationOptions(id);
+      } catch (error) {
+        if (error instanceof AxiosError) {
+          if (error.response?.status === 401) logout();
+          if (error.response?.status === 400) {
+            const dataError = error.response?.data as ErrorResponse_I;
+            if (dataError.toast.length) dataError.toast.forEach(toaster.create);
+          }
+        }
+        throw error;
+      }
+    },
+  });
+}
+
+export function useGetListsOnBoardTrelloIntegrationOptions(
+  id: number,
+  boardId: string
+) {
+  const { logout } = useContext(AuthContext);
+  return useQuery({
+    queryKey: ["lists-board-trello-integration-options", id],
+    queryFn: async () => {
+      try {
+        return await TrelloIntegration.getListsOnBoardTrelloIntegrationOptions(
+          id,
+          boardId
+        );
+      } catch (error) {
+        if (error instanceof AxiosError) {
+          if (error.response?.status === 401) logout();
+          if (error.response?.status === 400) {
+            const dataError = error.response?.data as ErrorResponse_I;
+            if (dataError.toast.length) dataError.toast.forEach(toaster.create);
+          }
+        }
+        throw error;
+      }
+    },
+  });
+}
+
 export function useCreateTrelloIntegration(props?: {
   setError?: UseFormSetError<{
     name: string;

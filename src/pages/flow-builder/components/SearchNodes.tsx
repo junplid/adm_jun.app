@@ -37,7 +37,7 @@ import {
 import { FaCrown } from "react-icons/fa";
 import { AuthContext } from "@contexts/auth.context";
 import { GiDirectionSigns } from "react-icons/gi";
-import { RiMoneyDollarCircleLine } from "react-icons/ri";
+import { RiMoneyDollarCircleLine, RiTrelloLine } from "react-icons/ri";
 import { HiOutlineUserGroup } from "react-icons/hi";
 import useStore from "../flowStore";
 import { HiOutlineQueueList } from "react-icons/hi2";
@@ -487,6 +487,55 @@ const nodesList: {
     description: "Faz cálculos matemáticos",
     type: "NodeCalculator",
     new: true,
+  },
+  {
+    icon: (
+      <RiTrelloLine
+        className="dark:text-green-400  text-green-500 w-8"
+        size={31}
+      />
+    ),
+    name: "Adicionar card no Trello",
+    description: "Adiciona um novo card no trello",
+    type: "NodeAddTrelloCard",
+    new: true,
+    premium: true,
+  },
+  {
+    icon: (
+      <RiTrelloLine className="dark:text-red-400  text-red-500 w-8" size={31} />
+    ),
+    name: "Remove card no Trello",
+    description: "Remove um card da lista do trello",
+    type: "NodeRemoveTrelloCard",
+    new: true,
+    premium: true,
+  },
+  {
+    icon: (
+      <RiTrelloLine
+        className="dark:text-blue-400  text-blue-500 w-8"
+        size={31}
+      />
+    ),
+    name: "Atualizar card no Trello",
+    description: "Atualiza card do trello",
+    type: "NodeUpdateTrelloCard",
+    new: true,
+    premium: true,
+  },
+  {
+    icon: (
+      <RiTrelloLine
+        className="dark:text-yellow-400  text-yellow-500 w-8"
+        size={31}
+      />
+    ),
+    name: "Mover card no Trello",
+    description: "Mova um card do trello",
+    type: "NodeMoveTrelloCard",
+    new: true,
+    premium: true,
   },
   {
     icon: (

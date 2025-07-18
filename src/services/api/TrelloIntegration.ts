@@ -13,6 +13,33 @@ export async function getTrelloIntegrations(params: {}): Promise<
   return data.integrations;
 }
 
+export async function getBoardsTrelloIntegrationOptions(id: number): Promise<
+  {
+    id: string;
+    name: string;
+  }[]
+> {
+  const { data } = await api.get(
+    `/private/integration/trello/${id}/boards/options`
+  );
+  return data.boards;
+}
+
+export async function getListsOnBoardTrelloIntegrationOptions(
+  id: number,
+  boardId: string
+): Promise<
+  {
+    id: string;
+    name: string;
+  }[]
+> {
+  const { data } = await api.get(
+    `/private/integration/trello/${id}/lists/${boardId}/options`
+  );
+  return data.lists;
+}
+
 export async function getOptionsTrelloIntegrations(params: {}): Promise<
   { name: string; status: boolean; id: number }[]
 > {

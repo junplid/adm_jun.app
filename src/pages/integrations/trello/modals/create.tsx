@@ -53,6 +53,7 @@ export const ModalTrello: React.FC<Props> = (props): JSX.Element => {
     formState: { errors },
     setError,
     reset,
+    watch,
   } = useForm<Fields>({
     resolver: zodResolver(FormSchema),
     defaultValues: { status: true },
@@ -64,6 +65,8 @@ export const ModalTrello: React.FC<Props> = (props): JSX.Element => {
       setOpen(false);
     },
   });
+
+  const key = watch("key");
 
   const create = useCallback(async (fields: Fields): Promise<void> => {
     try {
@@ -131,6 +134,22 @@ export const ModalTrello: React.FC<Props> = (props): JSX.Element => {
               errorText={errors.token?.message}
               invalid={!!errors.token}
               label="Token de acesso"
+              helperText={
+                !key ? (
+                  "Link para a recuperação do Token de acesso fica disponivel quando preenche o campo Chave de API"
+                ) : (
+                  <span>
+                    Acesse:{" "}
+                    <a
+                      href={`https://trello.com/1/authorize?expiration=never&scope=read,write,account&response_type=token&key=${key}`}
+                      className="text-blue-300 hover:text-blue-400 hover:underline font-medium"
+                    >
+                      Gerar token de acesso
+                    </a>
+                    , com o token copiado, cole-o no campo acima.
+                  </span>
+                )
+              }
             >
               <Input
                 {...register("token")}
@@ -152,10 +171,7 @@ export const ModalTrello: React.FC<Props> = (props): JSX.Element => {
               </li>
               <li>Selecione o seu Power-ups/Integração ou crie um novo.</li>
               <li>Acesse a aba 'Chave de API' no menu lateral esquerdo.</li>
-              <li>
-                Copie a Chave de API e o Segredo(token de acesso). Gere um novo
-                Secredo caso não exista.
-              </li>
+              <li>Copie a Chave de API.</li>
             </ul>
           </VStack>
         </DialogBody>
