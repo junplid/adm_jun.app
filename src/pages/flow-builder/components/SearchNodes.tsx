@@ -539,6 +539,16 @@ const nodesList: {
   },
   {
     icon: (
+      <RiTrelloLine className="dark:text-white  text-black w-8" size={31} />
+    ),
+    name: "Webhook card do Trello",
+    description: "Escute mudanças de lista do card",
+    type: "NodeWebhookTrelloCard",
+    new: true,
+    premium: true,
+  },
+  {
+    icon: (
       <VscDebugStop
         className="dark:text-zinc-100 text-zinc-800 w-8"
         size={31}
