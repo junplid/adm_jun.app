@@ -7,7 +7,6 @@ import { Field } from "@components/ui/field";
 import AutocompleteTextField from "@components/Autocomplete";
 import { useGetVariablesOptions } from "../../../../hooks/variable";
 import SelectTrelloIntegrations from "@components/SelectTrelloIntegrations";
-import { Input } from "@chakra-ui/react";
 // import { FaTrash } from "react-icons/fa";
 import { RiTrelloLine } from "react-icons/ri";
 import SelectVariables from "@components/SelectVariables";
@@ -103,11 +102,22 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
       )}
 
       <Field label="Título do Card">
-        <Input
+        <AutocompleteTextField
+          // @ts-expect-error
+          trigger={["{{"]}
+          maxOptions={20}
+          matchAny
+          options={{
+            "{{": variables?.map((s) => s.name + "}} ") || [],
+          }}
+          maxRows={14}
+          minRows={5}
           defaultValue={data.name || ""}
-          onChange={({ target }) => {
-            updateNode(id, {
-              data: { ...data, name: target.value },
+          placeholder={`Descrição`}
+          onChange={async (target: string) => {
+            setDataMok({
+              ...data,
+              name: target,
             });
           }}
         />
