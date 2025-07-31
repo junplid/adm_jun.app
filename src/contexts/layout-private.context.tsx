@@ -30,6 +30,7 @@ import { ModalOnboarded } from "./ModalOnboarded";
 import { updateAccount } from "../services/api/Account";
 import { FiInbox } from "react-icons/fi";
 import { PiPuzzlePieceBold } from "react-icons/pi";
+import { CgWebsite } from "react-icons/cg";
 
 export const ShadowTopMemoComponent = memo(() => {
   const [showShadowTop, setShowShadowTop] = useState(true);
@@ -262,6 +263,13 @@ export function LayoutPrivateProvider(): JSX.Element {
                 active={pathname === "/auth/projects"}
               >
                 Projetos
+              </MenuItem>
+              <MenuItem
+                icon={<CgWebsite size={22} />}
+                component={<Link to={"/auth/menus-online"} />}
+                active={pathname.includes("menus-online")}
+              >
+                Cardápios on-line <Badge colorPalette={"green"}>NEW</Badge>
               </MenuItem>
               <MenuItem
                 icon={<LuNotepadText size={20} />}

@@ -18,10 +18,10 @@ type DataNode = {
 };
 
 const itemsCorporation = [
-  { name: "[add_var, <Nome da variavel>, <Qual o valor?>" },
-  { name: "[rm_var, <Nome da variavel>" },
-  { name: "[add_tag, <Nome da etiqueta>" },
-  { name: "[rm_tag, <Nome da etiqueta>" },
+  { name: "[add_var, <Nome da variavel>, <Qual o valor?>]" },
+  { name: "[rm_var, <Nome da variavel>]" },
+  { name: "[add_tag, <Nome da etiqueta>]" },
+  { name: "[rm_tag, <Nome da etiqueta>]" },
   { name: "[sair_node, <Nome da saída>]" },
 ];
 

@@ -235,42 +235,10 @@ const optionsModels = [
   {
     label: (
       <span>
-        gpt-4.1-mini <small className="text-white/70">$1.60/M</small>
-      </span>
-    ),
-    value: "gpt-4.1-mini",
-  },
-  {
-    label: (
-      <span>
-        gpt-4.1-nano <small className="text-white/70">$0.4/M</small>
-      </span>
-    ),
-    value: "gpt-4.1-nano",
-  },
-  {
-    label: (
-      <span>
         gpt-4o <small className="text-white/70">$20/M</small>
       </span>
     ),
     value: "gpt-4o",
-  },
-  {
-    label: (
-      <span>
-        gpt-4o-mini <small className="text-white/70">$2.40/M</small>
-      </span>
-    ),
-    value: "gpt-4o-mini",
-  },
-  {
-    label: (
-      <span>
-        o3-mini <small className="text-white/70">$4.40/M</small>
-      </span>
-    ),
-    value: "o3-mini",
   },
   {
     label: (
@@ -283,82 +251,10 @@ const optionsModels = [
   {
     label: (
       <span>
-        gpt-4-turbo <small className="text-white/70">$30/M</small>{" "}
-      </span>
-    ),
-    value: "gpt-4-turbo",
-  },
-  {
-    label: (
-      <span>
-        gpt-4-turbo-preview <small className="text-white/70">$30/M</small>{" "}
-      </span>
-    ),
-    value: "gpt-4-turbo-preview",
-  },
-  {
-    label: (
-      <span>
-        gpt-4-0125-preview <small className="text-white/70">$30/M</small>{" "}
-      </span>
-    ),
-    value: "gpt-4-0125-preview",
-  },
-  {
-    label: (
-      <span>
-        gpt-4-0613-preview <small className="text-white/70">$60/M</small>{" "}
-      </span>
-    ),
-    value: "gpt-4-0613-preview",
-  },
-  {
-    label: (
-      <span>
-        gpt-4-0613 <small className="text-white/70">$60/M</small>{" "}
-      </span>
-    ),
-    value: "gpt-4-0613",
-  },
-  {
-    label: (
-      <span>
         gpt-4 <small className="text-white/70">$60/M</small>{" "}
       </span>
     ),
     value: "gpt-4",
-  },
-  {
-    label: (
-      <span>
-        gpt-3.5-turbo <small className="text-white/70">$2/M</small>{" "}
-      </span>
-    ),
-    value: "gpt-3.5-turbo",
-  },
-  {
-    label: (
-      <span>
-        gpt-3.5-16k <small className="text-white/70">$4/M</small>{" "}
-      </span>
-    ),
-    value: "gpt-3.5-16k",
-  },
-  {
-    label: (
-      <span>
-        gpt-3.5-1106 <small className="text-white/70">$2/M</small>{" "}
-      </span>
-    ),
-    value: "gpt-3.5-1106",
-  },
-  {
-    label: (
-      <span>
-        gpt-3.5-0125 <small className="text-white/70">$2/M</small>{" "}
-      </span>
-    ),
-    value: "gpt-3.5-0125",
   },
 ];
 

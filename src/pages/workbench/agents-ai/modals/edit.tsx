@@ -185,43 +185,7 @@ const optionsModels = [
   {
     label: (
       <span>
-        o1 <small className="text-white/70">~US$ 60/M</small>{" "}
-      </span>
-    ),
-    value: "o1",
-    isDisabled: true,
-  },
-  {
-    label: (
-      <span>
-        o3 <small className="text-white/70">~US$ 40/M</small>
-      </span>
-    ),
-    value: "o3",
-    isDisabled: true,
-  },
-  {
-    label: (
-      <span>
-        gpt-4-turbo <small className="text-white/70">~US$ 30/M</small>
-      </span>
-    ),
-    value: "gpt-4-turbo", // não ler arquivos
-    isDisabled: true,
-  },
-  {
-    label: (
-      <span>
-        gpt-4o <small className="text-white/70">~US$ 20/M</small>
-      </span>
-    ),
-    value: "gpt-4o",
-    isDisabled: true,
-  },
-  {
-    label: (
-      <span>
-        gpt-4.1 <small className="text-white/70">~US$ 8/M</small>
+        gpt-4.1 <small className="text-white/70">$8/M</small>
       </span>
     ),
     value: "gpt-4.1",
@@ -229,18 +193,26 @@ const optionsModels = [
   {
     label: (
       <span>
-        o4-mini <small className="text-white/70">~US$ 4.4/M</small>
+        gpt-4o <small className="text-white/70">$20/M</small>
       </span>
     ),
-    value: "o4-mini",
+    value: "gpt-4o",
   },
   {
     label: (
       <span>
-        o3-mini <small className="text-white/70">~US$ 4.4/M</small>
+        o1 <small className="text-white/70">$60/M</small>{" "}
       </span>
     ),
-    value: "o3-mini",
+    value: "o1",
+  },
+  {
+    label: (
+      <span>
+        gpt-4 <small className="text-white/70">$60/M</small>{" "}
+      </span>
+    ),
+    value: "gpt-4",
   },
 ];
 

@@ -108,12 +108,10 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
           maxOptions={20}
           matchAny
           options={{
-            "{{": variables?.map((s) => s.name + "}} ") || [],
+            "{{": variables?.map((s) => s.name) || [],
           }}
-          maxRows={14}
-          minRows={5}
+          spacer={"}} "}
           defaultValue={data.name || ""}
-          placeholder={`Descrição`}
           onChange={async (target: string) => {
             setDataMok({
               ...data,

@@ -131,11 +131,11 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
   const handleDelete = (index: number) => {
     if (!index && data.list.length === 1) {
       updateNode(id, {
-        data: { list: data.list.filter((_, i) => i !== index) },
+        data: { ...data, list: data.list.filter((_, i) => i !== index) },
       });
     } else {
       updateNode(id, {
-        data: { list: data.list.filter((_, i) => i !== index) },
+        data: { ...data, list: data.list.filter((_, i) => i !== index) },
       });
     }
   };
