@@ -12,7 +12,7 @@ import { AxiosError } from "axios";
 import { useCallback, JSX } from "react";
 import { Button } from "@chakra-ui/react";
 import { CloseButton } from "@components/ui/close-button";
-import { useDeleteVariable } from "../../../../hooks/variable";
+import { useDeleteVariable } from "../../../../../../hooks/variable";
 
 interface PropsModalDelete {
   data: { id: number; name: string } | null;

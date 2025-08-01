@@ -31,9 +31,10 @@ export async function createMenuOnlineItem(
     name: string;
     category: "pizzas" | "drinks";
     desc?: string;
-    beforePrice: number;
-    afterPrice: number;
+    beforePrice?: number;
+    afterPrice?: number;
     img: File;
+    qnt?: number;
   }
 ): Promise<{
   id: number;
@@ -58,6 +59,18 @@ export async function createMenuOnlineItem(
   );
 
   return data.item;
+}
+
+export async function createMenuOnlineSizePizza(
+  menuUuid: string,
+  body: { name: string; price: number; flavors: number; slices?: number }
+): Promise<{ id: number; createAt: Date }> {
+  const { data } = await api.post(
+    `/private/menus-online/${menuUuid}/sizes-pizza`,
+    body
+  );
+
+  return data.size;
 }
 
 export async function updateMenuOnline(
@@ -123,7 +136,7 @@ export async function getMenuOnlineItems(params: { uuid: string }): Promise<
   }[]
 > {
   const { data } = await api.get(`/private/menus-online/${params.uuid}/items`);
-  return data.item;
+  return data.items;
 }
 
 export async function getOptionsMenusOnline({

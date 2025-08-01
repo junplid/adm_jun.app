@@ -18,7 +18,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import SelectBusinesses from "@components/SelectBusinesses";
 import deepEqual from "fast-deep-equal";
-import { useGetVariable, useUpdateVariable } from "../../../../hooks/variable";
+import {
+  useGetVariable,
+  useUpdateVariable,
+} from "../../../../../../hooks/variable";
 import SelectComponent from "@components/Select";
 
 interface IProps {

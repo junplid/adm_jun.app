@@ -11,8 +11,8 @@ import { JSX } from "react";
 import { CloseButton } from "@components/ui/close-button";
 import { Button, Spinner } from "@chakra-ui/react";
 import { ModalDeleteVariable } from "./delete";
-import { useGetVariableDetails } from "../../../../hooks/variable";
-import { useDialogModal } from "../../../../hooks/dialog.modal";
+import { useGetVariableDetails } from "../../../../../../hooks/variable";
+import { useDialogModal } from "../../../../../../hooks/dialog.modal";
 
 interface IProps {
   id: number;

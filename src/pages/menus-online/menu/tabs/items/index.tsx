@@ -1,5 +1,4 @@
 import { Column, TableComponent } from "@components/Table";
-import { useGetVariables } from "../../../../../hooks/variable";
 import { useDialogModal } from "../../../../../hooks/dialog.modal";
 import { JSX, memo, useMemo } from "react";
 import { Button } from "@chakra-ui/react";
@@ -12,22 +11,24 @@ import { ModalCreateProduct } from "./modals/create";
 import { IoAdd } from "react-icons/io5";
 import { useGetMenuOnlineItems } from "../../../../../hooks/menu-online";
 
-export type TypeVariable = "dynamics" | "constant" | "system";
+export type TypeCategory = "pizzas" | "drinks";
 
 export interface ItemRow {
-  business: { name: string; id: number }[];
-  type: TypeVariable;
-  name: string;
+  uuid: string;
   id: number;
-  value: string | null;
+  name: string;
+  desc: string | null;
+  category: "pizzas" | "drinks";
+  qnt: number;
+  beforePrice: number | null;
+  afterPrice: number;
 }
 
 const translateType: {
-  [x in TypeVariable]: { label: string; cb: string; ct: string };
+  [x in TypeCategory]: { label: string; cb: string; ct: string };
 } = {
-  dynamics: { label: "Mutável", cb: "#294d6e", ct: "#dcf4ff" },
-  constant: { label: "Imutável", cb: "#836e21", ct: "#fff" },
-  system: { label: "Sistema", cb: "#373a3d", ct: "#cfcfcf" },
+  pizzas: { label: "Pizza", cb: "#836e21", ct: "#dcf4ff" },
+  drinks: { label: "Bebida", cb: "#294d6e", ct: "#fff" },
 };
 
 const TabProducts_ = ({ uuid }: { uuid: string }): JSX.Element => {
@@ -58,20 +59,22 @@ const TabProducts_ = ({ uuid }: { uuid: string }): JSX.Element => {
         key: "category",
         name: "Categoria",
         styles: { width: 100 },
-        // render(row) {
-        //   const type = row.type as TypeVariable;
-        //   return (
-        //     <span
-        //       style={{
-        //         background: translateType[type].cb,
-        //         color: translateType[type].ct,
-        //       }}
-        //       className="flex p-0.5 px-2 gap-x-2 text-sm tracking-wide select-none items-center font-semibold rounded-sm"
-        //     >
-        //       {translateType[type].label}
-        //     </span>
-        //   );
-        // },
+        render(row) {
+          const category = row.category as TypeCategory;
+          return (
+            <div className="flex">
+              <span
+                style={{
+                  background: translateType[category].cb,
+                  color: translateType[category].ct,
+                }}
+                className="flex p-0.5 px-2 text-sm text-center select-none font-semibold rounded-sm"
+              >
+                {translateType[category].label}
+              </span>
+            </div>
+          );
+        },
       },
       {
         key: "actions",
@@ -147,6 +150,7 @@ const TabProducts_ = ({ uuid }: { uuid: string }): JSX.Element => {
       <div className="px-3 pt-4 bg-zinc-800/15 flex flex-col gap-y-3 rounded-md">
         <div className="flex flex-col gap-y-4 items-center justify-between">
           <ModalCreateProduct
+            menuUuid={uuid}
             trigger={
               <Button variant="outline" size={"sm"}>
                 <IoAdd /> Adicionar item
@@ -201,9 +205,9 @@ const TabProducts_ = ({ uuid }: { uuid: string }): JSX.Element => {
             // }}
           />
         </Field>
-        {!![].length && (
+        {!!items?.length && (
           <span className="text-white/50 mt-10 text-center">
-            {[].length > 1
+            {items.length > 1
               ? `${[].length} pedidos encontrados"`
               : `${[].length} pedido encontrado`}
           </span>
@@ -212,7 +216,7 @@ const TabProducts_ = ({ uuid }: { uuid: string }): JSX.Element => {
       <TableComponent
         rows={items || []}
         columns={renderColumns}
-        textEmpity="Suas variáveis aparecerão aqui."
+        textEmpity="Seus items aparecerão aqui."
         load={isFetching || isPending}
       />
       {/* <div className="px-3 pt-4 bg-zinc-800/15 flex flex-col gap-y-3 rounded-md">

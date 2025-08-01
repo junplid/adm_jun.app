@@ -164,7 +164,15 @@ export function useCreateMenuOnline(props?: {
 }
 
 export function useCreateMenuOnlineItem(props?: {
-  setError?: UseFormSetError<{ identifier: string; desc?: string; img: File }>;
+  setError?: UseFormSetError<{
+    name: string;
+    category: "pizzas" | "drinks";
+    desc?: string;
+    beforePrice?: number;
+    afterPrice?: number;
+    img: File;
+    qnt?: number;
+  }>;
   onSuccess?: () => Promise<void>;
 }) {
   const { logout } = useContext(AuthContext);
@@ -178,9 +186,10 @@ export function useCreateMenuOnlineItem(props?: {
       name: string;
       category: "pizzas" | "drinks";
       desc?: string;
-      beforePrice: number;
-      afterPrice: number;
+      beforePrice?: number;
+      afterPrice?: number;
       img: File;
+      qnt?: number;
     }) => MenuOnlineService.createMenuOnlineItem(menuUuid, body),
     async onSuccess(data, { name }) {
       if (props?.onSuccess) await props.onSuccess();
@@ -200,6 +209,63 @@ export function useCreateMenuOnlineItem(props?: {
         queryClient.setQueryData(
           ["menus-online-items-options", null],
           (old: any) => [...(old || []), { id: data.id, name }]
+        );
+      }
+    },
+    onError(error: unknown) {
+      if (error instanceof AxiosError) {
+        if (error.response?.status === 401) logout();
+        if (error.response?.status === 400) {
+          const dataError = error.response?.data as ErrorResponse_I;
+          if (dataError.toast.length) dataError.toast.forEach(toaster.create);
+          if (dataError.input.length) {
+            dataError.input.forEach(({ text, path }) =>
+              // @ts-expect-error
+              props?.setError?.(path, { message: text })
+            );
+          }
+        }
+      }
+    },
+  });
+}
+
+export function useCreateMenuOnlineSizePizza(props?: {
+  setError?: UseFormSetError<{
+    name: string;
+    price: number;
+    flavors: number;
+    slices?: number;
+  }>;
+  onSuccess?: () => Promise<void>;
+}) {
+  const { logout } = useContext(AuthContext);
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      menuUuid,
+      ...body
+    }: {
+      menuUuid: string;
+      name: string;
+      price: number;
+      flavors: number;
+      slices?: number;
+    }) => MenuOnlineService.createMenuOnlineSizePizza(menuUuid, body),
+    async onSuccess(data, { name }) {
+      if (props?.onSuccess) await props.onSuccess();
+      // await queryClient.setQueryData(["menu-online", data.id], () => ({
+      //   name,
+      //   description,
+      // }));
+
+      if (queryClient.getQueryData<any>(["menus-online-sizes-pizza", null])) {
+        queryClient.setQueryData(
+          ["menus-online-sizes-pizza", null],
+          (old: any) => {
+            if (!old) return old;
+            return [{ ...data, name }, ...old];
+          }
         );
       }
     },

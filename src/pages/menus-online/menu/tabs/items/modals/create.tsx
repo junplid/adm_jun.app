@@ -24,11 +24,13 @@ import TextareaAutosize from "react-textarea-autosize";
 import { useHookFormMask } from "use-mask-input";
 import { Avatar } from "@components/ui/avatar";
 import { MdOutlineImage } from "react-icons/md";
+import { useCreateMenuOnlineItem } from "../../../../../../hooks/menu-online";
 
 interface IProps {
   onCreate?(business: ItemRow): Promise<void>;
   trigger: JSX.Element;
   placement?: "top" | "bottom" | "center";
+  menuUuid: string;
 }
 
 const optionsCategory = [
@@ -40,9 +42,10 @@ const FormSchema = z.object({
   name: z.string().min(1, "Campo obrigatório."),
   desc: z.string().optional(),
   category: z.enum(["pizzas", "drinks"], { message: "Campo obrigatório." }),
-  beforePrice: z.number().optional(),
-  afterPrice: z.number({ message: "Campo obrigatório." }),
+  beforePrice: z.string().optional(),
+  afterPrice: z.string().optional(),
   img: z.instanceof(File, { message: "Campo obrigatório." }),
+  qnt: z.number().optional(),
 });
 
 type Fields = z.infer<typeof FormSchema>;
@@ -58,7 +61,6 @@ export function ModalCreateProduct({
     formState: { errors },
     setError,
     setValue,
-    getValues,
     watch,
     reset,
   } = useForm<Fields>({
@@ -68,28 +70,38 @@ export function ModalCreateProduct({
   const imgProfileRef = useRef<HTMLInputElement>(null);
 
   const [open, setOpen] = useState(false);
-  // const { mutateAsync: createVariable, isPending } = useCreateVariable({
-  //   setError,
-  //   async onSuccess() {
-  //     setOpen(false);
-  //     await new Promise((resolve) => setTimeout(resolve, 220));
-  //   },
-  // });
+  const { mutateAsync: createItem, isPending } = useCreateMenuOnlineItem({
+    setError,
+    async onSuccess() {
+      setOpen(false);
+      await new Promise((resolve) => setTimeout(resolve, 220));
+    },
+  });
 
-  const create = useCallback(async (fields: Fields): Promise<void> => {
-    try {
-      // const flow = await createVariable(fields);
-      // const { businessIds, ...rest } = fields;
-      reset();
-      // props.onCreate?.({ ...flow, ...rest });
-    } catch (error) {
-      if (error instanceof AxiosError) {
-        console.log("Error-API", error);
-      } else {
-        console.log("Error-Client", error);
+  const create = useCallback(
+    async (fields: Fields): Promise<void> => {
+      try {
+        await createItem({
+          ...fields,
+          afterPrice: fields.afterPrice ? Number(fields.afterPrice) : undefined,
+          beforePrice: fields.beforePrice
+            ? Number(fields.beforePrice)
+            : undefined,
+          menuUuid: props.menuUuid,
+        });
+        reset();
+        // const { businessIds, ...rest } = fields;
+        // props.onCreate?.({ ...flow, ...rest });
+      } catch (error) {
+        if (error instanceof AxiosError) {
+          console.log("Error-API", error);
+        } else {
+          console.log("Error-Client", error);
+        }
       }
-    }
-  }, []);
+    },
+    [props.menuUuid]
+  );
 
   const fileImage = watch("img");
 
@@ -98,6 +110,8 @@ export function ModalCreateProduct({
       return URL.createObjectURL(fileImage);
     }
   }, [fileImage]);
+
+  const category = watch("category");
 
   return (
     <DialogRoot
@@ -184,7 +198,6 @@ export function ModalCreateProduct({
                 render={({ field }) => (
                   <SelectComponent
                     options={optionsCategory}
-                    placeholder="Todos"
                     value={
                       field.value
                         ? {
@@ -196,6 +209,7 @@ export function ModalCreateProduct({
                           }
                         : null
                     }
+                    placeholder="Selecione uma categoria"
                     isClearable={false}
                     isSearchable={false}
                     isMulti={false}
@@ -209,13 +223,14 @@ export function ModalCreateProduct({
                 errorText={errors.beforePrice?.message}
                 invalid={!!errors.beforePrice}
                 label="Preço antigo"
+                disabled={category === "pizzas"}
               >
                 <Input
-                  {...registerWithMask(
-                    "beforePrice",
-                    ["9.99", "99.99", "999.99"],
-                    { valueAsNumber: true }
-                  )}
+                  {...registerWithMask("beforePrice", [
+                    "9.99",
+                    "99.99",
+                    "999.99",
+                  ])}
                   autoComplete="off"
                   placeholder=""
                 />
@@ -224,35 +239,42 @@ export function ModalCreateProduct({
                 errorText={errors.afterPrice?.message}
                 invalid={!!errors.afterPrice}
                 label="Preço atual"
-                required
+                disabled={category === "pizzas"}
               >
                 <Input
-                  {...registerWithMask(
-                    "afterPrice",
-                    ["9.99", "99.99", "999.99"],
-                    { valueAsNumber: true }
-                  )}
+                  {...registerWithMask("afterPrice", [
+                    "9.99",
+                    "99.99",
+                    "999.99",
+                  ])}
                   autoComplete="off"
                   placeholder="00.00"
                 />
               </Field>
             </div>
+            <Field
+              errorText={errors.qnt?.message}
+              invalid={!!errors.qnt}
+              label="Quantidade em estoque"
+              required
+            >
+              <Input
+                {...registerWithMask("qnt", ["9", "99", "999", "9999"], {
+                  valueAsNumber: true,
+                })}
+                autoComplete="off"
+                placeholder="0"
+              />
+            </Field>
           </VStack>
         </DialogBody>
         <DialogFooter>
           <DialogActionTrigger asChild>
-            <Button
-              type="button"
-              // disabled={isPending}
-              variant="outline"
-            >
+            <Button type="button" disabled={isPending} variant="outline">
               Cancelar
             </Button>
           </DialogActionTrigger>
-          <Button
-            type="submit"
-            //  loading={isPending}
-          >
+          <Button type="submit" loading={isPending}>
             Criar
           </Button>
         </DialogFooter>
