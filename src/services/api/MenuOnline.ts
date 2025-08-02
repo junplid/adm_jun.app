@@ -76,14 +76,32 @@ export async function createMenuOnlineSizePizza(
 export async function updateMenuOnline(
   id: number,
   body: {
-    name?: string;
-    description?: string | null;
+    identifier?: string;
+    desc?: string;
+    bg_primary?: string;
+    bg_secondary?: string;
+    bg_tertiary?: string;
+    label1?: string;
+    label?: string;
+    titlePage?: string;
+    status?: boolean;
+    img?: File;
   }
 ): Promise<{
-  updateAt: Date;
+  logoImg?: string;
+  uuid: string;
 }> {
-  const { data } = await api.put(`/private/menus-online/${id}`, undefined, {
-    params: body,
+  const formData = new FormData();
+  const { img, ...rest } = body;
+  Object.entries(rest).forEach(([key, value]) => {
+    if (value !== undefined) {
+      formData.append(key, String(value));
+    }
+  });
+  if (img) formData.append("fileImage", img);
+
+  const { data } = await api.put(`/private/menus-online/${id}`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
   });
   return data.menu;
 }
@@ -103,7 +121,15 @@ export async function getMenuOnline(params: { uuid: string }): Promise<{
   id: number;
   uuid: string;
   identifier: string;
-  desc: string | null;
+  logoImg: string;
+  desc?: string;
+  bg_primary?: string;
+  bg_secondary?: string;
+  bg_tertiary?: string;
+  label1?: string;
+  label?: string;
+  titlePage?: string;
+  status?: boolean;
 }> {
   const { data } = await api.get(`/private/menus-online/${params.uuid}`);
   return data.menu;

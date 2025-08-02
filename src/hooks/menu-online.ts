@@ -288,7 +288,18 @@ export function useCreateMenuOnlineSizePizza(props?: {
 }
 
 export function useUpdateMenuOnline(props?: {
-  setError?: UseFormSetError<{ name?: string; description?: string }>;
+  setError?: UseFormSetError<{
+    identifier?: string;
+    desc?: string;
+    bg_primary?: string;
+    bg_secondary?: string;
+    bg_tertiary?: string;
+    label1?: string;
+    label?: string;
+    titlePage?: string;
+    status?: boolean;
+    img?: File;
+  }>;
   onSuccess?: () => Promise<void>;
 }) {
   const { logout } = useContext(AuthContext);
@@ -299,35 +310,44 @@ export function useUpdateMenuOnline(props?: {
       body,
     }: {
       id: number;
-      body: { name?: string; description?: string | null };
+      body: {
+        identifier?: string;
+        desc?: string;
+        bg_primary?: string;
+        bg_secondary?: string;
+        bg_tertiary?: string;
+        label1?: string;
+        label?: string;
+        titlePage?: string;
+        status?: boolean;
+        img?: File;
+      };
     }) => MenuOnlineService.updateMenuOnline(id, body),
-    async onSuccess({ updateAt }, { id, body }) {
+    async onSuccess({ logoImg, uuid }, { id, body: { img, ...rest } }) {
       if (props?.onSuccess) await props.onSuccess();
-      queryClient.setQueryData(["menu-online-details", id], (old: any) => {
-        if (!old) return old;
-        return { ...old, ...body, updateAt };
-      });
-      queryClient.setQueryData(["menu-online", id], (old: any) => ({
+      queryClient.setQueryData(["menu-online", uuid], (old: any) => ({
         ...old,
-        ...body,
+        ...rest,
+        logoImg: logoImg ? logoImg : old.logoImg,
       }));
 
       if (queryClient.getQueryData<any>(["menus-online", null])) {
         queryClient.setQueryData(["menus-online", null], (old: any) =>
           old?.map((b: any) => {
-            if (b.id === id) b = { ...b, ...body };
+            if (b.id === id)
+              b = { ...b, identifier: rest.identifier || b.identifier };
             return b;
           })
         );
       }
-      if (queryClient.getQueryData<any>(["menus-online-options", null])) {
-        queryClient.setQueryData(["menus-online-options", null], (old: any) =>
-          old?.map((b: any) => {
-            if (b.id === id) b = { ...b, name: body.name || b.name };
-            return b;
-          })
-        );
-      }
+      // if (queryClient.getQueryData<any>(["menus-online-options", null])) {
+      //   queryClient.setQueryData(["menus-online-options", null], (old: any) =>
+      //     old?.map((b: any) => {
+      //       if (b.id === id) b = { ...b, name: body.name || b.name };
+      //       return b;
+      //     })
+      //   );
+      // }
     },
     onError(error: unknown) {
       if (error instanceof AxiosError) {

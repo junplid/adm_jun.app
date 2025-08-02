@@ -1,5 +1,13 @@
 import { useDialogModal } from "../../../../../hooks/dialog.modal";
-import { JSX, memo, useCallback, useState } from "react";
+import {
+  JSX,
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { Field } from "@components/ui/field";
 import { Button, Input } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
@@ -7,7 +15,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useHookFormMask } from "use-mask-input";
 import { AxiosError } from "axios";
-import { useCreateMenuOnlineSizePizza } from "../../../../../hooks/menu-online";
+import {
+  useCreateMenuOnlineSizePizza,
+  useGetMenuOnline,
+  useUpdateMenuOnline,
+} from "../../../../../hooks/menu-online";
+import TextareaAutosize from "react-textarea-autosize";
+import { MdOutlineImage } from "react-icons/md";
+import { Avatar } from "@components/ui/avatar";
+import { api } from "../../../../../services/api";
 
 export type TypeCategory = "pizzas" | "drinks";
 
@@ -152,6 +168,186 @@ function SizePizzaComponent({ uuid }: { uuid: string }) {
   );
 }
 
+const FormSchemaConfig = z.object({
+  identifier: z.string().optional(),
+  desc: z.string().optional(),
+  titlePage: z.string().optional(),
+  img: z.instanceof(File).optional(),
+  bg_primary: z.string().optional(),
+  bg_secondary: z.string().optional(),
+  bg_tertiary: z.string().optional(),
+  label1: z.string().optional(),
+  label: z.string().optional(),
+  status: z.boolean().optional(),
+});
+
+type ConfigFields = z.infer<typeof FormSchemaConfig>;
+
+function FormConfigComponent({ uuid }: { uuid: string }) {
+  const { data, isError, isFetching, isLoading } = useGetMenuOnline({ uuid });
+  const imgProfileRef = useRef<HTMLInputElement>(null);
+
+  const {
+    handleSubmit,
+    register,
+    formState: { errors, isDirty, dirtyFields },
+    reset,
+    watch,
+    getValues,
+    setError,
+    setValue,
+  } = useForm<ConfigFields>({
+    resolver: zodResolver(FormSchemaConfig),
+  });
+  const { mutateAsync: updateMenu, isPending } = useUpdateMenuOnline({
+    setError,
+  });
+  const edit = useCallback(async (): Promise<void> => {
+    if (!data?.id) return;
+    try {
+      const values = getValues();
+      const changedFields = Object.keys(dirtyFields).reduce((acc, key) => {
+        // @ts-expect-error
+        acc[key] = values[key];
+        return acc;
+      }, {} as Partial<ConfigFields>);
+      await updateMenu({ id: data.id, body: changedFields });
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        console.log("Error-API", error);
+      } else {
+        console.log("Error-Client", error);
+      }
+    }
+  }, [dirtyFields]);
+
+  useEffect(() => {
+    if (data) reset({ ...data, bg_primary: "#111111" });
+  }, [data]);
+
+  const fileImage = watch("img");
+  const bg_primary = watch("bg_primary");
+
+  const imgPreviewUrl = useMemo(() => {
+    if (fileImage) return URL.createObjectURL(fileImage);
+    if (data?.logoImg) return api.getUri() + `/public/storage/${data?.logoImg}`;
+  }, [fileImage, data?.logoImg]);
+
+  return (
+    <form
+      onSubmit={handleSubmit(edit)}
+      className="flex flex-col gap-y-2 px-1.5 pb-2 overflow-y-scroll pr-2 h-[calc(100svh-250px)]"
+    >
+      <Field
+        errorText={errors.titlePage?.message}
+        invalid={!!errors.titlePage}
+        label="Título da página"
+        disabled={isFetching || isLoading || isError}
+      >
+        <Input {...register("titlePage")} autoComplete="off" />
+      </Field>
+      <div className="flex items-center w-full gap-x-2">
+        <div
+          className="relative cursor-pointer border-2 p-0.5"
+          onClick={() => imgProfileRef.current?.click()}
+          style={{
+            borderColor: !!errors.img ? "#e77171" : "transparent",
+          }}
+        >
+          <input
+            type="file"
+            ref={imgProfileRef}
+            hidden
+            className="hidden"
+            accept="image/jpeg, image/png, image/jpg"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) setValue("img", file);
+            }}
+          />
+          <Avatar
+            bg={imgPreviewUrl ? bg_primary || "#fff" : "#ffffff2c"}
+            size={"2xl"}
+            width={"60px"}
+            height={"60px"}
+            src={imgPreviewUrl}
+            icon={<MdOutlineImage />}
+            rounded={"none"}
+          />
+        </div>
+        <Field
+          errorText={errors.identifier?.message}
+          invalid={!!errors.identifier}
+          label="Identificador único"
+          disabled={isFetching || isLoading || isError}
+        >
+          <Input
+            {...register("identifier")}
+            autoComplete="off"
+            placeholder="Digite o identificador do cardápio"
+          />
+        </Field>
+      </div>
+
+      <Field
+        errorText={errors.desc?.message}
+        invalid={!!errors.desc}
+        label="Descrição"
+        disabled={isFetching || isLoading || isError}
+      >
+        <TextareaAutosize
+          placeholder=""
+          style={{ resize: "none" }}
+          minRows={1}
+          maxRows={2}
+          className="p-3 py-2.5 rounded-sm w-full border-black/10 dark:border-white/10 border"
+          {...register("desc")}
+        />
+      </Field>
+
+      <div className="flex items-center w-full gap-x-2">
+        <Field
+          errorText={errors.bg_primary?.message}
+          invalid={!!errors.bg_primary}
+          label="Cor primária"
+          disabled={isFetching || isLoading || isError}
+        >
+          <Input {...register("bg_primary")} type="color" autoComplete="off" />
+        </Field>
+        <Field
+          errorText={errors.bg_secondary?.message}
+          invalid={!!errors.bg_secondary}
+          label="Cor secundária"
+          disabled
+        >
+          <Input {...register("bg_secondary")} autoComplete="off" />
+        </Field>
+        <Field
+          errorText={errors.bg_tertiary?.message}
+          invalid={!!errors.bg_tertiary}
+          label="Cor terciária"
+          disabled
+        >
+          <Input {...register("bg_tertiary")} autoComplete="off" />
+        </Field>
+      </div>
+
+      <div className="flex gap-x-1.5 ml-auto mt-3">
+        <Button
+          type="button"
+          disabled={isPending || !isDirty}
+          variant="outline"
+        >
+          Cancelar
+        </Button>
+        <Button type="submit" loading={isPending} disabled={!isDirty}>
+          Atualizar
+        </Button>
+      </div>
+    </form>
+  );
+}
+
 const TabConfig_ = ({ uuid }: { uuid: string }): JSX.Element => {
   const {
     dialog: DialogModal,
@@ -160,105 +356,12 @@ const TabConfig_ = ({ uuid }: { uuid: string }): JSX.Element => {
   } = useDialogModal({});
 
   return (
-    <div className="flex-1 !pt-0 grid grid-cols-[210px_1fr] gap-x-2 h-full">
+    <div className="flex-1 !pt-0 grid grid-cols-[1fr_270px] gap-x-2 h-full">
+      <FormConfigComponent uuid={uuid} />
       <SizePizzaComponent uuid={uuid} />
       {DialogModal}
     </div>
   );
 };
-
-// function ItemCategory() {
-//   const [open, setOpen] = useState(false);
-//   const [subs, _setSubs] = useState([
-//     { name: "Pequena", price: 30, desc1: "1 sabor", desc2: "2 fatias" },
-//     { name: "Media", price: 30, desc1: "1 sabor", desc2: "2 fatias" },
-//     { name: "Grande", price: 30, desc1: "1 sabor", desc2: "2 fatias" },
-//   ]);
-
-//   return (
-//     <li className="py-1 flex flex-col w-full">
-//       <Collapsible.Root
-//         open={open}
-//         onOpenChange={(p) => setOpen(p.open)}
-//         unmountOnExit
-//         lazyMount
-//       >
-//         <Collapsible.Trigger className="w-full">
-//           <div className="flex items-center w-full justify-between gap-x-2">
-//             <span className="font-medium">Pizza</span>
-//             <div className="flex items-center justify-end">
-//               <a className="p-1 cursor-pointer">
-//                 {open ? <FaAngleUp size={17} /> : <FaAngleDown size={17} />}
-//               </a>
-//               <a
-//                 onClick={(e) => {
-//                   e.stopPropagation();
-//                 }}
-//                 className="hover:bg-[#30d5e422] p-1 rounded-sm duration-200 cursor-pointer ml-1.5"
-//               >
-//                 <FaRegSave size={16} color={"#9edbfa"} />
-//               </a>
-//               <a
-//                 onClick={(e) => {
-//                   e.stopPropagation();
-//                 }}
-//                 className="hover:bg-[#eb606028] p-1 rounded-sm duration-200 cursor-pointer"
-//               >
-//                 <MdDeleteOutline size={18} color={"#f75050"} />
-//               </a>
-//             </div>
-//           </div>
-//         </Collapsible.Trigger>
-//         <Collapsible.Content
-//           className={clsx(
-//             "flex flex-col gap-y-2 p-1 px-2 pb-2",
-//             open && "bg-zinc-500/5"
-//           )}
-//         >
-//           <div className="flex justify-between gap-x-2 items-center">
-//             <Editable.Root
-//               textAlign="start"
-//               onClick={(e) => {
-//                 e.stopPropagation();
-//               }}
-//               defaultValue="Pizza"
-//               size={"sm"}
-//             >
-//               <Editable.Preview />
-//               <Editable.Input outline={"none"} />
-//             </Editable.Root>
-//             <span className="w-[40px] h-[40px] bg-zinc-600 block" />
-//           </div>
-//           <div className="flex flex-col gap-y-1">
-//             <ul className="grid grid-cols-2 gap-0.5 gap-y-2">
-//               {subs.map((s) => (
-//                 <li
-//                   key={s.name}
-//                   className="flex flex-col items-center text-sm text-center"
-//                 >
-//                   <strong>{s.name}</strong>
-//                   <span className="font-medium">{formatToBRL(s.price)}</span>
-//                   <span>{s.desc1}</span>
-//                   <span>{s.desc2}</span>
-//                   <a
-//                     onClick={(e) => {
-//                       e.stopPropagation();
-//                     }}
-//                     className="hover:bg-[#eb606028] p-1 flex justify-center rounded-sm duration-200 cursor-pointer"
-//                   >
-//                     <MdDeleteOutline size={18} color={"#f75050"} />
-//                   </a>
-//                 </li>
-//               ))}
-//             </ul>
-//             <button className="p-1 text-sm border border-zinc-800 hover:bg-zinc-900 cursor-pointer rounded-sm mx-2">
-//               Adicionar subcategoria
-//             </button>
-//           </div>
-//         </Collapsible.Content>
-//       </Collapsible.Root>
-//     </li>
-//   );
-// }
 
 export const TabConfig = memo(TabConfig_);

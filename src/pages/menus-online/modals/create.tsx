@@ -145,13 +145,13 @@ export function ModalCreateMenuOnline({
               <Field
                 errorText={errors.identifier?.message}
                 invalid={!!errors.identifier}
-                label="Nome"
+                label="Identificador único"
               >
                 <Input
                   {...register("identifier")}
                   autoFocus
                   autoComplete="off"
-                  placeholder="Digite o nome do cardápio"
+                  placeholder="Digite o identificador do cardápio"
                 />
               </Field>
             </div>
