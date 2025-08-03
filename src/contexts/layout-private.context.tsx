@@ -275,8 +275,9 @@ export function LayoutPrivateProvider(): JSX.Element {
                 icon={<LuNotepadText size={20} />}
                 component={<Link to={"/auth/orders"} />}
                 active={pathname === "/auth/orders"}
+                disabled
               >
-                Pedidos <Badge colorPalette={"green"}>NEW</Badge>
+                Pedidos <Badge colorPalette={"gray"}>OBSOLETO</Badge>
               </MenuItem>
               <MenuItem
                 icon={<GrConnect size={20} />}

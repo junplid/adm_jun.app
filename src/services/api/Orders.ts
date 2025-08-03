@@ -11,7 +11,9 @@ export type TypeStatusOrder =
   | "returned"
   | "refunded"
   | "failed"
-  | "on_way";
+  | "on_way"
+  | "completed"
+  | "ready";
 
 export type TypePriorityOrder =
   | "low"
@@ -41,34 +43,14 @@ export async function runActionOrder(
 }
 
 export async function getOrders(params?: {
-  page?: number;
   limit?: number;
-  status?: TypeStatusOrder;
-  priority?: TypePriorityOrder;
+  status?: TypeStatusOrder[];
   menu?: string;
 }): Promise<{
   orders: {
-    status: TypeStatusOrder;
-    priority: TypePriorityOrder | null;
-    id: number;
-    n_order: string;
-    name: string | null;
-    payment_method: string | null;
-    delivery_address: string | null;
-    data: string | null;
-    total: string | null;
-    createAt: Date;
-    actionChannels: string[];
-    contact: string | undefined;
-  }[];
-  meta: {
-    currentPage: number;
-    pageSize: number;
-    total: number;
-    totalPages: number;
-    nextPage: number | null;
+    [x: string]: any;
   };
 }> {
   const { data } = await api.get("/private/orders", { params });
-  return { orders: data.orders, meta: data.meta };
+  return { orders: data.orders };
 }

@@ -1,4 +1,3 @@
-import { useDialogModal } from "../../../../../hooks/dialog.modal";
 import {
   FC,
   JSX,
@@ -18,8 +17,6 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
-import { Field } from "@components/ui/field";
-import SelectComponent from "@components/Select";
 import {
   getOrders,
   runActionOrder,
@@ -45,7 +42,7 @@ import {
 } from "react-beautiful-dnd";
 import fontColorContrast from "font-color-contrast";
 
-export interface OrderRow {
+export interface Order {
   id: number;
   name: string | null;
   n_order: string;
@@ -58,41 +55,30 @@ export interface OrderRow {
   priority: TypePriorityOrder | null;
   data: string | null;
   total: string | null;
+  sequence: number;
 }
 
-const optionsStatus: { label: string; value: TypeStatusOrder }[] = [
-  { label: "Rascunho", value: "draft" },
-  { label: "Pendente", value: "pending" },
-  { label: "Em processamento", value: "processing" },
-  { label: "Confirmado", value: "confirmed" },
-  { label: "Enviado", value: "shipped" },
-  { label: "Entregue", value: "delivered" },
-  { label: "Cancelado", value: "cancelled" },
-  { label: "Devolvido", value: "returned" },
-];
-
-const optionsPriority: { label: string; value: TypePriorityOrder }[] = [
-  { label: "Baixa", value: "low" },
-  { label: "Média", value: "medium" },
-  { label: "Alta", value: "high" },
-  { label: "Urgente", value: "urgent" },
-  { label: "Crítica", value: "critical" },
+const columns: {
+  label: string;
+  value: TypeStatusOrder;
+  color: string;
+}[] = [
+  { label: "Pendentes", value: "pending", color: "#F59E0B33" },
+  { label: "Aguardando", value: "confirmed", color: "#0EA5E933" },
+  { label: "Preparando", value: "processing", color: "#F9731633" },
+  { label: "Pedidos prontos", value: "ready", color: "#22C55E33" },
+  { label: "A caminho", value: "on_way", color: "#3B82F633" },
+  { label: "Finalizados(24h)", value: "completed", color: "#14B8A633" },
 ];
 
 export interface IColumnKanban {
   id: number;
   name: string;
-  sequence: number;
   color: string;
-  rows: {
-    id: number;
-    sequence: number;
-    content: { protocol: string };
-  }[];
+  rows: Order[];
 }
 
 export interface IDataKanban {
-  id: number;
   columns: IColumnKanban[];
 }
 
@@ -103,30 +89,15 @@ interface PropsFilter {
 
 const TabOrders_ = ({ uuid }: { uuid: string }): JSX.Element => {
   const { socket, ns } = useContext(SocketContext);
-  const { dialog: DialogModal } = useDialogModal({});
-  const [orders, setOrders] = useState<OrderRow[]>([]);
+  const [orders, setOrders] = useState<{ [x: string]: Order[] }>(
+    {} as { [x: string]: Order[] }
+  );
   const { logout, account } = useContext(AuthContext);
   const [filter, setFilter] = useState<PropsFilter>({});
   const [load, setLoad] = useState(false);
-  const [kanban, setKanban] = useState<IDataKanban>({
-    id: 1,
-    columns: [
-      {
-        color: "#000",
-        id: 1,
-        name: "Coluna 1",
-        rows: [{ content: { protocol: "00001" }, id: 1, sequence: 1 }],
-        sequence: 1,
-      },
-      {
-        color: "#8b3232",
-        id: 2,
-        name: "Coluna 2",
-        rows: [{ content: { protocol: "00001" }, id: 2, sequence: 1 }],
-        sequence: 2,
-      },
-    ],
-  } as IDataKanban);
+  // const [kanban, setKanban] = useState<IDataKanban>({
+  //   columns: columns.map(s=>({name: s.})),
+  // } as IDataKanban);
   const [loadMoveTicket, setLoadMoveTicket] = useState<number | null>(null);
 
   async function get(props: PropsFilter) {
@@ -134,7 +105,6 @@ const TabOrders_ = ({ uuid }: { uuid: string }): JSX.Element => {
       setLoad(true);
       const { orders: oL } = await getOrders({
         limit: 15,
-        ...props,
         menu: uuid,
       });
       setOrders(oL);
@@ -170,7 +140,7 @@ const TabOrders_ = ({ uuid }: { uuid: string }): JSX.Element => {
         (props: {
           accountId: number;
           action: "new" | "update";
-          order: OrderRow;
+          order: Order;
         }) => {
           if (props.accountId === account.id) {
             if (props.action === "new") {
@@ -181,17 +151,17 @@ const TabOrders_ = ({ uuid }: { uuid: string }): JSX.Element => {
                 (filter.priority === props.order.priority &&
                   filter.status === props.order.status)
               ) {
-                setOrders((orders) => [...orders, props.order]);
+                // setOrders((orders) => [...orders, props.order]);
               }
             } else {
-              setOrders((orders) =>
-                orders.map((order) => {
-                  if (order.id === props.order.id) {
-                    return { ...order, ...props.order };
-                  }
-                  return order;
-                })
-              );
+              // setOrders((orders) =>
+              //   orders.map((order) => {
+              //     if (order.id === props.order.id) {
+              //       return { ...order, ...props.order };
+              //     }
+              //     return order;
+              //   })
+              // );
             }
           }
         }
@@ -211,12 +181,12 @@ const TabOrders_ = ({ uuid }: { uuid: string }): JSX.Element => {
     ) {
       return;
     }
-    const start = kanban.columns.find(
-      (cl) => cl.id === Number(source.droppableId)
-    );
-    const finish = kanban.columns.find(
-      (c) => c.id === Number(destination.droppableId)
-    );
+    // const start = kanban.columns.find(
+    //   (cl) => cl.id === Number(source.droppableId)
+    // );
+    // const finish = kanban.columns.find(
+    //   (c) => c.id === Number(destination.droppableId)
+    // );
     setLoadMoveTicket(Number(draggableId));
     // if (start && finish && start.id === finish.id) {
     //   const nextRows = Array.from(start.rows);
@@ -321,63 +291,7 @@ const TabOrders_ = ({ uuid }: { uuid: string }): JSX.Element => {
   }, []);
 
   return (
-    <div className="flex-1 !pt-0 grid grid-cols-[210px_1fr] gap-x-2 h-full">
-      <div className="px-3 pt-5 bg-zinc-800/15 flex flex-col gap-y-3 rounded-md">
-        <span className="block font-medium">Filtrar</span>
-        <Field label={"Status do pedido"}>
-          <SelectComponent
-            options={optionsStatus}
-            placeholder="Todos"
-            value={
-              filter.status
-                ? {
-                    label:
-                      optionsStatus.find((s) => s.value === filter.status)
-                        ?.label || "",
-                    value: filter.status,
-                  }
-                : null
-            }
-            onChange={(vl: any) => {
-              if (!vl) {
-                setFilter({ ...filter, status: undefined });
-                return;
-              }
-              setFilter({ ...filter, status: vl.value });
-            }}
-          />
-        </Field>
-        <Field label={"Prioridade"}>
-          <SelectComponent
-            options={optionsPriority}
-            placeholder="Todas"
-            value={
-              filter.priority
-                ? {
-                    label:
-                      optionsPriority.find((s) => s.value === filter.priority)
-                        ?.label || "",
-                    value: filter.priority,
-                  }
-                : null
-            }
-            onChange={(vl: any) => {
-              if (!vl) {
-                setFilter({ ...filter, priority: undefined });
-                return;
-              }
-              setFilter({ ...filter, priority: vl.value });
-            }}
-          />
-        </Field>
-        {!!orders.length && (
-          <span className="text-white/50 mt-10 text-center">
-            {orders.length > 1
-              ? `${orders.length} pedidos encontrados*`
-              : `${orders.length} pedido encontrado*`}
-          </span>
-        )}
-      </div>
+    <div className="flex-1 !pt-0 grid gap-x-2 h-full">
       {load ? (
         <div className="bg-white/5 text-white/70 rounded-md flex flex-col items-center justify-center">
           <span className="">Carregando aguarde...</span>
@@ -405,18 +319,18 @@ const TabOrders_ = ({ uuid }: { uuid: string }): JSX.Element => {
             </div>
           )} */}
           <DragDropContext onDragEnd={onDragEnd}>
-            <div className="remove-scroll overflow-x-auto pr-5 pl-4 pb-4 h-full flex space-x-3">
-              {kanban?.columns?.map((column) => {
+            <div className="remove-scroll overflow-x-auto flex space-x-2">
+              {columns?.map((column) => {
                 return (
                   <Column
                     loadMoveTicket={loadMoveTicket}
-                    key={column.id}
+                    key={column.value}
                     column={{
-                      id: String(column.id),
-                      name: column.name,
+                      id: column.value,
+                      name: column.label,
                       color: column.color,
                     }}
-                    rows={column.rows}
+                    rows={orders[column.value]}
                   />
                 );
               })}
@@ -424,75 +338,48 @@ const TabOrders_ = ({ uuid }: { uuid: string }): JSX.Element => {
           </DragDropContext>
         </>
       )}
-      {DialogModal}
     </div>
   );
 };
 
-export interface ITaskProps {
-  id: number;
-  sequence: number;
-  content: { protocol: string };
-}
-
 interface ColumnProps {
   column: { id: string; name: string; color: string };
-  rows: ITaskProps[];
+  rows: Order[];
   loadMoveTicket: number | null;
 }
 
 const Column: FC<ColumnProps> = ({ column, rows, loadMoveTicket }) => {
   const [searchValue, setSearchValue] = useState("");
 
-  const labelAmount = useMemo(() => {
-    if (rows.length > 1) return rows.length + " tickets";
-    return rows.length + " ticket";
-  }, [rows.length]);
-
   return (
-    <Grid
-      border={"1px solid #3F3F50"}
-      rounded={"10px"}
-      h={"100%"}
-      minW={"270px"}
-      w={"270px"}
-      templateRows={"91px 1fr"}
-    >
-      <VStack
-        borderRadius={"10px 10px 0 0"}
-        bg={`linear-gradient(0deg, rgba(0,172,255,0) 20%, ${column.color}72 110%)`}
-        gap={"7px"}
-        p="13px 11px"
-        borderBottom={"1px solid #3F3F50"}
+    <Grid h={"100%"} minW={"210px"} w={"210px"} templateRows={"50px 1fr"}>
+      <div
+        style={{ background: column.color }}
+        className="gap-1.5 p-3 rounded-md"
       >
         <HStack w={"100%"} justifyContent={"space-between"}>
-          <Text
-            color={fontColorContrast(column.color + "72")}
-            fontSize={"13px"}
-            fontWeight={"bold"}
-          >
+          <Text color={fontColorContrast(column.color + "72")}>
             {column.name}
           </Text>
-          <Circle p={"1px"} px={"13px"} fontSize={"12px"} bg={"#12121780"}>
-            {labelAmount}
+          <Circle p={"1px"} px={"13px"} fontSize={"14px"} bg={"#6d6d6d2c"}>
+            1
           </Circle>
         </HStack>
-      </VStack>
+      </div>
 
-      <Droppable droppableId={column.id}>
+      <Droppable direction="vertical" droppableId={column.id}>
         {(provided, snapshot) => (
           <div
-            className={`p-2 pr-0 duration-200 flex-1 h-full ${
+            className={`p-2 px-0 duration-200 flex-1 h-full ${
               snapshot.isDraggingOver ? "bg-gray-500/5" : ""
             }`}
-            style={{ height: "calc(100svh - 191px)" }}
             {...provided.droppableProps}
             ref={provided.innerRef}
           >
             <div
               className={`respon-column scroll-custom overflow-y-scroll flex-1 h-full`}
             >
-              {rows.map((row, index) => (
+              {rows?.map((row, index) => (
                 <Taks
                   loadMoveTicket={loadMoveTicket}
                   {...row}
@@ -521,66 +408,30 @@ const diasDaSemana: { [x: number]: string } = {
 };
 
 export const Taks: FC<
-  ITaskProps & { index: number; loadMoveTicket: number | null }
+  Order & { index: number; loadMoveTicket: number | null }
 > = ({ id, index, ...props }) => {
-  // const { user } = useContext(AuthorizationContext);
-  // const previewDateLastMsg = useMemo(() => {
-  //   if (props.content.lastMsg) {
-  //     const days = moment().diff(props.content.lastMsg.date, "day");
-  //     console.log(days);
-  //     if (days === 0) {
-  //       return moment(props.content.lastMsg.date).format("HH:mm");
-  //     }
-  //     if (days === 1) return "Ontem";
-  //     if (days >= 2 || days <= 7) {
-  //       return diasDaSemana[moment(props.content.lastMsg.date).day()];
-  //     } else {
-  //       return moment(props.content.lastMsg.date).format("DD/MM/YYYY");
-  //     }
-  //   } else {
-  //     return null;
-  //   }
-  // }, [props.content.lastMsg]);
-
-  return (
-    <Draggable draggableId={String(id)} index={index}>
-      {(provided, snapshot) => (
-        <Box
-          {...provided.draggableProps}
-          {...provided.dragHandleProps}
-          ref={provided.innerRef}
-          style={{
-            userSelect: "none",
-            margin: `0 0 ${8}px 0`,
-            ...provided.draggableProps.style,
-          }}
-        >
-          <VStack
-            bg={snapshot.isDragging ? "#30303d" : "#202029"}
-            borderRadius={"8px"}
-            transitionDuration={"300ms"}
-            padding={"10px 12px"}
-            alignItems={"start"}
-            borderLeftRadius={0}
-          >
-            <span>{props.content.protocol}</span>
-          </VStack>
-        </Box>
-      )}
-    </Draggable>
-  );
-};
-
-function OrderItem(props: OrderRow): JSX.Element {
   const [actionsLoad, setActionsLoad] = useState<string[]>([]);
   const { logout } = useContext(AuthContext);
+  // const { user } = useContext(AuthorizationContext);
+  const previewDateLastMsg = useMemo(() => {
+    const days = moment().diff(props.createAt, "day");
+    if (days === 0) {
+      return moment(props.createAt).format("HH:mm");
+    }
+    if (days === 1) return "Ontem";
+    if (days >= 2 || days <= 7) {
+      return diasDaSemana[moment(props.createAt).day()];
+    } else {
+      return moment(props.createAt).format("DD/MM/YYYY");
+    }
+  }, [props.createAt]);
 
   const run = useCallback(
     async (action: string) => {
       if (actionsLoad.includes(action)) return;
       try {
         setActionsLoad([...actionsLoad, action]);
-        await runActionOrder(props.id, action);
+        await runActionOrder(id, action);
         setActionsLoad(actionsLoad.filter((s) => s !== action));
       } catch (error) {
         if (error instanceof AxiosError) {
@@ -596,128 +447,86 @@ function OrderItem(props: OrderRow): JSX.Element {
     [actionsLoad]
   );
 
-  const hasShadow: boolean = useMemo(() => {
-    return props.data ? props.data?.split("\n").length > 5 : false;
-  }, [props.data]);
-
   return (
-    <div className="p-1 pb-1.5 transition-opacity duration-200 group-hover:opacity-40 hover:!opacity-90">
-      <article className="text-sm cursor-pointer relative leading-4 py-5 pb-3 bg-[#f0de9e] text-black">
-        <div className="flex justify-between px-2 mb-1 items-center">
-          <div className="flex items-center flex-wrap gap-x-1">
-            <span className="line-clamp-1 text-nowrap font-medium">
-              {optionsStatus.find((s) => s.value === props.status)?.label}
-            </span>
-          </div>
-        </div>
-        <div className="flex px-2 mb-1 items-center gap-x-1">
-          <span className="font-semibold text-base">#{props.n_order}</span>
-          <span className="text-black/70">
-            {moment(props.createAt).format("HH:mm DD/M/YYYY")}
-          </span>
-        </div>
-        {props.name && (
-          <div className="flex px-2 items-center justify-between gap-x-1">
-            <span>Nome</span>
-            <span className="line-clamp-1 text-nowrap">{props.name}</span>
-          </div>
-        )}
-        {props.payment_method && (
-          <div className="flex px-2 items-center justify-between gap-x-1">
-            <span>Método</span>
-            <span>{props.payment_method}</span>
-          </div>
-        )}
-        {props.delivery_address && (
-          <div className="flex flex-col px-2">
-            <span>Endereço de entrega</span>
-            <span>- {props.delivery_address || "RETIRAR NO LOCAL"}</span>
-          </div>
-        )}
-        <div className="flex px-2">
-          <span className="text-end block w-full">5571986751101</span>
-        </div>
-        {props.data ? (
-          <>
-            <Tooltip
-              contentProps={{
-                css: {
-                  "--tooltip-bg": "#fff",
-                },
-              }}
-              closeOnClick={false}
-              positioning={{ placement: "top", offset: { mainAxis: -30 } }}
-              closeOnScroll={false}
-              showArrow
-              content={
-                <div className="flex flex-col">
-                  <span className="font-semibold text-base block mb-1">
-                    #{props.n_order}
-                  </span>
-                  <span>{parse(format(props.data))}</span>
-                </div>
-              }
-            >
-              <div className="relative bg-[#f5e5ae] duration-200">
-                <div className="border-b-2 my-2 border-dashed border-zinc-800/70" />
-                <span className="px-2 line-clamp-5">
-                  {parse(format(props.data))}
-                </span>
-                {hasShadow && (
-                  <div
-                    className="absolute bottom-0 w-full h-10"
-                    style={{
-                      background:
-                        "linear-gradient(transparent 0%, #ddcc90 90%)",
-                    }}
-                  />
-                )}
-              </div>
-            </Tooltip>
-            <div className="border-b-2 mb-2 border-dashed border-zinc-800/70" />
-          </>
-        ) : (
-          <div className="border-b-2 my-2 border-dashed border-zinc-800/70" />
-        )}
-        {/* {props.total && (
-          <div className="flex px-2 items-center justify-between gap-x-1">
-            <span>Total</span>
-            <span>{formatToBRL(props.total)}</span>
-          </div>
-        )} */}
-        {/* <div className="flex px-2 items-center justify-between gap-x-1">
-          <span>Descontos</span>
-          <span>- 0,00</span>
-        </div> */}
-        {props.total && (
-          <div className="flex px-2 font-bold items-center justify-between gap-x-1">
-            <span>Sub total</span>
-            <span>{formatToBRL(props.total)}</span>
-          </div>
-        )}
-        {!!props.actionChannels?.length && (
-          <div className="flex flex-col items-center mt-2">
-            <span className="text-xs font-semibold text-black/80">
-              - Ações do pedido -
-            </span>
-            <div className="w-full grid grid-cols-2 gap-x-2 px-2 pt-1">
-              {props.actionChannels.map((a, index) => (
-                <button
-                  key={index}
-                  className="w-full hover:font-medium bg-teal-500 py-2 px-1 hover:bg-teal-600 cursor-pointer rounded-lg shadow"
-                  onClick={() => !actionsLoad.includes(a) && run(a)}
-                  disabled={actionsLoad.includes(a)}
-                >
-                  {actionsLoad.includes(a) ? <Spinner size={"xs"} /> : a}
-                </button>
-              ))}
+    <Draggable draggableId={String(id)} index={index}>
+      {(provided, snapshot) => (
+        <Box
+          {...provided.draggableProps}
+          {...provided.dragHandleProps}
+          ref={provided.innerRef}
+          style={{
+            userSelect: "none",
+            margin: `0 0 ${8}px 0`,
+            ...provided.draggableProps.style,
+          }}
+        >
+          <VStack
+            bg={snapshot.isDragging ? "#2a2a2a" : "#1e1e1e"}
+            shadow={snapshot.isDragging ? "lg" : "none"}
+            transitionDuration={"300ms"}
+            alignItems={"start"}
+            className="relative"
+          >
+            <div className="px-2 pt-2 flex w-full mb-1 items-center gap-x-1 justify-between">
+              <span className="text-sm">#{props.n_order}</span>
+              <span className="text-white/35 text-sm">
+                {previewDateLastMsg}
+              </span>
             </div>
-          </div>
-        )}
-        <img src="/note.svg" alt="" className="absolute -bottom-1" />
-      </article>
-    </div>
+            {props.name && (
+              <div className="px-2 flex items-center justify-between gap-x-1 w-full">
+                <span className="line-clamp-2 text-nowrap font-medium w-full">
+                  {props.name}
+                </span>
+              </div>
+            )}
+            {props.data ? (
+              <div className="relative gap-y-1 duration-200 bg-zinc-700/15 w-full">
+                <div className="border-b-2 mb-1.5 w-full border-dashed border-zinc-600/40" />
+                <p className="leading-5 text-sm p-1 px-2">
+                  {parse(format(props.data))}
+                </p>
+                <div className="border-b-2 mt-1.5 w-full border-dashed border-zinc-600/40" />
+              </div>
+            ) : (
+              <div className="border-b-2 my-2 w-full border-dashed border-zinc-600/40" />
+            )}
+
+            {props.total && (
+              <div className="px-2 pb-2 flex font-bold text-sm items-center justify-between w-full gap-x-1">
+                <span>Sub total</span>
+                <span>{formatToBRL(props.total)}</span>
+              </div>
+            )}
+            {!!props.actionChannels?.length && (
+              <div className="flex flex-col items-center mt-2">
+                <span className="text-xs font-semibold text-black/80">
+                  - Ações do pedido -
+                </span>
+                <div className="w-full grid grid-cols-2 gap-x-2 px-2 pt-1">
+                  {props.actionChannels.map((a, index) => (
+                    <button
+                      key={index}
+                      className="w-full hover:font-medium bg-teal-500 py-2 px-1 hover:bg-teal-600 cursor-pointer rounded-lg shadow"
+                      onClick={() => !actionsLoad.includes(a) && run(a)}
+                      disabled={actionsLoad.includes(a)}
+                    >
+                      {actionsLoad.includes(a) ? <Spinner size={"xs"} /> : a}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            <img
+              src="/note.svg"
+              alt=""
+              className="absolute w-full left-0 -bottom-1"
+            />
+          </VStack>
+        </Box>
+      )}
+    </Draggable>
   );
-}
+};
 
 export const TabOrders = memo(TabOrders_);

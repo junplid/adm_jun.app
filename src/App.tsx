@@ -13,7 +13,7 @@ import { FlowsPage } from "./pages/workbench/flows";
 import { VariablesPage } from "./pages/workbench/variables";
 import { DialogProvider } from "@contexts/dialog.context";
 import { ConnectionsWAPage } from "./pages/connectionswa";
-import { SocketProvider } from "@contexts/socket.context";
+import { SocketProvider } from "@contexts/socket.provider";
 import { ChatbotsPage } from "./pages/chatbots";
 import { TermsOfServicePage } from "./pages/terms-of-service";
 import { PrivacyPolicyPage } from "./pages/privacy-terms";
