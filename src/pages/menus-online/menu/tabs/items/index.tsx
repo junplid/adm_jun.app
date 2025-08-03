@@ -208,8 +208,8 @@ const TabProducts_ = ({ uuid }: { uuid: string }): JSX.Element => {
         {!!items?.length && (
           <span className="text-white/50 mt-10 text-center">
             {items.length > 1
-              ? `${[].length} pedidos encontrados"`
-              : `${[].length} pedido encontrado`}
+              ? `${[].length} pedidos encontrados*`
+              : `${[].length} pedido encontrado*`}
           </span>
         )}
       </div>
@@ -242,99 +242,5 @@ const TabProducts_ = ({ uuid }: { uuid: string }): JSX.Element => {
     </div>
   );
 };
-
-// function ItemCategory() {
-//   const [open, setOpen] = useState(false);
-//   const [subs, _setSubs] = useState([
-//     { name: "Pequena", price: 30, desc1: "1 sabor", desc2: "2 fatias" },
-//     { name: "Media", price: 30, desc1: "1 sabor", desc2: "2 fatias" },
-//     { name: "Grande", price: 30, desc1: "1 sabor", desc2: "2 fatias" },
-//   ]);
-
-//   return (
-//     <li className="py-1 flex flex-col w-full">
-//       <Collapsible.Root
-//         open={open}
-//         onOpenChange={(p) => setOpen(p.open)}
-//         unmountOnExit
-//         lazyMount
-//       >
-//         <Collapsible.Trigger className="w-full">
-//           <div className="flex items-center w-full justify-between gap-x-2">
-//             <span className="font-medium">Pizza</span>
-//             <div className="flex items-center justify-end">
-//               <a className="p-1 cursor-pointer">
-//                 {open ? <FaAngleUp size={17} /> : <FaAngleDown size={17} />}
-//               </a>
-//               <a
-//                 onClick={(e) => {
-//                   e.stopPropagation();
-//                 }}
-//                 className="hover:bg-[#30d5e422] p-1 rounded-sm duration-200 cursor-pointer ml-1.5"
-//               >
-//                 <FaRegSave size={16} color={"#9edbfa"} />
-//               </a>
-//               <a
-//                 onClick={(e) => {
-//                   e.stopPropagation();
-//                 }}
-//                 className="hover:bg-[#eb606028] p-1 rounded-sm duration-200 cursor-pointer"
-//               >
-//                 <MdDeleteOutline size={18} color={"#f75050"} />
-//               </a>
-//             </div>
-//           </div>
-//         </Collapsible.Trigger>
-//         <Collapsible.Content
-//           className={clsx(
-//             "flex flex-col gap-y-2 p-1 px-2 pb-2",
-//             open && "bg-zinc-500/5"
-//           )}
-//         >
-//           <div className="flex justify-between gap-x-2 items-center">
-//             <Editable.Root
-//               textAlign="start"
-//               onClick={(e) => {
-//                 e.stopPropagation();
-//               }}
-//               defaultValue="Pizza"
-//               size={"sm"}
-//             >
-//               <Editable.Preview />
-//               <Editable.Input outline={"none"} />
-//             </Editable.Root>
-//             <span className="w-[40px] h-[40px] bg-zinc-600 block" />
-//           </div>
-//           <div className="flex flex-col gap-y-1">
-//             <ul className="grid grid-cols-2 gap-0.5 gap-y-2">
-//               {subs.map((s) => (
-//                 <li
-//                   key={s.name}
-//                   className="flex flex-col items-center text-sm text-center"
-//                 >
-//                   <strong>{s.name}</strong>
-//                   <span className="font-medium">{formatToBRL(s.price)}</span>
-//                   <span>{s.desc1}</span>
-//                   <span>{s.desc2}</span>
-//                   <a
-//                     onClick={(e) => {
-//                       e.stopPropagation();
-//                     }}
-//                     className="hover:bg-[#eb606028] p-1 flex justify-center rounded-sm duration-200 cursor-pointer"
-//                   >
-//                     <MdDeleteOutline size={18} color={"#f75050"} />
-//                   </a>
-//                 </li>
-//               ))}
-//             </ul>
-//             <button className="p-1 text-sm border border-zinc-800 hover:bg-zinc-900 cursor-pointer rounded-sm mx-2">
-//               Adicionar subcategoria
-//             </button>
-//           </div>
-//         </Collapsible.Content>
-//       </Collapsible.Root>
-//     </li>
-//   );
-// }
 
 export const TabProducts = memo(TabProducts_);

@@ -14,55 +14,63 @@ import {
   DialogDescription,
 } from "@components/ui/dialog";
 import { Field } from "@components/ui/field";
-import { VariableRow } from "../menu";
+import { ItemRow } from "..";
 import { AxiosError } from "axios";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import SelectComponent from "@components/Select";
 import TextareaAutosize from "react-textarea-autosize";
+import { useHookFormMask } from "use-mask-input";
 import { Avatar } from "@components/ui/avatar";
 import { MdOutlineImage } from "react-icons/md";
-import { useCreateMenuOnline } from "../../../hooks/menu-online";
-import SelectConnectionsWA from "@components/SelectConnectionsWA";
-import { useNavigate } from "react-router-dom";
+import { useCreateMenuOnlineItem } from "../../../../../../hooks/menu-online";
 
 interface IProps {
-  onCreate?(business: VariableRow): Promise<void>;
+  onCreate?(business: ItemRow): Promise<void>;
   trigger: JSX.Element;
   placement?: "top" | "bottom" | "center";
+  menuUuid: string;
 }
 
+const optionsCategory = [
+  { label: "Pizzas", value: "pizzas" },
+  { label: "Bebidas", value: "drinks" },
+];
+
 const FormSchema = z.object({
-  identifier: z.string().min(1, "Campo obrigatório."),
+  name: z.string().min(1, "Campo obrigatório."),
   desc: z.string().optional(),
+  category: z.enum(["pizzas", "drinks"], { message: "Campo obrigatório." }),
+  beforePrice: z.string().optional(),
+  afterPrice: z.string().optional(),
   img: z.instanceof(File, { message: "Campo obrigatório." }),
-  connectionWAId: z.number({ message: "Campo obrigatório." }),
+  qnt: z.number().optional(),
 });
 
 type Fields = z.infer<typeof FormSchema>;
 
-export function ModalCreateMenuOnline({
+export function ModalCreateProduct({
   placement = "bottom",
   ...props
 }: IProps): JSX.Element {
   const {
     handleSubmit,
     register,
+    control,
     formState: { errors },
     setError,
     setValue,
-    control,
     watch,
     reset,
   } = useForm<Fields>({
     resolver: zodResolver(FormSchema),
   });
+  const registerWithMask = useHookFormMask(register);
+  const imgProfileRef = useRef<HTMLInputElement>(null);
 
   const [open, setOpen] = useState(false);
-  const imgProfileRef = useRef<HTMLInputElement>(null);
-  const navigate = useNavigate();
-
-  const { mutateAsync: createMenu, isPending } = useCreateMenuOnline({
+  const { mutateAsync: createItem, isPending } = useCreateMenuOnlineItem({
     setError,
     async onSuccess() {
       setOpen(false);
@@ -70,21 +78,30 @@ export function ModalCreateMenuOnline({
     },
   });
 
-  const create = useCallback(async (fields: Fields): Promise<void> => {
-    try {
-      const { uuid } = await createMenu(fields);
-      navigate(`/auth/menus-online/${uuid}`);
-      reset();
-      // const { businessIds, ...rest } = fields;
-      // props.onCreate?.({ ...menu, ...rest });
-    } catch (error) {
-      if (error instanceof AxiosError) {
-        console.log("Error-API", error);
-      } else {
-        console.log("Error-Client", error);
+  const create = useCallback(
+    async (fields: Fields): Promise<void> => {
+      try {
+        await createItem({
+          ...fields,
+          afterPrice: fields.afterPrice ? Number(fields.afterPrice) : undefined,
+          beforePrice: fields.beforePrice
+            ? Number(fields.beforePrice)
+            : undefined,
+          menuUuid: props.menuUuid,
+        });
+        reset();
+        // const { businessIds, ...rest } = fields;
+        // props.onCreate?.({ ...flow, ...rest });
+      } catch (error) {
+        if (error instanceof AxiosError) {
+          console.log("Error-API", error);
+        } else {
+          console.log("Error-Client", error);
+        }
       }
-    }
-  }, []);
+    },
+    [props.menuUuid]
+  );
 
   const fileImage = watch("img");
 
@@ -93,6 +110,8 @@ export function ModalCreateMenuOnline({
       return URL.createObjectURL(fileImage);
     }
   }, [fileImage]);
+
+  const category = watch("category");
 
   return (
     <DialogRoot
@@ -112,7 +131,7 @@ export function ModalCreateMenuOnline({
         w={"348px"}
       >
         <DialogHeader flexDirection={"column"} gap={0}>
-          <DialogTitle>Criar cardápio on-line</DialogTitle>
+          <DialogTitle>Criar item</DialogTitle>
           <DialogDescription>
             Guarde e personalize informações dos seus contatos.
           </DialogDescription>
@@ -121,11 +140,8 @@ export function ModalCreateMenuOnline({
           <VStack gap={4}>
             <div className="flex items-center w-full gap-x-4">
               <div
-                className="relative cursor-pointer border-2 p-0.5"
+                className="relative cursor-pointer"
                 onClick={() => imgProfileRef.current?.click()}
-                style={{
-                  borderColor: !!errors.img ? "#e77171" : "transparent",
-                }}
               >
                 <input
                   type="file"
@@ -149,15 +165,15 @@ export function ModalCreateMenuOnline({
                 />
               </div>
               <Field
-                errorText={errors.identifier?.message}
-                invalid={!!errors.identifier}
-                label="Identificador único"
+                errorText={errors.name?.message}
+                invalid={!!errors.name}
+                label="Nome"
               >
                 <Input
-                  {...register("identifier")}
+                  {...register("name")}
                   autoFocus
                   autoComplete="off"
-                  placeholder="Digite o identificador do cardápio"
+                  placeholder="Digite o nome do produto"
                 />
               </Field>
             </div>
@@ -175,23 +191,79 @@ export function ModalCreateMenuOnline({
                 {...register("desc")}
               />
             </Field>
-            <Field
-              errorText={errors.connectionWAId?.message}
-              invalid={!!errors.connectionWAId}
-              label="Conexão WA"
-            >
+            <Field label={"Categoria"}>
               <Controller
-                name="connectionWAId"
+                name="category"
                 control={control}
                 render={({ field }) => (
-                  <SelectConnectionsWA
-                    name={field.name}
+                  <SelectComponent
+                    options={optionsCategory}
+                    value={
+                      field.value
+                        ? {
+                            label:
+                              optionsCategory.find(
+                                (s) => s.value === field.value
+                              )?.label || "",
+                            value: field.value,
+                          }
+                        : null
+                    }
+                    placeholder="Selecione uma categoria"
+                    isClearable={false}
+                    isSearchable={false}
                     isMulti={false}
-                    onBlur={field.onBlur}
-                    onChange={(e: any) => field.onChange(e.value)}
-                    value={field.value}
+                    onChange={(vl: any) => field.onChange(vl.value)}
                   />
                 )}
+              />
+            </Field>
+            <div className="grid grid-cols-2 gap-x-2">
+              <Field
+                errorText={errors.beforePrice?.message}
+                invalid={!!errors.beforePrice}
+                label="Preço antigo"
+                disabled={category === "pizzas"}
+              >
+                <Input
+                  {...registerWithMask("beforePrice", [
+                    "9.99",
+                    "99.99",
+                    "999.99",
+                  ])}
+                  autoComplete="off"
+                  placeholder=""
+                />
+              </Field>
+              <Field
+                errorText={errors.afterPrice?.message}
+                invalid={!!errors.afterPrice}
+                label="Preço atual"
+                disabled={category === "pizzas"}
+              >
+                <Input
+                  {...registerWithMask("afterPrice", [
+                    "9.99",
+                    "99.99",
+                    "999.99",
+                  ])}
+                  autoComplete="off"
+                  placeholder="00.00"
+                />
+              </Field>
+            </div>
+            <Field
+              errorText={errors.qnt?.message}
+              invalid={!!errors.qnt}
+              label="Quantidade em estoque"
+              required
+            >
+              <Input
+                {...registerWithMask("qnt", ["9", "99", "999", "9999"], {
+                  valueAsNumber: true,
+                })}
+                autoComplete="off"
+                placeholder="0"
               />
             </Field>
           </VStack>

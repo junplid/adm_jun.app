@@ -114,6 +114,10 @@ export function useCreateCampaign(props?: {
         dayOfWeek: number;
         workingTimes?: { start: string; end: string }[];
       }[];
+      contacts?: {
+        name?: string;
+        number: string;
+      }[];
     }) => CampaignService.createCampaign(body),
     async onSuccess(data, { name, description }) {
       if (props?.onSuccess) await props.onSuccess();

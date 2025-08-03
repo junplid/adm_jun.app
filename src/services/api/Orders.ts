@@ -45,6 +45,7 @@ export async function getOrders(params?: {
   limit?: number;
   status?: TypeStatusOrder;
   priority?: TypePriorityOrder;
+  menu?: string;
 }): Promise<{
   orders: {
     status: TypeStatusOrder;
@@ -52,7 +53,7 @@ export async function getOrders(params?: {
     id: number;
     n_order: string;
     name: string | null;
-    delivery_method: string | null;
+    payment_method: string | null;
     delivery_address: string | null;
     data: string | null;
     total: string | null;

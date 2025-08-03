@@ -53,7 +53,7 @@ type DataNode = {
   charge_transactionId?: string;
   varId_save_nOrder?: number;
   notify?: boolean;
-  delivery_method?: string;
+  payment_method?: string;
   actionChannels: { key: string; text: string }[];
 };
 
@@ -196,16 +196,16 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
         />
       </Field>
 
-      <Field label="Método">
+      <Field label="Método de pagamento">
         <AutocompleteTextField
           // @ts-expect-error
           trigger={["{{"]}
           options={{ "{{": variables?.map((s) => s.name) || [] }}
           spacer={"}} "}
           placeholder="Digite o método ou {{metodo}}"
-          defaultValue={data.delivery_method || ""}
+          defaultValue={data.payment_method || ""}
           onChange={(value: string) =>
-            setDataMok({ ...data, delivery_method: value })
+            setDataMok({ ...data, payment_method: value })
           }
         />
       </Field>

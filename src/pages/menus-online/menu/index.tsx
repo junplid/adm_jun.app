@@ -11,6 +11,7 @@ import { TabProducts } from "./tabs/items";
 import { useParams } from "react-router-dom";
 import { useGetMenuOnline } from "../../../hooks/menu-online";
 import { TabConfig } from "./tabs/config";
+import { TabOrders } from "./tabs/orders";
 
 export type TypeVariable = "dynamics" | "constant" | "system";
 
@@ -116,6 +117,9 @@ export const MenuOnlinePage: React.FC = (): JSX.Element => {
         </TabsContent>
         <TabsContent value="items" className="flex-1 !pt-0 grid h-full">
           <TabProducts uuid={params.uuid!} />
+        </TabsContent>
+        <TabsContent value="orders" className="flex-1 !pt-0 grid h-full">
+          <TabOrders uuid={params.uuid!} />
         </TabsContent>
         <TabsContent value="config">
           <TabConfig uuid={params.uuid!} />

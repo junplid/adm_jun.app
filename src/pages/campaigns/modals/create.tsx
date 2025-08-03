@@ -52,6 +52,8 @@ import { api } from "../../../services/api";
 import { IoIceCreamOutline } from "react-icons/io5";
 import { BsFire } from "react-icons/bs";
 import SelectTags from "@components/SelectTags";
+import { withMask } from "use-mask-input";
+import { IoMdRemoveCircleOutline } from "react-icons/io";
 
 interface IProps {
   onCreate?(business: CampaignRow): Promise<void>;
@@ -66,7 +68,7 @@ const FormSchema = z.object({
     .array(z.number(), {
       message: "Campo obrigatório",
     })
-    .min(1, { message: "Campo obrigatório" }),
+    .optional(),
   description: z.string().optional(),
   businessIds: z
     .array(z.number(), {
@@ -137,8 +139,10 @@ export function ModalCreateCampaign({
   const [open, setOpen] = useState(false);
   const [load, setLoad] = useState(true);
   const [currentTab, setCurrentTab] = useState<
-    "start-config" | "opening-hours" | "bloq-bans"
+    "start-config" | "opening-hours" | "bloq-bans" | "recipients"
   >("bloq-bans");
+
+  const [contacts, setContacts] = useState<FieldContact[]>([]);
 
   const { mutateAsync: createCampaign, isPending } = useCreateCampaign({
     setError,
@@ -147,25 +151,28 @@ export function ModalCreateCampaign({
     },
   });
 
-  const create = useCallback(async (fields: Fields): Promise<void> => {
-    try {
-      const campaign = await createCampaign(fields);
-      const { name } = fields;
-      reset();
-      props.onCreate?.({
-        ...campaign,
-        name,
-        finishPercentage: 0,
-        sentPercentage: 0,
-      });
-    } catch (error) {
-      if (error instanceof AxiosError) {
-        console.log("Error-API", error);
-      } else {
-        console.log("Error-Client", error);
+  const create = useCallback(
+    async (fields: Fields): Promise<void> => {
+      try {
+        const campaign = await createCampaign({ ...fields, contacts });
+        const { name } = fields;
+        reset();
+        props.onCreate?.({
+          ...campaign,
+          name,
+          finishPercentage: 0,
+          sentPercentage: 0,
+        });
+      } catch (error) {
+        if (error instanceof AxiosError) {
+          console.log("Error-API", error);
+        } else {
+          console.log("Error-Client", error);
+        }
       }
-    }
-  }, []);
+    },
+    [contacts]
+  );
 
   const optionsOpertaingDaysMemo = useMemo(() => {
     if (!operatingDays?.length) return optionsOpertaingDays;
@@ -212,7 +219,7 @@ export function ModalCreateCampaign({
       lazyMount
       unmountOnExit
       scrollBehavior={"outside"}
-      size={"sm"}
+      size={"xl"}
       preventScroll
     >
       <DialogTrigger asChild>{props.trigger}</DialogTrigger>
@@ -225,11 +232,14 @@ export function ModalCreateCampaign({
             !!error.description ||
             !!error.flowId ||
             !!error.connectionIds ||
-            !!error.tagsIds ||
             !!error.shootingSpeedId ||
             !!error.timeItWillStart
           ) {
             setCurrentTab("start-config");
+            return;
+          }
+          if (!!error.tagsIds) {
+            setCurrentTab("recipients");
             return;
           }
           if (!!error.operatingDays) {
@@ -237,7 +247,7 @@ export function ModalCreateCampaign({
             return;
           }
         })}
-        w={"470px"}
+        w={"480px"}
       >
         <DialogHeader flexDirection={"column"} gap={0}>
           <DialogTitle>Criar campanha</DialogTitle>
@@ -255,7 +265,7 @@ export function ModalCreateCampaign({
             variant={"enclosed"}
           >
             <Center mb={2}>
-              <TabsList bg="#1c1c1c" rounded="l3" p="1.5">
+              <TabsList bg="#1c1c1c" w={"100%"} rounded="l3" p="1.5">
                 <TabsTrigger
                   _selected={{ bg: "bg.subtle", color: "#fff" }}
                   color={"#757575"}
@@ -271,6 +281,15 @@ export function ModalCreateCampaign({
                   py={"27px"}
                 >
                   Configuração inicial
+                </TabsTrigger>
+                <TabsTrigger
+                  _selected={{ bg: "bg.subtle", color: "#fff" }}
+                  color={"#757575"}
+                  value="recipients"
+                  py={"27px"}
+                  w={"100px"}
+                >
+                  Alvos
                 </TabsTrigger>
                 <TabsTrigger
                   _selected={{ bg: "bg.subtle", color: "#fff" }}
@@ -416,32 +435,6 @@ export function ModalCreateCampaign({
                 </Field>
 
                 <Field
-                  invalid={!!errors.tagsIds}
-                  label="Selecione os contatos por etiquetas"
-                  className="w-full"
-                  required
-                  errorText={errors.tagsIds?.message}
-                >
-                  <Controller
-                    name="tagsIds"
-                    control={control}
-                    render={({ field }) => (
-                      <SelectTags
-                        isDisabled={!businessIds?.length}
-                        name={field.name}
-                        isMulti
-                        params={{ businessIds }}
-                        onBlur={field.onBlur}
-                        onChange={(e: any) => {
-                          field.onChange(e.map((item: any) => item.value));
-                        }}
-                        value={field.value}
-                      />
-                    )}
-                  />
-                </Field>
-
-                <Field
                   errorText={errors.flowId?.message}
                   invalid={!!errors.flowId}
                   label="Fluxo de conversa"
@@ -562,6 +555,72 @@ export function ModalCreateCampaign({
                     )}
                   />
                 </Field>
+              </div>
+            </TabsContent>
+            <TabsContent value="recipients">
+              <div className="grid w-full gap-y-3">
+                <Field
+                  invalid={!!errors.tagsIds}
+                  label="Selecione os contatos por etiquetas"
+                  className="w-full"
+                  errorText={errors.tagsIds?.message}
+                >
+                  <Controller
+                    name="tagsIds"
+                    control={control}
+                    render={({ field }) => (
+                      <SelectTags
+                        isDisabled={!businessIds?.length}
+                        name={field.name}
+                        isMulti
+                        params={{ businessIds }}
+                        onBlur={field.onBlur}
+                        onChange={(e: any) => {
+                          field.onChange(e.map((item: any) => item.value));
+                        }}
+                        value={field.value}
+                      />
+                    )}
+                  />
+                </Field>
+                <span className="text-center font-semibold">
+                  Ou adicione manualmente
+                </span>
+                <div>
+                  <FormContact
+                    onAdd={(contact) => {
+                      const exist = contacts.find(
+                        (c) => c.number === contact.number
+                      );
+                      if (!exist) setContacts([contact, ...contacts]);
+                    }}
+                  />
+                  {!!contacts.length && (
+                    <ul className="grid grid-cols-3 gap-2 mt-3">
+                      {contacts.map((contact) => (
+                        <li
+                          key={contact.number}
+                          onClick={() =>
+                            setContacts((prev) =>
+                              prev.filter((p) => p.number !== contact.number)
+                            )
+                          }
+                          className="flex flex-col justify-end hover:text-red-400 cursor-pointer h-[40px]"
+                        >
+                          <span className="truncate">{contact.name}</span>
+                          <div className="flex items-center gap-x-1">
+                            <span className="font-semibold">
+                              {contact.number}
+                            </span>
+                            <a className="text-red-400 duration-200 cursor-pointer">
+                              <IoMdRemoveCircleOutline size={20} />
+                            </a>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
               </div>
             </TabsContent>
             <TabsContent value="opening-hours" className="min-h-[260px]">
@@ -788,3 +847,63 @@ export function ModalCreateCampaign({
     </DialogRoot>
   );
 }
+
+interface FieldContact {
+  name?: string;
+  number: string;
+}
+const FormContact = (props: { onAdd: (contact: FieldContact) => void }) => {
+  const [fields, setFields] = useState({} as FieldContact);
+
+  return (
+    <div className="flex gap-x-2 items-end">
+      <div className="grid grid-cols-[1fr_130px] gap-x-2">
+        <Field label="Nome do contato">
+          <Input
+            value={fields?.name || ""}
+            onChange={({ target }) =>
+              setFields({ ...fields, name: target.value })
+            }
+            autoComplete="off"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+              }
+            }}
+          />
+        </Field>
+        <Field label="Número">
+          <Input
+            ref={withMask(["(99) 9999-9999", "(99) 99999-9999"], {
+              digitsOptional: false,
+            })}
+            autoComplete="off"
+            value={fields?.number || ""}
+            onChange={({ target }) =>
+              setFields({ ...fields, number: target.value })
+            }
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                setFields({} as FieldContact);
+                props.onAdd(fields);
+              }
+            }}
+          />
+        </Field>
+      </div>
+      <Button
+        disabled={
+          !fields.number || fields.number?.replace(/\D/g, "").length < 10
+        }
+        onClick={() => {
+          setFields({} as FieldContact);
+          props.onAdd(fields);
+        }}
+        type="button"
+      >
+        Adicionar
+      </Button>
+    </div>
+  );
+};

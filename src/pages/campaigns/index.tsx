@@ -202,6 +202,7 @@ export const CampaignsPage: React.FC = (): JSX.Element => {
                     content: <ModalEditCampaign close={close} id={row.id} />,
                   })
                 }
+                disabled
               >
                 <MdEdit size={18} color={"#9ec9fa"} />
               </Button>
@@ -270,7 +271,7 @@ export const CampaignsPage: React.FC = (): JSX.Element => {
         <TableComponent
           rows={campaigns || []}
           columns={renderColumns}
-          textEmpity="Suas campanha aparecerão aqui."
+          textEmpity="Suas campanhas aparecerão aqui."
           load={isFetching || isPending}
         />
       </div>

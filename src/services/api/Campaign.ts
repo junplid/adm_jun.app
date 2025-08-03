@@ -21,6 +21,10 @@ export async function createCampaign(body: {
     dayOfWeek: number;
     workingTimes?: { start: string; end: string }[];
   }[];
+  contacts?: {
+    name?: string;
+    number: string;
+  }[];
 }): Promise<{
   id: number;
   status: TypeStatusCampaign;

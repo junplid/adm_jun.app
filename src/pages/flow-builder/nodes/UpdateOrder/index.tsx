@@ -41,7 +41,7 @@ const optionsFields: { label: string; value: string }[] = [
   { label: "Prioridade", value: "priority" },
   { label: "Descrição", value: "description" },
   { label: "Origem", value: "origin" },
-  { label: "Método", value: "delivery_method" },
+  { label: "Método de pagamento", value: "payment_method" },
   { label: "Endereço de entrega", value: "delivery_address" },
   { label: "Total", value: "total" },
   { label: "Conteúdo", value: "data" },
@@ -63,7 +63,7 @@ type DataNode = {
   charge_transactionId?: string;
   varId_save_nOrder?: number;
   notify?: boolean;
-  delivery_method?: string;
+  payment_method?: string;
   actionChannels: { key: string; text: string }[];
   fields?: string[];
 };
@@ -207,7 +207,7 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
         </Field>
       )}
 
-      {data.fields?.includes("delivery_method") && (
+      {data.fields?.includes("payment_method") && (
         <Field label="Método">
           <AutocompleteTextField
             // @ts-expect-error
@@ -215,9 +215,9 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
             options={{ "{{": variables?.map((s) => s.name) || [] }}
             spacer={"}} "}
             placeholder="Digite o método ou {{metodo}}"
-            defaultValue={data.delivery_method || ""}
+            defaultValue={data.payment_method || ""}
             onChange={(value: string) =>
-              setDataMok({ ...data, delivery_method: value })
+              setDataMok({ ...data, payment_method: value })
             }
           />
         </Field>

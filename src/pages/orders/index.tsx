@@ -35,7 +35,7 @@ export interface OrderRow {
   n_order: string;
   createAt: Date;
   delivery_address: string | null;
-  delivery_method: string | null;
+  payment_method: string | null;
   actionChannels: string[];
   contact?: string;
   status: TypeStatusOrder;
@@ -199,8 +199,8 @@ export const OrdersPage: React.FC = (): JSX.Element => {
           {!!orders.length && (
             <span className="text-white/50 mt-10 text-center">
               {orders.length > 1
-                ? `${orders.length} pedidos encontrados"`
-                : `${orders.length} pedido encontrado`}
+                ? `${orders.length} pedidos encontrados*`
+                : `${orders.length} pedido encontrado*`}
             </span>
           )}
         </div>
@@ -292,10 +292,10 @@ function OrderItem(props: OrderRow): JSX.Element {
             <span className="line-clamp-1 text-nowrap">{props.name}</span>
           </div>
         )}
-        {props.delivery_method && (
+        {props.payment_method && (
           <div className="flex px-2 items-center justify-between gap-x-1">
             <span>Método</span>
-            <span>{props.delivery_method}</span>
+            <span>{props.payment_method}</span>
           </div>
         )}
         {props.delivery_address && (
