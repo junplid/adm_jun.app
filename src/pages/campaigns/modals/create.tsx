@@ -160,8 +160,8 @@ export function ModalCreateCampaign({
         props.onCreate?.({
           ...campaign,
           name,
-          finishPercentage: 0,
-          sentPercentage: 0,
+          finishCount: 0,
+          sentCount: 0,
         });
       } catch (error) {
         if (error instanceof AxiosError) {

@@ -13,7 +13,8 @@ export function useGetOrders(params?: { name?: string; page?: number }) {
     queryKey: ["orders", params],
     queryFn: async () => {
       try {
-        return await OrdersService.getOrders(params || {});
+        return await OrdersService.getOrders({});
+        // return await OrdersService.getOrders(params || {});
       } catch (error) {
         if (error instanceof AxiosError) {
           if (error.response?.status === 401) logout();

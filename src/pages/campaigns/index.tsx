@@ -39,8 +39,8 @@ export interface CampaignRow {
   name: string;
   createAt: Date;
   totalFlows: number;
-  sentPercentage: number;
-  finishPercentage: number;
+  sentCount: number;
+  finishCount: number;
   status: TypeStatusCampaign;
   businesses: { id: number; name: string }[];
 }
@@ -48,6 +48,11 @@ export interface CampaignRow {
 interface SocketPropsUpdateCampaign {
   id: number;
   status: TypeStatusCampaign;
+}
+
+interface SocketPropsSentPercentage {
+  id: number;
+  increment: number;
 }
 
 export const CampaignsPage: React.FC = (): JSX.Element => {
@@ -70,6 +75,21 @@ export const CampaignsPage: React.FC = (): JSX.Element => {
     };
 
     socket.on("status-campaign", handleStatus);
+    socket.on("sentCount-campaign", (data: SocketPropsSentPercentage) => {
+      console.log(data);
+      queryClient.setQueryData<any[]>(["campaigns", null], (old) =>
+        old
+          ? old.map((c) =>
+              c.id === data.id
+                ? {
+                    ...c,
+                    sentCount: (c.sentCount || 0) + data.increment,
+                  }
+                : c
+            )
+          : old
+      );
+    });
   }, [socket]);
 
   const renderColumns = useMemo(() => {
@@ -96,18 +116,18 @@ export const CampaignsPage: React.FC = (): JSX.Element => {
         },
       },
       {
-        key: "sentPercentage",
+        key: "",
         name: "Entregue",
         styles: { width: 90 },
-        render: ({ sentPercentage }) => {
+        render: ({ sentCount, totalFlows }) => {
           return (
             <div className="flex items-center justify-center">
               <ProgressCircleRoot
-                value={sentPercentage}
+                value={((sentCount || 0) / totalFlows) * 100}
                 colorPalette={"green"}
                 size={"sm"}
                 pr={0}
-                opacity={sentPercentage === 100 ? 0.7 : 1}
+                // opacity={sentPercentage === 100 ? 0.7 : 1}
               >
                 <ProgressCircleRing css={{ "--thickness": "3px" }} />
                 <ProgressCircleValueText fontSize={"10px"} />

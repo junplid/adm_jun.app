@@ -13,7 +13,7 @@ import { useDialogModal } from "../../hooks/dialog.modal";
 import SelectComponent from "@components/Select";
 import { Field } from "@components/ui/field";
 import {
-  getOrders,
+  // getOrders,
   runActionOrder,
   TypePriorityOrder,
   TypeStatusOrder,
@@ -76,11 +76,11 @@ export const OrdersPage: React.FC = (): JSX.Element => {
   const [filter, setFilter] = useState<PropsFilter>({});
   const [load, setLoad] = useState(false);
 
-  async function get(props: PropsFilter) {
+  async function get(_props: PropsFilter) {
     try {
       setLoad(true);
-      const { orders: oL } = await getOrders({ limit: 15, ...props });
-      setOrders(oL);
+      // const { orders: oL } = await getOrders({ limit: 15, ...props });
+      // setOrders(oL);
       setLoad(false);
     } catch (error) {
       setLoad(false);

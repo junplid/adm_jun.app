@@ -28,8 +28,8 @@ import { SocketContext } from "@contexts/socket.context";
 import { AxiosError } from "axios";
 import { ErrorResponse_I } from "../../../../../services/api/ErrorResponse";
 import { toaster } from "@components/ui/toaster";
-import { VirtuosoGrid } from "react-virtuoso";
-import { Tooltip } from "@components/ui/tooltip";
+// import { VirtuosoGrid } from "react-virtuoso";
+// import { Tooltip } from "@components/ui/tooltip";
 import { format } from "@flasd/whatsapp-formatting";
 import parse from "html-react-parser";
 import moment from "moment";
@@ -93,14 +93,14 @@ const TabOrders_ = ({ uuid }: { uuid: string }): JSX.Element => {
     {} as { [x: string]: Order[] }
   );
   const { logout, account } = useContext(AuthContext);
-  const [filter, setFilter] = useState<PropsFilter>({});
+  const [filter, _setFilter] = useState<PropsFilter>({});
   const [load, setLoad] = useState(false);
   // const [kanban, setKanban] = useState<IDataKanban>({
   //   columns: columns.map(s=>({name: s.})),
   // } as IDataKanban);
   const [loadMoveTicket, setLoadMoveTicket] = useState<number | null>(null);
 
-  async function get(props: PropsFilter) {
+  async function get(_props: PropsFilter) {
     try {
       setLoad(true);
       const { orders: oL } = await getOrders({
@@ -170,9 +170,9 @@ const TabOrders_ = ({ uuid }: { uuid: string }): JSX.Element => {
   }, [socketNS]);
 
   const onDragEnd = useCallback(async (result: DropResult) => {
-    const optionsAxios = {
-      // headers: { Authorization: cookies.auth_atten },
-    };
+    // const optionsAxios = {
+    //   // headers: { Authorization: cookies.auth_atten },
+    // };
     const { destination, source, draggableId } = result;
     if (!destination) return;
     if (
@@ -349,7 +349,7 @@ interface ColumnProps {
 }
 
 const Column: FC<ColumnProps> = ({ column, rows, loadMoveTicket }) => {
-  const [searchValue, setSearchValue] = useState("");
+  // const [searchValue, setSearchValue] = useState("");
 
   return (
     <Grid h={"100%"} minW={"210px"} w={"210px"} templateRows={"50px 1fr"}>

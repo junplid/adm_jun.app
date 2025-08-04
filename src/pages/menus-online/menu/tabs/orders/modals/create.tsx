@@ -14,7 +14,7 @@ import {
   DialogDescription,
 } from "@components/ui/dialog";
 import { Field } from "@components/ui/field";
-import { ItemRow } from "..";
+import { Order } from "..";
 import { AxiosError } from "axios";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -27,7 +27,7 @@ import { MdOutlineImage } from "react-icons/md";
 import { useCreateMenuOnlineItem } from "../../../../../../hooks/menu-online";
 
 interface IProps {
-  onCreate?(business: ItemRow): Promise<void>;
+  onCreate?(business: Order): Promise<void>;
   trigger: JSX.Element;
   placement?: "top" | "bottom" | "center";
   menuUuid: string;

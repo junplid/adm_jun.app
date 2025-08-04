@@ -90,8 +90,8 @@ export async function getCampaigns(_params?: {
 }): Promise<
   {
     businesses: { id: number; name: string }[];
-    finishPercentage: number;
-    sentPercentage: number;
+    finishCount: number;
+    sentCount: number;
     totalFlows: number;
     name: string;
     id: number;
