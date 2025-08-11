@@ -548,6 +548,13 @@ const nodesList: {
     premium: true,
   },
   {
+    icon: <TbTextSize className="dark:text-red-600 text-red-800" size={31} />,
+    name: "Deletar mensagem",
+    description: "Deleta mensagem em grupo ou privado",
+    type: "NodeDeleteMessage",
+    new: true,
+  },
+  {
     icon: (
       <VscDebugStop
         className="dark:text-zinc-100 text-zinc-800 w-8"

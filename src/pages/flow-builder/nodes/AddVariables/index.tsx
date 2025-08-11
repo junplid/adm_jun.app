@@ -4,7 +4,7 @@ import { PiBracketsCurlyBold } from "react-icons/pi";
 import { WithContext as ReactTags, SEPARATORS, Tag } from "react-tag-input";
 import useStore from "../../flowStore";
 import { JSX, useEffect, useMemo, useState } from "react";
-import { Highlight, Input, Presence, Spinner } from "@chakra-ui/react";
+import { Highlight, Presence, Spinner } from "@chakra-ui/react";
 import {
   useCreateVariable,
   useGetVariablesOptions,
@@ -12,6 +12,7 @@ import {
 import { GrClose } from "react-icons/gr";
 import { useColorModeValue } from "@components/ui/color-mode";
 import { CustomHandle } from "../../customs/node";
+import AutocompleteTextField from "@components/Autocomplete";
 
 type DataNode = {
   list: {
@@ -100,7 +101,7 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
       ) : (
         <div className="flex flex-col gap-y-1.5 mt-1">
           {data.list.map(({ id: idItem, value }, index) => (
-            <div key={idItem} className="flex items-center gap-x-1">
+            <div key={idItem} className="flex gap-x-1">
               <button
                 className="hover:bg-white/5 duration-200 rounded-sm p-1.5 cursor-pointer"
                 type="button"
@@ -108,18 +109,22 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
               >
                 <GrClose size={15} color="#d36060" />
               </button>
-              <div className="flex items-center gap-x-2">
+              <div className="flex flex-col gap-1.5 w-full">
                 <span>
                   {`{{${variables?.find((s) => s.id === idItem)?.name || "..."}}}`}
                   :
                 </span>
-                <Input
+                <AutocompleteTextField
+                  // @ts-expect-error
+                  trigger={["{{"]}
+                  options={{ "{{": variables?.map((s) => s.name) || [] }}
+                  spacer={"}} "}
+                  type="textarea"
                   placeholder="Valor"
                   defaultValue={value}
-                  size={"xs"}
-                  fontSize={14}
-                  onChange={({ target }) => {
-                    data.list[index].value = target.value;
+                  // @ts-expect-error
+                  onChange={(value) => {
+                    data.list[index].value = value;
                     setDataMok({ list: data.list });
                   }}
                 />

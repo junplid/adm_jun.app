@@ -124,7 +124,7 @@ export const FormSchema = z
     ),
     timeout: z.preprocess(
       toNumberOrUndef,
-      z.number().min(0).max(999).optional()
+      z.number().min(0).max(14400).optional()
     ),
   })
   .superRefine((data, ctx) => {
@@ -708,11 +708,11 @@ function Content({
                       // @ts-expect-error
                       min={0}
                       // @ts-expect-error
-                      max={7200}
+                      max={14400}
                       size={"md"}
                       {...register("timeout")}
                     >
-                      <NumberInput.Input placeholder="900 (20 Minutos)" />
+                      <NumberInput.Input placeholder="1200 (20 Minutos)" />
                     </NumberInput.Root>
                   </Field>
                   <Field

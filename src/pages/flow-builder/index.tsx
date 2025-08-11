@@ -75,6 +75,7 @@ import { NodeRemoveTrelloCard } from "./nodes/RemoveTrelloCard";
 import { NodeUpdateTrelloCard } from "./nodes/updateTrelloCard";
 import { NodeMoveTrelloCard } from "./nodes/MoveTrelloCard";
 import { NodeWebhookTrelloCard } from "./nodes/WebhookTrelloCard";
+import { NodeDeleteMessage } from "./nodes/DeleteMessage";
 
 type NodeTypesGeneric = {
   [x in TypesNodes]: any;
@@ -116,7 +117,8 @@ export type TypesNodes =
   | "NodeRemoveTrelloCard"
   | "NodeUpdateTrelloCard"
   | "NodeMoveTrelloCard"
-  | "NodeWebhookTrelloCard";
+  | "NodeWebhookTrelloCard"
+  | "NodeDeleteMessage";
 
 const nodeTypes: NodeTypesGeneric = {
   NodeInitial: NodeInitial,
@@ -155,6 +157,7 @@ const nodeTypes: NodeTypesGeneric = {
   NodeUpdateTrelloCard: NodeUpdateTrelloCard,
   NodeMoveTrelloCard: NodeMoveTrelloCard,
   NodeWebhookTrelloCard: NodeWebhookTrelloCard,
+  NodeDeleteMessage: NodeDeleteMessage,
 };
 
 const edgeTypes = {

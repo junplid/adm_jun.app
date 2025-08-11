@@ -10,6 +10,7 @@ import { CustomHandle } from "../../customs/node";
 import { HiOutlineUserGroup } from "react-icons/hi";
 import { Field } from "@components/ui/field";
 import { useGetVariablesOptions } from "../../../../hooks/variable";
+import SelectVariables from "@components/SelectVariables";
 
 type DataNode = {
   groupName: string;
@@ -17,6 +18,8 @@ type DataNode = {
     text: string;
     interval: number;
     key: string;
+    varId?: number;
+    varId_groupJid?: number;
   }[];
 };
 
@@ -123,6 +126,65 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
                 setDataMok({ ...data, messages: data.messages });
               }}
             />
+
+            <Field>
+              <SelectVariables
+                isMulti={false}
+                isClearable
+                placeholder="Salvar o ID da mensagem"
+                menuPlacement="bottom"
+                isFlow
+                value={msg.varId}
+                onChange={(e: any) => {
+                  if (!e) {
+                    data.messages[index].varId = undefined;
+                    updateNode(id, {
+                      data: { ...data, messages: data.messages },
+                    });
+                    return;
+                  }
+                  data.messages[index].varId = Number(e.value);
+                  updateNode(id, {
+                    data: { ...data, messages: data.messages },
+                  });
+                }}
+                onCreate={(tag) => {
+                  data.messages[index].varId = tag.id;
+                  updateNode(id, {
+                    data: { ...data, messages: data.messages },
+                  });
+                }}
+              />
+            </Field>
+            <Field>
+              <SelectVariables
+                isMulti={false}
+                isClearable
+                placeholder="Salvar o ID do grupo"
+                menuPlacement="bottom"
+                isFlow
+                value={msg.varId_groupJid}
+                onChange={(e: any) => {
+                  if (!e) {
+                    data.messages[index].varId_groupJid = undefined;
+                    updateNode(id, {
+                      data: { ...data, messages: data.messages },
+                    });
+                    return;
+                  }
+                  data.messages[index].varId_groupJid = Number(e.value);
+                  updateNode(id, {
+                    data: { ...data, messages: data.messages },
+                  });
+                }}
+                onCreate={(tag) => {
+                  data.messages[index].varId_groupJid = tag.id;
+                  updateNode(id, {
+                    data: { ...data, messages: data.messages },
+                  });
+                }}
+              />
+            </Field>
           </div>
         ))}
 

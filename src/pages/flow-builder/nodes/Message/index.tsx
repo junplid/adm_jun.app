@@ -9,12 +9,15 @@ import { nanoid } from "nanoid";
 import AutocompleteTextField from "@components/Autocomplete";
 import { CustomHandle } from "../../customs/node";
 import { useGetVariablesOptions } from "../../../../hooks/variable";
+import { Field } from "@components/ui/field";
+import SelectVariables from "@components/SelectVariables";
 
 type DataNode = {
   messages: {
     text: string;
     interval?: number;
     key: string;
+    varId?: number;
   }[];
 };
 
@@ -105,6 +108,36 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
                 setDataMok({ messages: data.messages });
               }}
             />
+
+            <Field>
+              <SelectVariables
+                isMulti={false}
+                isClearable
+                placeholder="Salvar o ID da mensagem"
+                menuPlacement="bottom"
+                isFlow
+                value={msg.varId}
+                onChange={(e: any) => {
+                  if (!e) {
+                    data.messages[index].varId = undefined;
+                    updateNode(id, {
+                      data: { messages: data.messages },
+                    });
+                    return;
+                  }
+                  data.messages[index].varId = Number(e.value);
+                  updateNode(id, {
+                    data: { messages: data.messages },
+                  });
+                }}
+                onCreate={(tag) => {
+                  data.messages[index].varId = tag.id;
+                  updateNode(id, {
+                    data: { messages: data.messages },
+                  });
+                }}
+              />
+            </Field>
           </div>
         ))}
 
