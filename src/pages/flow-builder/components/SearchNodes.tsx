@@ -34,7 +34,7 @@ import {
   LuMessageCircleHeart,
   LuNotepadText,
 } from "react-icons/lu";
-import { FaCrown } from "react-icons/fa";
+import { FaCrown, FaRandom } from "react-icons/fa";
 import { AuthContext } from "@contexts/auth.context";
 import { GiDirectionSigns } from "react-icons/gi";
 import { RiMoneyDollarCircleLine, RiTrelloLine } from "react-icons/ri";
@@ -552,6 +552,15 @@ const nodesList: {
     name: "Deletar mensagem",
     description: "Deleta mensagem em grupo ou privado",
     type: "NodeDeleteMessage",
+    new: true,
+  },
+  {
+    icon: (
+      <FaRandom className="dark:text-purple-400 text-purple-700" size={31} />
+    ),
+    name: "Node Distribuidor",
+    description: "Distribui aleatoriamente",
+    type: "NodeDistribute",
     new: true,
   },
   {

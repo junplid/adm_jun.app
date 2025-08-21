@@ -4,7 +4,7 @@ import { RiDeleteBinLine } from "react-icons/ri";
 import { FC, JSX } from "react";
 import useStore from "../../flowStore";
 
-const Button = styled.button`
+const Button = styled.a`
   display: flex;
   justify-content: center;
   align-items: center;

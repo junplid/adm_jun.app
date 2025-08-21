@@ -76,6 +76,7 @@ import { NodeUpdateTrelloCard } from "./nodes/updateTrelloCard";
 import { NodeMoveTrelloCard } from "./nodes/MoveTrelloCard";
 import { NodeWebhookTrelloCard } from "./nodes/WebhookTrelloCard";
 import { NodeDeleteMessage } from "./nodes/DeleteMessage";
+import { NodeDistribute } from "./nodes/Distribute";
 
 type NodeTypesGeneric = {
   [x in TypesNodes]: any;
@@ -118,7 +119,8 @@ export type TypesNodes =
   | "NodeUpdateTrelloCard"
   | "NodeMoveTrelloCard"
   | "NodeWebhookTrelloCard"
-  | "NodeDeleteMessage";
+  | "NodeDeleteMessage"
+  | "NodeDistribute";
 
 const nodeTypes: NodeTypesGeneric = {
   NodeInitial: NodeInitial,
@@ -158,6 +160,7 @@ const nodeTypes: NodeTypesGeneric = {
   NodeMoveTrelloCard: NodeMoveTrelloCard,
   NodeWebhookTrelloCard: NodeWebhookTrelloCard,
   NodeDeleteMessage: NodeDeleteMessage,
+  NodeDistribute: NodeDistribute,
 };
 
 const edgeTypes = {
@@ -330,6 +333,8 @@ function Body(props: IBody): JSX.Element {
         newNode.data = { list: [] };
       } else if (typeN === "NodeUpdateTrelloCard") {
         newNode.data = { fields: [] };
+      } else if (typeN === "NodeDistribute") {
+        newNode.data = { preview: [], exits: [] };
       }
       onNodesChange([{ type: "add", item: newNode }]);
       setTypeDrag(null);

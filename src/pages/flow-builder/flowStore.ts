@@ -42,6 +42,7 @@ const useStore = create<AppState>((set, get) => ({
   setTypeDrag: (type: TypesNodes | null) => set({ typeDrag: type }),
   setIsPull: (v) => set({ isPull: v }),
   setBusinessIds: (businessIds: number[]) => set({ businessIds }),
+
   setChange: (
     type: "nodes" | "edges",
     change: { type: "upset" | "delete"; id: string }

@@ -182,38 +182,17 @@ const IconPreviewFile = (p: { mimetype: string }): JSX.Element => {
 };
 
 const optionsModels = [
-  {
-    label: (
-      <span>
-        gpt-4.1 <small className="text-white/70">$8/M</small>
-      </span>
-    ),
-    value: "gpt-4.1",
-  },
-  {
-    label: (
-      <span>
-        gpt-4o <small className="text-white/70">$20/M</small>
-      </span>
-    ),
-    value: "gpt-4o",
-  },
-  {
-    label: (
-      <span>
-        o1 <small className="text-white/70">$60/M</small>{" "}
-      </span>
-    ),
-    value: "o1",
-  },
-  {
-    label: (
-      <span>
-        gpt-4 <small className="text-white/70">$60/M</small>{" "}
-      </span>
-    ),
-    value: "gpt-4",
-  },
+  { label: <span>o1</span>, value: "o1" }, // $15.00
+  { label: <span>gpt-4o</span>, value: "gpt-4o" }, // $2.50
+  { label: <span>gpt-4.1</span>, value: "gpt-4.1" }, // $2.00
+  { label: <span>gpt-5</span>, value: "gpt-5" }, // $1.25
+  { label: <span>o4-mini</span>, value: "o4-mini" }, // $1.10
+  { label: <span>o3-mini</span>, value: "o3-mini" }, // $1.10
+  { label: <span>gpt-4.1-mini</span>, value: "gpt-4.1-mini" }, // $0.40
+  { label: <span>gpt-5-mini</span>, value: "gpt-5-mini" }, // $0.25
+  { label: <span>gpt-4o-mini</span>, value: "gpt-4o-mini" }, // $0.15
+  { label: <span>gpt-4.1-nano</span>, value: "gpt-4.1-nano" }, // $0.10
+  { label: <span>gpt-5-nano</span>, value: "gpt-5-nano" }, // $0.05
 ];
 
 const optionsEmojiLevel = [
