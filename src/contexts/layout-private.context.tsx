@@ -30,7 +30,8 @@ import { ModalOnboarded } from "./ModalOnboarded";
 import { updateAccount } from "../services/api/Account";
 import { FiInbox } from "react-icons/fi";
 import { PiPuzzlePieceBold } from "react-icons/pi";
-import { CgWebsite } from "react-icons/cg";
+// import { CgWebsite } from "react-icons/cg";
+// import { QrCode } from "@components/ui/qr-code";
 
 export const ShadowTopMemoComponent = memo(() => {
   const [showShadowTop, setShowShadowTop] = useState(true);
@@ -47,7 +48,8 @@ export const ShadowTopMemoComponent = memo(() => {
         style={{
           background: gradient,
           opacity: Number(!showShadowTop),
-          top: 50,
+          // top: 50,
+          top: 0,
         }}
       ></div>
     </>
@@ -153,12 +155,18 @@ export function LayoutPrivateProvider(): JSX.Element {
         />
       )}
 
-      <div className="items-start duration-500 w-full flex">
+      <div
+        className="overx items-start duration-500 w-full flex"
+        style={{
+          overflowX: "hidden",
+          overflowY: "hidden",
+        }}
+      >
         <Sidebar
           collapsed={!toggledMenu}
           backgroundColor={bgSideBar}
           collapsedWidth="70px"
-          width="280px"
+          width="250px"
           rootStyles={{
             border: "none !important",
             boxShadow: toggledMenu ? `4px 0 8px ${shadowSideBar}` : undefined,
@@ -166,10 +174,10 @@ export function LayoutPrivateProvider(): JSX.Element {
             position: "relative",
           }}
         >
-          <div className="flex h-screen flex-col scroll-hidden overflow-y-scroll scroll-by">
+          <div className="flex h-screen overflow-x-hidden flex-col scroll-hidden overflow-y-scroll scroll-by">
             <ShadowTopMemoComponent />
 
-            <div
+            {/* <div
               style={{ minHeight: 50, background: bgSideBar }}
               className="sticky top-0 z-50 flex w-full items-center gap-x-2 p-1 px-2 pl-4"
             >
@@ -190,31 +198,32 @@ export function LayoutPrivateProvider(): JSX.Element {
                 }}
                 alt="UNPLID"
               />
-            </div>
+            </div> */}
 
             {/* {toggledMenu && (
-          <Presence
-            animationName={{
-              _open: "slide-from-top, fade-in",
-              _closed: "slide-to-top, fade-out",
-            }}
-            animationDuration="moderate"
-            present={showDonate}
-          >
-            <div className="p-4 text-center">
-              <h3 className="text-lg font-bold text-white mb-1">
-                Apoie nosso trabalho ❤️
-              </h3>
-              <p className="text-sm text-zinc-400 mb-1">
-                Sua doação contribui e impulsiona nosso time de desenvolvedores.
-              </p>
-              <div className="flex justify-center">
-                <QrCode value="00020126360014BR.GOV.BCB.PIX0114+55199877266775204000053039865802BR5925Janderson Gabriel Silva d6009SAO PAULO6214051083oLAs51LG63048238" />
-              </div>
-              <p className="text-xs text-zinc-200">Escaneie com o Pix</p>
-            </div>
-          </Presence>
-        )} */}
+              <Presence
+                animationName={{
+                  _open: "slide-from-top, fade-in",
+                  _closed: "slide-to-top, fade-out",
+                }}
+                animationDuration="moderate"
+                present={showDonate}
+              >
+                <div className="p-4 text-center">
+                  <h3 className="text-lg font-bold text-white mb-1">
+                    Apoie nosso trabalho ❤️
+                  </h3>
+                  <p className="text-sm text-zinc-400 mb-1">
+                    Sua doação contribui e impulsiona nosso time de
+                    desenvolvedores.
+                  </p>
+                  <div className="flex justify-center">
+                    <QrCode value="00020126360014BR.GOV.BCB.PIX0114+55199877266775204000053039865802BR5925Janderson Gabriel Silva d6009SAO PAULO6214051083oLAs51LG63048238" />
+                  </div>
+                  <p className="text-xs text-zinc-200">Escaneie com o Pix</p>
+                </div>
+              </Presence>
+            )} */}
 
             <Menu
               className="relative font-semibold flex-1"
@@ -264,20 +273,21 @@ export function LayoutPrivateProvider(): JSX.Element {
               >
                 Projetos
               </MenuItem>
-              <MenuItem
+              {/* <MenuItem
                 icon={<CgWebsite size={22} />}
                 component={<Link to={"/auth/menus-online"} />}
                 active={pathname.includes("menus-online")}
+                disabled
               >
-                Cardápios on-line <Badge colorPalette={"green"}>NEW</Badge>
-              </MenuItem>
+                Cardápios on-line{" "}
+                <Badge colorPalette={"gray"}>DESCONTINUADO</Badge>
+              </MenuItem> */}
               <MenuItem
                 icon={<LuNotepadText size={20} />}
                 component={<Link to={"/auth/orders"} />}
                 active={pathname === "/auth/orders"}
-                disabled
               >
-                Pedidos <Badge colorPalette={"gray"}>OBSOLETO</Badge>
+                Pedidos <Badge colorPalette={"green"}>NEW</Badge>
               </MenuItem>
               <MenuItem
                 icon={<GrConnect size={20} />}

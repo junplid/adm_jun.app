@@ -13,7 +13,7 @@ import { ModalEditAgentAI } from "./modals/edit";
 import { FaCrown } from "react-icons/fa";
 import { Tooltip } from "@components/ui/tooltip";
 import { AuthContext } from "@contexts/auth.context";
-import { LayoutWorkbenchPageContext } from "../contexts";
+import { LayoutWorkbenchPageContext } from "../contexts"; 
 
 export interface AgentsAIRow {
   businesses: { id: number; name: string }[];
@@ -98,7 +98,7 @@ export const AgentsAIPage: React.FC = (): JSX.Element => {
                 }}
               >
                 <MdDeleteOutline color={"#f75050"} />
-              </Button>
+              </Button>  
             </div>
           );
         },

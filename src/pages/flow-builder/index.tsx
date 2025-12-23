@@ -335,6 +335,8 @@ function Body(props: IBody): JSX.Element {
         newNode.data = { fields: [] };
       } else if (typeN === "NodeDistribute") {
         newNode.data = { preview: [], exits: [] };
+      } else if (typeN === "NodeCreateOrder") {
+        newNode.data = { isDragDisabled: false, actionChannels: [] };
       }
       onNodesChange([{ type: "add", item: newNode }]);
       setTypeDrag(null);
@@ -494,7 +496,7 @@ function Body(props: IBody): JSX.Element {
       >
         <MiniMap
           style={{ width: 180, height: 100 }}
-          className="dark:!bg-[#37373791] !bg-[#47484971]"
+          className="dark:bg-[#37373791]! bg-[#47484971]!"
         />
         <Panel
           position="top-left"

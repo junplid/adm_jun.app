@@ -55,6 +55,7 @@ type DataNode = {
   notify?: boolean;
   payment_method?: string;
   actionChannels: { key: string; text: string }[];
+  isDragDisabled: boolean;
 };
 
 function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
@@ -292,6 +293,19 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
           }}
         />
       </Field>
+
+      <Field helperText="Impossibilita de arrastar e soltar o card">
+        <Checkbox.Root
+          checked={!!data.isDragDisabled}
+          onCheckedChange={(e) =>
+            updateNode(id, { data: { ...data, isDragDisabled: !!e.checked } })
+          }
+        >
+          <Checkbox.HiddenInput />
+          <Checkbox.Control />
+          <Checkbox.Label>Desabilitar o arrastar</Checkbox.Label>
+        </Checkbox.Root>
+      </Field>
       <div className="border-b-2 mt-3 border-dashed border-zinc-800/70" />
 
       <div className="mt-3 flex flex-col gap-y-2">
@@ -400,7 +414,6 @@ export const NodeCreateOrder: React.FC<Node<DataNode>> = ({ id, data }) => {
       >
         <BodyNode data={data} id={id} />
       </PatternNode.PatternPopover>
-
       <Handle type="target" position={Position.Left} style={{ left: -8 }} />
       <CustomHandle
         nodeId={id}
@@ -410,19 +423,96 @@ export const NodeCreateOrder: React.FC<Node<DataNode>> = ({ id, data }) => {
         style={{ right: -9, top: 11 }}
         isConnectable={true}
       />
-
-      <span className="absolute -right-[15px] top-[30px] dark:text-yellow-400 text-yellow-500">
-        <TiFlash size={15} />
+      <span className="absolute -right-3.75 top-6 dark:text-yellow-400 text-yellow-500">
+        <TiFlash size={13} />
       </span>
       <CustomHandle
         nodeId={id}
         handleId={`${colorAction} action`}
         position={Position.Right}
         type="source"
-        style={{ right: -20, top: 37 }}
+        style={{ right: -20, top: 30 }}
         isConnectable={true}
-        className="dark:!border-yellow-400/60 dark:!bg-yellow-400/15 !border-yellow-500/70 !bg-yellow-500/15"
+        className="dark:border-yellow-400/60! dark:bg-yellow-400/15! border-yellow-500/70! bg-yellow-500/15!"
       />
+
+      <CustomHandle
+        nodeId={id}
+        handleId={`#f59f0bdf pending`}
+        position={Position.Right}
+        type="source"
+        style={{ right: -48, top: 44 }}
+        isConnectable={true}
+        className="dark:border-[#f59f0bdf]! dark:bg-[#f59f0bdf]/15! border-[#f59f0bdf]! bg-[#f59f0bdf]/15!"
+      />
+      <span className="font-semibold text-[#f59f0bdf] text-[8px] absolute -right-10 top-9.5">
+        Pendente
+      </span>
+
+      <CustomHandle
+        nodeId={id}
+        handleId={`#0ea4e9c6 confirmed`}
+        position={Position.Right}
+        type="source"
+        style={{ right: -57, top: 44 + 14 }}
+        isConnectable={true}
+        className="dark:border-[#0ea4e9c6]! dark:bg-[#0ea4e9c6]/15! border-[#0ea4e9c6]! bg-[#0ea4e9c6]/15!"
+      />
+      <span className="font-semibold text-[#0ea4e9c6] text-[8px] absolute -right-12.5 top-13">
+        Aguardando
+      </span>
+
+      <CustomHandle
+        nodeId={id}
+        handleId={`#f97416 processing`}
+        position={Position.Right}
+        type="source"
+        style={{ right: -56, top: 44 + 28 }}
+        isConnectable={true}
+        className="dark:border-[#f97416]! dark:bg-[#f97416]/15! border-[#f97416]! bg-[#f97416]/15!"
+      />
+      <span className="font-semibold text-[#f97416] text-[8px] absolute -right-12 top-16.5">
+        Preparando
+      </span>
+
+      <CustomHandle
+        nodeId={id}
+        handleId={`#22c55eef ready`}
+        position={Position.Right}
+        type="source"
+        style={{ right: -38, top: 44 + 42 }}
+        isConnectable={true}
+        className="dark:border-[#22c55eef]! dark:bg-[#22c55eef]/15! border-[#22c55eef]! bg-[#22c55eef]/15!"
+      />
+      <span className="font-semibold text-[#22c55eef] text-[8px] absolute -right-7.5 top-20">
+        Pronto
+      </span>
+
+      <CustomHandle
+        nodeId={id}
+        handleId={`#3b83f6fa on_way`}
+        position={Position.Right}
+        type="source"
+        style={{ right: -51, top: 44 + 56 }}
+        isConnectable={true}
+        className="dark:border-[#3b83f6fa]! dark:bg-[#3b83f6fa]/15! border-[#3b83f6fa]! bg-[#3b83f6fa]/15!"
+      />
+      <span className="font-semibold text-[#3b83f6fa] text-[8px] absolute -right-10.75 top-23.5">
+        A caminho
+      </span>
+
+      <CustomHandle
+        nodeId={id}
+        handleId={`#14b8a5 completed`}
+        position={Position.Right}
+        type="source"
+        style={{ right: -51, top: 44 + 70 }}
+        isConnectable={true}
+        className="dark:border-[#14b8a5]! dark:bg-[#14b8a5]/15! border-[#14b8a5]! bg-[#14b8a5]/15!"
+      />
+      <span className="font-semibold text-[#14b8a5] text-[8px] absolute -right-10.5 top-27">
+        Finalizado
+      </span>
     </div>
   );
 };

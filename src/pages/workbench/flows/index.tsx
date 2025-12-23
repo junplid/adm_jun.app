@@ -15,6 +15,7 @@ import { useGetFlows } from "../../../hooks/flow";
 import { Link } from "react-router-dom";
 import { useDialogModal } from "../../../hooks/dialog.modal";
 import { LayoutWorkbenchPageContext } from "../contexts";
+import { TbFileDownload, TbFileUpload } from "react-icons/tb";
 
 export interface FlowRow {
   id: string;
@@ -78,6 +79,7 @@ export const FlowsPage: React.FC = (): JSX.Element => {
                     content: <ModalViewFlow id={row.id} />,
                   })
                 }
+                disabled
               >
                 <LuEye color={"#dbdbdb"} />
               </Button>
@@ -93,6 +95,18 @@ export const FlowsPage: React.FC = (): JSX.Element => {
                 }
               >
                 <MdEdit size={18} color={"#9ec9fa"} />
+              </Button>
+              <Button
+                size={"sm"}
+                bg={"transparent"}
+                _hover={{ bg: "#aaeb6028" }}
+                _icon={{ width: "20px", height: "20px" }}
+                onClick={() => {
+                  // fazer o download do arquivo
+                }}
+                disabled
+              >
+                <TbFileDownload color={"#71ce46ff"} />
               </Button>
               <Button
                 size={"sm"}
@@ -131,13 +145,23 @@ export const FlowsPage: React.FC = (): JSX.Element => {
               avançado para conversas no WhatsApp
             </p>
           </div>
-          <ModalCreateFlow
-            trigger={
-              <Button variant="outline" size={"sm"}>
-                <IoAdd /> Adicionar
-              </Button>
-            }
-          />
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size={"sm"}
+              borderColor={"#2e3a29ff"}
+              color="#aeeb92ff"
+            >
+              <TbFileUpload color="#8ee266ff" /> Importar
+            </Button>
+            <ModalCreateFlow
+              trigger={
+                <Button variant="outline" size={"sm"}>
+                  <IoAdd /> Adicionar
+                </Button>
+              }
+            />
+          </div>
         </div>
       </div>
       <div className="grid flex-1">
