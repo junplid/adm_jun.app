@@ -20,7 +20,11 @@ const themes: {
   },
 };
 
-export const ListPlayer: FC = () => {
+interface Props {
+  clickCard?: () => void;
+}
+
+export const ListPlayer: FC<Props> = (props) => {
   const virtuosoRef = useRef<VirtuosoHandle>(null);
   const { filter, list } = useContext(PlayerContext);
 
@@ -49,7 +53,7 @@ export const ListPlayer: FC = () => {
         className="scroll-custom-table"
         followOutput="smooth"
         itemContent={(_, item) => {
-          return <Item {...item} />;
+          return <Item clickCard={props.clickCard} {...item} />;
         }}
       />
     </div>
@@ -68,6 +72,7 @@ interface PropsItem {
   lastInteractionDate: Date;
   count_unread: number;
   lastMessage: string | null;
+  clickCard?: () => void;
 }
 
 const diasDaSemana: { [x: number]: string } = {
@@ -85,7 +90,6 @@ function Item(p: PropsItem) {
 
   const previewDateLastMsg = useMemo(() => {
     const days = moment().diff(p.lastInteractionDate, "day");
-    console.log(days);
     if (days === 0) {
       return moment(p.lastInteractionDate).format("HH:mm");
     }
@@ -100,7 +104,10 @@ function Item(p: PropsItem) {
   return (
     <div
       className={`p-2 py-2.5 hover:bg-[#80808018] duration-100 select-none cursor-pointer mr-1.5`}
-      onClick={() => setCurrentTicket(p.id)}
+      onClick={() => {
+        setCurrentTicket(p.id);
+        p.clickCard?.();
+      }}
     >
       <div className="flex items-center gap-x-2">
         <Avatar size={"sm"} width={"40px"} bg={"#555555"} height={"40px"} />

@@ -82,7 +82,7 @@ export const LoginPage: React.FC = (): JSX.Element => {
     <div className="my-10 flex flex-col gap-y-10 px-3 items-center justify-center w-full h-full">
       <img src="/logo.svg" className="max-w-40" alt="Logo" />
       <div className="m-auto w-full flex-1 gap-3 grid min-[640px]:grid-cols-[310px_1fr] items-center max-w-3xl">
-        <video
+        {/* <video
           className="w-full h-auto mb-5 px-9 min-[640px]:hidden"
           src="/login-video.mp4"
           controls={false}
@@ -91,7 +91,7 @@ export const LoginPage: React.FC = (): JSX.Element => {
           autoPlay
           muted
           loop
-        />
+        /> */}
 
         <div className="min-h-full max-w-80 mx-auto w-full rounded-sm flex-col flex gap-y-3 bg-[#f5f5f5] p-6 py-8 dark:bg-[#111111] shadow-xl border border-black/5 dark:border-none">
           <div>

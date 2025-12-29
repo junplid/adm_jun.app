@@ -5,7 +5,7 @@ import { Link, Outlet, useLocation } from "react-router-dom";
 import { JSX } from "@emotion/react/jsx-runtime";
 import { HiMenu } from "react-icons/hi";
 import { useColorModeValue } from "@components/ui/color-mode";
-import { TbUsers } from "react-icons/tb";
+// import { TbUsers } from "react-icons/tb";
 import { LuBriefcaseBusiness } from "react-icons/lu";
 import { LayoutInboxesPageContext } from "./contexts";
 
@@ -33,7 +33,7 @@ const ToggleMenu = ({
 );
 
 export function LayoutInboxesPageProvider(): JSX.Element {
-  const [toggledMenu, setToggledMenu] = useState(true);
+  const [toggledMenu, setToggledMenu] = useState(false);
   const { pathname } = useLocation();
 
   const bgSideBar = useColorModeValue("", "#1f1d1d73");
@@ -51,14 +51,13 @@ export function LayoutInboxesPageProvider(): JSX.Element {
 
   return (
     <LayoutInboxesPageContext.Provider value={dataValue}>
-      <div className="h-full gap-y-2 flex flex-col">
+      <div className="h-full gap-y-2 flex flex-col sm:p-0 px-2">
         <div className="flex flex-col gap-y-0.5">
           <div className="flex items-center gap-x-5">
-            <h1 className="text-lg font-semibold">Inboxes</h1>
+            <h1 className="text-base sm:text-lg font-semibold">Inboxes</h1>
           </div>
-          <p className="text-white/60 font-light">
-            Inboxes para centralizar e agilizar o suporte humano aos seus
-            contatos em tempo real.
+          <p className="text-white/60 font-light sm:text-base text-sm">
+            Centralizar o suporte humano em tempo real.
           </p>
         </div>
         <div
@@ -68,21 +67,20 @@ export function LayoutInboxesPageProvider(): JSX.Element {
           <Sidebar
             collapsed={!toggledMenu}
             backgroundColor={""}
-            collapsedWidth="70px"
-            width="220px"
-            style={{}}
+            collapsedWidth="65px"
+            width="190px"
             rootStyles={{
               borderRadius: "8px !important",
-              backgroundColor: toggledMenu ? bgSideBar : "transparent",
+              backgroundColor: toggledMenu ? bgSideBar : "#1E1E21",
               border: "none !important",
               boxShadow: toggledMenu ? `4px 0 8px ${shadowSideBar}` : undefined,
               zIndex: 9,
               position: "relative",
-              marginLeft: -15,
+              marginLeft: -0,
             }}
           >
             <div
-              style={{ maxHeight: "calc(100vh - 180px)", minHeight: 370 }}
+              style={{ maxHeight: "calc(100vh - 180px)", minHeight: 320 }}
               className="flex flex-col scroll-hidden overflow-y-scroll scroll-by"
             >
               <Menu
@@ -119,13 +117,14 @@ export function LayoutInboxesPageProvider(): JSX.Element {
                   },
                 }}
               >
-                <MenuItem
+                {/**<MenuItem
                   icon={<TbUsers size={20} />}
                   active={pathname === "/auth/inboxes/attendants"}
                   component={<Link to={"inboxes/attendants"} />}
+                  disabled
                 >
                   Atendentes
-                </MenuItem>
+                </MenuItem>*/}
                 <MenuItem
                   icon={<LuBriefcaseBusiness size={20} />}
                   active={pathname === "/auth/inboxes/departments"}

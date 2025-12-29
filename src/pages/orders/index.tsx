@@ -39,7 +39,7 @@ import {
   DropResult,
 } from "react-beautiful-dnd";
 import fontColorContrast from "font-color-contrast";
-import { formatToBRL } from "brazilian-values";
+// import { formatToBRL } from "brazilian-values";
 import { format } from "@flasd/whatsapp-formatting";
 import parse from "html-react-parser";
 import moment from "moment";
@@ -82,10 +82,10 @@ const columns: {
   value: TypeStatusOrder;
   color: string;
 }[] = [
-  { label: "Pendentes", value: "pending", color: "#F59E0B33" },
+  // { label: "Pendentes", value: "pending", color: "#F59E0B33" },
   { label: "Aguardando", value: "confirmed", color: "#0EA5E933" },
-  { label: "Preparando", value: "processing", color: "#F9731633" },
-  { label: "Prontos", value: "ready", color: "#22C55E33" },
+  { label: "Em preparo", value: "processing", color: "#F9731633" },
+  { label: "Embalagem", value: "ready", color: "#22C55E33" },
   { label: "A caminho", value: "on_way", color: "#3B82F633" },
   { label: "Finalizados", value: "completed", color: "#14B8A633" },
 ];
@@ -309,13 +309,13 @@ export const OrdersPage: React.FC = (): JSX.Element => {
 
   return (
     <div className="h-full gap-y-2 flex flex-col">
-      <div className="flex flex-col">
+      <div className="flex flex-col sm:pl-0 pl-2">
         <div className="flex items-center gap-x-2 sm:gap-x-5">
           <h1 className="text-base sm:text-lg font-semibold">Pedidos</h1>
-          <strong className="text-yellow-600 text-sm">
+          {/*<strong className="text-yellow-600 text-sm">
             <span className="text-xs">⚠️</span> Em desenvolvimento
           </strong>
-          {/* <ModalCreateBusiness
+           <ModalCreateBusiness
             trigger={
               <Button disabled variant="outline" size={"sm"}>
                 <IoAdd /> Adicionar
@@ -415,7 +415,7 @@ export const OrdersPage: React.FC = (): JSX.Element => {
       </div> */}
       <div className="flex-1 pt-0! grid gap-x-2 h-full">
         {load ? (
-          <div className="bg-white/5 text-white/70 rounded-md flex flex-col items-center justify-center">
+          <div className="bg-white/5 sm:m-0 m-2 text-white/70 rounded-md flex flex-col items-center justify-center">
             <span className="">Carregando aguarde...</span>
             <Spinner />
           </div>
@@ -441,7 +441,7 @@ export const OrdersPage: React.FC = (): JSX.Element => {
                   </div>
                 )} */}
             <DragDropContext onDragEnd={onDragEnd}>
-              <div className="remove-scroll overflow-x-auto flex space-x-2">
+              <div className="sm:h-[calc(100svh-154px)] overflow-hidden overflow-x-auto flex space-x-2">
                 {columns?.map((column) => {
                   return (
                     <Column
@@ -482,9 +482,12 @@ const Column: FC<ColumnProps> = ({ column, rows }) => {
       w={"203px"}
       templateRows={"40px 1fr"}
       sm={{ gridTemplateRows: "50px 1fr" }}
+      className="first:ml-2 last:mr-2"
     >
       <div
-        style={{ background: column.color }}
+        style={{
+          background: column.color,
+        }}
         className="gap-1.5 p-2 sticky top-0 z-50 sm:p-3 rounded-sm flex items-center sm:rounded-md justify-between"
       >
         <span
@@ -608,8 +611,9 @@ export const Taks: FC<Order & { index: number }> = ({
             className="relative"
             gap={1}
           >
-            <div className="px-2 pt-2 flex w-full mb-1 items-center gap-x-1 justify-between">
-              <span className="text-sm">#{props.n_order}</span>
+            <div className="px-2 pt-2 flex w-full mb-0 items-center gap-x-1 justify-between">
+              <span className="text-sm text-white/35">#{props.n_order}</span>
+
               <span className="text-white/35 text-sm">
                 {previewDateLastMsg}
               </span>

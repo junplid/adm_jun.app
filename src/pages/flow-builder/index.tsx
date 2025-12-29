@@ -496,7 +496,7 @@ function Body(props: IBody): JSX.Element {
       >
         <MiniMap
           style={{ width: 180, height: 100 }}
-          className="dark:bg-[#37373791]! bg-[#47484971]!"
+          className="dark:bg-[#37373791]! bg-[#47484971]! sm:block hidden"
         />
         <Panel
           position="top-left"

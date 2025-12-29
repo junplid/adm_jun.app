@@ -63,6 +63,7 @@ import {
 } from "../../../../../hooks/tag";
 import { InViewComponent } from "@components/InView";
 import { InView } from "react-intersection-observer";
+import { BiTimeFive } from "react-icons/bi";
 
 const background = {
   system: "#5c3600cd",
@@ -461,13 +462,17 @@ export const ChatPlayer: FC = () => {
             <Avatar size={"sm"} bg={"#555555"} width={"40px"} height={"40px"} />
             <div className="flex flex-col">
               <span className="font-medium">{dataTicket.contact.name}</span>
-              <span className="text-sm text-white/60">
-                {dataTicket.contact.completeNumber}
+              <span className="text-xs sm:text-sm text-white/60">
+                {dataTicket.contact.completeNumber.includes("@lid")
+                  ? "+55-codificado*"
+                  : dataTicket.contact.completeNumber}
               </span>
             </div>
           </div>
           <div className="flex gap-x-2">
-            <span className="text-xs text-white/30">Ações:</span>
+            <span className="text-xs text-white/30 sm:block hidden">
+              Ações:
+            </span>
             <Button
               loading={loadReturn === dataTicket.id}
               disabled={isDisabledReturn}
@@ -476,7 +481,9 @@ export const ChatPlayer: FC = () => {
               fontSize={"13px"}
               variant={"outline"}
             >
-              <TbArrowBack /> Retornar
+              <BiTimeFive />
+              <TbArrowBack />
+              <span className="sm:text-xs hidden">Retornar</span>
             </Button>
             <Button
               size={"xs"}
@@ -487,15 +494,16 @@ export const ChatPlayer: FC = () => {
               loading={loadResolved === dataTicket.id}
               disabled={isDisabledResolved}
             >
-              Resolver <TbCircleCheck />
+              <span className="sm:text-xs hidden">Resolver</span>{" "}
+              <TbCircleCheck />
             </Button>
           </div>
         </div>
         <div className="flex flex-col gap-y-0.5">
-          <div className="grid grid-cols-[1fr_190px] w-full items-center gap-x-3 text-sm">
+          <div className="grid min-[470px]:grid-cols-[1fr_190px] grid-cols-[1fr_125px] w-full items-center gap-x-1 sm:gap-x-3 text-sm">
             {!dataTicket.contact.tags?.length ? (
-              <span className="text-white/50 bg-zinc-300/5 py-0.5 text-center w-full text-sm">
-                As etiquetas aparecerão aqui.
+              <span className="text-white/50 bg-zinc-300/5 py-0.5 text-center w-full text-xs sm:text-sm">
+                Etiquetas aparecerão aqui.
               </span>
             ) : (
               <PreviewTags
@@ -512,7 +520,7 @@ export const ChatPlayer: FC = () => {
                 suggestions={suggestions || []}
                 separators={[SEPARATORS.ENTER]}
                 handleAddition={handleAddition}
-                placeholder="Adicionar etiqueta"
+                placeholder="Add etiqueta"
                 allowDragDrop={false}
                 autoFocus={false}
                 shouldRenderSuggestions={(query) => {
@@ -690,7 +698,7 @@ export const ChatPlayer: FC = () => {
           )}
         </div>
       </Box>
-      <div className="flex flex-col w-full">
+      <div className="flex flex-col gap-y-0.5 w-full">
         <form
           className="flex gap-x-2 relative"
           onSubmit={async (event) => {
@@ -738,6 +746,7 @@ export const ChatPlayer: FC = () => {
                 }, 100);
               }}
             />
+
             <IconButton
               ref={btnRef}
               type="button"
@@ -747,6 +756,7 @@ export const ChatPlayer: FC = () => {
               disabled={
                 !(dataTicket.status === "NEW" || dataTicket.status === "OPEN")
               }
+              className="max-[470px]:hidden! flex!"
             >
               <RiEmojiStickerLine color="#bdb216" />
             </IconButton>
@@ -786,7 +796,7 @@ export const ChatPlayer: FC = () => {
           </IconButton>
         </form>
         {dataTicket.status === "NEW" && (
-          <span className="text-white/80">
+          <span className="text-white/80 text-xs text-center sm:text-start sm:text-sm">
             Ticket{" "}
             <strong className="uppercase text-[#f19e55]">aguardando</strong> .
             Ao interagir com ele, você assume o atendimento.
@@ -822,7 +832,7 @@ export const ShadowLeftMemoComponent = memo(() => {
     <>
       <InViewComponent onChange={(isTop) => setShowShadowTop(isTop)} />
       <div
-        className={`pointer-events-none absolute left-0 top-0 z-30 h-[16px] w-12`}
+        className={`pointer-events-none absolute left-0 top-0 z-30 h-4 w-12`}
         style={{
           background: gradient,
           opacity: Number(!showShadowTop),
@@ -842,7 +852,7 @@ const ShadowRightMemoComponent = memo(() => {
   return (
     <>
       <div
-        className={`pointer-events-none absolute right-0 top-0 z-30 h-[16px] w-12`}
+        className={`pointer-events-none absolute right-0 top-0 z-30 h-4 w-12`}
         style={{
           background: gradient,
           opacity: Number(showShadowBottom),
@@ -1016,7 +1026,7 @@ const ImageBubbleComponent: FC<{
           <Image
             fetchPriority="low"
             loading="lazy"
-            className="max-w-[290px] rounded-md"
+            className="max-w-72.5 rounded-md"
             src={`${api.getUri()}/public/storage/${fileName}`}
             alt="Imagem"
           />

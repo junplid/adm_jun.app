@@ -26,6 +26,7 @@ import { SocketContext } from "@contexts/socket.context";
 import { useQueryClient } from "@tanstack/react-query";
 import { AiOutlinePoweroff } from "react-icons/ai";
 import { motion } from "framer-motion";
+import { AuthContext } from "@contexts/auth.context";
 
 export type TypeConnectionWA = "chatbot" | "marketing";
 
@@ -48,6 +49,7 @@ const MotionIcon = motion.create(MdOutlineSync);
 // };
 
 export const ConnectionsWAPage: React.FC = (): JSX.Element => {
+  const { isDesktop } = useContext(AuthContext);
   const queryClient = useQueryClient();
   const { data: connectionsWA, isFetching, isPending } = useGetConnectionsWA();
   const { dialog: DialogModal, close, onOpen } = useDialogModal({});
@@ -253,7 +255,7 @@ export const ConnectionsWAPage: React.FC = (): JSX.Element => {
           <h1 className="text-lg font-semibold">Conexões WA</h1>
           <ModalCreateConnectionWA
             trigger={
-              <Button variant="outline" size={"sm"}>
+              <Button disabled={!isDesktop} variant="outline" size={"sm"}>
                 <IoAdd /> Adicionar
               </Button>
             }
@@ -264,14 +266,26 @@ export const ConnectionsWAPage: React.FC = (): JSX.Element => {
           vendas e estratégias de marketing.
         </p>
       </div>
-      <div style={{ maxHeight: "calc(100vh - 180px)" }} className="flex-1 grid">
-        <TableComponent
-          rows={connectionsWA || []}
-          columns={renderColumns}
-          textEmpity="Suas conexões WA aparecerão aqui."
-          load={isFetching || isPending}
-        />
-      </div>
+      {isDesktop ? (
+        <div
+          style={{ maxHeight: "calc(100vh - 180px)" }}
+          className="flex-1 grid"
+        >
+          <TableComponent
+            rows={connectionsWA || []}
+            columns={renderColumns}
+            textEmpity="Suas conexões WA aparecerão aqui."
+            load={isFetching || isPending}
+          />
+        </div>
+      ) : (
+        <div className="flex items-center justify-center h-full">
+          <span className="text-sm px-2">
+            Disponível apenas para acesso via desktop. Para utilizá-la, acesse o
+            sistema por um computador.
+          </span>
+        </div>
+      )}
       {DialogModal}
     </div>
   );

@@ -9,7 +9,7 @@ export function LayoutMain(): JSX.Element {
   // const shadowSideBar = useColorModeValue("#dadada5c", "#12111199");
 
   return (
-    <div className="w-full h-full flex flex-col">
+    <div className="w-full h-svh flex flex-col">
       <header
         style={
           {
@@ -23,7 +23,7 @@ export function LayoutMain(): JSX.Element {
         {/* <ColorModeButton /> */}
       </header>
       <div
-        className="w-full h-full max-w-7xl mx-auto p-4 sm:p-8 py-2 flex-1"
+        className="w-full h-full max-w-7xl mx-auto p-0 sm:p-8 pb-1! py-2 flex-1"
         // style={{ height: "calc(100vh - 65px)" }}
       >
         <Outlet />
@@ -32,7 +32,7 @@ export function LayoutMain(): JSX.Element {
         <span></span>
         <div className="flex items-center gap-x-3">
           <span className="font-light text-sm">
-            Este produto não representa a sua versão final.
+            Este produto não representa a versão final.
           </span>
         </div>
       </footer>

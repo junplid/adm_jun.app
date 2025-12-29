@@ -178,7 +178,7 @@ function Content({
                   <Checkbox.HiddenInput />
                   <Checkbox.Control />
                   <Checkbox.Label>
-                    Usuários podem ver o número do contato
+                    Atendentes podem ver o número do contato
                   </Checkbox.Label>
                 </CheckboxRoot>
               )}
@@ -201,7 +201,7 @@ function Content({
                   <Checkbox.HiddenInput />
                   <Checkbox.Control />
                   <Checkbox.Label>
-                    Usuários podem ver a foto do contato
+                    Atendentes podem ver a foto do contato
                   </Checkbox.Label>
                 </CheckboxRoot>
               )}

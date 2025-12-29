@@ -111,6 +111,7 @@ export function LayoutPrivateProvider(): JSX.Element {
   const {
     account: { onboarded },
     setAccount,
+    isDesktop,
   } = useContext(AuthContext);
   const [toggledMenu, setToggledMenu] = useState(false);
   const [toggledTo, setToggledTo] = useState<null | string>(null);
@@ -156,11 +157,8 @@ export function LayoutPrivateProvider(): JSX.Element {
       )}
 
       <div
-        className="overx items-start duration-500 w-full flex"
-        style={{
-          overflowX: "hidden",
-          overflowY: "hidden",
-        }}
+        className="overx items-start duration-500 h-svh w-full flex"
+        style={{ overflowX: "hidden", overflowY: "hidden" }}
       >
         <Sidebar
           collapsed={!toggledMenu}
@@ -174,7 +172,7 @@ export function LayoutPrivateProvider(): JSX.Element {
             position: "relative",
           }}
         >
-          <div className="flex h-screen overflow-x-hidden flex-col scroll-hidden overflow-y-scroll scroll-by">
+          <div className="flex h-svh overflow-x-hidden flex-col scroll-hidden overflow-y-scroll scroll-by">
             <ShadowTopMemoComponent />
 
             {/* <div
@@ -313,7 +311,7 @@ export function LayoutPrivateProvider(): JSX.Element {
               </MenuItem>
               <MenuItem
                 icon={<FiInbox size={22} />}
-                component={<Link to={"/auth/inboxes/attendants"} />}
+                component={<Link to={"/auth/inboxes/departments"} />}
                 active={pathname.includes("inboxes")}
               >
                 Inboxes <Badge colorPalette={"green"}>NEW</Badge>
@@ -406,6 +404,13 @@ export function LayoutPrivateProvider(): JSX.Element {
           </div>
         </Sidebar>
         <main className="w-full h-screen">
+          {!isDesktop && toggledMenu && (
+            <div
+              onClick={() => setToggledMenu(false)}
+              className="absolute left-0 top-0 w-full h-full duration-1000!"
+              style={{ background: "#1c1818" }}
+            ></div>
+          )}
           <Outlet />
         </main>
       </div>

@@ -1,4 +1,4 @@
-import { JSX, useMemo } from "react";
+import { JSX, useContext, useMemo } from "react";
 import { TableComponent } from "../../components/Table";
 import { Column } from "../../components/Table";
 import { ModalCreateChatbot } from "./modals/create";
@@ -12,6 +12,7 @@ import { ModalEditChatbot } from "./modals/edit";
 import { useDialogModal } from "../../hooks/dialog.modal";
 import { IoMdRadioButtonOff, IoMdRadioButtonOn } from "react-icons/io";
 import { useGetChatbots } from "../../hooks/chatbot";
+import { AuthContext } from "@contexts/auth.context";
 
 export type TypeConnectionWA = "chatbot" | "marketing";
 
@@ -31,6 +32,7 @@ export interface ChatbotRow {
 // };
 
 export const ChatbotsPage: React.FC = (): JSX.Element => {
+  const { isDesktop } = useContext(AuthContext);
   const { data: chatbots, isFetching, isPending } = useGetChatbots();
   const { dialog: DialogModal, close, onOpen } = useDialogModal({});
 
@@ -133,7 +135,7 @@ export const ChatbotsPage: React.FC = (): JSX.Element => {
           <h1 className="text-lg font-semibold">Bots de recepção</h1>
           <ModalCreateChatbot
             trigger={
-              <Button variant="outline" size={"sm"}>
+              <Button disabled={!isDesktop} variant="outline" size={"sm"}>
                 <IoAdd /> Adicionar
               </Button>
             }
@@ -144,14 +146,27 @@ export const ChatbotsPage: React.FC = (): JSX.Element => {
           contínua e integrada.
         </p>
       </div>
-      <div style={{ maxHeight: "calc(100vh - 180px)" }} className="flex-1 grid">
-        <TableComponent
-          rows={chatbots || []}
-          columns={renderColumns}
-          textEmpity="Seus bots de recepção aparecerão aqui."
-          load={isFetching || isPending}
-        />
-      </div>
+      {isDesktop ? (
+        <div
+          style={{ maxHeight: "calc(100vh - 180px)" }}
+          className="flex-1 grid"
+        >
+          <TableComponent
+            rows={chatbots || []}
+            columns={renderColumns}
+            textEmpity="Seus bots de recepção aparecerão aqui."
+            load={isFetching || isPending}
+          />
+        </div>
+      ) : (
+        <div className="flex items-center justify-center h-full">
+          <span className="text-sm px-2">
+            Disponível apenas para acesso via desktop. Para utilizá-la, acesse o
+            sistema por um computador.
+          </span>
+        </div>
+      )}
+
       {DialogModal}
     </div>
   );

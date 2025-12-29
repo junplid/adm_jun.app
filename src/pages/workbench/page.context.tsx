@@ -1,4 +1,11 @@
-import { Dispatch, ReactNode, SetStateAction, useMemo, useState } from "react";
+import {
+  Dispatch,
+  ReactNode,
+  SetStateAction,
+  useContext,
+  useMemo,
+  useState,
+} from "react";
 import { IoClose } from "react-icons/io5";
 import { Menu, MenuItem, Sidebar } from "react-pro-sidebar";
 import { Link, Outlet, useLocation } from "react-router-dom";
@@ -13,6 +20,7 @@ import { Badge } from "@chakra-ui/react";
 import { MdInsights } from "react-icons/md";
 import { GoWorkflow } from "react-icons/go";
 import { GrStorage } from "react-icons/gr";
+import { AuthContext } from "@contexts/auth.context";
 
 interface IToggleMenuProps {
   toggledMenu: boolean;
@@ -38,6 +46,7 @@ const ToggleMenu = ({
 );
 
 export function LayoutWorkbenchPageProvider(): JSX.Element {
+  const { isDesktop } = useContext(AuthContext);
   const [toggledMenu, setToggledMenu] = useState(true);
   const { pathname } = useLocation();
 
@@ -66,111 +75,122 @@ export function LayoutWorkbenchPageProvider(): JSX.Element {
             processos.
           </p>
         </div>
-        <div
-          style={{ maxHeight: "calc(100vh - 180px)" }}
-          className="flex flex-1 items-start gap-x-2"
-        >
-          <Sidebar
-            collapsed={!toggledMenu}
-            backgroundColor={""}
-            collapsedWidth="70px"
-            width="220px"
-            style={{}}
-            rootStyles={{
-              borderRadius: "8px !important",
-              backgroundColor: toggledMenu ? bgSideBar : "transparent",
-              border: "none !important",
-              boxShadow: toggledMenu ? `4px 0 8px ${shadowSideBar}` : undefined,
-              zIndex: 9,
-              position: "relative",
-              marginLeft: -15,
-            }}
+        {isDesktop ? (
+          <div
+            style={{ maxHeight: "calc(100vh - 180px)" }}
+            className="flex flex-1 items-start gap-x-2"
           >
-            <div
-              style={{ maxHeight: "calc(100vh - 180px)", minHeight: 370 }}
-              className="flex flex-col scroll-hidden overflow-y-scroll scroll-by"
+            <Sidebar
+              collapsed={!toggledMenu}
+              backgroundColor={""}
+              collapsedWidth="70px"
+              width="220px"
+              style={{}}
+              rootStyles={{
+                borderRadius: "8px !important",
+                backgroundColor: toggledMenu ? bgSideBar : "transparent",
+                border: "none !important",
+                boxShadow: toggledMenu
+                  ? `4px 0 8px ${shadowSideBar}`
+                  : undefined,
+                zIndex: 9,
+                position: "relative",
+                marginLeft: -15,
+              }}
             >
-              <Menu
-                className="relative font-semibold flex-1 pt-1"
-                menuItemStyles={{
-                  button(params) {
-                    return {
-                      ...params,
-                      color:
-                        params.open || params.active
-                          ? activeColor
-                          : disabledColor,
-                      fontWeight: params.active ? 500 : 300,
-                      fontSize: 15.3,
-                      ":hover": {
-                        background: "transparent",
-                        color: `${activeColor} !important`,
-                      },
-                    };
-                  },
-                  subMenuContent: { background: subMenuBg },
-                  icon(params) {
-                    return {
-                      ...params,
-                      width: 23,
-                      height: 23,
-                      minWidth: 23,
-                      color:
-                        params.open || params.active
-                          ? activeColor
-                          : disabledColor,
-                      marginRight: 10,
-                    };
-                  },
-                }}
+              <div
+                style={{ maxHeight: "calc(100vh - 180px)", minHeight: 370 }}
+                className="flex flex-col scroll-hidden overflow-y-scroll scroll-by"
               >
-                <MenuItem
-                  icon={<GrStorage size={20} />}
-                  active={pathname === "/auth/workbench/storage"}
-                  component={<Link to={"workbench/storage"} />}
+                <Menu
+                  className="relative font-semibold flex-1 pt-1"
+                  menuItemStyles={{
+                    button(params) {
+                      return {
+                        ...params,
+                        color:
+                          params.open || params.active
+                            ? activeColor
+                            : disabledColor,
+                        fontWeight: params.active ? 500 : 300,
+                        fontSize: 15.3,
+                        ":hover": {
+                          background: "transparent",
+                          color: `${activeColor} !important`,
+                        },
+                      };
+                    },
+                    subMenuContent: { background: subMenuBg },
+                    icon(params) {
+                      return {
+                        ...params,
+                        width: 23,
+                        height: 23,
+                        minWidth: 23,
+                        color:
+                          params.open || params.active
+                            ? activeColor
+                            : disabledColor,
+                        marginRight: 10,
+                      };
+                    },
+                  }}
                 >
-                  Storage <Badge colorPalette={"green"}>NEW</Badge>
-                </MenuItem>
-                <MenuItem
-                  icon={<PiBracketsCurlyBold size={20} />}
-                  active={pathname === "/auth/workbench/variables"}
-                  component={<Link to={"workbench/variables"} />}
-                >
-                  Variáveis
-                </MenuItem>
-                <MenuItem
-                  icon={<TbTags size={20} />}
-                  active={pathname === "/auth/workbench/tags"}
-                  component={<Link to={"workbench/tags"} />}
-                >
-                  Etiquetas
-                </MenuItem>
-                <MenuItem
-                  icon={<LuBrainCircuit size={19} />}
-                  active={pathname === "/auth/workbench/agents-ai"}
-                  component={<Link to={"workbench/agents-ai"} />}
-                >
-                  Agentes IA <Badge colorPalette={"green"}>NEW</Badge>
-                </MenuItem>
-                <MenuItem
-                  icon={<MdInsights size={20} />}
-                  active={pathname === "/auth/workbench/fb-pixels"}
-                  component={<Link to={"workbench/fb-pixels"} />}
-                >
-                  Pixel Facebook <Badge colorPalette={"green"}>NEW</Badge>
-                </MenuItem>
-                <MenuItem
-                  icon={<GoWorkflow size={20} />}
-                  active={pathname === "/auth/workbench/flows"}
-                  component={<Link to={"workbench/flows"} />}
-                >
-                  Construtor de fluxos
-                </MenuItem>
-              </Menu>
-            </div>
-          </Sidebar>
-          <Outlet />
-        </div>
+                  <MenuItem
+                    icon={<GrStorage size={20} />}
+                    active={pathname === "/auth/workbench/storage"}
+                    component={<Link to={"workbench/storage"} />}
+                  >
+                    Storage <Badge colorPalette={"green"}>NEW</Badge>
+                  </MenuItem>
+                  <MenuItem
+                    icon={<PiBracketsCurlyBold size={20} />}
+                    active={pathname === "/auth/workbench/variables"}
+                    component={<Link to={"workbench/variables"} />}
+                  >
+                    Variáveis
+                  </MenuItem>
+                  <MenuItem
+                    icon={<TbTags size={20} />}
+                    active={pathname === "/auth/workbench/tags"}
+                    component={<Link to={"workbench/tags"} />}
+                  >
+                    Etiquetas
+                  </MenuItem>
+                  <MenuItem
+                    icon={<LuBrainCircuit size={19} />}
+                    active={pathname === "/auth/workbench/agents-ai"}
+                    component={<Link to={"workbench/agents-ai"} />}
+                  >
+                    Agentes IA <Badge colorPalette={"green"}>NEW</Badge>
+                  </MenuItem>
+                  <MenuItem
+                    icon={<MdInsights size={20} />}
+                    active={pathname === "/auth/workbench/fb-pixels"}
+                    component={<Link to={"workbench/fb-pixels"} />}
+                  >
+                    Pixel Facebook <Badge colorPalette={"green"}>NEW</Badge>
+                  </MenuItem>
+                  <MenuItem
+                    icon={<GoWorkflow size={20} />}
+                    active={pathname === "/auth/workbench/flows"}
+                    component={<Link to={"workbench/flows"} />}
+                  >
+                    Construtor de fluxos
+                  </MenuItem>
+                </Menu>
+              </div>
+            </Sidebar>
+            <Outlet />
+          </div>
+        ) : (
+          <div className="flex items-center justify-center h-full">
+            <span className="text-sm px-2">
+              Disponível apenas para acesso via desktop. Para utilizá-la, acesse
+              o sistema por um computador.
+            </span>
+          </div>
+        )}
       </div>
     </LayoutWorkbenchPageContext.Provider>
   );

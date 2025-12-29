@@ -100,7 +100,7 @@ export function SearchNodesComponents(): JSX.Element {
             className="!text-[#1f1f1f] dark:placeholder:text-[#dadadac5] dark:!text-[#ffffff]  pointer-events-auto !bg-[#f5f5f5] dark:!bg-[#181616c5]"
             placeholder="Busque pelo node"
             fontSize={"14px"}
-            w={"320px"}
+            w={"210px"}
             onChange={({ target }) => setSearch(target.value)}
             value={search}
           />

@@ -58,6 +58,7 @@ interface SocketPropsSentPercentage {
 export const CampaignsPage: React.FC = (): JSX.Element => {
   const {
     account: { isPremium },
+    isDesktop,
   } = useContext(AuthContext);
   const { data: campaigns, isFetching, isPending } = useGetCampaigns();
   const { socket } = useContext(SocketContext);
@@ -276,7 +277,11 @@ export const CampaignsPage: React.FC = (): JSX.Element => {
           </h1>
           <ModalCreateCampaign
             trigger={
-              <Button disabled={!isPremium} variant="outline" size={"sm"}>
+              <Button
+                disabled={!isPremium || !isDesktop}
+                variant="outline"
+                size={"sm"}
+              >
                 <IoAdd /> Adicionar
               </Button>
             }
@@ -287,14 +292,27 @@ export const CampaignsPage: React.FC = (): JSX.Element => {
           eficiente.
         </p>
       </div>
-      <div style={{ maxHeight: "calc(100vh - 180px)" }} className="grid flex-1">
-        <TableComponent
-          rows={campaigns || []}
-          columns={renderColumns}
-          textEmpity="Suas campanhas aparecerão aqui."
-          load={isFetching || isPending}
-        />
-      </div>
+      {isDesktop ? (
+        <div
+          style={{ maxHeight: "calc(100vh - 180px)" }}
+          className="grid flex-1"
+        >
+          <TableComponent
+            rows={campaigns || []}
+            columns={renderColumns}
+            textEmpity="Suas campanhas aparecerão aqui."
+            load={isFetching || isPending}
+          />
+        </div>
+      ) : (
+        <div className="flex items-center justify-center h-full">
+          <span className="text-sm px-2">
+            Disponível apenas para acesso via desktop. Para utilizá-la, acesse o
+            sistema por um computador.
+          </span>
+        </div>
+      )}
+
       {DialogModal}
     </div>
   );

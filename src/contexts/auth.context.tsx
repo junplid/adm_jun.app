@@ -18,12 +18,12 @@ import { api } from "../services/api";
 import { Spinner } from "@chakra-ui/react";
 import { v4 } from "uuid";
 
-// const isDesktopDevice = () =>
-//   typeof navigator === "undefined"
-//     ? true
-//     : !/Mobi|Android|iPhone|iPad|iPod|Windows Phone|BlackBerry|Opera Mini/i.test(
-//         navigator.userAgent
-//       );
+const isDesktopDevice = () =>
+  typeof navigator === "undefined"
+    ? true
+    : !/Mobi|Android|iPhone|iPad|iPod|Windows Phone|BlackBerry|Opera Mini/i.test(
+        navigator.userAgent
+      );
 
 export interface Account {
   id: number;
@@ -37,6 +37,7 @@ export interface Account {
 
 interface IFlowContextProps {
   account: Account;
+  isDesktop: boolean;
   setAccount: Dispatch<SetStateAction<Account>>;
   logout(): void;
 }
@@ -51,7 +52,7 @@ export function AuthProvider(props: IProps): JSX.Element {
   const [account, setAccount] = useState<Account | null>(null);
   const [load, setLoad] = useState<boolean>(false);
   const [statusAPI, setStatusAPI] = useState<boolean>(false);
-  // const [isDesktop, setIsDesktop] = useState<boolean>(isDesktopDevice());
+  const [isDesktop, setIsDesktop] = useState<boolean>(isDesktopDevice());
 
   const navigate = useNavigate();
 
@@ -90,22 +91,23 @@ export function AuthProvider(props: IProps): JSX.Element {
         }
       }
     })();
-    // const handleResize = () => setIsDesktop(isDesktopDevice());
-    // window.addEventListener("resize", handleResize);
-    // return () => window.removeEventListener("resize", handleResize);
+    const handleResize = () => setIsDesktop(isDesktopDevice());
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   const dataValue = useMemo(
     () => ({
       account,
+      isDesktop,
       logout,
       setAccount,
     }),
-    [account]
+    [account, isDesktop]
   );
 
   return (
-    <div className="bg-[#f5f5f5] dark:bg-[#181616c5]">
+    <div className="bg-[#f5f5f5] dark:bg-[#181616c5] h-svh">
       {/* @ts-expect-error */}
       <AuthContext.Provider value={dataValue}>
         {!load && (

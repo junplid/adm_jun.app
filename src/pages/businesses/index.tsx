@@ -1,4 +1,4 @@
-import { JSX, useMemo } from "react";
+import { JSX, useContext, useMemo } from "react";
 import moment from "moment";
 import { TableComponent } from "../../components/Table";
 import { Column } from "../../components/Table";
@@ -12,6 +12,7 @@ import { IoAdd } from "react-icons/io5";
 import { ModalEditBusiness } from "./modals/edit";
 import { useGetBusinesses } from "../../hooks/business";
 import { useDialogModal } from "../../hooks/dialog.modal";
+import { AuthContext } from "@contexts/auth.context";
 
 export interface BusinessRow {
   id: number;
@@ -20,6 +21,7 @@ export interface BusinessRow {
 }
 
 export const BusinessesPage: React.FC = (): JSX.Element => {
+  const { isDesktop } = useContext(AuthContext);
   const { data: businesses, isFetching, isPending } = useGetBusinesses();
 
   const { dialog: DialogModal, close, onOpen } = useDialogModal({});
@@ -117,7 +119,7 @@ export const BusinessesPage: React.FC = (): JSX.Element => {
           <h1 className="text-lg font-semibold">Projetos</h1>
           <ModalCreateBusiness
             trigger={
-              <Button variant="outline" size={"sm"}>
+              <Button disabled={!isDesktop} variant="outline" size={"sm"}>
                 <IoAdd /> Adicionar
               </Button>
             }
@@ -128,14 +130,26 @@ export const BusinessesPage: React.FC = (): JSX.Element => {
           eficiente.
         </p>
       </div>
-      <div style={{ maxHeight: "calc(100vh - 180px)" }} className="grid flex-1">
-        <TableComponent
-          rows={businesses || []}
-          columns={renderColumns}
-          textEmpity="Seus projetos aparecerão aqui."
-          load={isFetching || isPending}
-        />
-      </div>
+      {isDesktop ? (
+        <div
+          style={{ maxHeight: "calc(100vh - 180px)" }}
+          className="grid flex-1"
+        >
+          <TableComponent
+            rows={businesses || []}
+            columns={renderColumns}
+            textEmpity="Seus projetos aparecerão aqui."
+            load={isFetching || isPending}
+          />
+        </div>
+      ) : (
+        <div className="flex items-center justify-center h-full">
+          <span className="text-sm px-2">
+            Disponível apenas para acesso via desktop. Para utilizá-la, acesse o
+            sistema por um computador.
+          </span>
+        </div>
+      )}
       {DialogModal}
     </div>
   );

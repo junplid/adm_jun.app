@@ -68,7 +68,7 @@ export const TableComponent = (props: Props): JSX.Element => {
               <th
                 key={column.key}
                 align="left"
-                className="select-none font-semibold px-4 py-2 text-sm"
+                className="select-none font-semibold md:px-4 px-1 py-2 text-sm"
                 style={{ width: column.styles?.width }}
               >
                 {column.name}
@@ -82,7 +82,7 @@ export const TableComponent = (props: Props): JSX.Element => {
               return (
                 <td
                   key={row.id + column.key}
-                  className="cursor-default px-4 py-2"
+                  className="cursor-default md:px-4 px-1 py-2"
                   style={{ fontSize: 13 }}
                 >
                   {column.value === typeof "string" ? (

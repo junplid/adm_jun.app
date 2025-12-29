@@ -1,12 +1,11 @@
 import { JSX, useContext, useMemo } from "react";
-import moment from "moment";
 import { Button } from "@chakra-ui/react";
 import { IoAdd } from "react-icons/io5";
 import { useDialogModal } from "../../../hooks/dialog.modal";
 import { Column, TableComponent } from "@components/Table";
 import { LayoutInboxesPageContext } from "../contexts";
 import { useGetInboxDepartments } from "../../../hooks/inboxDepartment";
-import { LuEye, LuFullscreen } from "react-icons/lu";
+import { LuFullscreen } from "react-icons/lu";
 import { ModalDeleteInboxDepartment } from "./modals/delete";
 import { MdDeleteOutline, MdEdit } from "react-icons/md";
 import { ModalCreateInboxDepartment } from "./modals/create";
@@ -33,21 +32,16 @@ export const InboxDepartmentsPage: React.FC = (): JSX.Element => {
   const renderColumns = useMemo(() => {
     const columns: Column[] = [
       {
-        key: "id",
-        name: "ID",
-        styles: { width: 10 },
-      },
-      {
         key: "name",
-        name: "Nome do departamento",
+        name: "Nome",
       },
       {
         key: "tickets",
         name: "",
-        styles: { width: 190 },
+        styles: { width: 120 },
         render(row) {
           return (
-            <div className="flex flex-col gap-y-[1px]">
+            <div className="flex flex-col gap-y-px">
               <div className="flex w-full gap-x-4">
                 <span
                   className="font-semibold"
@@ -86,21 +80,21 @@ export const InboxDepartmentsPage: React.FC = (): JSX.Element => {
           );
         },
       },
-      {
-        key: "createAt",
-        name: "Data de criação",
-        styles: { width: 135 },
-        render(row) {
-          return (
-            <div className="flex flex-col">
-              <span>{moment(row.createAt).format("D/M/YY")}</span>
-              <span className="text-xs text-white/50">
-                {moment(row.createAt).format("HH:mm")}
-              </span>
-            </div>
-          );
-        },
-      },
+      // {
+      //   key: "createAt",
+      //   name: "Data de criação",
+      //   styles: { width: 135 },
+      //   render(row) {
+      //     return (
+      //       <div className="flex flex-col">
+      //         <span>{moment(row.createAt).format("D/M/YY")}</span>
+      //         <span className="text-xs text-white/50">
+      //           {moment(row.createAt).format("HH:mm")}
+      //         </span>
+      //       </div>
+      //     );
+      //   },
+      // },
       {
         key: "actions",
         name: "",
@@ -131,7 +125,7 @@ export const InboxDepartmentsPage: React.FC = (): JSX.Element => {
               >
                 <LuFullscreen color={"#6eb173"} />
               </Button>
-              <Button
+              {/* <Button
                 size={"sm"}
                 bg={"transparent"}
                 _hover={{ bg: "#ffffff21" }}
@@ -139,7 +133,7 @@ export const InboxDepartmentsPage: React.FC = (): JSX.Element => {
                 disabled
               >
                 <LuEye color={"#dbdbdb"} />
-              </Button>
+              </Button> */}
               <Button
                 size={"sm"}
                 bg={"transparent"}
@@ -186,16 +180,18 @@ export const InboxDepartmentsPage: React.FC = (): JSX.Element => {
       <div className="flex flex-col gap-y-0.5">
         <div className="flex items-center w-full justify-between gap-x-5">
           <div className="flex items-center gap-x-2">
-            {ToggleMenu}
-            <h1 className="text-lg font-semibold">Departamentos</h1>
-            <p className="text-white/60 font-light">
+            <span className="hidden sm:flex">{ToggleMenu}</span>
+            <h1 className="text-base sm:text-lg font-semibold">
+              Departamentos
+            </h1>
+            {/* <p className="text-white/60 font-light">
               para organizar melhor seus atendimentos.
-            </p>
+            </p> */}
           </div>
           <ModalCreateInboxDepartment
             trigger={
-              <Button variant="outline" size={"sm"}>
-                <IoAdd /> Adicionar
+              <Button variant="outline" size={{ sm: "sm", base: "xs" }}>
+                <IoAdd /> <span className="sm:block hidden">Adicionar</span>
               </Button>
             }
           />
