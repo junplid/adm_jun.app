@@ -1,15 +1,21 @@
 import { api } from "./index";
 
-export async function pickTicket(id: number): Promise<void> {
-  await api.post(`/private/tickets/${id}/pick`);
+export async function pickTicket(id: number, orderId?: number): Promise<void> {
+  await api.post(`/private/tickets/${id}/pick`, { orderId });
 }
 
-export async function returnTicket(id: number): Promise<void> {
-  await api.post(`/private/tickets/${id}/return`);
+export async function returnTicket(
+  id: number,
+  orderId?: number
+): Promise<void> {
+  await api.post(`/private/tickets/${id}/return`, { orderId });
 }
 
-export async function resolveTicket(id: number): Promise<void> {
-  await api.post(`/private/tickets/${id}/resolve`);
+export async function resolveTicket(
+  id: number,
+  orderId?: number
+): Promise<void> {
+  await api.post(`/private/tickets/${id}/resolve`, { orderId });
 }
 
 export async function sendTicketMessage(

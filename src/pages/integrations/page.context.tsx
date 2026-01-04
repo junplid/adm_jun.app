@@ -43,7 +43,7 @@ const ToggleMenu = ({
 export function LayoutIntegrationsPageProvider(): JSX.Element {
   const [toggledMenu, setToggledMenu] = useState(true);
   const { pathname } = useLocation();
-  const { isDesktop } = useContext(AuthContext);
+  const { clientMeta } = useContext(AuthContext);
 
   const bgSideBar = useColorModeValue("", "#1f1d1d73");
   const shadowSideBar = useColorModeValue("#e9e9e940", "#12111149");
@@ -69,7 +69,7 @@ export function LayoutIntegrationsPageProvider(): JSX.Element {
             Configure e administre integrações com parceiros externos.
           </p>
         </div>
-        {isDesktop ? (
+        {!clientMeta.isMobile ? (
           <div
             style={{ maxHeight: "calc(100vh - 180px)" }}
             className="flex flex-1 items-start gap-x-2"

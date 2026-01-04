@@ -46,6 +46,7 @@ const optionsFields: { label: string; value: string }[] = [
   { label: "Total", value: "total" },
   { label: "Conteúdo", value: "data" },
   { label: "Ações do pedido", value: "actionChannels" },
+  { label: "Arrastar e soltar", value: "dragDrop" },
 ];
 
 type DataNode = {
@@ -66,6 +67,7 @@ type DataNode = {
   payment_method?: string;
   actionChannels: { key: string; text: string }[];
   fields?: string[];
+  isDragDisabled?: boolean;
 };
 
 function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
@@ -344,6 +346,31 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
             </Button>
           </div>
         </>
+      )}
+
+      {data.fields?.includes("dragDrop") && (
+        <Field
+          helperText={
+            !data.isDragDisabled
+              ? "Impossibilita de arrastar e soltar o card"
+              : "Habilita o arrastar e soltar do card"
+          }
+        >
+          <Checkbox.Root
+            onCheckedChange={(e) =>
+              updateNode(id, { data: { ...data, isDragDisabled: !!e.checked } })
+            }
+            checked={!!data.isDragDisabled}
+          >
+            <Checkbox.HiddenInput />
+            <Checkbox.Control />
+            <Checkbox.Label>
+              {!data.isDragDisabled
+                ? "Desabilitar o arrastar"
+                : "Habilitar o arrastar"}
+            </Checkbox.Label>
+          </Checkbox.Root>
+        </Field>
       )}
 
       <Field label={"Selecione os campos"}>

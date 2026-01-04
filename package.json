@@ -15,6 +15,7 @@
     "@emoji-mart/react": "^1.1.1",
     "@emotion/react": "^11.14.0",
     "@flasd/whatsapp-formatting": "^0.1.4",
+    "@formkit/auto-animate": "^0.9.0",
     "@hookform/resolvers": "^4.1.3",
     "@stripe/react-stripe-js": "^3.7.0",
     "@stripe/stripe-js": "^7.4.0",
@@ -31,6 +32,7 @@
     "dexie-react-hooks": "^1.1.7",
     "downshift": "^9.0.9",
     "emoji-mart": "^5.6.0",
+    "firebase": "^12.7.0",
     "font-color-contrast": "^11.1.0",
     "framer-motion": "^12.6.3",
     "get-input-selection": "^1.1.4",
@@ -82,7 +84,8 @@
     "tailwindcss": "^4.0.14",
     "textarea-caret": "^3.1.0",
     "use-mask-input": "^3.4.2",
-    "uuid": "^11.1.0"
+    "uuid": "^11.1.0",
+    "vite-plugin-pwa": "^1.2.0"
   },
   "devDependencies": {
     "@chakra-ui/cli": "^3.13.0",

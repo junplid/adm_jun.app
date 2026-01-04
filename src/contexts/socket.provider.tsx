@@ -33,7 +33,7 @@ export const SocketProvider = ({
   children,
 }: PropsProviderSocketContext_I): JSX.Element => {
   const [departmentOpenId, setdepartmentOpenId] = useState<number | null>(null);
-  const { account } = useContext(AuthContext);
+  const { account, clientMeta } = useContext(AuthContext);
   const [_stateSocket, setStateSocket] = useState<TStateSocket>("loading");
   const path = useLocation();
   const navigate = useNavigate();
@@ -47,8 +47,8 @@ export const SocketProvider = ({
   }, [account.id]);
 
   const socket = useMemo(
-    () => manager.socket("/", { auth: { accountId: account.id } }),
-    [manager, account.id]
+    () => manager.socket("/", { auth: { accountId: account.id, clientMeta } }),
+    [manager, account.id, clientMeta]
   );
 
   const ns = (nsp: string, opts = {}) => manager.socket(nsp, { ...opts });
@@ -107,12 +107,14 @@ export const SocketProvider = ({
                 description: `Novo ticket em: ${data.departmentName}`,
               }),
               type: data.status === "NEW" ? "info" : "info",
-              duration: 4000,
+              closable: false,
+              duration: 1000 * 60 * 100,
             });
           }
         }
       });
     }
+
     return () => {
       socket.off("inbox");
     };

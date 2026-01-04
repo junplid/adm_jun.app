@@ -687,6 +687,11 @@ export function FlowBuilderPage() {
   return (
     <Box as={"div"} className="dndflow" h={"100svh"} position={"relative"}>
       {Toggle}
+
+      {!isFetching && !isError && flowData?.name && (
+        <Body id={params.id} flowData={structuredClone(flowData)} />
+      )}
+
       <Presence
         animationName={{
           _open: "slide-from-top, fade-in",
@@ -694,11 +699,7 @@ export function FlowBuilderPage() {
         }}
         animationDuration="moderate"
         present={isFetching}
-        position={"absolute"}
-        top={0}
-        left={0}
-        zIndex={8}
-        className="absolute top-0 left-0 w-full h-full z-50 flex items-center justify-center"
+        className="top-0 left-0 w-full h-full flex items-center justify-center"
       >
         <div className="flex items-center justify-center gap-x-5">
           <Spinner borderWidth="2px" color="teal.500" size="md" />
@@ -712,11 +713,6 @@ export function FlowBuilderPage() {
           </div>
         </div>
       </Presence>
-
-      {!isFetching && !isError && flowData?.name && (
-        <Body id={params.id} flowData={structuredClone(flowData)} />
-      )}
-
       <Presence
         animationName={{
           _open: "slide-from-top, fade-in",
@@ -724,11 +720,7 @@ export function FlowBuilderPage() {
         }}
         animationDuration="moderate"
         present={isError && !isFetching}
-        position={"absolute"}
-        top={0}
-        left={0}
-        zIndex={7}
-        className="absolute top-0 left-0 w-full h-full z-50 flex justify-center"
+        className="top-0 left-0 w-full h-full z-50 flex justify-center"
       >
         <div className="flex items-center flex-col gap-y-0.5 mt-14">
           <div className="text-lg font-bold text-gray-500 dark:text-gray-200">

@@ -134,3 +134,19 @@ body {
 .dark .container__virtuoso tbody tr:nth-child(odd) {
   background: #55555507;
 }
+
+
+.fade-in {
+  animation: fadeIn 200ms ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}

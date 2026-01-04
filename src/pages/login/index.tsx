@@ -12,6 +12,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ErrorResponse_I } from "../../services/api/ErrorResponse";
 import { toaster } from "@components/ui/toaster";
 import { queryClient } from "../../main";
+import { registerPushToken } from "../../services/push/registerPush";
 
 const FormSchema = z.object({
   email: z.string().min(1, "Esse campo é obrigatório."),
@@ -41,7 +42,7 @@ export const LoginPage: React.FC = (): JSX.Element => {
       const token = `BEARER ${data.token}`;
       setCookies("auth", token, { expires: moment().add(3, "year").toDate() });
       api.defaults.headers.common["Authorization"] = token;
-
+      await registerPushToken();
       navigate("/auth/dashboard");
     } catch (error) {
       if (error instanceof AxiosError) {

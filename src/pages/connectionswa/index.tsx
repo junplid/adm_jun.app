@@ -49,7 +49,7 @@ const MotionIcon = motion.create(MdOutlineSync);
 // };
 
 export const ConnectionsWAPage: React.FC = (): JSX.Element => {
-  const { isDesktop } = useContext(AuthContext);
+  const { clientMeta } = useContext(AuthContext);
   const queryClient = useQueryClient();
   const { data: connectionsWA, isFetching, isPending } = useGetConnectionsWA();
   const { dialog: DialogModal, close, onOpen } = useDialogModal({});
@@ -255,7 +255,11 @@ export const ConnectionsWAPage: React.FC = (): JSX.Element => {
           <h1 className="text-lg font-semibold">Conexões WA</h1>
           <ModalCreateConnectionWA
             trigger={
-              <Button disabled={!isDesktop} variant="outline" size={"sm"}>
+              <Button
+                disabled={clientMeta.isMobile}
+                variant="outline"
+                size={"sm"}
+              >
                 <IoAdd /> Adicionar
               </Button>
             }
@@ -266,7 +270,7 @@ export const ConnectionsWAPage: React.FC = (): JSX.Element => {
           vendas e estratégias de marketing.
         </p>
       </div>
-      {isDesktop ? (
+      {!clientMeta.isMobile ? (
         <div
           style={{ maxHeight: "calc(100vh - 180px)" }}
           className="flex-1 grid"

@@ -47,8 +47,7 @@ export interface PropsDataList {
   id: number;
   forceOpen?: boolean;
   departmentId: number;
-  notifyMsc?: boolean;
-  notifyToast?: boolean;
+  // notifyMsc?: boolean;
   userId?: number; // caso seja enviado para um usuário.
   lastInteractionDate: Date;
   count_unread: number;
@@ -106,7 +105,6 @@ interface PropsSocketMessage {
   by: "contact" | "user" | "system";
   content: MessageType;
   notifyMsc?: boolean;
-  notifyToast?: boolean;
   departmentId: number;
   userId?: number; // caso seja enviado para um usuário.
   lastInteractionDate: Date;

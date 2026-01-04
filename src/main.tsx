@@ -6,17 +6,28 @@ import App from "./App.tsx";
 import { CookiesProvider } from "react-cookie";
 import { Toaster } from "@components/ui/toaster.tsx";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Toaster as Sonner } from "sonner";
 // import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 export const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 5 * 60 * 1000, retry: false } },
 });
 
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker
+    .register("/firebase-messaging-sw.js")
+    .then(() => {
+      console.log("Service Worker registrado");
+    })
+    .catch(console.error);
+}
+
 createRoot(document.getElementById("root")!).render(
   <CookiesProvider>
     <Provider>
       <QueryClientProvider client={queryClient}>
         <App />
+        <Sonner />
         {/* <ReactQueryDevtools /> */}
       </QueryClientProvider>
       <Toaster />

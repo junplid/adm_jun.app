@@ -324,6 +324,7 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
                   onClick={() => {
                     updateNode(id, {
                       data: {
+                        ...data,
                         actionChannels: data.actionChannels!.filter(
                           (s) => s.key !== msg.key
                         ),
@@ -379,8 +380,8 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
         </Button>
       </div>
       <span className="text-center text-white/70">
-        Ações não mudam o fluxo de conversa de direção. Use para notificar ou
-        executar funções por debaixo dos panos.
+        Ações não mudam o fluxo de direção. Use para notificar ou executar
+        funções por debaixo dos panos.
       </span>
     </div>
   );

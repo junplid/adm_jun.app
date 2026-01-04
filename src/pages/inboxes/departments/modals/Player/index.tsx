@@ -4,6 +4,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogBody,
+  DialogCloseTrigger,
 } from "@components/ui/dialog";
 import { FC, JSX, useContext, useEffect, useState } from "react";
 import { LuBriefcaseBusiness } from "react-icons/lu";
@@ -299,14 +300,14 @@ export const ModalPlayerInboxDepartment: FC<PropsModalPlayer> = (p) => {
       zIndex={1}
       maxH={"700px"}
       m={{ md: "20px", base: "7px" }}
-      className="sm:h-[calc(100vh-50px)] h-screen"
+      className="sm:h-[calc(100vh-50px)] h-[calc(100svh-20px)]"
     >
       <PlayerProvider businessId={p.data.businessId}>
         <PlayerInboxDepartment {...p} />
       </PlayerProvider>
-      {/* <div className="md:hidden block">
-        <DialogCloseTrigger />
-      </div> */}
+      <div className="md:hidden block">
+        <DialogCloseTrigger className="-translate-y-2 translate-x-2" />
+      </div>
     </DialogContent>
   );
 };

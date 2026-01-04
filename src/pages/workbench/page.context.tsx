@@ -46,7 +46,7 @@ const ToggleMenu = ({
 );
 
 export function LayoutWorkbenchPageProvider(): JSX.Element {
-  const { isDesktop } = useContext(AuthContext);
+  const { clientMeta } = useContext(AuthContext);
   const [toggledMenu, setToggledMenu] = useState(true);
   const { pathname } = useLocation();
 
@@ -75,7 +75,7 @@ export function LayoutWorkbenchPageProvider(): JSX.Element {
             processos.
           </p>
         </div>
-        {isDesktop ? (
+        {!clientMeta.isMobile ? (
           <div
             style={{ maxHeight: "calc(100vh - 180px)" }}
             className="flex flex-1 items-start gap-x-2"

@@ -18,12 +18,36 @@ import { api } from "../services/api";
 import { Spinner } from "@chakra-ui/react";
 import { v4 } from "uuid";
 
-const isDesktopDevice = () =>
-  typeof navigator === "undefined"
-    ? true
-    : !/Mobi|Android|iPhone|iPad|iPod|Windows Phone|BlackBerry|Opera Mini/i.test(
-        navigator.userAgent
-      );
+interface IClienteMeta {
+  platform: "android" | "ios" | "desktop";
+  isMobile: boolean;
+  isPWA: boolean;
+}
+
+// const isDesktopDevice = () =>
+//   typeof navigator === "undefined"
+//     ? true
+//     : !/Mobi|Android|iPhone|iPad|iPod|Windows Phone|BlackBerry|Opera Mini/i.test(
+//         navigator.userAgent
+//       );
+
+function getClientMeta(): IClienteMeta {
+  const ua = navigator.userAgent.toLowerCase();
+
+  const isMobile = /android|iphone|ipad|ipod/.test(ua);
+
+  const platform = /android/.test(ua)
+    ? "android"
+    : /iphone|ipad|ipod/.test(ua)
+      ? "ios"
+      : "desktop";
+
+  const isPWA =
+    window.matchMedia("(display-mode: standalone)").matches ||
+    (window.navigator as any).standalone === true;
+
+  return { platform, isMobile, isPWA };
+}
 
 export interface Account {
   id: number;
@@ -37,7 +61,7 @@ export interface Account {
 
 interface IFlowContextProps {
   account: Account;
-  isDesktop: boolean;
+  clientMeta: IClienteMeta;
   setAccount: Dispatch<SetStateAction<Account>>;
   logout(): void;
 }
@@ -52,7 +76,9 @@ export function AuthProvider(props: IProps): JSX.Element {
   const [account, setAccount] = useState<Account | null>(null);
   const [load, setLoad] = useState<boolean>(false);
   const [statusAPI, setStatusAPI] = useState<boolean>(false);
-  const [isDesktop, setIsDesktop] = useState<boolean>(isDesktopDevice());
+  const [clientMeta, setClientMeta] = useState<IClienteMeta>(
+    {} as IClienteMeta
+  );
 
   const navigate = useNavigate();
 
@@ -91,7 +117,7 @@ export function AuthProvider(props: IProps): JSX.Element {
         }
       }
     })();
-    const handleResize = () => setIsDesktop(isDesktopDevice());
+    const handleResize = () => setClientMeta(getClientMeta());
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
@@ -99,11 +125,11 @@ export function AuthProvider(props: IProps): JSX.Element {
   const dataValue = useMemo(
     () => ({
       account,
-      isDesktop,
+      clientMeta,
       logout,
       setAccount,
     }),
-    [account, isDesktop]
+    [account, clientMeta]
   );
 
   return (

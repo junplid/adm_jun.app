@@ -58,7 +58,7 @@ interface SocketPropsSentPercentage {
 export const CampaignsPage: React.FC = (): JSX.Element => {
   const {
     account: { isPremium },
-    isDesktop,
+    clientMeta,
   } = useContext(AuthContext);
   const { data: campaigns, isFetching, isPending } = useGetCampaigns();
   const { socket } = useContext(SocketContext);
@@ -278,7 +278,7 @@ export const CampaignsPage: React.FC = (): JSX.Element => {
           <ModalCreateCampaign
             trigger={
               <Button
-                disabled={!isPremium || !isDesktop}
+                disabled={!isPremium || clientMeta.isMobile}
                 variant="outline"
                 size={"sm"}
               >
@@ -292,7 +292,7 @@ export const CampaignsPage: React.FC = (): JSX.Element => {
           eficiente.
         </p>
       </div>
-      {isDesktop ? (
+      {!clientMeta.isMobile ? (
         <div
           style={{ maxHeight: "calc(100vh - 180px)" }}
           className="grid flex-1"

@@ -1,7 +1,7 @@
 import { useMemo, JSX } from "react";
 import "./styles.css";
 import { nanoid } from "nanoid";
-import { TableVirtuoso } from "react-virtuoso";
+import { TableVirtuoso, Virtuoso } from "react-virtuoso";
 import { Spinner } from "@chakra-ui/react";
 
 export interface Column {
@@ -98,6 +98,36 @@ export const TableComponent = (props: Props): JSX.Element => {
       />
       {!rows.length && props.textEmpity && !props.load && (
         <div className="cursor-default absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 px-4 py-2 text-sm dark:text-white/30 text-black/50">
+          {props.textEmpity}
+        </div>
+      )}
+      {props.load && (
+        <div className="cursor-default absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 px-4 py-2 text-sm dark:text-white/30 text-black/50">
+          <Spinner size={"md"} />
+        </div>
+      )}
+    </div>
+  );
+};
+
+interface PropsMobile {
+  totalCount: number;
+  renderItem: (index: number) => JSX.Element;
+  textEmpity?: string;
+  load: boolean;
+}
+
+export const TableMobileComponent = (props: PropsMobile): JSX.Element => {
+  return (
+    <div className="relative w-full">
+      <Virtuoso
+        className="scroll-custom-table container__virtuoso"
+        style={{ height: "100%", width: "100%" }}
+        totalCount={props.totalCount}
+        itemContent={props.renderItem}
+      />
+      {!props.totalCount && props.textEmpity && !props.load && (
+        <div className="cursor-default  w-full absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 px-1 py-2 text-sm dark:text-white/30 text-black/50">
           {props.textEmpity}
         </div>
       )}

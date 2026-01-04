@@ -32,7 +32,7 @@ export interface ChatbotRow {
 // };
 
 export const ChatbotsPage: React.FC = (): JSX.Element => {
-  const { isDesktop } = useContext(AuthContext);
+  const { clientMeta } = useContext(AuthContext);
   const { data: chatbots, isFetching, isPending } = useGetChatbots();
   const { dialog: DialogModal, close, onOpen } = useDialogModal({});
 
@@ -135,7 +135,11 @@ export const ChatbotsPage: React.FC = (): JSX.Element => {
           <h1 className="text-lg font-semibold">Bots de recepção</h1>
           <ModalCreateChatbot
             trigger={
-              <Button disabled={!isDesktop} variant="outline" size={"sm"}>
+              <Button
+                disabled={clientMeta.isMobile}
+                variant="outline"
+                size={"sm"}
+              >
                 <IoAdd /> Adicionar
               </Button>
             }
@@ -146,7 +150,7 @@ export const ChatbotsPage: React.FC = (): JSX.Element => {
           contínua e integrada.
         </p>
       </div>
-      {isDesktop ? (
+      {!clientMeta.isMobile ? (
         <div
           style={{ maxHeight: "calc(100vh - 180px)" }}
           className="flex-1 grid"

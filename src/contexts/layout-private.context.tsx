@@ -111,7 +111,7 @@ export function LayoutPrivateProvider(): JSX.Element {
   const {
     account: { onboarded },
     setAccount,
-    isDesktop,
+    clientMeta,
   } = useContext(AuthContext);
   const [toggledMenu, setToggledMenu] = useState(false);
   const [toggledTo, setToggledTo] = useState<null | string>(null);
@@ -175,7 +175,7 @@ export function LayoutPrivateProvider(): JSX.Element {
           <div className="flex h-svh overflow-x-hidden flex-col scroll-hidden overflow-y-scroll scroll-by">
             <ShadowTopMemoComponent />
 
-            {/* <div
+            <div
               style={{ minHeight: 50, background: bgSideBar }}
               className="sticky top-0 z-50 flex w-full items-center gap-x-2 p-1 px-2 pl-4"
             >
@@ -196,7 +196,7 @@ export function LayoutPrivateProvider(): JSX.Element {
                 }}
                 alt="UNPLID"
               />
-            </div> */}
+            </div>
 
             {/* {toggledMenu && (
               <Presence
@@ -404,7 +404,7 @@ export function LayoutPrivateProvider(): JSX.Element {
           </div>
         </Sidebar>
         <main className="w-full h-screen">
-          {!isDesktop && toggledMenu && (
+          {clientMeta.isMobile && toggledMenu && (
             <div
               onClick={() => setToggledMenu(false)}
               className="absolute left-0 top-0 w-full h-full duration-1000!"

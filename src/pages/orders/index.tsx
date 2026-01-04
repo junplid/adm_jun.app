@@ -1,24 +1,19 @@
 import {
   FC,
   JSX,
+  ReactNode,
   useCallback,
   useContext,
   useEffect,
   useMemo,
-  // useMemo,
+  useRef,
   useState,
 } from "react";
-// import { ModalCreateBusiness } from "./modals/create";
 import { Spinner, Grid, Circle, Box, VStack } from "@chakra-ui/react";
-// import { IoAdd } from "react-icons/io5";
 import { useDialogModal } from "../../hooks/dialog.modal";
-// import SelectComponent from "@components/Select";
-// import { Field } from "@components/ui/field";
 import {
   getOrders,
   runActionOrder,
-  // getOrders,
-  // runActionOrder,
   TypePriorityOrder,
   TypeStatusOrder,
 } from "../../services/api/Orders";
@@ -26,12 +21,7 @@ import { AuthContext } from "@contexts/auth.context";
 import { AxiosError } from "axios";
 import { ErrorResponse_I } from "../../services/api/ErrorResponse";
 import { toaster } from "@components/ui/toaster";
-// import { VirtuosoGrid } from "react-virtuoso";
 import { SocketContext } from "@contexts/socket.context";
-// import { format } from "@flasd/whatsapp-formatting";
-// import parse from "html-react-parser";
-// import moment from "moment";
-// import { Tooltip } from "@components/ui/tooltip";
 import {
   DragDropContext,
   Draggable,
@@ -39,31 +29,27 @@ import {
   DropResult,
 } from "react-beautiful-dnd";
 import fontColorContrast from "font-color-contrast";
-// import { formatToBRL } from "brazilian-values";
 import { format } from "@flasd/whatsapp-formatting";
 import parse from "html-react-parser";
 import moment from "moment";
+import { LuBriefcaseBusiness, LuMapPin } from "react-icons/lu";
+import { formatToBRL } from "brazilian-values";
+import { ImConnection } from "react-icons/im";
+import {
+  MdSignalWifiConnectedNoInternet0,
+  MdSupportAgent,
+} from "react-icons/md";
+import { BiTimeFive } from "react-icons/bi";
+import { ModalChatPlayer } from "../inboxes/departments/modals/Player/modalChat";
+import autoAnimate from "@formkit/auto-animate";
 
 export interface Order {
   id: number;
   name: string | null;
   n_order: string;
-  createAt: Date;
-  delivery_address: string | null;
-  payment_method: string | null;
-  actionChannels: string[];
-  contact?: string;
-  status: TypeStatusOrder;
-  priority: TypePriorityOrder | null;
-  data: string | null;
-  total: string | null;
-  sequence: number;
-}
-
-export interface Order {
-  id: number;
-  name: string | null;
-  n_order: string;
+  businessId: number;
+  description: string | null;
+  origin: string | null;
   createAt: Date;
   delivery_address: string | null;
   payment_method: string | null;
@@ -75,6 +61,13 @@ export interface Order {
   total: string | null;
   sequence: number;
   isDragDisabled: boolean;
+  ticket: {
+    connection: { s: boolean; id: number; name: string };
+    id: number;
+    // lastMessage: "bot" | "contact" | "user" | "system";
+    departmentName: string;
+    status: "NEW" | "OPEN";
+  }[];
 }
 
 const columns: {
@@ -98,7 +91,6 @@ function calcRank(prev?: Order, next?: Order) {
     newRank = GAP;
   } else if (!prev && next) {
     newRank = next.sequence - GAP;
-    console.log({ newRank });
   } else if (!next && prev) {
     newRank = prev.sequence + GAP;
   } else {
@@ -110,10 +102,11 @@ function calcRank(prev?: Order, next?: Order) {
 
 export const OrdersPage: React.FC = (): JSX.Element => {
   const { socket } = useContext(SocketContext);
-  const { dialog: DialogModal } = useDialogModal({});
+  const { dialog: DialogModal, close, onOpen } = useDialogModal({});
   const [orders, setOrders] = useState<{ [x: string]: Order[] }>(
     {} as { [x: string]: Order[] }
   );
+
   const { logout, account } = useContext(AuthContext);
   const [load, setLoad] = useState(true);
   const [_loadOrders, _setLoadOrders] = useState<number[]>([]);
@@ -238,6 +231,117 @@ export const OrdersPage: React.FC = (): JSX.Element => {
       });
 
       socket.on(
+        "order:ticket:remove",
+        async (props: {
+          accountId: number;
+          orderId: number;
+          ticketId: number;
+          status: TypeStatusOrder;
+        }) => {
+          if (props.accountId === account.id) {
+            await new Promise((s) => setTimeout(s, 400));
+            setOrders((state) => {
+              const stateClone = structuredClone(state);
+              stateClone[props.status].map((order) => {
+                if (order.id === props.orderId) {
+                  const nextTk = order.ticket.filter(
+                    (s) => s.id !== props.ticketId
+                  );
+                  order.ticket = nextTk;
+                }
+                return order;
+              });
+              return stateClone;
+            });
+          }
+        }
+      );
+
+      socket.on(
+        "order:ticket:return",
+        async (props: {
+          accountId: number;
+          orderId: number;
+          ticketId: number;
+          status: TypeStatusOrder;
+        }) => {
+          if (props.accountId === account.id) {
+            await new Promise((s) => setTimeout(s, 400));
+            setOrders((state) => {
+              const stateClone = structuredClone(state);
+              stateClone[props.status].map((order) => {
+                if (order.id === props.orderId) {
+                  order.ticket = order.ticket.map((tk) => {
+                    if (tk.id === props.ticketId) tk.status = "NEW";
+                    return tk;
+                  });
+                }
+                return order;
+              });
+              return stateClone;
+            });
+          }
+        }
+      );
+
+      socket.on(
+        "order:ticket:open",
+        async (props: {
+          accountId: number;
+          orderId: number;
+          ticketId: number;
+          status: TypeStatusOrder;
+        }) => {
+          if (props.accountId === account.id) {
+            await new Promise((s) => setTimeout(s, 400));
+            setOrders((state) => {
+              const stateClone = structuredClone(state);
+              stateClone[props.status].map((order) => {
+                if (order.id === props.orderId) {
+                  order.ticket = order.ticket.map((tk) => {
+                    if (tk.id === props.ticketId) tk.status = "OPEN";
+                    return tk;
+                  });
+                }
+                return order;
+              });
+              return stateClone;
+            });
+          }
+        }
+      );
+
+      socket.on(
+        "order:ticket:new",
+        async (props: {
+          accountId: number;
+          status: TypeStatusOrder;
+          orderId: number;
+          ticket: {
+            connection: { s: boolean; id: number; name: string };
+            id: number;
+            lastMessage: "bot" | "contact" | "user" | "system";
+            departmentName: string;
+            status: "NEW" | "OPEN";
+          };
+        }) => {
+          if (props.accountId === account.id) {
+            await new Promise((s) => setTimeout(s, 400));
+            setOrders((state) => {
+              const stateClone = structuredClone(state);
+              stateClone[props.status].map((order) => {
+                if (order.id === props.orderId) {
+                  order.ticket.push(props.ticket);
+                }
+                return order;
+              });
+              return stateClone;
+            });
+          }
+        }
+      );
+
+      socket.on(
         "order:update-rank",
         (props: {
           accountId: number;
@@ -312,107 +416,11 @@ export const OrdersPage: React.FC = (): JSX.Element => {
       <div className="flex flex-col sm:pl-0 pl-2">
         <div className="flex items-center gap-x-2 sm:gap-x-5">
           <h1 className="text-base sm:text-lg font-semibold">Pedidos</h1>
-          {/*<strong className="text-yellow-600 text-sm">
-            <span className="text-xs">⚠️</span> Em desenvolvimento
-          </strong>
-           <ModalCreateBusiness
-            trigger={
-              <Button disabled variant="outline" size={"sm"}>
-                <IoAdd /> Adicionar
-              </Button>
-            }
-          /> */}
         </div>
         <p className="text-white/60 font-light sm:text-base text-sm">
           Centralize seus pedidos em um único lugar.
         </p>
       </div>
-      {/* <div className="grid grid-cols-[240px_1fr] gap-x-2 h-full">
-        <div className="px-3 pt-5 bg-zinc-800/15 flex flex-col gap-y-3 rounded-md">
-          <span className="block font-medium">Filtrar</span>
-          <Field label={"Status do pedido"}>
-            <SelectComponent
-              options={optionsStatus}
-              placeholder="Todos"
-              value={
-                filter.status
-                  ? {
-                      label:
-                        optionsStatus.find((s) => s.value === filter.status)
-                          ?.label || "",
-                      value: filter.status,
-                    }
-                  : null
-              }
-              onChange={(vl: any) => {
-                if (!vl) {
-                  setFilter({ ...filter, status: undefined });
-                  return;
-                }
-                setFilter({ ...filter, status: vl.value });
-              }}
-            />
-          </Field>
-          <Field label={"Prioridade"}>
-            <SelectComponent
-              options={optionsPriority}
-              placeholder="Todas"
-              value={
-                filter.priority
-                  ? {
-                      label:
-                        optionsPriority.find((s) => s.value === filter.priority)
-                          ?.label || "",
-                      value: filter.priority,
-                    }
-                  : null
-              }
-              onChange={(vl: any) => {
-                if (!vl) {
-                  setFilter({ ...filter, priority: undefined });
-                  return;
-                }
-                setFilter({ ...filter, priority: vl.value });
-              }}
-            />
-          </Field>
-          {!!orders.length && (
-            <span className="text-white/50 mt-10 text-center">
-              {orders.length > 1
-                ? `${orders.length} pedidos encontrados*`
-                : `${orders.length} pedido encontrado*`}
-            </span>
-          )}
-        </div>
-        {load ? (
-          <div className="bg-white/5 text-white/70 rounded-md flex flex-col items-center justify-center">
-            <span className="">Carregando aguarde...</span>
-            <Spinner />
-          </div>
-        ) : (
-          <>
-            {orders?.length ? (
-              <VirtuosoGrid
-                style={{ height: "100%", maxHeight: "calc(100vh - 180px)" }}
-                data={orders}
-                className="scroll-custom-table"
-                //  endReached={() => {
-                //    if (hasNextPage) fetchNextPage()
-                //  }}
-                overscan={300}
-                listClassName="group grid flex-1 items-baseline grid-cols-[repeat(auto-fill,minmax(230px,1fr))]"
-                itemContent={(_index, order) => (
-                  <OrderItem key={order.id} {...order} />
-                )}
-              />
-            ) : (
-              <div className="bg-white/5 text-white/70 rounded-md flex items-center justify-center">
-                <span className="">Seus pedidos aparecerão aqui.</span>
-              </div>
-            )}
-          </>
-        )}
-      </div> */}
       <div className="flex-1 pt-0! grid gap-x-2 h-full">
         {load ? (
           <div className="bg-white/5 sm:m-0 m-2 text-white/70 rounded-md flex flex-col items-center justify-center">
@@ -420,45 +428,26 @@ export const OrdersPage: React.FC = (): JSX.Element => {
             <Spinner />
           </div>
         ) : (
-          <>
-            {/* {orders?.length ? (
-                  <VirtuosoGrid
-                    style={{ height: "100%", maxHeight: "calc(100vh - 180px)" }}
-                    data={orders}
-                    className="scroll-custom-table"
-                    //  endReached={() => {
-                    //    if (hasNextPage) fetchNextPage()
-                    //  }}
-                    overscan={300}
-                    listClassName="group grid flex-1 items-baseline grid-cols-[repeat(auto-fill,minmax(230px,1fr))]"
-                    itemContent={(_index, order) => (
-                      <OrderItem key={order.id} {...order} />
-                    )}
+          <DragDropContext onDragEnd={onDragEnd}>
+            <div className="sm:h-[calc(100svh-154px)] overflow-hidden overflow-x-auto flex space-x-2">
+              {columns?.map((column) => {
+                return (
+                  <Column
+                    onCloseDialog={close}
+                    onOpenDialog={onOpen}
+                    loadMoveTicket={null}
+                    key={column.value}
+                    column={{
+                      id: column.value,
+                      name: column.label,
+                      color: column.color,
+                    }}
+                    rows={orders[column.value]}
                   />
-                ) : (
-                  <div className="bg-white/5 text-white/70 rounded-md flex items-center justify-center">
-                    <span className="">Seus pedidos aparecerão aqui.</span>
-                  </div>
-                )} */}
-            <DragDropContext onDragEnd={onDragEnd}>
-              <div className="sm:h-[calc(100svh-154px)] overflow-hidden overflow-x-auto flex space-x-2">
-                {columns?.map((column) => {
-                  return (
-                    <Column
-                      loadMoveTicket={null}
-                      key={column.value}
-                      column={{
-                        id: column.value,
-                        name: column.label,
-                        color: column.color,
-                      }}
-                      rows={orders[column.value]}
-                    />
-                  );
-                })}
-              </div>
-            </DragDropContext>
-          </>
+                );
+              })}
+            </div>
+          </DragDropContext>
         )}
       </div>
       {DialogModal}
@@ -470,9 +459,19 @@ interface ColumnProps {
   column: { id: string; name: string; color: string };
   rows: Order[];
   loadMoveTicket: number | null;
+  onOpenDialog: (props: {
+    content: ReactNode;
+    size?: "sm" | "md" | "lg" | "xl";
+  }) => void;
+  onCloseDialog(): void;
 }
 
-const Column: FC<ColumnProps> = ({ column, rows }) => {
+const Column: FC<ColumnProps> = ({
+  column,
+  rows,
+  onOpenDialog,
+  onCloseDialog,
+}) => {
   // const [searchValue, setSearchValue] = useState("");
 
   return (
@@ -520,7 +519,13 @@ const Column: FC<ColumnProps> = ({ column, rows }) => {
               className={`respon-column scroll-custom overflow-y-scroll pb-10 flex-1 h-[calc(100svh-190px)]`}
             >
               {rows?.map((row, index) => (
-                <Taks {...row} index={index} key={row.id} />
+                <Taks
+                  {...row}
+                  onCloseDialog={onCloseDialog}
+                  onOpenDialog={onOpenDialog}
+                  index={index}
+                  key={row.id}
+                />
               ))}
 
               {provided.placeholder}
@@ -542,14 +547,19 @@ const diasDaSemana: { [x: number]: string } = {
   6: "Sábado",
 };
 
-export const Taks: FC<Order & { index: number }> = ({
-  id,
-  index,
-  ...props
-}) => {
+export const Taks: FC<
+  Order & {
+    index: number;
+    onOpenDialog: (props: {
+      content: ReactNode;
+      size?: "sm" | "md" | "lg" | "xl";
+    }) => void;
+    onCloseDialog: () => void;
+  }
+> = ({ id, index, ...props }) => {
   const [actionsLoad, setActionsLoad] = useState<string[]>([]);
+  const parent = useRef(null);
   const { logout } = useContext(AuthContext);
-  // const { user } = useContext(AuthorizationContext);
   const previewDateLastMsg = useMemo(() => {
     const days = moment().diff(props.createAt, "day");
     if (days === 0) {
@@ -562,6 +572,10 @@ export const Taks: FC<Order & { index: number }> = ({
       return moment(props.createAt).format("DD/MM/YYYY");
     }
   }, [props.createAt]);
+
+  useEffect(() => {
+    parent.current && autoAnimate(parent.current);
+  }, [parent]);
 
   const run = useCallback(
     async (action: string) => {
@@ -610,18 +624,22 @@ export const Taks: FC<Order & { index: number }> = ({
             alignItems={"start"}
             className="relative"
             gap={1}
+            pb={2}
           >
             <div className="px-2 pt-2 flex w-full mb-0 items-center gap-x-1 justify-between">
-              <span className="text-sm text-white/35">#{props.n_order}</span>
+              <span className="text-white/35 text-sm">#{props.n_order}</span>
 
               <span className="text-white/35 text-sm">
                 {previewDateLastMsg}
               </span>
             </div>
-            {props.name && (
-              <div className="px-2 flex items-center justify-between gap-x-1 w-full">
-                <span className="line-clamp-2 text-nowrap font-medium w-full">
+            {(props.name || props.description) && (
+              <div className="px-2 flex flex-col -space-y-1 w-full">
+                <span className="line-clamp-2 text-sm font-medium w-full">
                   {props.name}
+                </span>
+                <span className="line-clamp-3 text-white/60 text-sm w-full">
+                  {props.description}
                 </span>
               </div>
             )}
@@ -636,13 +654,83 @@ export const Taks: FC<Order & { index: number }> = ({
             ) : (
               <div className="border-b-2 my-2 w-full border-dashed border-zinc-600/40" />
             )}
-
-            {props.total && (
-              <div className="px-2 pb-2 flex font-bold text-sm items-center justify-end w-full gap-x-1">
-                {/* <span>{formatToBRL(props.total)}</span> */}
-                <span>R$ {props.total}</span>
+            {props.delivery_address && (
+              <div className="px-2 flex items-start mt-1 gap-x-0.5 text-white/60">
+                <LuMapPin />
+                <span className="line-clamp-3 text-xs w-full">
+                  {props.delivery_address}
+                </span>
               </div>
             )}
+            {props.total && (
+              <div className="px-2 flex font-bold text-sm items-center justify-end w-full gap-x-1">
+                <span>{formatToBRL(props.total)}</span>
+              </div>
+            )}
+
+            <div ref={parent} className="flex px-1 flex-col w-full gap-y-1">
+              {props.ticket.map((tk) => (
+                <div
+                  key={tk.id}
+                  style={{
+                    background:
+                      tk.status === "OPEN"
+                        ? "linear-gradient(143deg,rgba(88, 172, 245, 0.04) 0%, rgba(52, 126, 191, 0.12) 100%)"
+                        : "linear-gradient(143deg,rgba(235, 203, 175, 0.07) 0%, rgba(219, 155, 99, 0.09) 100%)",
+                  }}
+                  className="cursor-pointer p-2 pr-2.5 rounded-md flex items-center justify-between w-full gap-x-1.5"
+                  onClick={() =>
+                    props.onOpenDialog({
+                      size: "xl",
+                      content: (
+                        <ModalChatPlayer
+                          orderId={id}
+                          close={props.onCloseDialog}
+                          data={{
+                            businessId: props.businessId,
+                            id: tk.id,
+                            name: `#${props.n_order} / ${props.name}`,
+                          }}
+                        />
+                      ),
+                    })
+                  }
+                >
+                  <div className="flex flex-col -space-y-0.5">
+                    <div className="flex gap-x-1 items-center">
+                      <LuBriefcaseBusiness size={12} />
+                      <span className="font-medium text-xs line-clamp-1">
+                        {tk.departmentName}
+                      </span>
+                    </div>
+                    <div className="flex gap-x-1 text-xs items-center">
+                      {tk.connection.s ? (
+                        <ImConnection color={"#7bf1a8e2"} size={12} />
+                      ) : (
+                        <MdSignalWifiConnectedNoInternet0
+                          color={"#f17b7b"}
+                          size={12}
+                        />
+                      )}
+                      <span className="text-[#7bf1a892]">
+                        {tk.connection.name}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex relative">
+                    {/* {tk.lastMessage === "contact" && (
+                        <div className="absolute -top-0.5 -right-0.5 w-1.5 rounded-full h-1.5 bg-[#22b512]" />
+                      )} */}
+                    {tk.status === "OPEN" ? (
+                      <MdSupportAgent size={20} color="#58ACF5" />
+                    ) : (
+                      <BiTimeFive size={20} color="#EDA058" />
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+
             {!!props.actionChannels?.length && (
               <div className="flex flex-col items-center w-full">
                 {/* <span className="text-xs text-center font-semibold text-white/70">

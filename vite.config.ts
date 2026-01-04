@@ -4,12 +4,13 @@ import tsconfigPaths from "vite-tsconfig-paths";
 import * as path from "path";
 import tailwindcss from "@tailwindcss/vite";
 import obfuscator from "vite-plugin-javascript-obfuscator";
+import { VitePWA } from "vite-plugin-pwa";
 
 // https://vite.dev/config/
 export default defineConfig({
-  server: {
-    allowedHosts: ["1272e34b509a.ngrok-free.app"],
-  },
+  // server: {
+  //   allowedHosts: ["60b526a0eaff.ngrok-free.app"],
+  // },
   plugins: [
     react(),
     tsconfigPaths(),
@@ -36,6 +37,33 @@ export default defineConfig({
 
         log: false,
         sourceMap: false,
+      },
+    }),
+    VitePWA({
+      injectRegister: false,
+      devOptions: {
+        enabled: true,
+      },
+      includeAssets: ["favicon.svg"],
+      manifest: {
+        name: "Junplid",
+        short_name: "Junplid",
+        start_url: "/",
+        display: "standalone",
+        background_color: "#181616",
+        theme_color: "#181616",
+        icons: [
+          {
+            src: "/junplid-pwa-192x192.png",
+            sizes: "192x192",
+            type: "image/png",
+          },
+          {
+            src: "/junplid-pwa-512x512.png",
+            sizes: "512x512",
+            type: "image/png",
+          },
+        ],
       },
     }),
   ],

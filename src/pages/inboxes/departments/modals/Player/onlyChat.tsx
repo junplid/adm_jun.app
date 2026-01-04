@@ -13,6 +13,7 @@ import {
   FC,
   JSX,
   memo,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -31,8 +32,9 @@ import useDownloader from "react-use-downloader";
 import TextareaAutosize from "react-textarea-autosize";
 import { format } from "@flasd/whatsapp-formatting";
 import parse from "html-react-parser";
-import { PlayerContext } from "./context";
 import {
+  getTicket,
+  pickTicket,
   resolveTicket,
   returnTicket,
   sendTicketMessage,
@@ -64,6 +66,7 @@ import {
 import { InViewComponent } from "@components/InView";
 import { InView } from "react-intersection-observer";
 import { BiTimeFive } from "react-icons/bi";
+import { SocketContext } from "@contexts/socket.context";
 
 const background = {
   system: "#5c3600cd",
@@ -116,20 +119,67 @@ const IconPreviewFile = (p: { mimetype: string }): JSX.Element => {
   return <PiFileFill color="#808080" size={24} />;
 };
 
-export const ChatPlayer: FC = () => {
-  const {
-    pick,
-    currentTicket,
-    setDataTicket,
-    dataTicket,
-    socket,
-    loadResolved,
-    setLoadReturn,
-    setLoadResolved,
-    loadData,
-    loadReturn,
-  } = useContext(PlayerContext);
-  const { logout } = useContext(AuthContext);
+interface Props {
+  businessId: number;
+  orderId: number;
+  id: number;
+  closeModal(): void;
+}
+
+export interface Ticket {
+  id: number;
+  inboxDepartmentId: number;
+  businessId: number;
+  inboxUserId: number | null;
+  status: "NEW" | "OPEN" | "RESOLVED" | "DELETED";
+  contact: {
+    name: string;
+    completeNumber: string;
+
+    tags: { id: number; name: string }[];
+  };
+  messages: {
+    content:
+      | {
+          type: "text";
+          text: string;
+          id: number;
+          createAt: Date;
+        }
+      | {
+          type: "image" | "video";
+          id: number;
+          createAt: Date;
+          fileName: string;
+          caption?: string;
+        }
+      | {
+          type: "audio";
+          createAt: Date;
+          fileName: string;
+          ptt?: boolean;
+        }
+      | {
+          type: "file";
+          fileNameOriginal?: string;
+          fileName: string;
+          createAt: Date;
+          caption?: string;
+        };
+
+    by: "contact" | "user" | "system";
+  }[];
+}
+
+export const OnlyChatPlayer: FC<Props> = ({
+  businessId,
+  id,
+  closeModal,
+  ...props
+}) => {
+  const { socket, ns } = useContext(SocketContext);
+
+  const { logout, account } = useContext(AuthContext);
   const virtuosoRef = useRef<VirtuosoHandle>(null);
   const [loadMsg, setLoadMsg] = useState(false);
   const [text, setText] = useState("");
@@ -140,7 +190,10 @@ export const ChatPlayer: FC = () => {
   const [filesSelected, setFilesSelected] = useState<FileSelected[]>([]);
   const [errorTags, setErrorTags] = useState<string | undefined>(undefined);
   const colorQuery = useColorModeValue("#000000", "#ffffff");
-
+  const [dataTicket, setDataTicket] = useState<Ticket | null>(null);
+  const [loadReturn, setLoadReturn] = useState<number | null>(null);
+  const [loadResolved, setLoadResolved] = useState<number | null>(null);
+  const [loadData, setLoadData] = useState(false);
   const { data: tags } = useGetTagsOptions();
   const { mutateAsync: createTag, status: statusCreateTag } = useCreateTag({});
   const { mutateAsync: addTag } = useAddTagOnContactWA({
@@ -149,6 +202,13 @@ export const ChatPlayer: FC = () => {
   const { mutateAsync: rmTag } = useDeleteTagOnContactWA({
     setError: (_, error) => setErrorTags(error.message),
   });
+
+  const socketNS = useMemo(() => {
+    return ns(`/business-${businessId}/inbox`, {
+      auth: { accountId: account.id },
+      timeout: 3000,
+    });
+  }, [socket]);
 
   const suggestions = useMemo(() => {
     return tags
@@ -290,48 +350,87 @@ export const ChatPlayer: FC = () => {
   const [isToEnd, setIsToEnd] = useState(false);
 
   useEffect(() => {
-    if (currentTicket) {
-      socket.emit("join-ticket", { id: currentTicket });
-      socket.on("message", (data: PropsSocketMessage) => {
-        if (data.by === "user") {
-          requestAnimationFrame(() => {
-            textareaRef.current?.focus();
-          });
-          textareaRef.current?.focus();
-          setLoadMsg(false);
-          setText("");
+    (async () => {
+      if (id) {
+        try {
+          setLoadData(true);
+          const ticket = await getTicket(id);
+          // setar como lido no card
+          // setList((prev) => {
+          //   return prev.filter((item) => {
+          //     if (item.id === ticket.id) item.count_unread = 0;
+          //     return item;
+          //   });
+          // });
+          setDataTicket(ticket);
+          setLoadData(false);
+        } catch (error) {
+          if (error instanceof AxiosError) {
+            setLoadData(false);
+            if (error.response?.status === 401) logout();
+            if (error.response?.status === 400) {
+              const dataError = error.response?.data as ErrorResponse_I;
+              if (dataError.toast.length)
+                dataError.toast.forEach(toaster.create);
+            }
+          }
         }
-        setDataTicket((prev) => {
-          if (!prev) return null;
-          return {
-            ...prev,
-            messages: [
-              ...prev.messages,
-              { by: data.by, content: data.content },
-            ],
-          };
+        socketNS.emit("join-ticket", { id });
+        socketNS.on("message", (data: PropsSocketMessage) => {
+          if (data.by === "user") {
+            requestAnimationFrame(() => {
+              textareaRef.current?.focus();
+            });
+            textareaRef.current?.focus();
+            setLoadMsg(false);
+            setText("");
+          }
+          setDataTicket((prev) => {
+            if (!prev) return null;
+            return {
+              ...prev,
+              messages: [
+                ...prev.messages,
+                { by: data.by, content: data.content },
+              ],
+            };
+          });
         });
-      });
-    } else {
-      setIsToEnd(false);
-    }
+      } else {
+        setIsToEnd(false);
+      }
+    })();
 
     return () => {
-      socket.emit("join-ticket", { id: null });
-      socket.off("message");
+      socketNS.emit("join-ticket", { id: null });
+      socketNS.off("message");
       setDataTicket(null);
       setText("");
       setLoadMsg(false);
       setOpenEmojis(false);
     };
-  }, [currentTicket, socket]);
+  }, [id, socketNS]);
+
+  const pick = useCallback(async (id: number) => {
+    try {
+      await pickTicket(id, props.orderId);
+      setDataTicket((s) => {
+        if (s) return { ...s, status: "OPEN" };
+        return null;
+      });
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        if (error.response?.status === 401) logout();
+        if (error.response?.status === 400) {
+          const dataError = error.response?.data as ErrorResponse_I;
+          if (dataError.toast.length) dataError.toast.forEach(toaster.create);
+        }
+      }
+    }
+  }, []);
 
   const sendMessage = async (message: string) => {
-    if (
-      !dataTicket ||
-      (!message.trim() && !filesSelected.length) ||
-      !currentTicket
-    ) {
+    if (!dataTicket || (!message.trim() && !filesSelected.length) || !id) {
       return;
     }
     setLoadMsg(true);
@@ -356,7 +455,7 @@ export const ChatPlayer: FC = () => {
         type: file.type,
       }));
       if (dataTicket.status === "NEW") await pick(dataTicket.id);
-      await sendTicketMessage(currentTicket, {
+      await sendTicketMessage(id, {
         text: message.trim(),
         files,
         type,
@@ -387,17 +486,19 @@ export const ChatPlayer: FC = () => {
   }, [dataTicket?.messages.length]);
 
   const handleReturnTicket = async () => {
-    if (!currentTicket || !dataTicket) return;
+    if (!id || !dataTicket) return;
     if (dataTicket.status !== "OPEN") return;
     setLoadReturn(dataTicket.id);
-    await returnTicket(dataTicket.id);
+    await returnTicket(dataTicket.id, props.orderId);
+    closeModal();
   };
 
   const handleResolvedTicket = async () => {
-    if (!currentTicket || !dataTicket) return;
+    if (!id || !dataTicket) return;
     if (dataTicket.status !== "OPEN") return;
     setLoadResolved(dataTicket.id);
-    await resolveTicket(dataTicket.id);
+    await resolveTicket(dataTicket.id, props.orderId);
+    closeModal();
   };
 
   const isDisabledReturn = useMemo(() => {
@@ -425,7 +526,7 @@ export const ChatPlayer: FC = () => {
     return false;
   }, [dataTicket?.status, text, filesSelected]);
 
-  if (!currentTicket) {
+  if (!id) {
     return (
       <div className="h-full grid place-items-center">
         <span className="text-white/70 text-sm">
