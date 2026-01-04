@@ -101,7 +101,7 @@ function calcRank(prev?: Order, next?: Order) {
 }
 
 export const OrdersPage: React.FC = (): JSX.Element => {
-  const { socket } = useContext(SocketContext);
+  const { socket, onSetFocused } = useContext(SocketContext);
   const { dialog: DialogModal, close, onOpen } = useDialogModal({});
   const [orders, setOrders] = useState<{ [x: string]: Order[] }>(
     {} as { [x: string]: Order[] }
@@ -410,6 +410,13 @@ export const OrdersPage: React.FC = (): JSX.Element => {
       socket.off("order:new");
     };
   }, [socket]);
+
+  useEffect(() => {
+    onSetFocused(`page-orders`);
+    return () => {
+      onSetFocused(null);
+    };
+  }, []);
 
   return (
     <div className="h-full gap-y-2 flex flex-col">

@@ -64,6 +64,7 @@ import {
 import { InViewComponent } from "@components/InView";
 import { InView } from "react-intersection-observer";
 import { BiTimeFive } from "react-icons/bi";
+import { SocketContext } from "@contexts/socket.context";
 
 const background = {
   system: "#5c3600cd",
@@ -117,6 +118,7 @@ const IconPreviewFile = (p: { mimetype: string }): JSX.Element => {
 };
 
 export const ChatPlayer: FC = () => {
+  const { onSetFocused } = useContext(SocketContext);
   const {
     pick,
     currentTicket,
@@ -424,6 +426,17 @@ export const ChatPlayer: FC = () => {
     if (!text.trim().length && !filesSelected.length) return true;
     return false;
   }, [dataTicket?.status, text, filesSelected]);
+
+  useEffect(() => {
+    if (currentTicket) {
+      onSetFocused(`modal-player-chat-${currentTicket}`);
+    } else {
+      onSetFocused(null);
+    }
+    return () => {
+      onSetFocused(null);
+    };
+  }, [currentTicket]);
 
   if (!currentTicket) {
     return (

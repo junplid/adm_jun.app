@@ -160,7 +160,7 @@ export const FormSignup: React.FC = (): JSX.Element => {
       });
 
       setCookies("auth", `BEARER ${data.token}`);
-      navigate("/auth/dashboard");
+      navigate("/auth/dashboard", { replace: true });
     } catch (error) {
       if (error instanceof AxiosError) {
         if (error.code === "ERR_NETWORK") {

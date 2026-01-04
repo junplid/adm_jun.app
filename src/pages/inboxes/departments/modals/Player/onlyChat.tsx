@@ -121,7 +121,7 @@ const IconPreviewFile = (p: { mimetype: string }): JSX.Element => {
 
 interface Props {
   businessId: number;
-  orderId: number;
+  orderId?: number;
   id: number;
   closeModal(): void;
 }
@@ -177,7 +177,7 @@ export const OnlyChatPlayer: FC<Props> = ({
   closeModal,
   ...props
 }) => {
-  const { socket, ns } = useContext(SocketContext);
+  const { socket, onSetFocused, ns } = useContext(SocketContext);
 
   const { logout, account } = useContext(AuthContext);
   const virtuosoRef = useRef<VirtuosoHandle>(null);
@@ -525,6 +525,17 @@ export const OnlyChatPlayer: FC<Props> = ({
     if (!text.trim().length && !filesSelected.length) return true;
     return false;
   }, [dataTicket?.status, text, filesSelected]);
+
+  useEffect(() => {
+    if (id) {
+      onSetFocused(`modal-player-chat-${id}`);
+    } else {
+      onSetFocused(null);
+    }
+    return () => {
+      onSetFocused(null);
+    };
+  }, [id]);
 
   if (!id) {
     return (

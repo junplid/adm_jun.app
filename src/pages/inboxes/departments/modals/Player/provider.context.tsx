@@ -47,7 +47,7 @@ export interface PropsDataList {
   id: number;
   forceOpen?: boolean;
   departmentId: number;
-  // notifyMsc?: boolean;
+  notifyMsc?: boolean;
   userId?: number; // caso seja enviado para um usuário.
   lastInteractionDate: Date;
   count_unread: number;

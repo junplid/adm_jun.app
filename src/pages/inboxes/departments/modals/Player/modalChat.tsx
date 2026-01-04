@@ -11,7 +11,7 @@ import { OnlyChatPlayer } from "./onlyChat";
 interface PropsModalPlayer {
   data: { id: number; name: string; businessId: number };
   close: () => void;
-  orderId: number;
+  orderId?: number;
 }
 
 export const PlayerInboxDepartment: React.FC<PropsModalPlayer> = ({

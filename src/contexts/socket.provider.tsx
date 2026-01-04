@@ -1,4 +1,12 @@
-import { JSX, useContext, useEffect, useMemo, useRef, useState } from "react";
+import {
+  JSX,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { Manager } from "socket.io-client";
 import { AuthContext } from "./auth.context";
 import { toaster } from "@components/ui/toaster";
@@ -6,6 +14,8 @@ import { queryClient } from "../main";
 import { useLocation, useNavigate } from "react-router-dom";
 import { LuNotepadText } from "react-icons/lu";
 import { SocketContext } from "./socket.context";
+import { useDialogModal } from "../hooks/dialog.modal";
+import { ModalChatPlayer } from "../pages/inboxes/departments/modals/Player/modalChat";
 
 interface PropsProviderSocketContext_I {
   children: JSX.Element;
@@ -18,7 +28,6 @@ interface PropsInbox {
   departmentName: string;
   status: "NEW" | "OPEN" | "RETURN" | "RESOLVED";
   notifyMsc: boolean;
-  notifyToast: boolean;
   id: number;
 }
 
@@ -27,6 +36,17 @@ interface PropsNotifyOrder {
   title: string;
   id: number;
   action: "new" | "update";
+}
+
+interface INotification {
+  type?: string;
+  title_txt: string;
+  body_txt: string;
+  title_html?: string;
+  body_html?: string;
+  toast_position?: string;
+  toast_duration?: number;
+  url_redirect?: string;
 }
 
 export const SocketProvider = ({
@@ -53,14 +73,67 @@ export const SocketProvider = ({
 
   const ns = (nsp: string, opts = {}) => manager.socket(nsp, { ...opts });
 
+  const onSetFocused = useCallback(
+    (focus: string | null) => {
+      socket.emit("set-focused", { focus });
+    },
+    [socket]
+  );
+
   useEffect(() => {
     socket.on("connect_error", () => setStateSocket("disconnected"));
     socket.on("connect", () => setStateSocket("connected"));
+    socket.on("notification", (props: INotification) => {
+      // aparecer o toast;
+
+      // testar o redirect, captura e limpeza da url.
+      if (props.url_redirect) {
+        const redirect = props.url_redirect.replace(
+          "$self",
+          location.pathname + location.search
+        );
+        navigate(redirect);
+      }
+    });
     return () => {
       socket.off("connect_error");
       socket.off("connect");
     };
-  }, [socket]);
+  }, [socket, navigate]);
+
+  const { dialog: DialogModal, close, onOpen } = useDialogModal({});
+
+  useEffect(() => {
+    (async () => {
+      console.log("location.search", location.search);
+      if (!location.search) return;
+
+      // 1. Captura TODOS os parâmetros
+      const params = Object.fromEntries(
+        new URLSearchParams(location.search).entries()
+      );
+
+      if (params.open_ticket) {
+        // close();
+        // await new Promise((s) => setTimeout(s, 1200));
+        const ticketId = Number(params.open_ticket);
+        onOpen({
+          size: "xl",
+          content: (
+            <ModalChatPlayer
+              close={close}
+              data={{
+                businessId: Number(params.bId),
+                id: ticketId,
+                name: `${params.name}`,
+              }}
+            />
+          ),
+        });
+      }
+      navigate(location.pathname, { replace: true });
+    })();
+  }, [location.search]);
 
   useEffect(() => {
     if (socket) {
@@ -100,17 +173,18 @@ export const SocketProvider = ({
             );
           }
           if (departmentOpenId === data.departmentId) return;
-          if (data.notifyToast && data.status === "NEW") {
-            toaster.create({
-              title: data.departmentName,
-              ...(data.status === "NEW" && {
-                description: `Novo ticket em: ${data.departmentName}`,
-              }),
-              type: data.status === "NEW" ? "info" : "info",
-              closable: false,
-              duration: 1000 * 60 * 100,
-            });
-          }
+          // modificação aqui
+          // if (data.notifyToast && data.status === "NEW") {
+          //   toaster.create({
+          //     title: data.departmentName,
+          //     ...(data.status === "NEW" && {
+          //       description: `Novo ticket em: ${data.departmentName}`,
+          //     }),
+          //     type: data.status === "NEW" ? "info" : "info",
+          //     closable: false,
+          //     duration: 1000 * 60 * 100,
+          //   });
+          // }
         }
       });
     }
@@ -154,7 +228,7 @@ export const SocketProvider = ({
   }, [socket, path.pathname]);
 
   const dataValue = useMemo(() => {
-    return { socket: socket, setdepartmentOpenId, ns };
+    return { socket: socket, setdepartmentOpenId, ns, onSetFocused };
   }, [socket]);
 
   return (
@@ -165,6 +239,7 @@ export const SocketProvider = ({
         src="/audios/notify-fade-in.mp3"
       />
       {children}
+      {DialogModal}
     </SocketContext.Provider>
   );
 };

@@ -43,7 +43,7 @@ export const LoginPage: React.FC = (): JSX.Element => {
       setCookies("auth", token, { expires: moment().add(3, "year").toDate() });
       api.defaults.headers.common["Authorization"] = token;
       await registerPushToken();
-      navigate("/auth/dashboard");
+      navigate("/auth/dashboard", { replace: true });
     } catch (error) {
       if (error instanceof AxiosError) {
         if (error.code === "ERR_NETWORK") {

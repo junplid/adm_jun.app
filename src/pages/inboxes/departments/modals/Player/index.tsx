@@ -295,6 +295,15 @@ export const PlayerInboxDepartment: React.FC<PropsModalPlayer> = ({
 };
 
 export const ModalPlayerInboxDepartment: FC<PropsModalPlayer> = (p) => {
+  const { onSetFocused } = useContext(SocketContext);
+
+  useEffect(() => {
+    onSetFocused(`modal-department-${p.data.id}`);
+    return () => {
+      onSetFocused(null);
+    };
+  }, []);
+
   return (
     <DialogContent
       zIndex={1}
