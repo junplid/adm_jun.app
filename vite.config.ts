@@ -44,7 +44,10 @@ export default defineConfig({
       devOptions: {
         enabled: true,
       },
-      includeAssets: ["favicon.svg"],
+      workbox: {
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MB
+      },
+      includeAssets: ["favicon/favicon-16x16.png"],
       manifest: {
         name: "Junplid",
         short_name: "Junplid",
