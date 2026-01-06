@@ -16,6 +16,9 @@ import { LuNotepadText } from "react-icons/lu";
 import { SocketContext } from "./socket.context";
 import { useDialogModal } from "../hooks/dialog.modal";
 import { ModalChatPlayer } from "../pages/inboxes/departments/modals/Player/modalChat";
+import { toast } from "sonner";
+import { MdOutlineNotificationsActive } from "react-icons/md";
+import HTMLReactParser from "html-react-parser/lib/index";
 
 interface PropsProviderSocketContext_I {
   children: JSX.Element;
@@ -84,16 +87,39 @@ export const SocketProvider = ({
     socket.on("connect_error", () => setStateSocket("disconnected"));
     socket.on("connect", () => setStateSocket("connected"));
     socket.on("notification", (props: INotification) => {
+      const toastId = toast(
+        <div
+          onClick={() => {
+            toast.dismiss(toastId);
+            if (props.url_redirect) {
+              const redirect = props.url_redirect.replace(
+                "$self",
+                location.pathname + location.search
+              );
+              navigate(redirect);
+            }
+          }}
+          className="p-3.5 bg-zinc-800 rounded-lg border-0 min-w-xs"
+        >
+          <div className="flex flex-col w-full text-white relative">
+            <span className="absolute -top-2 -right-2 text-green-100/70 text-xs font-light">
+              <MdOutlineNotificationsActive size={20} />
+            </span>
+            {HTMLReactParser(props.body_html || props.body_txt)}
+          </div>
+        </div>,
+        {
+          position: "top-right",
+          classNames: {
+            default: "border-0!",
+            content: "w-full border-0!",
+          },
+          unstyled: true,
+        }
+      );
       // aparecer o toast;
 
       // testar o redirect, captura e limpeza da url.
-      if (props.url_redirect) {
-        const redirect = props.url_redirect.replace(
-          "$self",
-          location.pathname + location.search
-        );
-        navigate(redirect);
-      }
     });
     return () => {
       socket.off("connect_error");
@@ -105,17 +131,13 @@ export const SocketProvider = ({
 
   useEffect(() => {
     (async () => {
-      console.log("location.search", location.search);
       if (!location.search) return;
 
-      // 1. Captura TODOS os parâmetros
       const params = Object.fromEntries(
         new URLSearchParams(location.search).entries()
       );
 
       if (params.open_ticket) {
-        // close();
-        // await new Promise((s) => setTimeout(s, 1200));
         const ticketId = Number(params.open_ticket);
         onOpen({
           size: "xl",
