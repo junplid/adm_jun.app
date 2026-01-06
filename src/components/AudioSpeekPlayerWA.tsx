@@ -23,6 +23,7 @@ export default function AudioSpeekPlayerWA({
           className="absolute bottom-0 -right-1.5 text-[#0dacd4]"
         />
       </div>
+      {/* @ts-expect-error */}
       <AudioPlayer
         src={src}
         preload="metadata"
@@ -30,7 +31,6 @@ export default function AudioSpeekPlayerWA({
         showDownloadProgress={false}
         showFilledProgress
         customAdditionalControls={[]}
-        // @ts-expect-error
         customProgressBarSection={["DURATION", "PROGRESS_BAR"]}
         customVolumeControls={[]}
         customIcons={{

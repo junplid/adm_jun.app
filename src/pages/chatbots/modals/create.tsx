@@ -602,7 +602,6 @@ export function ModalCreateChatbot({
                       /> */}
                     </Field>
                     <Field
-                      // @ts-expect-error
                       errorText={errors.timeToRestart?.type?.message}
                       invalid={!!errors.timeToRestart?.type}
                     >

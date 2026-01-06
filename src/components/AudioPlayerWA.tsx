@@ -18,6 +18,7 @@ export default function AudioPlayerWA({ src }: { src: string }): JSX.Element {
         className="ml-2"
       />
 
+      {/* @ts-expect-error */}
       <AudioPlayer
         src={src}
         preload="metadata"
@@ -25,7 +26,6 @@ export default function AudioPlayerWA({ src }: { src: string }): JSX.Element {
         showDownloadProgress={false}
         showFilledProgress
         customAdditionalControls={[]}
-        // @ts-expect-error
         customProgressBarSection={["DURATION", "PROGRESS_BAR"]}
         customVolumeControls={[]}
         customIcons={{
