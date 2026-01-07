@@ -22,6 +22,9 @@ interface IClienteMeta {
   platform: "android" | "ios" | "desktop";
   isMobile: boolean;
   isPWA: boolean;
+  isTouch: boolean;
+  isSmallScreen: boolean;
+  isMobileLike: boolean;
 }
 
 // const isDesktopDevice = () =>
@@ -46,7 +49,18 @@ function getClientMeta(): IClienteMeta {
     window.matchMedia("(display-mode: standalone)").matches ||
     (window.navigator as any).standalone === true;
 
-  return { platform, isMobile, isPWA };
+  const isTouch = "ontouchstart" in window || navigator.maxTouchPoints > 0;
+
+  const isSmallScreen = window.matchMedia("(max-width: 768px)").matches;
+
+  return {
+    platform,
+    isMobile,
+    isPWA,
+    isTouch,
+    isSmallScreen,
+    isMobileLike: isTouch && isSmallScreen,
+  };
 }
 
 export interface Account {

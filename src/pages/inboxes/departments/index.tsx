@@ -197,7 +197,7 @@ export const InboxDepartmentsPage: React.FC = (): JSX.Element => {
           <ModalCreateInboxDepartment
             trigger={
               <Button
-                disabled={clientMeta.isMobile}
+                disabled={clientMeta.isMobileLike}
                 variant="outline"
                 size={{ sm: "sm", base: "xs" }}
               >
@@ -208,14 +208,7 @@ export const InboxDepartmentsPage: React.FC = (): JSX.Element => {
         </div>
       </div>
       <div className="flex-1 grid">
-        {!clientMeta.isMobile ? (
-          <TableComponent
-            rows={inboxDepartments || []}
-            columns={renderColumns}
-            textEmpity="Seus departamentos aparecerão aqui."
-            load={isFetching || isPending}
-          />
-        ) : (
+        {clientMeta.isMobileLike ? (
           <TableMobileComponent
             totalCount={inboxDepartments?.length || 0}
             renderItem={(index) => {
@@ -307,6 +300,13 @@ export const InboxDepartmentsPage: React.FC = (): JSX.Element => {
                 </div>
               );
             }}
+            textEmpity="Seus departamentos aparecerão aqui."
+            load={isFetching || isPending}
+          />
+        ) : (
+          <TableComponent
+            rows={inboxDepartments || []}
+            columns={renderColumns}
             textEmpity="Seus departamentos aparecerão aqui."
             load={isFetching || isPending}
           />

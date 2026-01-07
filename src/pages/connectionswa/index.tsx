@@ -256,7 +256,7 @@ export const ConnectionsWAPage: React.FC = (): JSX.Element => {
           <ModalCreateConnectionWA
             trigger={
               <Button
-                disabled={clientMeta.isMobile}
+                disabled={clientMeta.isMobileLike}
                 variant="outline"
                 size={"sm"}
               >
@@ -270,7 +270,14 @@ export const ConnectionsWAPage: React.FC = (): JSX.Element => {
           vendas e estratégias de marketing.
         </p>
       </div>
-      {!clientMeta.isMobile ? (
+      {clientMeta.isMobileLike ? (
+        <div className="flex items-center justify-center h-full">
+          <span className="text-sm px-2">
+            Disponível apenas para acesso via desktop. Para utilizá-la, acesse o
+            sistema por um computador.
+          </span>
+        </div>
+      ) : (
         <div
           style={{ maxHeight: "calc(100vh - 180px)" }}
           className="flex-1 grid"
@@ -281,13 +288,6 @@ export const ConnectionsWAPage: React.FC = (): JSX.Element => {
             textEmpity="Suas conexões WA aparecerão aqui."
             load={isFetching || isPending}
           />
-        </div>
-      ) : (
-        <div className="flex items-center justify-center h-full">
-          <span className="text-sm px-2">
-            Disponível apenas para acesso via desktop. Para utilizá-la, acesse o
-            sistema por um computador.
-          </span>
         </div>
       )}
       {DialogModal}

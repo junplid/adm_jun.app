@@ -136,7 +136,7 @@ export const ChatbotsPage: React.FC = (): JSX.Element => {
           <ModalCreateChatbot
             trigger={
               <Button
-                disabled={clientMeta.isMobile}
+                disabled={clientMeta.isMobileLike}
                 variant="outline"
                 size={"sm"}
               >
@@ -150,7 +150,14 @@ export const ChatbotsPage: React.FC = (): JSX.Element => {
           contínua e integrada.
         </p>
       </div>
-      {!clientMeta.isMobile ? (
+      {clientMeta.isMobileLike ? (
+        <div className="flex items-center justify-center h-full">
+          <span className="text-sm px-2">
+            Disponível apenas para acesso via desktop. Para utilizá-la, acesse o
+            sistema por um computador.
+          </span>
+        </div>
+      ) : (
         <div
           style={{ maxHeight: "calc(100vh - 180px)" }}
           className="flex-1 grid"
@@ -161,13 +168,6 @@ export const ChatbotsPage: React.FC = (): JSX.Element => {
             textEmpity="Seus bots de recepção aparecerão aqui."
             load={isFetching || isPending}
           />
-        </div>
-      ) : (
-        <div className="flex items-center justify-center h-full">
-          <span className="text-sm px-2">
-            Disponível apenas para acesso via desktop. Para utilizá-la, acesse o
-            sistema por um computador.
-          </span>
         </div>
       )}
 

@@ -278,7 +278,7 @@ export const CampaignsPage: React.FC = (): JSX.Element => {
           <ModalCreateCampaign
             trigger={
               <Button
-                disabled={!isPremium || clientMeta.isMobile}
+                disabled={!isPremium || clientMeta.isMobileLike}
                 variant="outline"
                 size={"sm"}
               >
@@ -292,7 +292,14 @@ export const CampaignsPage: React.FC = (): JSX.Element => {
           eficiente.
         </p>
       </div>
-      {!clientMeta.isMobile ? (
+      {clientMeta.isMobileLike ? (
+        <div className="flex items-center justify-center h-full">
+          <span className="text-sm px-2">
+            Disponível apenas para acesso via desktop. Para utilizá-la, acesse o
+            sistema por um computador.
+          </span>
+        </div>
+      ) : (
         <div
           style={{ maxHeight: "calc(100vh - 180px)" }}
           className="grid flex-1"
@@ -303,13 +310,6 @@ export const CampaignsPage: React.FC = (): JSX.Element => {
             textEmpity="Suas campanhas aparecerão aqui."
             load={isFetching || isPending}
           />
-        </div>
-      ) : (
-        <div className="flex items-center justify-center h-full">
-          <span className="text-sm px-2">
-            Disponível apenas para acesso via desktop. Para utilizá-la, acesse o
-            sistema por um computador.
-          </span>
         </div>
       )}
 

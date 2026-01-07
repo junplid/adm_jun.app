@@ -75,7 +75,14 @@ export function LayoutWorkbenchPageProvider(): JSX.Element {
             processos.
           </p>
         </div>
-        {!clientMeta.isMobile ? (
+        {clientMeta.isMobileLike ? (
+          <div className="flex items-center justify-center h-full">
+            <span className="text-sm px-2">
+              Disponível apenas para acesso via desktop. Para utilizá-la, acesse
+              o sistema por um computador.
+            </span>
+          </div>
+        ) : (
           <div
             style={{ maxHeight: "calc(100vh - 180px)" }}
             className="flex flex-1 items-start gap-x-2"
@@ -182,13 +189,6 @@ export function LayoutWorkbenchPageProvider(): JSX.Element {
               </div>
             </Sidebar>
             <Outlet />
-          </div>
-        ) : (
-          <div className="flex items-center justify-center h-full">
-            <span className="text-sm px-2">
-              Disponível apenas para acesso via desktop. Para utilizá-la, acesse
-              o sistema por um computador.
-            </span>
           </div>
         )}
       </div>

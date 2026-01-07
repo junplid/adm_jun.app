@@ -120,7 +120,7 @@ export const BusinessesPage: React.FC = (): JSX.Element => {
           <ModalCreateBusiness
             trigger={
               <Button
-                disabled={clientMeta.isMobile}
+                disabled={clientMeta.isMobileLike}
                 variant="outline"
                 size={"sm"}
               >
@@ -134,7 +134,14 @@ export const BusinessesPage: React.FC = (): JSX.Element => {
           eficiente.
         </p>
       </div>
-      {!clientMeta.isMobile ? (
+      {clientMeta.isMobileLike ? (
+        <div className="flex items-center justify-center h-full">
+          <span className="text-sm px-2">
+            Disponível apenas para acesso via desktop. Para utilizá-la, acesse o
+            sistema por um computador.
+          </span>
+        </div>
+      ) : (
         <div
           style={{ maxHeight: "calc(100vh - 180px)" }}
           className="grid flex-1"
@@ -145,13 +152,6 @@ export const BusinessesPage: React.FC = (): JSX.Element => {
             textEmpity="Seus projetos aparecerão aqui."
             load={isFetching || isPending}
           />
-        </div>
-      ) : (
-        <div className="flex items-center justify-center h-full">
-          <span className="text-sm px-2">
-            Disponível apenas para acesso via desktop. Para utilizá-la, acesse o
-            sistema por um computador.
-          </span>
         </div>
       )}
       {DialogModal}
