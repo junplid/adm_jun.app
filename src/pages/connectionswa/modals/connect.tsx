@@ -134,7 +134,7 @@ function QRCode(props: {
         </ul>
         <button
           onClick={props.changeType}
-          className="flex select-none items-center gap-x-1 hover:text-green-300/60 cursor-pointer"
+          className="flex select-none opacity-25 items-center gap-x-1"
         >
           <a className="underline underline-offset-2 decoration-green-400/60">
             Entrar com o número de telefone
@@ -414,10 +414,7 @@ export function ModalConnectConnectionWA({ ...props }: IProps): JSX.Element {
       </DialogHeader>
       <DialogBody>
         {typeConnection === "QRCODE" && (
-          <QRCode
-            changeType={() => setTypeConnection("PIN")}
-            connectionId={props.id}
-          />
+          <QRCode changeType={() => undefined} connectionId={props.id} />
         )}
         {typeConnection === "PIN" && (
           <PIN
