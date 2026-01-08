@@ -2,9 +2,7 @@ import { Button, Input } from "@chakra-ui/react";
 import { Field } from "@components/ui/field";
 import { AxiosError } from "axios";
 import React, { JSX, useCallback, useEffect, useState } from "react";
-import { useCookies } from "react-cookie";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import moment from "moment";
 import { api } from "../../services/api";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -13,6 +11,7 @@ import { ErrorResponse_I } from "../../services/api/ErrorResponse";
 import { toaster } from "@components/ui/toaster";
 import { queryClient } from "../../main";
 import { registerPushToken } from "../../services/push/registerPush";
+import { set, del } from "idb-keyval";
 
 const FormSchema = z.object({
   email: z.string().min(1, "Esse campo é obrigatório."),
@@ -22,7 +21,6 @@ const FormSchema = z.object({
 type Fields = z.infer<typeof FormSchema>;
 
 export const LoginPage: React.FC = (): JSX.Element => {
-  const [_, setCookies, removeCookie] = useCookies(["auth"]);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [errorContainer, setErrorContainer] = useState<string | null>(null);
@@ -40,7 +38,8 @@ export const LoginPage: React.FC = (): JSX.Element => {
     try {
       const { data } = await api.post("/public/login-account", fields);
       const token = `BEARER ${data.token}`;
-      setCookies("auth", token, { expires: moment().add(3, "year").toDate() });
+      // setCookies("auth", token, { expires: moment().add(3, "year").toDate() });
+      await set("auth_token", token);
       api.defaults.headers.common["Authorization"] = token;
       await registerPushToken();
       navigate("/auth/dashboard", { replace: true });
@@ -74,9 +73,11 @@ export const LoginPage: React.FC = (): JSX.Element => {
   }, []);
 
   useEffect(() => {
-    queryClient.clear();
-    api.defaults.headers.common["Authorization"] = "";
-    removeCookie("auth");
+    (async () => {
+      queryClient.clear();
+      api.defaults.headers.common["Authorization"] = "";
+      await del("auth_token");
+    })();
   }, []);
 
   return (

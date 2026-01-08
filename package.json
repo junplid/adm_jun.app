@@ -37,6 +37,7 @@
     "framer-motion": "^12.6.3",
     "get-input-selection": "^1.1.4",
     "html-react-parser": "^5.2.5",
+    "idb-keyval": "^6.2.2",
     "lodash": "^4.17.21",
     "lodash.debounce": "^4.0.8",
     "lodash.isequal": "^4.5.0",

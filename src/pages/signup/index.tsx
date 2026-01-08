@@ -14,7 +14,6 @@ import {
   // useMemo,
   useState,
 } from "react";
-import { useCookies } from "react-cookie";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { api } from "../../services/api";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -31,6 +30,8 @@ import {
   StepsList,
   StepsRoot,
 } from "@components/ui/steps";
+import { set } from "idb-keyval";
+
 // import { CardBrand, loadStripe } from "@stripe/stripe-js";
 // import {
 //   Elements,
@@ -71,7 +72,6 @@ export const SignupPage: React.FC = (): JSX.Element => {
 };
 
 export const FormSignup: React.FC = (): JSX.Element => {
-  const [_cookies, setCookies] = useCookies(["auth"]);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [open, setOpen] = useState(false);
@@ -158,8 +158,7 @@ export const FormSignup: React.FC = (): JSX.Element => {
         // paymentMethodId: paymentMethod.id,
         affiliate,
       });
-
-      setCookies("auth", `BEARER ${data.token}`);
+      await set("auth_token", `BEARER ${data.token}`);
       navigate("/auth/dashboard", { replace: true });
     } catch (error) {
       if (error instanceof AxiosError) {

@@ -11,12 +11,12 @@ import {
 import { useNavigate } from "react-router-dom";
 import { getAccount } from "../services/api/Account";
 import { AxiosError } from "axios";
-import { useCookies } from "react-cookie";
 import { toaster } from "@components/ui/toaster";
 import { ErrorResponse_I } from "../services/api/ErrorResponse";
 import { api } from "../services/api";
 import { Spinner } from "@chakra-ui/react";
 import { v4 } from "uuid";
+import { get } from "idb-keyval";
 
 interface IClienteMeta {
   platform: "android" | "ios" | "desktop";
@@ -86,7 +86,6 @@ interface IProps {
   children: JSX.Element;
 }
 export function AuthProvider(props: IProps): JSX.Element {
-  const [cookies, __, removeCookies] = useCookies(["auth"]);
   const [account, setAccount] = useState<Account | null>(null);
   const [load, setLoad] = useState<boolean>(false);
   const [statusAPI, setStatusAPI] = useState<boolean>(false);
@@ -97,19 +96,23 @@ export function AuthProvider(props: IProps): JSX.Element {
   const navigate = useNavigate();
 
   const logout = useCallback(() => {
-    removeCookies("auth");
-    navigate("/login");
+    navigate("/login", { replace: true });
   }, []);
 
   useEffect(() => {
     (async () => {
       try {
-        const token = cookies.auth;
-        const acc = await getAccount(token);
-        setAccount({ ...acc, uuid: v4() });
-        setStatusAPI(true);
-        api.defaults.headers.common["Authorization"] = token;
-        setLoad(true);
+        const token = await get<string>("auth_token");
+
+        if (token) {
+          const acc = await getAccount(token);
+          setAccount({ ...acc, uuid: v4() });
+          setStatusAPI(true);
+          api.defaults.headers.common["Authorization"] = token;
+          setLoad(true);
+        } else {
+          logout();
+        }
       } catch (error) {
         setLoad(true);
         if (error instanceof AxiosError) {
