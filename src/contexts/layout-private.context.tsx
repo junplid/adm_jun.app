@@ -21,6 +21,7 @@ import { Tooltip } from "@components/ui/tooltip";
 import { TbDoorExit } from "react-icons/tb";
 import {
   LuBotMessageSquare,
+  LuCalendarDays,
   LuChartNoAxesCombined,
   LuNotepadText,
 } from "react-icons/lu";
@@ -294,7 +295,13 @@ export function LayoutPrivateProvider(): JSX.Element {
               >
                 Conexões WA
               </MenuItem>
-
+              <MenuItem
+                icon={<LuCalendarDays size={20} />}
+                component={<Link to={"/auth/appointments"} />}
+                active={pathname === "/auth/appointments"}
+              >
+                Agenda <Badge colorPalette={"green"}>NEW</Badge>
+              </MenuItem>
               <MenuItem
                 icon={<PiPuzzlePieceBold size={22} />}
                 component={<Link to={"/auth/integrations/payments"} />}

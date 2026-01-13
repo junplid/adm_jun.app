@@ -31,6 +31,7 @@ import { VscDebugStop, VscMic } from "react-icons/vsc";
 import {
   LuBrainCircuit,
   LuBriefcaseBusiness,
+  LuCalendarDays,
   LuMessageCircleHeart,
   LuNotepadText,
 } from "react-icons/lu";
@@ -90,14 +91,14 @@ export function SearchNodesComponents(): JSX.Element {
           endElement={
             <IoSearchSharp
               size={16}
-              className="!text-[#242424] dark:!text-[#f0f0f0c5]"
+              className="text-[#242424]! dark:text-[#f0f0f0c5]!"
             />
           }
         >
           <Input
             ref={ref}
             size={"sm"}
-            className="!text-[#1f1f1f] dark:placeholder:text-[#dadadac5] dark:!text-[#ffffff]  pointer-events-auto !bg-[#f5f5f5] dark:!bg-[#181616c5]"
+            className="text-[#1f1f1f]! dark:placeholder:text-[#dadadac5] dark:text-[#ffffff]!  pointer-events-auto bg-[#f5f5f5]! dark:bg-[#181616c5]!"
             placeholder="Busque pelo node"
             fontSize={"14px"}
             w={"210px"}
@@ -127,7 +128,7 @@ export function SearchNodesComponents(): JSX.Element {
           <ul>
             {nodeListFilter.map((node) => (
               <li
-                className={`${!isPremium && node.premium ? "" : "dndnode cursor-grab dark:hover:bg-zinc-700/40 hover:bg-zinc-300/50"} flex min-h-[52px] items-center gap-3.5 select-none p-1.5 rounded-lg px-3`}
+                className={`${!isPremium && node.premium ? "" : "dndnode cursor-grab dark:hover:bg-zinc-700/40 hover:bg-zinc-300/50"} flex min-h-13 items-center gap-3.5 select-none p-1.5 rounded-lg px-3`}
                 onDragStart={(event) => {
                   if (!isPremium && node.premium) return;
                   onDragStart(event, node.type);
@@ -367,7 +368,7 @@ const nodesList: {
           size={26.8}
         />
         <LuMessageCircleHeart
-          className="dark:text-red-300 absolute top-4 left-[1px] text-black/70"
+          className="dark:text-red-300 absolute top-4 left-px text-black/70"
           size={13}
         />
       </div>
@@ -426,7 +427,7 @@ const nodesList: {
   },
   {
     icon: (
-      <div className="p-[1px] translate-y-0.5 text-sm w-8 font-bold dark:text-yellow-300 text-yellow-600">
+      <div className="p-px translate-y-0.5 text-sm w-8 font-bold dark:text-yellow-300 text-yellow-600">
         {"if (..)"}
       </div>
     ),
@@ -466,6 +467,32 @@ const nodesList: {
     name: "Atualizar pedido",
     description: "Atualiza um pedido/ordem",
     type: "NodeUpdateOrder",
+    new: true,
+    premium: true,
+  },
+  {
+    icon: (
+      <LuCalendarDays
+        className="dark:text-green-400 text-green-700 w-8"
+        size={31}
+      />
+    ),
+    name: "Agendar evento",
+    description: "Agenda um novo evento",
+    type: "NodeCreateAppointment",
+    new: true,
+    premium: true,
+  },
+  {
+    icon: (
+      <LuCalendarDays
+        className="dark:text-blue-400 text-blue-700 w-8"
+        size={31}
+      />
+    ),
+    name: "Atualizar evento",
+    description: "Atualiza um evento",
+    type: "NodeUpdateAppointment",
     new: true,
     premium: true,
   },

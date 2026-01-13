@@ -1,5 +1,5 @@
 import "./index.css";
-
+import moment from "moment";
 import { createRoot } from "react-dom/client";
 import { Provider } from "@components/ui/provider.tsx";
 import App from "./App.tsx";
@@ -11,6 +11,8 @@ import { Toaster as Sonner } from "sonner";
 export const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 5 * 60 * 1000, retry: false } },
 });
+
+moment.locale("pt-br");
 
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker

@@ -77,6 +77,8 @@ import { NodeMoveTrelloCard } from "./nodes/MoveTrelloCard";
 import { NodeWebhookTrelloCard } from "./nodes/WebhookTrelloCard";
 import { NodeDeleteMessage } from "./nodes/DeleteMessage";
 import { NodeDistribute } from "./nodes/Distribute";
+import { NodeCreateAppointment } from "./nodes/CreateAppointment";
+import { NodeUpdateAppointment } from "./nodes/UpdateAppointment";
 
 type NodeTypesGeneric = {
   [x in TypesNodes]: any;
@@ -112,6 +114,8 @@ export type TypesNodes =
   | "NodeSendTextGroup"
   | "NodeCreateOrder"
   | "NodeUpdateOrder"
+  | "NodeCreateAppointment"
+  | "NodeUpdateAppointment"
   | "NodeTimedQueue"
   | "NodeCalculator"
   | "NodeAddTrelloCard"
@@ -152,6 +156,8 @@ const nodeTypes: NodeTypesGeneric = {
   NodeSendTextGroup: NodeSendTextGroup,
   NodeCreateOrder: NodeCreateOrder,
   NodeUpdateOrder: NodeUpdateOrder,
+  NodeCreateAppointment: NodeCreateAppointment,
+  NodeUpdateAppointment: NodeUpdateAppointment,
   NodeTimedQueue: NodeTimedQueue,
   NodeCalculator: NodeCalculator,
   NodeAddTrelloCard: NodeAddTrelloCard,
@@ -337,6 +343,12 @@ function Body(props: IBody): JSX.Element {
         newNode.data = { preview: [], exits: [] };
       } else if (typeN === "NodeCreateOrder") {
         newNode.data = { isDragDisabled: false, actionChannels: [] };
+      } else if (typeN === "NodeCreateAppointment") {
+        newNode.data = { actionChannels: [] };
+      } else if (typeN === "NodeUpdateAppointment") {
+        newNode.data = { actionChannels: [] };
+      } else if (typeN === "NodeUpdateOrder") {
+        newNode.data = { actionChannels: [] };
       }
       onNodesChange([{ type: "add", item: newNode }]);
       setTypeDrag(null);

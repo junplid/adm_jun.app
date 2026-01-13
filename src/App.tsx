@@ -32,6 +32,7 @@ import { OrdersPage } from "./pages/orders";
 import { TrelloPage } from "./pages/integrations/trello";
 import { LayoutSitesPageProvider } from "./pages/menus-online/page.context";
 import { MenuOnlinePage } from "./pages/menus-online/menu";
+import { AppointmentsPage } from "./pages/appointments";
 
 // import { NodeMessage } from "./flow-lib/nodes/Message";
 // import { NodeReply } from "./flow-lib/nodes/Reply";
@@ -161,6 +162,12 @@ export default function App() {
               />
             </Route>
             <Route path="orders" caseSensitive element={<OrdersPage />} />
+            <Route
+              path="appointments"
+              caseSensitive
+              element={<AppointmentsPage />}
+            />
+
             <Route
               caseSensitive
               path="menus-online"

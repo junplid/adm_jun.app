@@ -1,5 +1,7 @@
 import { api } from "./index";
 
+export type TypeStatusTicket = "NEW" | "OPEN" | "RESOLVED" | "DELETED";
+
 export async function pickTicket(id: number, orderId?: number): Promise<void> {
   await api.post(`/private/tickets/${id}/pick`, { orderId });
 }
@@ -76,11 +78,11 @@ export async function getBusiness(id: number): Promise<{
 }
 
 export async function getTickets(params?: {
-  status?: "NEW" | "OPEN" | "RESOLVED" | "DELETED";
+  status?: TypeStatusTicket;
   page?: number;
 }): Promise<
   {
-    status: "NEW" | "OPEN" | "RESOLVED" | "DELETED";
+    status: TypeStatusTicket;
     departmentId: number;
     name: string;
     id: number;
@@ -105,7 +107,7 @@ export async function getTicket(id: number): Promise<{
   inboxDepartmentId: number;
   businessId: number;
   inboxUserId: number | null;
-  status: "NEW" | "OPEN" | "RESOLVED" | "DELETED";
+  status: TypeStatusTicket;
   contact: {
     name: string;
     completeNumber: string;
