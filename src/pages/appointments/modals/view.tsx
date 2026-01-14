@@ -8,6 +8,7 @@ import { ModalDeleteAppaintment } from "./delete";
 import {
   AppointmentDetails,
   getAppointmentDetails,
+  // TypeStatusAppointment,
   updateAppointment,
 } from "../../../services/api/Appointments";
 import { AxiosError } from "axios";
@@ -30,16 +31,36 @@ import { z } from "zod";
 import { Field } from "@components/ui/field";
 import TextareaAutosize from "react-textarea-autosize";
 import { useHookFormMask } from "use-mask-input";
+// import SelectComponent from "@components/Select";
 
 interface IProps {
   id: number;
   close: () => void;
 }
 
+// const optionsStatus: { label: string; value: TypeStatusAppointment }[] = [
+//   // { label: "Sugerido", value: "suggested" },
+//   { label: "Agendado", value: "pending_confirmation" },
+//   { label: "Confirmado", value: "confirmed" },
+//   { label: "Concluido", value: "completed" },
+//   { label: "Cancelado", value: "canceled" },
+// ];
+
 const FormSchema = z.object({
   title: z.string().min(1, "Campo obrigatório."),
   desc: z.string().transform((value) => value.trim() || undefined),
   dateAt: z.string().min(1, "Campo obrigatório."),
+  // status: z.enum(
+  //   [
+  //     "confirmed",
+  //     "completed",
+  //     "pending_confirmation",
+  //     "canceled",
+  //     "suggested",
+  //     "expired",
+  //   ],
+  //   { message: "Campo obrigatório." }
+  // ),
   timeAt: z
     .string()
     .regex(
@@ -61,6 +82,7 @@ const EditForm: FC<
     handleSubmit,
     register,
     formState: { errors, isDirty },
+    // control,
     reset,
   } = useForm<Fields>({
     resolver: zodResolver(FormSchema),
@@ -118,6 +140,37 @@ const EditForm: FC<
           {...register("desc")}
         />
       </Field>
+
+      {/* <Field
+        label="Situação"
+        errorText={errors.status?.message}
+        invalid={!!errors.status}
+      >
+        <Controller
+          name={`status`}
+          control={control}
+          render={({ field }) => (
+            <SelectComponent
+              isClearable={false}
+              value={
+                field?.value
+                  ? {
+                      label:
+                        optionsStatus.find((dd) => dd.value === field.value)
+                          ?.label ?? "",
+                      value: field.value,
+                    }
+                  : null
+              }
+              ref={field.ref}
+              name={field.name}
+              isMulti={false}
+              onChange={(p: any) => field.onChange(p.value)}
+              options={optionsStatus}
+            />
+          )}
+        />
+      </Field> */}
 
       <div className="flex gap-x-2">
         <Button type="button" disabled={isEditing} variant="outline">
@@ -349,6 +402,7 @@ function Content({ id }: { id: number; close: () => void }) {
         )}
         {isEdit && (
           <EditForm
+            // status={data.status}
             update={update}
             cancel={() => setIsEdit(false)}
             title={data.title}
