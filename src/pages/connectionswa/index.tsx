@@ -11,7 +11,7 @@ import {
   MdSignalWifiConnectedNoInternet0,
 } from "react-icons/md";
 import { ModalViewConnectionWA } from "./modals/view";
-import { LuEye } from "react-icons/lu";
+import { LuBrainCircuit, LuEye } from "react-icons/lu";
 import { IoAdd } from "react-icons/io5";
 import { ModalEditConnectionWA } from "./modals/edit";
 import { useDialogModal } from "../../hooks/dialog.modal";
@@ -107,6 +107,14 @@ export const ConnectionsWAPage: React.FC = (): JSX.Element => {
               {row.value && (
                 <small className="text-white/45">= {row.value}</small>
               )}
+              <div className="flex items-center">
+                {row.AgentAI && (
+                  <div className="flex items-center gap-x-1 px-1! bg-blue-300/20 text-blue-300">
+                    <LuBrainCircuit />
+                    <span>{row.AgentAI.name}</span>
+                  </div>
+                )}
+              </div>
             </div>
           );
         },
@@ -187,7 +195,7 @@ export const ConnectionsWAPage: React.FC = (): JSX.Element => {
                 bg={"transparent"}
                 _hover={{ bg: "#eb606028" }}
                 _icon={{ width: "20px", height: "20px" }}
-                disabled={row.type === "system"}
+                disabled={!!row.AgentAI}
                 onClick={() => {
                   onOpen({
                     content: (

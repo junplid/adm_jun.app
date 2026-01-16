@@ -1,5 +1,5 @@
 import { JSX, useCallback, useState } from "react";
-import { Button, Input, Text, VStack } from "@chakra-ui/react";
+import { Button, Input, VStack } from "@chakra-ui/react";
 import { CloseButton } from "@components/ui/close-button";
 import {
   DialogContent,
@@ -16,10 +16,10 @@ import {
 import { Field } from "@components/ui/field";
 import { TagRow } from "..";
 import { AxiosError } from "axios";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import SelectBusinesses from "@components/SelectBusinesses";
+// import SelectBusinesses from "@components/SelectBusinesses";
 import { useCreateTag } from "../../../../hooks/tag";
 
 interface IProps {
@@ -48,11 +48,11 @@ export function ModalCreateTag({
   const {
     handleSubmit,
     register,
-    control,
+    // control,
     formState: { errors },
     setError,
     setValue,
-    getValues,
+    // getValues,
     reset,
   } = useForm<Fields>({
     resolver: zodResolver(FormSchema),
@@ -107,7 +107,7 @@ export function ModalCreateTag({
         </DialogHeader>
         <DialogBody>
           <VStack gap={4}>
-            <Field
+            {/* <Field
               label="Anexe projetos"
               helperText={
                 <Text>
@@ -145,7 +145,7 @@ export function ModalCreateTag({
                   />
                 )}
               />
-            </Field>
+            </Field> */}
             <Field
               errorText={errors.name?.message}
               invalid={!!errors.name}

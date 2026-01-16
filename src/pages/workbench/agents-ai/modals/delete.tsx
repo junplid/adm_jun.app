@@ -44,7 +44,7 @@ export const ModalDeleteAgentAI: React.FC<PropsModalDelete> = (
   return (
     <DialogContent w={"370px"}>
       <DialogHeader flexDirection={"column"} gap={0}>
-        <DialogTitle>Deletar agente IA</DialogTitle>
+        <DialogTitle>Deletar assistente de IA</DialogTitle>
         <DialogDescription color={"#f86363"}>
           Essa ação não poderá ser desfeita.
         </DialogDescription>
@@ -52,7 +52,7 @@ export const ModalDeleteAgentAI: React.FC<PropsModalDelete> = (
       <DialogBody>
         <div className="flex flex-col gap-y-1.5">
           <p className="">
-            Tem certeza de que deseja deletar o agente IA{" "}
+            Tem certeza de que deseja deletar o assistente de IA{" "}
             <strong className="font-semibold text-lg">
               {props.data?.name}
             </strong>

@@ -13,7 +13,6 @@ import { JSX } from "@emotion/react/jsx-runtime";
 import { HiMenu } from "react-icons/hi";
 import { useColorModeValue } from "@components/ui/color-mode";
 import { TbTags } from "react-icons/tb";
-import { LuBrainCircuit } from "react-icons/lu";
 import { LayoutWorkbenchPageContext } from "./contexts";
 import { PiBracketsCurlyBold } from "react-icons/pi";
 import { Badge } from "@chakra-ui/react";
@@ -144,13 +143,6 @@ export function LayoutWorkbenchPageProvider(): JSX.Element {
                   }}
                 >
                   <MenuItem
-                    icon={<GrStorage size={20} />}
-                    active={pathname === "/auth/workbench/storage"}
-                    component={<Link to={"workbench/storage"} />}
-                  >
-                    Storage <Badge colorPalette={"green"}>NEW</Badge>
-                  </MenuItem>
-                  <MenuItem
                     icon={<PiBracketsCurlyBold size={20} />}
                     active={pathname === "/auth/workbench/variables"}
                     component={<Link to={"workbench/variables"} />}
@@ -164,12 +156,19 @@ export function LayoutWorkbenchPageProvider(): JSX.Element {
                   >
                     Etiquetas
                   </MenuItem>
-                  <MenuItem
+                  {/* <MenuItem
                     icon={<LuBrainCircuit size={19} />}
                     active={pathname === "/auth/workbench/agents-ai"}
                     component={<Link to={"workbench/agents-ai"} />}
                   >
-                    Agentes IA <Badge colorPalette={"green"}>NEW</Badge>
+                    Assistentes de IA <Badge colorPalette={"green"}>NEW</Badge>
+                  </MenuItem> */}
+                  <MenuItem
+                    icon={<GrStorage size={20} />}
+                    active={pathname === "/auth/workbench/storage"}
+                    component={<Link to={"workbench/storage"} />}
+                  >
+                    Storage
                   </MenuItem>
                   <MenuItem
                     icon={<MdInsights size={20} />}

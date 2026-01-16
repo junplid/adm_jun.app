@@ -1,5 +1,5 @@
 import { JSX, useCallback, useEffect, useState } from "react";
-import { Button, Input, Spinner, Text, VStack } from "@chakra-ui/react";
+import { Button, Input, Spinner, VStack } from "@chakra-ui/react";
 import { CloseButton } from "@components/ui/close-button";
 import {
   DialogContent,
@@ -16,10 +16,10 @@ import {
 import { Field } from "@components/ui/field";
 import { FbPixelRow } from "..";
 import { AxiosError } from "axios";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import SelectBusinesses from "@components/SelectBusinesses";
+// import SelectBusinesses from "@components/SelectBusinesses";
 import TextareaAutosize from "react-textarea-autosize";
 import { useCreateFbPixel, useTestFbPixel } from "../../../../hooks/fbPixel";
 import { HiBadgeCheck } from "react-icons/hi";
@@ -43,7 +43,7 @@ const FormSchema = z.object({
     .string({ message: "Campo obrigatório." })
     .min(1, "Campo obrigatório."),
   status: z.boolean().optional(),
-  businessId: z.number().optional(),
+  // businessId: z.number().optional(),
 });
 
 type Fields = z.infer<typeof FormSchema>;
@@ -55,7 +55,7 @@ export function ModalCreateFlow({
   const {
     handleSubmit,
     register,
-    control,
+    // control,
     formState: { errors },
     setError,
     watch,
@@ -130,7 +130,7 @@ export function ModalCreateFlow({
         </DialogHeader>
         <DialogBody>
           <VStack gap={4}>
-            <Field
+            {/* <Field
               label="Anexe projetos"
               helperText={
                 <Text>
@@ -166,7 +166,7 @@ export function ModalCreateFlow({
                   />
                 )}
               />
-            </Field>
+            </Field> */}
             <Field
               errorText={errors.name?.message}
               invalid={!!errors.name}

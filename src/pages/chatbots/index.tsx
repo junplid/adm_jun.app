@@ -1,18 +1,31 @@
-import { JSX, useContext, useMemo } from "react";
+import { JSX, useCallback, useContext, useEffect, useMemo } from "react";
 import { TableComponent } from "../../components/Table";
 import { Column } from "../../components/Table";
 import { ModalCreateChatbot } from "./modals/create";
 import { ModalDeleteChatbot } from "./modals/delete";
 import { Button } from "@chakra-ui/react";
-import { MdDeleteOutline, MdEdit } from "react-icons/md";
+import {
+  MdDeleteOutline,
+  MdEdit,
+  MdOutlineSync,
+  MdSignalWifiConnectedNoInternet0,
+} from "react-icons/md";
 import { ModalViewChatbot } from "./modals/view";
-import { LuEye } from "react-icons/lu";
+import { LuBrainCircuit, LuEye } from "react-icons/lu";
 import { IoAdd } from "react-icons/io5";
 import { ModalEditChatbot } from "./modals/edit";
 import { useDialogModal } from "../../hooks/dialog.modal";
 import { IoMdRadioButtonOff, IoMdRadioButtonOn } from "react-icons/io";
 import { useGetChatbots } from "../../hooks/chatbot";
 import { AuthContext } from "@contexts/auth.context";
+import { ImConnection } from "react-icons/im";
+import { ModalConnectConnectionWA } from "../connectionswa/modals/connect";
+import { TbPlugConnected } from "react-icons/tb";
+import { AiOutlinePoweroff } from "react-icons/ai";
+import { useDisconnectConnectionWA } from "../../hooks/connectionWA";
+import { SocketContext } from "@contexts/socket.context";
+import { queryClient } from "../../main";
+import { motion } from "framer-motion";
 
 export type TypeConnectionWA = "chatbot" | "marketing";
 
@@ -23,6 +36,8 @@ export interface ChatbotRow {
   status: boolean;
   createAt: Date;
 }
+
+const MotionIcon = motion.create(MdOutlineSync);
 
 // const translateType: {
 //   [x in TypeConnectionWA]: { label: string; cb: string; ct: string };
@@ -35,6 +50,57 @@ export const ChatbotsPage: React.FC = (): JSX.Element => {
   const { clientMeta } = useContext(AuthContext);
   const { data: chatbots, isFetching, isPending } = useGetChatbots();
   const { dialog: DialogModal, close, onOpen } = useDialogModal({});
+
+  const { socket } = useContext(SocketContext);
+
+  const { mutateAsync: disconnectWA } = useDisconnectConnectionWA();
+
+  const disconnectWhatsapp = useCallback(async (id: number) => {
+    try {
+      await disconnectWA({ id });
+    } catch (error) {
+      console.log(error);
+    }
+  }, []);
+
+  useEffect(() => {
+    socket.on(
+      "status-connection",
+      (data: {
+        connectionId: number;
+        connection?:
+          | "open"
+          | "close"
+          | "connecting"
+          | "sync"
+          | "connectionLost";
+      }) => {
+        if (data.connection) {
+          queryClient.setQueryData(["connections-wa", null], (oldData: any) => {
+            if (oldData) {
+              return oldData.map((conn: any) => {
+                if (conn.id === data.connectionId) {
+                  if (data.connection === "connectionLost") {
+                    conn = { ...conn, status: "close" };
+                  } else if (data.connection === "connecting") {
+                    conn = { ...conn, status: "close" };
+                  } else {
+                    conn = { ...conn, status: data.connection };
+                  }
+                }
+                return conn;
+              });
+            }
+            return oldData;
+          });
+        }
+      }
+    );
+
+    return () => {
+      socket.off("status-connection");
+    };
+  }, []);
 
   const renderColumns = useMemo(() => {
     const columns: Column[] = [
@@ -60,8 +126,46 @@ export const ChatbotsPage: React.FC = (): JSX.Element => {
         name: "Nome do bot de recepção",
         render(row) {
           return (
-            <div className="flex items-start flex-col">
+            <div className="flex flex-col items-baseline">
               <span>{row.name}</span>
+              <div className="flex items-center gap-x-2">
+                {row.AgentAI && (
+                  <div className="flex items-center gap-x-1 px-1! bg-blue-300/20 text-blue-300">
+                    <LuBrainCircuit />
+                    <span>{row.AgentAI.name}</span>
+                  </div>
+                )}
+                {row.connStt === "close" && (
+                  <div className="flex text-xs items-center gap-x-1 px-1! bg-red-300/20 text-red-300">
+                    <MdSignalWifiConnectedNoInternet0
+                      color={"#e96068"}
+                      size={18}
+                    />
+                    <span>Conexão off</span>
+                  </div>
+                )}
+                {row.connStt === "open" && (
+                  <div className="flex text-xs items-center gap-x-1 px-1! bg-green-300/20 text-green-300">
+                    <ImConnection color={"#7bf1a8e2"} size={18} />
+                    <span>Conexão on</span>
+                  </div>
+                )}
+                {row.status === "sync" && (
+                  <div className="flex text-xs items-center gap-x-1 px-1! bg-blue-300/20 text-blue-300">
+                    <MotionIcon
+                      size={18}
+                      color="#7bb4f1"
+                      animate={{ rotate: -360 }}
+                      transition={{
+                        repeat: Infinity,
+                        duration: 1.2,
+                        ease: "linear",
+                      }}
+                    />
+                    <span>Conexão sync</span>
+                  </div>
+                )}
+              </div>
             </div>
           );
         },
@@ -73,6 +177,38 @@ export const ChatbotsPage: React.FC = (): JSX.Element => {
         render(row) {
           return (
             <div className="flex h-full items-center justify-end gap-x-1.5">
+              {row.connStt === "close" && (
+                <Button
+                  onClick={() =>
+                    onOpen({
+                      size: "lg",
+                      content: (
+                        <ModalConnectConnectionWA close={close} id={row.id} />
+                      ),
+                    })
+                  }
+                  size={"sm"}
+                  bg={"transparent"}
+                  color={"#9cc989"}
+                  _hover={{ bg: "#def5cf2b" }}
+                  _icon={{ width: "20px", height: "22px" }}
+                >
+                  <TbPlugConnected size={30} />
+                </Button>
+              )}
+              {(row.connStt === "open" || row.status === "sync") && (
+                <Button
+                  onClick={() => disconnectWhatsapp(row.id)}
+                  size={"sm"}
+                  bg={"transparent"}
+                  disabled={row.status === "sync"}
+                  color={"#d77474"}
+                  _hover={{ bg: "#f5cfcf2b" }}
+                  _icon={{ width: "20px", height: "22px" }}
+                >
+                  <AiOutlinePoweroff size={30} />
+                </Button>
+              )}
               <Button
                 onClick={() =>
                   onOpen({
@@ -90,7 +226,13 @@ export const ChatbotsPage: React.FC = (): JSX.Element => {
                 onClick={() => {
                   onOpen({
                     size: "sm",
-                    content: <ModalEditChatbot close={close} id={row.id} />,
+                    content: (
+                      <ModalEditChatbot
+                        isAgent={!!row.AgentAI}
+                        close={close}
+                        id={row.id}
+                      />
+                    ),
                   });
                 }}
                 size={"sm"}
@@ -106,7 +248,7 @@ export const ChatbotsPage: React.FC = (): JSX.Element => {
                 bg={"transparent"}
                 _hover={{ bg: "#eb606028" }}
                 _icon={{ width: "20px", height: "20px" }}
-                disabled={row.type === "system"}
+                disabled={!!row.AgentAI}
                 onClick={() => {
                   onOpen({
                     content: (

@@ -17,6 +17,7 @@ export async function createChatbot(body: {
     dayOfWeek: number;
     workingTimes?: { start: string; end: string }[];
   }[];
+  agentId?: number;
 }): Promise<{
   id: number;
   status: boolean;
@@ -38,6 +39,8 @@ export async function getChatbots(params: {
     name: string;
     createAt: Date;
     Business: { id: number; name: string };
+    AgentAI: { id: number; name: string } | null;
+    connStt: "open" | "close";
   }[]
 > {
   const { data } = await api.get("/private/chatbots", {
@@ -79,6 +82,7 @@ export async function getChatbotDetails({ id }: { id: number }): Promise<{
   connection: { name: string; id: number; number: string | null };
   target?: string;
   linkAds?: string;
+  AgentAI: { id: number; name: string } | null;
 }> {
   const { data } = await api.get(`/private/chatbots/${id}/details`);
   return data.chatbot;
@@ -94,6 +98,10 @@ export async function getChatbot(id: number): Promise<{
   description?: string;
   addLeadToAudiencesIds?: number[];
   addToLeadTagsIds?: number[];
+  fallback: string;
+  trigger: string;
+  destLink: string;
+  flowBId: string;
   timeToRestart?: {
     value: number;
     type: "seconds" | "minutes" | "hours" | "days";
@@ -111,9 +119,27 @@ export async function updateChatbot(
   id: number,
   params: {
     name?: string;
-    value?: string | null;
-    businessIds?: number[];
-    type?: "dynamics" | "constant";
+    businessId?: number;
+    flowId?: string;
+    connectionWAId?: number | null;
+    status?: boolean | null;
+    description?: string | null;
+    addLeadToAudiencesIds?: number[];
+    addToLeadTagsIds?: number[];
+    timeToRestart?: {
+      value?: number;
+      type?: "seconds" | "minutes" | "hours" | "days";
+    } | null;
+    operatingDays?:
+      | {
+          dayOfWeek: number;
+          workingTimes?: { start: string; end: string }[];
+        }[]
+      | null;
+    fallback?: string;
+    trigger?: string;
+    flowBId?: string;
+    destLink?: string;
   }
 ): Promise<{
   business: { id: number; name: string };

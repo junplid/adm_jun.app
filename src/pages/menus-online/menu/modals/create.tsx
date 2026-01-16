@@ -1,5 +1,5 @@
 import { JSX, useCallback, useState } from "react";
-import { Button, Input, Text, VStack } from "@chakra-ui/react";
+import { Button, Input, VStack } from "@chakra-ui/react";
 import { CloseButton } from "@components/ui/close-button";
 import {
   DialogContent,
@@ -19,7 +19,7 @@ import { AxiosError } from "axios";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import SelectBusinesses from "@components/SelectBusinesses";
+// import SelectBusinesses from "@components/SelectBusinesses";
 import { useCreateVariable } from "../../../../hooks/variable";
 import SelectComponent from "@components/Select";
 import TextareaAutosize from "react-textarea-autosize";
@@ -57,7 +57,7 @@ export function ModalCreateVariable({
     formState: { errors },
     setError,
     setValue,
-    getValues,
+    // getValues,
     watch,
     reset,
   } = useForm<Fields>({
@@ -116,7 +116,7 @@ export function ModalCreateVariable({
         </DialogHeader>
         <DialogBody>
           <VStack gap={4}>
-            <Field
+            {/* <Field
               label="Anexe projetos"
               helperText={
                 <Text>
@@ -154,7 +154,7 @@ export function ModalCreateVariable({
                   />
                 )}
               />
-            </Field>
+            </Field> */}
             <Field
               errorText={errors.name?.message}
               invalid={!!errors.name}

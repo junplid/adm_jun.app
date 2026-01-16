@@ -1,11 +1,13 @@
-import { JSX, useCallback, useEffect, useMemo, useState } from "react";
+import { JSX, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Badge,
   Button,
   Center,
+  HStack,
   IconButton,
   Input,
   NumberInput,
+  Text,
   VStack,
 } from "@chakra-ui/react";
 import { CloseButton } from "@components/ui/close-button";
@@ -27,7 +29,7 @@ import { AxiosError } from "axios";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import SelectBusinesses from "@components/SelectBusinesses";
+// import SelectBusinesses from "@components/SelectBusinesses";
 import TextareaAutosize from "react-textarea-autosize";
 import {
   TabsList,
@@ -35,7 +37,11 @@ import {
   TabsTrigger,
   TabsContent,
 } from "@components/ui/tabs";
-import { MdHorizontalRule, MdOutlineDeleteOutline } from "react-icons/md";
+import {
+  MdHorizontalRule,
+  MdOutlineDeleteOutline,
+  MdOutlineModeEdit,
+} from "react-icons/md";
 import SelectComponent from "@components/Select";
 import { GrClose } from "react-icons/gr";
 import SelectFlows from "@components/SelectFlows";
@@ -43,6 +49,9 @@ import SelectConnectionsWA from "@components/SelectConnectionsWA";
 import SelectTags from "@components/SelectTags";
 import { useCreateChatbot } from "../../../hooks/chatbot";
 import { useHookFormMask } from "use-mask-input";
+import { FaWhatsapp } from "react-icons/fa";
+import { Tooltip } from "@components/ui/tooltip";
+import { Avatar } from "@components/ui/avatar";
 
 type TypeChatbotInactivity = "seconds" | "minutes" | "hours" | "days";
 
@@ -52,9 +61,47 @@ interface IProps {
   placement?: "top" | "bottom" | "center";
 }
 
+const FormSchemaConnectionWA = z.object({
+  name: z.string().min(1, "Campo obrigatório."),
+  description: z.string().optional(),
+  // businessId: z.number({ message: "Campo obrigatório." }),
+  type: z.enum(["chatbot", "marketing"], {
+    message: "Campo obrigatório.",
+  }),
+  profileName: z.string().optional(),
+  profileStatus: z.string().optional(),
+  lastSeenPrivacy: z
+    .enum(["all", "contacts", "contact_blacklist", "none"])
+    .optional(),
+  onlinePrivacy: z.enum(["all", "match_last_seen"]).optional(),
+  imgPerfilPrivacy: z
+    .enum(["all", "contacts", "contact_blacklist", "none"])
+    .optional(),
+  statusPrivacy: z
+    .enum(["all", "contacts", "contact_blacklist", "none"])
+    .optional(),
+  groupsAddPrivacy: z.enum(["all", "contacts", "contact_blacklist"]).optional(),
+  readReceiptsPrivacy: z.enum(["all", "none"]).optional(),
+  fileImage: z.instanceof(File).optional(),
+});
+
+const optionsPrivacyValue = [
+  { label: "Todos", value: "all" },
+  { label: "Meus contatos", value: "contacts" },
+  // { label: "Todos", value: "contact_blacklist" },
+  { label: "Ninguém", value: "none" },
+];
+
+const optionsPrivacyGroupValue = [
+  { label: "Todos", value: "all" },
+  { label: "Meus contatos", value: "contacts" },
+  // { label: "Todos", value: "contact_blacklist" },
+  // { label: "Ninguém", value: "none" },
+];
+
 const FormSchema = z.object({
   name: z.string().min(1, "Campo obrigatório."),
-  businessId: z.number({ message: "Campo obrigatório." }),
+  // businessId: z.number({ message: "Campo obrigatório." }),
   status: z.boolean().default(true).optional(),
   description: z
     .string()
@@ -107,6 +154,7 @@ const FormSchema = z.object({
     .string()
     .optional()
     .transform((v) => v || undefined),
+  connectionWA: FormSchemaConnectionWA,
 });
 
 type Fields = z.infer<typeof FormSchema>;
@@ -123,7 +171,7 @@ const optionsOpertaingDays = [
   { label: "Quarta-feira", value: 3 },
   { label: "Quinta-feira", value: 4 },
   { label: "Sexta-feira", value: 5 },
-  { label: "Sábado-feira", value: 6 },
+  { label: "Sábado", value: 6 },
 ];
 
 const typeDurationOffLeadOptions: {
@@ -162,6 +210,7 @@ export function ModalCreateChatbot({
     "start-config" | "activation-rules" | "opening-hours"
   >("start-config");
   const [open, setOpen] = useState(false);
+  const imgProfileRef = useRef<HTMLInputElement>(null);
 
   const { mutateAsync: createChatbot, isPending } = useCreateChatbot({
     setError,
@@ -187,6 +236,7 @@ export function ModalCreateChatbot({
   }, []);
 
   const operatingDays = watch("operatingDays");
+  const fileImage = watch("connectionWA.fileImage");
 
   const optionsOpertaingDaysMemo = useMemo(() => {
     if (!operatingDays?.length) return optionsOpertaingDays;
@@ -194,10 +244,16 @@ export function ModalCreateChatbot({
     return optionsOpertaingDays.filter((s) => !selectedDays.includes(s.value));
   }, [operatingDays?.length]);
 
+  const imgPreviewUrl = useMemo(() => {
+    if (fileImage) {
+      return URL.createObjectURL(fileImage);
+    }
+  }, [fileImage]);
+
   useEffect(() => {
     if (
       !!errors.name ||
-      !!errors.businessId ||
+      // !!errors.businessId ||
       !!errors.status ||
       !!errors.description
     ) {
@@ -216,7 +272,7 @@ export function ModalCreateChatbot({
     }
   }, [
     errors.name,
-    errors.businessId,
+    // errors.businessId,
     errors.status,
     errors.description,
     errors.flowId,
@@ -225,8 +281,6 @@ export function ModalCreateChatbot({
     errors.addToLeadTagsIds,
     errors.operatingDays,
   ]);
-
-  console.log(errors.operatingDays);
 
   return (
     <DialogRoot
@@ -279,13 +333,21 @@ export function ModalCreateChatbot({
                   value="opening-hours"
                   py={"27px"}
                 >
-                  Horarios de funcionamento
+                  Horários de operação
+                </TabsTrigger>
+                <TabsTrigger
+                  _selected={{ bg: "bg.subtle", color: "#fff" }}
+                  color={"#757575"}
+                  value="connection"
+                  py={"27px"}
+                >
+                  <FaWhatsapp size={40} />
                 </TabsTrigger>
               </TabsList>
             </Center>
             <TabsContent value="start-config">
               <VStack gap={4}>
-                <Field
+                {/* <Field
                   invalid={!!errors.businessId}
                   label="Anexe o projeto"
                   className="w-full"
@@ -313,7 +375,7 @@ export function ModalCreateChatbot({
                       />
                     )}
                   />
-                </Field>
+                </Field> */}
                 <Field
                   errorText={errors.name?.message}
                   invalid={!!errors.name}
@@ -479,7 +541,7 @@ export function ModalCreateChatbot({
                     )}
                   />
                 </Field>
-                <span className="block w-full h-[1px] my-2 bg-white/25"></span>
+                <span className="block w-full h-px my-2 bg-white/25"></span>
                 <div className="grid gap-y-1">
                   <Field
                     errorText={errors.trigger?.message}
@@ -567,7 +629,7 @@ export function ModalCreateChatbot({
                     disponível para usar em seu anúncio do Facebook Ads.
                   </span>
                 </div>
-                <span className="block w-full h-[1px] my-2 bg-white/25"></span>
+                <span className="block w-full h-px my-2 bg-white/25"></span>
                 <div className="grid gap-y-1">
                   <span className="font-semibold mb-0.5">
                     Intervalo para reativação automática do bot
@@ -640,7 +702,7 @@ export function ModalCreateChatbot({
                 </div>
               </VStack>
             </TabsContent>
-            <TabsContent value="opening-hours" className="min-h-[260px]">
+            <TabsContent value="opening-hours" className="min-h-65">
               <div className="-mt-1 flex flex-col gap-4">
                 {!operatingDays?.length && (
                   <span className="text-yellow-600 font-semibold text-center">
@@ -850,8 +912,8 @@ export function ModalCreateChatbot({
                       Fallback <Badge colorPalette={"green"}>New</Badge>
                     </span>
                   }
-                  errorText={errors.description?.message}
-                  invalid={!!errors.description}
+                  errorText={errors.fallback?.message}
+                  invalid={!!errors.fallback}
                   className="w-full"
                   helperText="Texto enviado apenas uma vez quando o bot estiver fora do horário de operação. Se o bot estiver ativo, o fallback não será enviado."
                 >
@@ -865,6 +927,273 @@ export function ModalCreateChatbot({
                   />
                 </Field>
               </div>
+            </TabsContent>
+            <TabsContent value="connection">
+              <TabsRoot
+                lazyMount
+                unmountOnExit
+                variant={"enclosed"}
+                defaultValue={"config"}
+              >
+                <Center mb={2}>
+                  <TabsList bg="#1c1c1c" rounded="l3" p="1.5">
+                    <TabsTrigger
+                      _selected={{ bg: "bg.subtle", color: "#fff" }}
+                      color={"#757575"}
+                      value="config"
+                    >
+                      Configurações do perfil
+                    </TabsTrigger>
+                    <TabsTrigger
+                      _selected={{ bg: "bg.subtle", color: "#fff" }}
+                      color={"#757575"}
+                      value="start_conection"
+                    >
+                      Conectar
+                    </TabsTrigger>
+                  </TabsList>
+                </Center>
+                <TabsContent value="start_conection">
+                  <div className="flex items-center gap-x-2">
+                    <div className="border p-1 max-w-40 bg-white/2 text-green-100/5">
+                      <img src="/image-btn-connection.png" />
+                    </div>
+                    <p className="font-medium">
+                      Será possível conectar o WhatsApp após criação do bot de
+                      recepção.
+                    </p>
+                  </div>
+                </TabsContent>
+                <TabsContent value="config">
+                  <VStack gap={4}>
+                    <HStack w={"full"} mb={2} gap={3}>
+                      <Tooltip content="Atualizar foto de perfil">
+                        <div
+                          className="relative cursor-pointer"
+                          onClick={() => imgProfileRef.current?.click()}
+                        >
+                          <input
+                            type="file"
+                            ref={imgProfileRef}
+                            hidden
+                            className="hidden"
+                            accept="image/jpeg, image/png, image/jpg"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file)
+                                setValue("connectionWA.fileImage", file);
+                            }}
+                          />
+                          <Avatar
+                            size={"2xl"}
+                            width={"90px"}
+                            height={"90px"}
+                            src={imgPreviewUrl}
+                          >
+                            <Center className="absolute -bottom-0.5 right-0.5 w-8 h-8 rounded-full bg-emerald-800">
+                              <MdOutlineModeEdit size={17} />
+                            </Center>
+                          </Avatar>
+                        </div>
+                      </Tooltip>
+                      <VStack w={"full"} gap={2}>
+                        <Field
+                          errorText={errors.connectionWA?.profileName?.message}
+                          invalid={!!errors.connectionWA?.profileName}
+                          w={"full"}
+                        >
+                          <Input
+                            w={"full"}
+                            {...register("connectionWA.profileName")}
+                            autoComplete="off"
+                            placeholder="Nome do perfil"
+                          />
+                        </Field>
+                        <Field
+                          errorText={
+                            errors.connectionWA?.profileStatus?.message
+                          }
+                          invalid={!!errors.connectionWA?.profileStatus}
+                          w={"full"}
+                        >
+                          <Input
+                            w={"full"}
+                            {...register("connectionWA.profileStatus")}
+                            autoComplete="off"
+                            placeholder="Recado"
+                          />
+                        </Field>
+                      </VStack>
+                    </HStack>
+                    <Text fontWeight={"medium"}>Privacidade</Text>
+                    <HStack w={"full"}>
+                      <Field
+                        errorText={
+                          errors.connectionWA?.lastSeenPrivacy?.message
+                        }
+                        invalid={!!errors.connectionWA?.lastSeenPrivacy}
+                        label="Visto por último"
+                        disabled
+                      >
+                        <Controller
+                          name="connectionWA.lastSeenPrivacy"
+                          control={control}
+                          render={({ field }) => (
+                            <SelectComponent
+                              name={field.name}
+                              isMulti={false}
+                              isDisabled
+                              onBlur={field.onBlur}
+                              placeholder="Ninguém"
+                              onChange={(e: any) => field.onChange(e.value)}
+                              // options={optionsPrivacyValue}
+                            />
+                          )}
+                        />
+                      </Field>
+                      <Field
+                        errorText={errors.connectionWA?.onlinePrivacy?.message}
+                        invalid={!!errors.connectionWA?.onlinePrivacy}
+                        label="Online"
+                        disabled
+                      >
+                        <Controller
+                          name="connectionWA.onlinePrivacy"
+                          control={control}
+                          render={({ field }) => (
+                            <SelectComponent
+                              name={field.name}
+                              isMulti={false}
+                              onBlur={field.onBlur}
+                              isDisabled
+                              placeholder={'Igual ao "visto por último"'}
+                              // options={optionsOnlinePrivacy}
+                              onChange={(e: any) => field.onChange(e.value)}
+                              // value={field.value}
+                            />
+                          )}
+                        />
+                      </Field>
+                    </HStack>
+                    <HStack w={"full"}>
+                      <Field
+                        errorText={
+                          errors.connectionWA?.imgPerfilPrivacy?.message
+                        }
+                        invalid={!!errors.connectionWA?.imgPerfilPrivacy}
+                        label="Foto do perfil"
+                      >
+                        <Controller
+                          name="connectionWA.imgPerfilPrivacy"
+                          control={control}
+                          render={({ field }) => (
+                            <SelectComponent
+                              name={field.name}
+                              isMulti={false}
+                              placeholder="Todos"
+                              onBlur={field.onBlur}
+                              options={optionsPrivacyValue}
+                              onChange={(e: any) => field.onChange(e.value)}
+                              value={
+                                field.value
+                                  ? {
+                                      label:
+                                        optionsPrivacyValue.find(
+                                          (s) => s.value === field.value
+                                        )?.label || "",
+                                      value: field.value,
+                                    }
+                                  : null
+                              }
+                            />
+                          )}
+                        />
+                      </Field>
+                      <Field
+                        errorText={errors.connectionWA?.statusPrivacy?.message}
+                        invalid={!!errors.connectionWA?.statusPrivacy}
+                        label="Status"
+                        disabled
+                      >
+                        <Controller
+                          name="connectionWA.statusPrivacy"
+                          control={control}
+                          render={({ field }) => (
+                            <SelectComponent
+                              name={field.name}
+                              isMulti={false}
+                              isDisabled
+                              onBlur={field.onBlur}
+                              placeholder="Meus contatos"
+                              onChange={(e: any) => field.onChange(e.value)}
+                            />
+                          )}
+                        />
+                      </Field>
+                    </HStack>
+                    <HStack w={"full"}>
+                      <Field
+                        errorText={
+                          errors.connectionWA?.groupsAddPrivacy?.message
+                        }
+                        invalid={!!errors.connectionWA?.groupsAddPrivacy}
+                        label="Adicionar aos grupos"
+                      >
+                        <Controller
+                          name="connectionWA.groupsAddPrivacy"
+                          control={control}
+                          render={({ field }) => (
+                            <SelectComponent
+                              name={field.name}
+                              isMulti={false}
+                              onBlur={field.onBlur}
+                              placeholder="Meus contatos"
+                              options={optionsPrivacyGroupValue}
+                              onChange={(e: any) => field.onChange(e.value)}
+                              value={
+                                field.value
+                                  ? {
+                                      label:
+                                        optionsPrivacyGroupValue.find(
+                                          (s) => s.value === field.value
+                                        )?.label || "",
+                                      value: field.value,
+                                    }
+                                  : null
+                              }
+                            />
+                          )}
+                        />
+                      </Field>
+
+                      <Field
+                        errorText={
+                          errors.connectionWA?.readReceiptsPrivacy?.message
+                        }
+                        invalid={!!errors.connectionWA?.readReceiptsPrivacy}
+                        label="Confirmação de leitura"
+                        disabled
+                      >
+                        <Controller
+                          name="connectionWA.readReceiptsPrivacy"
+                          control={control}
+                          render={({ field }) => (
+                            <SelectComponent
+                              name={field.name}
+                              isMulti={false}
+                              isDisabled
+                              onBlur={field.onBlur}
+                              // options={optionsReadReceiptsValue}
+                              placeholder="Ninguém"
+                              onChange={(e: any) => field.onChange(e.value)}
+                            />
+                          )}
+                        />
+                      </Field>
+                    </HStack>
+                  </VStack>
+                </TabsContent>
+              </TabsRoot>
             </TabsContent>
           </TabsRoot>
         </DialogBody>

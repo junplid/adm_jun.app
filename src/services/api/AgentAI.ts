@@ -6,6 +6,7 @@ export async function getAgentsAI(params: {}): Promise<
     id: number;
     name: string;
     createAt: Date;
+    status: "open" | "close";
   }[]
 > {
   const { data } = await api.get("/private/agents-ai", { params });
@@ -77,6 +78,8 @@ export async function getAgentAI(id: number): Promise<{
   instructions?: string;
   timeout?: number;
   debounce?: number;
+  connectionWAId?: number;
+  chatbotId?: number;
 }> {
   const { data } = await api.get(`/private/agents-ai/${id}`);
   return data.agentAI;

@@ -1,10 +1,13 @@
 import {
+  Badge,
   Button,
   Center,
+  HStack,
   IconButton,
   Image,
   Input,
   NumberInput,
+  Text,
   VStack,
 } from "@chakra-ui/react";
 import { AxiosError } from "axios";
@@ -39,7 +42,6 @@ import {
   TabsRoot,
   TabsTrigger,
 } from "@components/ui/tabs";
-import SelectBusinesses from "@components/SelectBusinesses";
 import { Field } from "@components/ui/field";
 import {
   PiFileAudioFill,
@@ -67,6 +69,18 @@ import { Tooltip } from "@components/ui/tooltip";
 import { ErrorResponse_I } from "../../../../services/api/ErrorResponse";
 import { AuthContext } from "@contexts/auth.context";
 import { RiSendPlane2Line } from "react-icons/ri";
+import { FaWhatsapp } from "react-icons/fa";
+import { Avatar } from "@components/ui/avatar";
+import {
+  MdHorizontalRule,
+  MdOutlineDeleteOutline,
+  MdOutlineModeEdit,
+} from "react-icons/md";
+import { useHookFormMask } from "use-mask-input";
+import { GrClose } from "react-icons/gr";
+import { createFlow } from "../../../../services/api/Flow";
+import { createConnectionWA } from "../../../../services/api/ConnectionWA";
+import { createChatbot } from "../../../../services/api/Chatbot";
 
 interface Props {
   onCreate?(business: AgentsAIRow): Promise<void>;
@@ -81,15 +95,75 @@ const toNumberOrUndef = (v: unknown) => {
   return Number.isNaN(n) ? undefined : n;
 };
 
+const FormSchemaChatbot = z.object({
+  fallback: z
+    .string()
+    .optional()
+    .transform((v) => v || undefined),
+
+  operatingDays: z
+    .array(
+      z.object({
+        dayOfWeek: z.number(),
+        workingTimes: z
+          .array(z.object({ start: z.string(), end: z.string() }))
+          .optional(),
+      })
+    )
+    .optional(),
+});
+
+const optionsOpertaingDays = [
+  { label: "Domingo", value: 0 },
+  { label: "Segunda-feira", value: 1 },
+  { label: "Terça-feira", value: 2 },
+  { label: "Quarta-feira", value: 3 },
+  { label: "Quinta-feira", value: 4 },
+  { label: "Sexta-feira", value: 5 },
+  { label: "Sábado", value: 6 },
+];
+
+const FormSchemaConnectionWA = z.object({
+  profileName: z.string().optional(),
+  profileStatus: z.string().optional(),
+  lastSeenPrivacy: z
+    .enum(["all", "contacts", "contact_blacklist", "none"])
+    .optional(),
+  onlinePrivacy: z.enum(["all", "match_last_seen"]).optional(),
+  imgPerfilPrivacy: z
+    .enum(["all", "contacts", "contact_blacklist", "none"])
+    .optional(),
+  statusPrivacy: z
+    .enum(["all", "contacts", "contact_blacklist", "none"])
+    .optional(),
+  groupsAddPrivacy: z.enum(["all", "contacts", "contact_blacklist"]).optional(),
+  readReceiptsPrivacy: z.enum(["all", "none"]).optional(),
+  fileImage: z.instanceof(File).optional(),
+});
+
+const optionsPrivacyValue = [
+  { label: "Todos", value: "all" },
+  { label: "Meus contatos", value: "contacts" },
+  // { label: "Todos", value: "contact_blacklist" },
+  { label: "Ninguém", value: "none" },
+];
+
+const optionsPrivacyGroupValue = [
+  { label: "Todos", value: "all" },
+  { label: "Meus contatos", value: "contacts" },
+  // { label: "Todos", value: "contact_blacklist" },
+  // { label: "Ninguém", value: "none" },
+];
+
 export const FormSchema = z
   .object({
     providerCredentialId: z.number().optional(),
     apiKey: z.string().optional(),
     nameProvider: z.string().optional(),
 
-    businessIds: z
-      .array(z.number(), { message: "Campo obrigatório" })
-      .min(1, { message: "Campo obrigatório" }),
+    // businessIds: z
+    //   .array(z.number(), { message: "Campo obrigatório" })
+    //   .min(1, { message: "Campo obrigatório" }),
     name: z
       .string({ message: "Campo obrigatório" })
       .trim()
@@ -131,6 +205,9 @@ export const FormSchema = z
       toNumberOrUndef,
       z.number().min(0).max(14400).optional()
     ),
+
+    connectionWA: FormSchemaConnectionWA,
+    chatbot: FormSchemaChatbot,
   })
   .superRefine((data, ctx) => {
     const hasId = data.providerCredentialId !== undefined;
@@ -252,7 +329,10 @@ type Message = {
 };
 
 export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
-  const { logout } = useContext(AuthContext);
+  const {
+    logout,
+    account: { businessId },
+  } = useContext(AuthContext);
   const { socket } = useContext(SocketContext);
   const [messages, setMessages] = useState<Message[]>([]);
   const [draft, setDraft] = useState("");
@@ -260,7 +340,7 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
   const [open, setOpen] = useState(false);
   const [loadSend, setLoadSend] = useState(false);
   const [currentTab, setCurrentTab] = useState<
-    "secret-key" | "persona" | "engine"
+    "secret-key" | "persona" | "engine" | "connection"
   >("secret-key");
   const {
     handleSubmit,
@@ -269,7 +349,6 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
     setError,
     watch,
     setValue,
-    getValues,
     reset,
     control,
   } = useForm<Fields>({
@@ -277,6 +356,8 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
     defaultValues: { providerCredentialId: undefined, apiKey: undefined },
   });
   const virtuosoRef = useRef<VirtuosoHandle>(null);
+  const imgProfileRef = useRef<HTMLInputElement>(null);
+  const registerWithMask = useHookFormMask(register);
 
   const {
     fields: fieldFiles,
@@ -296,15 +377,43 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
   });
 
   const create = useCallback(
-    async ({ files, instructions, ...fields }: Fields): Promise<void> => {
+    async ({
+      files,
+      connectionWA,
+      instructions,
+      chatbot,
+      ...fields
+    }: Fields): Promise<void> => {
       try {
         const agentAI = await createAgentAI({
           ...fields,
           instructions,
           files: files?.map((s) => s.id),
         });
+        const flow = await createFlow({
+          name: `Flow for ${fields.name}`,
+          type: "chatbot",
+          businessIds: [businessId],
+          agentId: agentAI.id,
+        });
+        const connection = await createConnectionWA({
+          businessId,
+          ...connectionWA,
+          name: `Connection for ${fields.name}`,
+          type: "chatbot",
+          agentId: agentAI.id,
+        });
+        await createChatbot({
+          businessId,
+          flowId: flow.id,
+          name: `Bot for ${fields.name}`,
+          connectionWAId: connection.id,
+          ...chatbot,
+          status: true,
+          agentId: agentAI.id,
+        });
         reset();
-        props.onCreate?.({ ...agentAI, name: fields.name });
+        props.onCreate?.({ ...agentAI, name: fields.name, status: "close" });
       } catch (error) {
         if (error instanceof AxiosError) {
           console.log("Error-API", error);
@@ -319,10 +428,24 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
   const providerCredentialId = watch("providerCredentialId");
   const apiKey = watch("apiKey");
   const instructions = watch("instructions");
+  const operatingDays = watch("chatbot.operatingDays");
+  const fileImage = watch("connectionWA.fileImage");
+
+  const optionsOpertaingDaysMemo = useMemo(() => {
+    if (!operatingDays?.length) return optionsOpertaingDays;
+    const selectedDays = operatingDays.map((day) => day.dayOfWeek);
+    return optionsOpertaingDays.filter((s) => !selectedDays.includes(s.value));
+  }, [operatingDays?.length]);
 
   const tokenTest = useMemo(() => {
     if (open) return v4();
   }, [open]);
+
+  const imgPreviewUrl = useMemo(() => {
+    if (fileImage) {
+      return URL.createObjectURL(fileImage);
+    }
+  }, [fileImage]);
 
   const clearTokenTest = () => {
     if (tokenTest) {
@@ -340,16 +463,10 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
           { id: v4(), role: "user", content: draft },
         ]);
         setDraft("");
-        const {
-          businessIds,
-          timeout,
-          files,
-          debounce,
-          nameProvider,
-          ...restf
-        } = fields;
+        const { timeout, files, debounce, nameProvider, ...restf } = fields;
         const { data } = await api.post("/private/agents-ai/test", {
           ...restf,
+          businessIds: [businessId],
           files: files?.map((file) => file.id),
           content: draft.trim(),
           tokenTest: tokenTest,
@@ -399,7 +516,7 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
       return;
     }
     if (
-      errs.businessIds ||
+      // errs.businessIds ||
       errs.name ||
       errs.emojiLevel ||
       errs.language ||
@@ -435,13 +552,13 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
         onSubmit={handleSubmit(create, onError)}
       >
         <DialogHeader flexDirection={"column"} gap={0}>
-          <DialogTitle>Criar agente IA</DialogTitle>
+          <DialogTitle>Criar assistente de IA</DialogTitle>
           <DialogDescription>
             Autônomos que usam IA para realizar tarefas.
           </DialogDescription>
         </DialogHeader>
         <DialogBody mt={"-5px"}>
-          <div className="grid grid-cols-[412px_1fr] gap-x-3 relative">
+          <div className="grid grid-cols-[422px_1fr] gap-x-3 relative">
             <TabsRoot
               value={currentTab}
               onValueChange={(s) => setCurrentTab(s.value as any)}
@@ -465,7 +582,7 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
                     value="persona"
                     py={"27px"}
                   >
-                    Configuração de personalidade
+                    Perfil e aprendizado
                   </TabsTrigger>
                   <TabsTrigger
                     _selected={{ bg: "bg.subtle", color: "#fff" }}
@@ -473,7 +590,15 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
                     value="engine"
                     py={"27px"}
                   >
-                    Motor de aprendizado
+                    Horários de operação
+                  </TabsTrigger>
+                  <TabsTrigger
+                    _selected={{ bg: "bg.subtle", color: "#fff" }}
+                    color={"#757575"}
+                    value="connection"
+                    py={"27px"}
+                  >
+                    <FaWhatsapp size={40} />
                   </TabsTrigger>
                 </TabsList>
               </Center>
@@ -501,44 +626,43 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
                   </Field>
 
                   <span className="text-white/70">Ou</span>
-                  <VStack gap={3}>
-                    <Field
-                      errorText={errors.apiKey?.message}
-                      invalid={!!errors.apiKey}
-                      label="Adicione um novo provedor OpenAI"
-                      helperText="Suas chaves secretas ficam na aba 'Configurações' do seu perfil."
-                    >
-                      <Input
-                        {...register("apiKey", {
-                          onChange(event) {
-                            setValue("apiKey", event.target.value);
-                          },
-                        })}
-                        autoComplete="off"
-                        placeholder="Digite a chave secreta da API OpenAI"
-                      />
-                    </Field>
-                    <Field
-                      errorText={errors.nameProvider?.message}
-                      invalid={!!errors.nameProvider}
-                      label="Dê um nome para o provedor"
-                      helperText="Não é o nome do agente IA e não será exibido para os usuários."
-                    >
-                      <Input
-                        {...register("nameProvider", {
-                          onChange(event) {
-                            setValue("nameProvider", event.target.value);
-                          },
-                        })}
-                        autoComplete="off"
-                      />
-                    </Field>
-                  </VStack>
+
+                  <Field
+                    errorText={errors.apiKey?.message}
+                    invalid={!!errors.apiKey}
+                    label="Adicione um novo provedor OpenAI"
+                    helperText="Suas chaves secretas ficam na aba 'Configurações' do seu perfil."
+                  >
+                    <Input
+                      {...register("apiKey", {
+                        onChange(event) {
+                          setValue("apiKey", event.target.value);
+                        },
+                      })}
+                      autoComplete="off"
+                      placeholder="Digite a chave secreta da API OpenAI"
+                    />
+                  </Field>
+                  <Field
+                    errorText={errors.nameProvider?.message}
+                    invalid={!!errors.nameProvider}
+                    label="Dê um nome para o provedor"
+                    helperText="Não é o nome do assistente e não será exibido para os usuários."
+                  >
+                    <Input
+                      {...register("nameProvider", {
+                        onChange(event) {
+                          setValue("nameProvider", event.target.value);
+                        },
+                      })}
+                      autoComplete="off"
+                    />
+                  </Field>
                 </VStack>
               </TabsContent>
               <TabsContent value="persona" mt={-3}>
                 <VStack gap={4}>
-                  <Field
+                  {/* <Field
                     invalid={!!errors.businessIds}
                     label="Anexe projetos"
                     className="w-full"
@@ -571,11 +695,11 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
                         />
                       )}
                     />
-                  </Field>
+                  </Field> */}
                   <Field
                     errorText={errors.name?.message}
                     invalid={!!errors.name}
-                    label="Nome do agente IA"
+                    label="Nome do assistente de IA"
                     required
                   >
                     <Input
@@ -585,7 +709,7 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
                         },
                       })}
                       autoComplete="off"
-                      placeholder="Digite o nome do agente IA"
+                      placeholder="Digite o nome do assistente"
                     />
                   </Field>
                   <div className="w-full flex gap-x-4">
@@ -627,7 +751,7 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
                     <Field
                       invalid={!!errors.language}
                       label="Linguagem"
-                      helperText="Selecione o idioma que o agente usará. padrão é PT-BR."
+                      helperText="Idioma que o assistente usará. padrão é PT-BR."
                       className="w-full"
                       disabled
                       errorText={errors.language?.message}
@@ -650,7 +774,7 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
                     </Field>
                   </div>
                   <Field
-                    label="Personalidade do agente IA"
+                    label="Personalidade"
                     errorText={errors.personality?.message}
                     invalid={!!errors.personality}
                     className="w-full"
@@ -664,16 +788,15 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
                       {...register("personality")}
                     />
                   </Field>
-                </VStack>
-              </TabsContent>
-              <TabsContent value="engine" mt={-3}>
-                <VStack gap={4}>
+
+                  <div className="w-full h-px my-3 bg-gray-200/10"></div>
+
                   <div className="w-full grid grid-cols-2 gap-x-4 gap-y-2.5">
                     <Field
                       errorText={errors.model?.message}
                       invalid={!!errors.model}
                       label="Model AI"
-                      helperText="Selecione o modelo de IA que o agente usará."
+                      helperText="Selecione o modelo de IA que o assistente usará."
                       required
                     >
                       <Controller
@@ -707,7 +830,7 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
                     <Field
                       invalid={!!errors.temperature}
                       label="Temperatura"
-                      helperText="Controla a aleatoriedade das respostas do agente."
+                      helperText="Controla a aleatoriedade das respostas do assistente."
                       className="w-full"
                       errorText={errors.temperature?.message}
                     >
@@ -800,7 +923,7 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
                     </span>
                     <span className="text-center text-white/70 px-3">
                       Você pode adicionar documentos de texto mais detalhados
-                      para que o agente use como base de conhecimento.
+                      para que o assistente use como base de conhecimento.
                     </span>
                   </div>
 
@@ -872,10 +995,10 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
 
                   <div className="flex flex-col items-center">
                     <span className="font-semibold text-center">
-                      Instruções do agente
+                      Instruções do assistente
                     </span>
                     <span className="text-center text-white/70 px-7">
-                      Instruções do que o agente deve fazer. É importante que as
+                      Instruções do que deve ser feito. É importante que as
                       instruções sejam claras e objetivas.
                     </span>
                   </div>
@@ -902,262 +1025,514 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
                       abrir o menu de ferramentas.
                     </span>
                   </div>
-
-                  {/* <div className="flex flex-col items-center">
-                    <span className="font-semibold text-center">
-                      Instruções do agente
+                </VStack>
+              </TabsContent>
+              <TabsContent value="engine" className="min-h-65">
+                <div className="-mt-1 flex flex-col gap-4">
+                  {!operatingDays?.length && (
+                    <span className="text-yellow-600 font-semibold text-center">
+                      Funciona 24 horas por dia, 7 dias por semana.
                     </span>
-                    <span className="text-center text-white/70 px-7">
-                      Crie instruções que o agente deve seguir. É importante que
-                      as instruções sejam claras e objetivas.
-                    </span>
-                  </div>
-
-                  {fieldInstructions.map((instruction, index) => (
-                    <div
-                      key={instruction.id}
-                      className="flex items-start gap-2 w-full"
-                    >
-                      <Button
-                        size={"xs"}
-                        colorPalette={"red"}
-                        variant={"surface"}
-                        onClick={() => remove(index)}
-                      >
-                        <RiDeleteBin7Line color="#d62d2d" />
-                      </Button>
-                      <div className="w-full flex flex-col gap-y-2">
-                        <Field
-                          label="Prompt"
-                          errorText={
-                            errors.instructions?.[index]?.prompt?.message
+                  )}
+                  {!!operatingDays?.length && (
+                    <ul className="flex flex-col gap-1.5">
+                      {/* Dias de funcionamento */}
+                      {operatingDays.map((day, dayIndex) => (
+                        <li
+                          key={dayIndex}
+                          className="flex w-full flex-col"
+                          style={{
+                            gap: day.workingTimes?.length ? "2px" : "0px",
+                          }}
+                        >
+                          <div className="flex flex-col">
+                            <div className="flex items-center">
+                              <IconButton
+                                size={"xs"}
+                                variant={"ghost"}
+                                type="button"
+                                color={"red.100"}
+                                _hover={{ color: "red.400" }}
+                                onClick={() => {
+                                  setValue(
+                                    "chatbot.operatingDays",
+                                    operatingDays.filter(
+                                      (o) => o.dayOfWeek !== day.dayOfWeek
+                                    )
+                                  );
+                                }}
+                              >
+                                <MdOutlineDeleteOutline />
+                              </IconButton>
+                              <div className="flex items-center gap-2 pl-1.5">
+                                <span className="font-medium block">
+                                  {optionsOpertaingDays.find(
+                                    (op) => op.value === day.dayOfWeek
+                                  )?.label || ""}
+                                </span>
+                                {!day.workingTimes?.length && (
+                                  <span className="font-light text-yellow-600">
+                                    Funciona 24 horas
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <span className="text-red-400">
+                              {
+                                errors.chatbot?.operatingDays?.[dayIndex]
+                                  ?.message
+                              }
+                            </span>
+                          </div>
+                          <ul className="flex flex-col gap-1">
+                            {day.workingTimes?.map((_, timeIndex) => (
+                              <li
+                                key={timeIndex}
+                                className="flex flex-col w-full"
+                              >
+                                <div className="flex w-full items-center gap-2">
+                                  <Field
+                                    errorText={
+                                      errors.chatbot?.operatingDays?.[dayIndex]
+                                        ?.workingTimes?.[timeIndex]?.start
+                                        ?.message
+                                    }
+                                    invalid={
+                                      !!errors.chatbot?.operatingDays?.[
+                                        dayIndex
+                                      ]?.workingTimes?.[timeIndex]?.start
+                                    }
+                                  >
+                                    <Input
+                                      placeholder="HH:mm"
+                                      step={"60"}
+                                      size={"2xs"}
+                                      {...registerWithMask(
+                                        `chatbot.operatingDays.${dayIndex}.workingTimes.${timeIndex}.start`,
+                                        "99:99"
+                                      )}
+                                    />
+                                  </Field>
+                                  <MdHorizontalRule size={33} />
+                                  <Field
+                                    errorText={
+                                      errors.chatbot?.operatingDays?.[dayIndex]
+                                        ?.workingTimes?.[timeIndex]?.end
+                                        ?.message
+                                    }
+                                    invalid={
+                                      !!errors.chatbot?.operatingDays?.[
+                                        dayIndex
+                                      ]?.workingTimes?.[timeIndex]?.end
+                                    }
+                                  >
+                                    <Input
+                                      placeholder="HH:mm"
+                                      size={"2xs"}
+                                      {...registerWithMask(
+                                        `chatbot.operatingDays.${dayIndex}.workingTimes.${timeIndex}.end`,
+                                        "99:99"
+                                      )}
+                                    />
+                                  </Field>
+                                  <IconButton
+                                    size={"xs"}
+                                    variant={"ghost"}
+                                    type="button"
+                                    color={"red.100"}
+                                    _hover={{ color: "red.400" }}
+                                    onClick={() => {
+                                      setValue(
+                                        "chatbot.operatingDays",
+                                        operatingDays.map((o) => {
+                                          if (o.dayOfWeek === day.dayOfWeek) {
+                                            o.workingTimes =
+                                              o.workingTimes?.filter(
+                                                (__, i) => i !== timeIndex
+                                              );
+                                          }
+                                          return o;
+                                        })
+                                      );
+                                    }}
+                                  >
+                                    <GrClose />
+                                  </IconButton>
+                                </div>
+                                <span className="text-red-400">
+                                  {
+                                    errors.chatbot?.operatingDays?.[dayIndex]
+                                      ?.workingTimes?.[timeIndex]?.message
+                                  }
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                          <div
+                            className={
+                              day.workingTimes?.length
+                                ? "flex justify-center mr-9"
+                                : ""
+                            }
+                          >
+                            <Button
+                              variant={"plain"}
+                              color={"blue.400"}
+                              _hover={{ color: "blue.300" }}
+                              size={"xs"}
+                              className="w-fit"
+                              onClick={() => {
+                                setValue(
+                                  "chatbot.operatingDays",
+                                  operatingDays.map((o) => {
+                                    if (o.dayOfWeek === day.dayOfWeek) {
+                                      if (o.workingTimes?.length) {
+                                        o.workingTimes?.push({
+                                          start: "",
+                                          end: "",
+                                        });
+                                      } else {
+                                        o.workingTimes = [
+                                          { start: "", end: "" },
+                                        ];
+                                      }
+                                    }
+                                    return o;
+                                  })
+                                );
+                              }}
+                            >
+                              Adicionar horário
+                            </Button>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  <Controller
+                    control={control}
+                    name="chatbot.operatingDays"
+                    render={({ field }) => (
+                      <SelectComponent
+                        isMulti={false}
+                        onBlur={() => {}}
+                        name={field.name}
+                        isDisabled={field.disabled}
+                        ref={field.ref}
+                        placeholder="Selecione os dias de funcionamento"
+                        onChange={(e: any) => {
+                          if (!operatingDays?.length) {
+                            field.onChange([
+                              { dayOfWeek: e.value, workingTimes: [] },
+                            ]);
+                          } else {
+                            operatingDays?.splice(e.value, 0, {
+                              dayOfWeek: e.value,
+                              workingTimes: [],
+                            });
+                            field.onChange(operatingDays);
                           }
-                          invalid={!!errors.instructions?.[index]?.prompt}
-                          className="w-full"
+                        }}
+                        options={optionsOpertaingDaysMemo}
+                        value={null}
+                      />
+                    )}
+                  />
+
+                  <Field
+                    label={
+                      <span>
+                        Fallback <Badge colorPalette={"green"}>New</Badge>
+                      </span>
+                    }
+                    errorText={errors.chatbot?.fallback?.message}
+                    invalid={!!errors.chatbot?.fallback}
+                    className="w-full"
+                    helperText="Texto enviado apenas uma vez quando o assistente estiver fora do horário de operação. Se o mesmo estiver ativo, o fallback não será enviado."
+                  >
+                    <TextareaAutosize
+                      placeholder=""
+                      style={{ resize: "none" }}
+                      minRows={2}
+                      maxRows={6}
+                      className="p-3 py-2.5 rounded-sm w-full border-black/10 dark:border-white/10 border"
+                      {...register("chatbot.fallback")}
+                    />
+                  </Field>
+                </div>
+              </TabsContent>
+              <TabsContent value="connection">
+                <TabsRoot
+                  lazyMount
+                  unmountOnExit
+                  variant={"enclosed"}
+                  defaultValue={"config"}
+                >
+                  <Center mb={2}>
+                    <TabsList bg="#1c1c1c" rounded="l3" p="1.5">
+                      <TabsTrigger
+                        _selected={{ bg: "bg.subtle", color: "#fff" }}
+                        color={"#757575"}
+                        value="config"
+                      >
+                        Configurações do perfil
+                      </TabsTrigger>
+                      <TabsTrigger
+                        _selected={{ bg: "bg.subtle", color: "#fff" }}
+                        color={"#757575"}
+                        value="start_conection"
+                      >
+                        Conectar
+                      </TabsTrigger>
+                    </TabsList>
+                  </Center>
+                  <TabsContent value="start_conection">
+                    <div className="flex items-center gap-x-2">
+                      <div className="border p-1 max-w-40 bg-white/2 text-green-100/5">
+                        <img src="/image-btn-connection.png" />
+                      </div>
+                      <p className="font-medium">
+                        Será possível conectar o WhatsApp após criação do
+                        assistente de IA.
+                      </p>
+                    </div>
+                  </TabsContent>
+                  <TabsContent value="config">
+                    <VStack gap={4}>
+                      <HStack w={"full"} mb={2} gap={3}>
+                        <Tooltip content="Atualizar foto de perfil">
+                          <div
+                            className="relative cursor-pointer"
+                            onClick={() => imgProfileRef.current?.click()}
+                          >
+                            <input
+                              type="file"
+                              ref={imgProfileRef}
+                              hidden
+                              className="hidden"
+                              accept="image/jpeg, image/png, image/jpg"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file)
+                                  setValue("connectionWA.fileImage", file);
+                              }}
+                            />
+                            <Avatar
+                              size={"2xl"}
+                              width={"90px"}
+                              height={"90px"}
+                              src={imgPreviewUrl}
+                            >
+                              <Center className="absolute -bottom-0.5 right-0.5 w-8 h-8 rounded-full bg-emerald-800">
+                                <MdOutlineModeEdit size={17} />
+                              </Center>
+                            </Avatar>
+                          </div>
+                        </Tooltip>
+                        <VStack w={"full"} gap={2}>
+                          <Field
+                            errorText={
+                              errors.connectionWA?.profileName?.message
+                            }
+                            invalid={!!errors.connectionWA?.profileName}
+                            w={"full"}
+                          >
+                            <Input
+                              w={"full"}
+                              {...register("connectionWA.profileName")}
+                              autoComplete="off"
+                              placeholder="Nome do perfil"
+                            />
+                          </Field>
+                          <Field
+                            errorText={
+                              errors.connectionWA?.profileStatus?.message
+                            }
+                            invalid={!!errors.connectionWA?.profileStatus}
+                            w={"full"}
+                          >
+                            <Input
+                              w={"full"}
+                              {...register("connectionWA.profileStatus")}
+                              autoComplete="off"
+                              placeholder="Recado"
+                            />
+                          </Field>
+                        </VStack>
+                      </HStack>
+                      <Text fontWeight={"medium"}>Privacidade</Text>
+                      <HStack w={"full"}>
+                        <Field
+                          errorText={
+                            errors.connectionWA?.lastSeenPrivacy?.message
+                          }
+                          invalid={!!errors.connectionWA?.lastSeenPrivacy}
+                          label="Visto por último"
+                          disabled
                         >
                           <Controller
+                            name="connectionWA.lastSeenPrivacy"
                             control={control}
-                            name={`instructions.${index}.prompt`}
-                            defaultValue={instruction.prompt}
                             render={({ field }) => (
-                              <TextareaAutosize
-                                placeholder={`Pergunte o nome do contato.
-  Exemplo de pergunta esperada: "Olá, tudo bem? Como posso te chamar?"`}
-                                style={{ resize: "none" }}
-                                minRows={2}
-                                autoFocus
+                              <SelectComponent
                                 name={field.name}
-                                value={field.value}
-                                maxRows={6}
-                                className="p-3 py-2.5 rounded-sm w-full border-black/10 dark:border-white/10 border"
-                                onChange={(e) => field.onChange(e.target.value)}
+                                isMulti={false}
+                                isDisabled
+                                onBlur={field.onBlur}
+                                placeholder="Ninguém"
+                                onChange={(e: any) => field.onChange(e.value)}
+                                // options={optionsPrivacyValue}
                               />
                             )}
                           />
                         </Field>
-                        <div className="w-full flex flex-col items-center gap-y-0.5">
-                          {!instruction.files?.length && (
-                            <span className="text-white/70">
-                              Envie documentos... junto com a mensagem do
-                              agente.
-                            </span>
-                          )}
-                          {!!instruction.files?.length && (
-                            <div className="grid w-full grid-cols-4 gap-1.5 mb-1">
-                              {instruction.files?.map((file) => (
-                                <div
-                                  key={file.id}
-                                  className="flex items-center flex-col w-full relative"
-                                >
-                                  <a
-                                    onClick={() => {
-                                      console.log(instruction);
-                                      update(index, {
-                                        prompt: instruction.prompt,
-                                        promptAfterReply:
-                                          instruction.promptAfterReply,
-                                        files: instruction.files?.filter(
-                                          (f) => f.id !== file.id
-                                        ),
-                                      });
-                                    }}
-                                    className="absolute hover:text-red-500 duration-200 cursor-pointer top-1 right-1"
-                                  >
-                                    <IoClose size={20} />
-                                  </a>
-                                  <div
-                                    style={{
-                                      border: "2px solid #444444 ",
-                                    }}
-                                    className="w-full h-20 overflow-hidden object-center origin-center bg-center flex items-center justify-center rounded-sm"
-                                  >
-                                    {/^image\//.test(file.mimetype || "") ? (
-                                      <Image
-                                        w="100%"
-                                        h="auto"
-                                        src={
-                                          api.getUri() +
-                                          "/public/storage/" +
-                                          file.fileName
-                                        }
-                                        fetchPriority="low"
-                                      />
-                                    ) : (
-                                      <IconPreviewFile
-                                        mimetype={file.mimetype || ""}
-                                      />
-                                    )}
-                                  </div>
-                                  <span className="line-clamp-2 text-xs text-center font-light">
-                                    {file.originalName}
-                                  </span>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                          <div className="grid w-full grid-cols-5 justify-between gap-2">
-                            {itemsSend.map((item) => {
-                              let mimetype: string | undefined = undefined;
-                              if (item.value === "files") {
-                                mimetype = undefined;
-                              } else if (item.value === "images") {
-                                mimetype = "image/";
-                              } else if (item.value === "videos") {
-                                mimetype = "video/";
-                              } else if (item.value === "audios_live") {
-                                mimetype = "audio/";
-                              } else if (item.value === "audios") {
-                                mimetype = "audio/";
-                              }
-                              return item.disabled ? (
-                                <Button
-                                  variant={"outline"}
-                                  className="w-full"
-                                  disabled
-                                >
-                                  {item.icon}
-                                </Button>
-                              ) : (
-                                <ModalStorageFiles
-                                  onSelected={(files) => {
-                                    update(index, { ...instruction, files });
-                                  }}
-                                  // @ts-expect-error
-                                  mimetype={[mimetype]}
-                                >
-                                  <Button
-                                    variant={"outline"}
-                                    className="w-full"
-                                  >
-                                    {item.icon}
-                                  </Button>
-                                </ModalStorageFiles>
-                              );
-                            })}
-                          </div>
-                        </div>
-                        <div className="w-full flex flex-col gap-y-0.5 mt-1">
-                          <Field
-                            label="O que o agente deve fazer após receber a resposta?"
-                            errorText={
-                              errors.instructions?.[index]?.promptAfterReply
-                                ?.message
-                            }
-                            invalid={
-                              !!errors.instructions?.[index]?.promptAfterReply
-                            }
-                            className="w-full"
-                          >
-                            <Controller
-                              control={control}
-                              name={`instructions.${index}.promptAfterReply`}
-                              defaultValue={instruction.prompt}
-                              render={({ field }) => (
-                                <TextareaAutosize
-                                  name={field.name}
-                                  value={field.value}
-                                  placeholder={`- Se o usuário responder com o nome, atribua a variável "NOME_LEAD" com o valor da resposta.`}
-                                  style={{ resize: "none" }}
-                                  minRows={2}
-                                  maxRows={6}
-                                  className="p-3 py-2.5 rounded-sm w-full border-black/10 dark:border-white/10 border"
-                                  onChange={(e) =>
-                                    field.onChange(e.target.value)
-                                  }
-                                />
-                              )}
-                            />
-                          </Field>
-                        </div>
-                        {fieldInstructions.length - 1 !== index && (
-                          <div className="flex justify-center">
-                            <BsCaretDownFill color="#dddddd7f" size={22} />
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
+                        <Field
+                          errorText={
+                            errors.connectionWA?.onlinePrivacy?.message
+                          }
+                          invalid={!!errors.connectionWA?.onlinePrivacy}
+                          label="Online"
+                          disabled
+                        >
+                          <Controller
+                            name="connectionWA.onlinePrivacy"
+                            control={control}
+                            render={({ field }) => (
+                              <SelectComponent
+                                name={field.name}
+                                isMulti={false}
+                                onBlur={field.onBlur}
+                                isDisabled
+                                placeholder={'Igual ao "visto por último"'}
+                                // options={optionsOnlinePrivacy}
+                                onChange={(e: any) => field.onChange(e.value)}
+                                // value={field.value}
+                              />
+                            )}
+                          />
+                        </Field>
+                      </HStack>
+                      <HStack w={"full"}>
+                        <Field
+                          errorText={
+                            errors.connectionWA?.imgPerfilPrivacy?.message
+                          }
+                          invalid={!!errors.connectionWA?.imgPerfilPrivacy}
+                          label="Foto do perfil"
+                        >
+                          <Controller
+                            name="connectionWA.imgPerfilPrivacy"
+                            control={control}
+                            render={({ field }) => (
+                              <SelectComponent
+                                name={field.name}
+                                isMulti={false}
+                                placeholder="Todos"
+                                onBlur={field.onBlur}
+                                options={optionsPrivacyValue}
+                                onChange={(e: any) => field.onChange(e.value)}
+                                value={
+                                  field.value
+                                    ? {
+                                        label:
+                                          optionsPrivacyValue.find(
+                                            (s) => s.value === field.value
+                                          )?.label || "",
+                                        value: field.value,
+                                      }
+                                    : null
+                                }
+                              />
+                            )}
+                          />
+                        </Field>
+                        <Field
+                          errorText={
+                            errors.connectionWA?.statusPrivacy?.message
+                          }
+                          invalid={!!errors.connectionWA?.statusPrivacy}
+                          label="Status"
+                          disabled
+                        >
+                          <Controller
+                            name="connectionWA.statusPrivacy"
+                            control={control}
+                            render={({ field }) => (
+                              <SelectComponent
+                                name={field.name}
+                                isMulti={false}
+                                isDisabled
+                                onBlur={field.onBlur}
+                                placeholder="Meus contatos"
+                                onChange={(e: any) => field.onChange(e.value)}
+                              />
+                            )}
+                          />
+                        </Field>
+                      </HStack>
+                      <HStack w={"full"}>
+                        <Field
+                          errorText={
+                            errors.connectionWA?.groupsAddPrivacy?.message
+                          }
+                          invalid={!!errors.connectionWA?.groupsAddPrivacy}
+                          label="Adicionar aos grupos"
+                        >
+                          <Controller
+                            name="connectionWA.groupsAddPrivacy"
+                            control={control}
+                            render={({ field }) => (
+                              <SelectComponent
+                                name={field.name}
+                                isMulti={false}
+                                onBlur={field.onBlur}
+                                placeholder="Meus contatos"
+                                options={optionsPrivacyGroupValue}
+                                onChange={(e: any) => field.onChange(e.value)}
+                                value={
+                                  field.value
+                                    ? {
+                                        label:
+                                          optionsPrivacyGroupValue.find(
+                                            (s) => s.value === field.value
+                                          )?.label || "",
+                                        value: field.value,
+                                      }
+                                    : null
+                                }
+                              />
+                            )}
+                          />
+                        </Field>
 
-                  <div
-                    className="w-full flex flex-col gap-y-2"
-                    style={{
-                      paddingLeft: fieldInstructions.length ? "46px" : "",
-                    }}
-                  >
-                    <Button
-                      onClick={() => {
-                        setTimeout(() => {
-                          document
-                            .querySelector(".chakra-dialog__positioner")
-                            ?.scrollBy({
-                              top: 390,
-                              behavior: "smooth",
-                            });
-                        }, 100);
-                        append({ prompt: "", files: [], promptAfterReply: "" });
-                      }}
-                      size={"sm"}
-                      colorPalette={"green"}
-                      w={"full"}
-                    >
-                      Adicionar {fieldInstructions.length > 0 ? "próxima" : ""}{" "}
-                      instrução
-                    </Button>
-
-                    {!!fieldInstructions.length && (
-                      <Field
-                        label="O que fazer após concluir todas as instruções?"
-                        // errorText={
-                        //   errors.instructions?.[index]?.promptAfterReply
-                        //     ?.message
-                        // }
-                        // invalid={
-                        //   !!errors.instructions?.[index]?.promptAfterReply
-                        // }
-                        className="w-full mt-3"
-                      >
-                        <Controller
-                          control={control}
-                          name="apiKey"
-                          // name={`instructions.${index}.promptAfterReply`}
-                          // defaultValue={instruction.prompt}
-                          render={({ field }) => (
-                            <TextareaAutosize
-                              name={field.name}
-                              value={field.value}
-                              placeholder={`Continue o fluxo`}
-                              style={{ resize: "none" }}
-                              minRows={2}
-                              maxRows={6}
-                              className="p-3 py-2.5 rounded-sm w-full border-black/10 dark:border-white/10 border"
-                              onChange={(e) => field.onChange(e.target.value)}
-                            />
-                          )}
-                        />
-                      </Field>
-                    )}
-                  </div> */}
-                </VStack>
+                        <Field
+                          errorText={
+                            errors.connectionWA?.readReceiptsPrivacy?.message
+                          }
+                          invalid={!!errors.connectionWA?.readReceiptsPrivacy}
+                          label="Confirmação de leitura"
+                          disabled
+                        >
+                          <Controller
+                            name="connectionWA.readReceiptsPrivacy"
+                            control={control}
+                            render={({ field }) => (
+                              <SelectComponent
+                                name={field.name}
+                                isMulti={false}
+                                isDisabled
+                                onBlur={field.onBlur}
+                                // options={optionsReadReceiptsValue}
+                                placeholder="Ninguém"
+                                onChange={(e: any) => field.onChange(e.value)}
+                              />
+                            )}
+                          />
+                        </Field>
+                      </HStack>
+                    </VStack>
+                  </TabsContent>
+                </TabsRoot>
               </TabsContent>
             </TabsRoot>
             <div className="h-full flex gap-y-2 flex-col max-h-[calc(100vh-230px)] sticky top-3">
@@ -1183,7 +1558,7 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
                       return (
                         <div className="px-2 py-1.5 text-sm text-center opacity-20">
                           <span
-                            className={`inline-block w-full break-words rounded-md font-semibold whitespace-pre-wrap px-1.5 py-1 bg-yellow-200/20 text-white`}
+                            className={`inline-block w-full wrap-break-word rounded-md font-semibold whitespace-pre-wrap px-1.5 py-1 bg-yellow-200/20 text-white`}
                           >
                             <ReactMarkdown remarkPlugins={[remarkGfm]}>
                               {msg.content}
@@ -1196,7 +1571,7 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
                       return (
                         <div className="px-2 py-1.5 text-sm text-left">
                           <span
-                            className={`inline-block max-w-[80%] break-words rounded-md whitespace-pre-wrap px-1.5 py-1 bg-zinc-700/70 text-white`}
+                            className={`inline-block max-w-[80%] wrap-break-word rounded-md whitespace-pre-wrap px-1.5 py-1 bg-zinc-700/70 text-white`}
                           >
                             <ReactMarkdown remarkPlugins={[remarkGfm]}>
                               {msg.content}
@@ -1208,7 +1583,7 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
                     return (
                       <div className="px-2 py-1.5 text-sm text-right">
                         <span
-                          className={`inline-block max-w-[80%] break-words rounded-md whitespace-pre-wrap px-1.5 py-1 bg-teal-700 text-white`}
+                          className={`inline-block max-w-[80%] wrap-break-word rounded-md whitespace-pre-wrap px-1.5 py-1 bg-teal-700 text-white`}
                         >
                           <ReactMarkdown remarkPlugins={[remarkGfm]}>
                             {msg.content}
@@ -1249,7 +1624,7 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
                   </IconButton>
                 </div>
                 <span className="text-xs text-center text-white/50">
-                  Teste seu agente IA.
+                  Teste seu assistente.
                 </span>
                 {errorDraft && (
                   <span className="text-red-500 text-xs text-center">

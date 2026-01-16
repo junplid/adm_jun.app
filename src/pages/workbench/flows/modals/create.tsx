@@ -1,5 +1,5 @@
 import { JSX, useCallback, useState } from "react";
-import { Button, Input, Text, VStack } from "@chakra-ui/react";
+import { Button, Input, VStack } from "@chakra-ui/react";
 import { CloseButton } from "@components/ui/close-button";
 import {
   DialogContent,
@@ -16,10 +16,10 @@ import {
 import { Field } from "@components/ui/field";
 import { FlowRow } from "..";
 import { AxiosError } from "axios";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import SelectBusinesses from "@components/SelectBusinesses";
+// import SelectBusinesses from "@components/SelectBusinesses";
 import { useCreateFlow } from "../../../../hooks/flow";
 import { useNavigate } from "react-router-dom";
 
@@ -46,11 +46,11 @@ export function ModalCreateFlow({
   const {
     handleSubmit,
     register,
-    control,
+    // control,
     formState: { errors },
     setError,
-    setValue,
-    getValues,
+    // setValue,
+    // getValues,
     reset,
   } = useForm<Fields>({
     resolver: zodResolver(FormSchema),
@@ -115,7 +115,7 @@ export function ModalCreateFlow({
                 placeholder="Digite o nome do construtor"
               />
             </Field>
-            <Field
+            {/* <Field
               label="Anexe projetos"
               helperText={
                 <Text>
@@ -153,7 +153,7 @@ export function ModalCreateFlow({
                   />
                 )}
               />
-            </Field>
+            </Field> */}
           </VStack>
         </DialogBody>
         <DialogFooter>

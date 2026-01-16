@@ -27,7 +27,7 @@ import {
   useGetInboxDepartment,
   useUpdateInboxDepartment,
 } from "../../../../hooks/inboxDepartment";
-import SelectBusinesses from "@components/SelectBusinesses";
+// import SelectBusinesses from "@components/SelectBusinesses";
 
 interface PropsModalEdit {
   id: number;
@@ -102,7 +102,7 @@ function Content({
     <form onSubmit={handleSubmit(edit)}>
       <DialogBody as={"div"}>
         <VStack gap={4} mt={"-10px"}>
-          <Field
+          {/* <Field
             label="Anexar projeto"
             errorText={errors.businessId?.message}
             invalid={!!errors.businessId}
@@ -124,7 +124,7 @@ function Content({
                 />
               )}
             />
-          </Field>
+          </Field> */}
           <Field
             errorText={errors.name?.message}
             invalid={!!errors.name}

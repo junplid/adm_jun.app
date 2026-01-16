@@ -1,5 +1,5 @@
 import { JSX, useCallback, useEffect, useMemo, useState } from "react";
-import { Button, Input, Text, VStack } from "@chakra-ui/react";
+import { Button, Input, VStack } from "@chakra-ui/react";
 import { CloseButton } from "@components/ui/close-button";
 import {
   DialogContent,
@@ -13,10 +13,10 @@ import {
 } from "@components/ui/dialog";
 import { Field } from "@components/ui/field";
 import { AxiosError } from "axios";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import SelectBusinesses from "@components/SelectBusinesses";
+// import SelectBusinesses from "@components/SelectBusinesses";
 import deepEqual from "fast-deep-equal";
 import { useGetTag, useUpdateTag } from "../../../../hooks/tag";
 
@@ -53,8 +53,8 @@ function Content({
     formState: { errors, isSubmitting },
     setError,
     setValue,
-    getValues,
-    control,
+    // getValues,
+    // control,
     watch,
   } = useForm<Fields>({
     resolver: zodResolver(FormSchema),
@@ -106,7 +106,7 @@ function Content({
     <form onSubmit={handleSubmit(edit)}>
       <DialogBody>
         <VStack gap={4}>
-          <Field
+          {/* <Field
             label="Anexe projetos"
             helperText={
               <Text>
@@ -144,7 +144,7 @@ function Content({
                 />
               )}
             />
-          </Field>
+          </Field> */}
           <Field
             errorText={errors.name?.message}
             invalid={!!errors.name}

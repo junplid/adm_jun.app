@@ -16,7 +16,7 @@ import { AxiosError } from "axios";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import SelectBusinesses from "@components/SelectBusinesses";
+// import SelectBusinesses from "@components/SelectBusinesses";
 import deepEqual from "fast-deep-equal";
 import SelectComponent from "@components/Select";
 import {
@@ -223,7 +223,7 @@ function Content({
           </Center>
           <TabsContent value="integration">
             <VStack gap={4}>
-              <Field label="Anexe o projeto" required className="w-full">
+              {/* <Field label="Anexe o projeto" required className="w-full">
                 <Controller
                   name="businessId"
                   control={control}
@@ -240,7 +240,7 @@ function Content({
                     />
                   )}
                 />
-              </Field>
+              </Field> */}
               <Field
                 errorText={errors.name?.message}
                 invalid={!!errors.name}

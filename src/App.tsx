@@ -1,17 +1,17 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
 import { FlowBuilderPage } from "./pages/flow-builder";
-import { LayoutPrivateProvider } from "@contexts/layout-private.context";
+import { LayoutPrivateProvider } from "@contexts/layout-private.provider";
 import { LayoutMain } from "./layouts/main";
 import { DashboardPage } from "./pages/dashboard";
 import { ReactFlowProvider } from "@xyflow/react";
 import { LoginPage } from "./pages/login";
 import { SignupPage } from "./pages/signup";
-import { AuthProvider } from "@contexts/auth.context";
-import { BusinessesPage } from "./pages/businesses";
+import { AuthProvider } from "@contexts/auth.provider";
+// import { BusinessesPage } from "./pages/businesses";
 import { FlowsPage } from "./pages/workbench/flows";
 import { VariablesPage } from "./pages/workbench/variables";
-import { DialogProvider } from "@contexts/dialog.context";
+import { DialogProvider } from "@contexts/dialog.provider";
 import { ConnectionsWAPage } from "./pages/connectionswa";
 import { SocketProvider } from "@contexts/socket.provider";
 import { ChatbotsPage } from "./pages/chatbots";
@@ -93,7 +93,7 @@ export default function App() {
               element={<Navigate to="dashboard" />}
             />
             <Route path="dashboard" caseSensitive element={<DashboardPage />} />
-            <Route path="projects" caseSensitive element={<BusinessesPage />} />
+            {/*<Route path="projects" caseSensitive element={<BusinessesPage />} /*/}
             <Route path="flows" caseSensitive element={<FlowsPage />} />
             <Route path="variables" caseSensitive element={<VariablesPage />} />
             <Route
@@ -103,6 +103,7 @@ export default function App() {
             />
             <Route path="campaigns" caseSensitive element={<CampaignsPage />} />
             <Route path="chatbots" caseSensitive element={<ChatbotsPage />} />
+            <Route path="agents-ai" caseSensitive element={<AgentsAIPage />} />
             {/* <Route path="help" caseSensitive>
             </Route> */}
             <Route caseSensitive element={<LayoutInboxesPageProvider />}>

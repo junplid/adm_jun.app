@@ -29,7 +29,7 @@ import {
   TabsTrigger,
 } from "@components/ui/tabs";
 import { Field } from "@components/ui/field";
-import SelectBusinesses from "@components/SelectBusinesses";
+// import SelectBusinesses from "@components/SelectBusinesses";
 import TextareaAutosize from "react-textarea-autosize";
 import SelectTags from "@components/SelectTags";
 import SelectFlows from "@components/SelectFlows";
@@ -54,7 +54,7 @@ const optionsOpertaingDays = [
   { label: "Quarta-feira", value: 3 },
   { label: "Quinta-feira", value: 4 },
   { label: "Sexta-feira", value: 5 },
-  { label: "Sábado-feira", value: 6 },
+  { label: "Sábado", value: 6 },
 ];
 
 const FormSchema = z.object({
@@ -66,11 +66,11 @@ const FormSchema = z.object({
     })
     .min(1, { message: "Campo obrigatório" }),
   description: z.string().nullable(),
-  businessIds: z
-    .array(z.number(), {
-      message: "Campo obrigatório",
-    })
-    .min(1, { message: "Campo obrigatório" }),
+  // businessIds: z
+  //   .array(z.number(), {
+  //     message: "Campo obrigatório",
+  //   })
+  //   .min(1, { message: "Campo obrigatório" }),
   shootingSpeedId: z.number(),
   connectionIds: z.array(z.number(), {
     message: "Campo obrigatório",
@@ -215,7 +215,7 @@ function Content({
           </Center>
           <TabsContent value="start-config">
             <div className="grid w-full gap-y-3">
-              <Field
+              {/* <Field
                 invalid={!!errors.businessIds}
                 label="Anexe o projeto"
                 className="w-full"
@@ -249,7 +249,7 @@ function Content({
                     />
                   )}
                 />
-              </Field>
+              </Field> */}
 
               <Field
                 errorText={errors.name?.message}

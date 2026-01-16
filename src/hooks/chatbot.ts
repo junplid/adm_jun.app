@@ -97,7 +97,7 @@ export function useGetChatbot(id: number) {
 export function useCreateChatbot(props?: {
   setError?: UseFormSetError<{
     name: string;
-    businessId: number;
+    // businessId: number;
     flowId: string;
     connectionWAId?: number;
     status?: boolean;
@@ -116,12 +116,15 @@ export function useCreateChatbot(props?: {
   }>;
   onSuccess?: (id: number) => Promise<void>;
 }) {
-  const { logout } = useContext(AuthContext);
+  const {
+    logout,
+    account: { businessId },
+  } = useContext(AuthContext);
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (body: {
       name: string;
-      businessId: number;
+      // businessId: number;
       flowId: string;
       connectionWAId?: number;
       status?: boolean;
@@ -137,7 +140,7 @@ export function useCreateChatbot(props?: {
         workingTimes?: { start: string; end: string }[];
       }[];
       destLink?: string;
-    }) => ChatbotService.createChatbot(body),
+    }) => ChatbotService.createChatbot({ ...body, businessId }),
     async onSuccess(data, body) {
       if (props?.onSuccess) await props.onSuccess(data.id);
       if (queryClient.getQueryData<any>(["chatbots", null])) {
@@ -221,7 +224,10 @@ export function useUpdateChatbot(props?: {
               workingTimes?: { start: string; end: string }[];
             }[]
           | null;
-        destLink?: string | null;
+        fallback?: string;
+        trigger?: string;
+        flowBId?: string;
+        destLink?: string;
       };
     }) => ChatbotService.updateChatbot(id, body),
     async onSuccess(data, { id, body }) {

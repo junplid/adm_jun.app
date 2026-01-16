@@ -99,7 +99,7 @@ export function useCreateConnectionWA(props?: {
   setError?: UseFormSetError<{
     name: string;
     description?: string;
-    businessId: number;
+    // businessId: number;
     type: ConnectionWAService.ConnectionWAType;
     profileName?: string;
     profileStatus?: string;
@@ -113,13 +113,16 @@ export function useCreateConnectionWA(props?: {
   }>;
   onSuccess?: (id: number) => Promise<void>;
 }) {
-  const { logout } = useContext(AuthContext);
+  const {
+    logout,
+    account: { businessId },
+  } = useContext(AuthContext);
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (body: {
       name: string;
       description?: string;
-      businessId: number;
+      // businessId: number;
       type: ConnectionWAService.ConnectionWAType;
       profileName?: string;
       profileStatus?: string;
@@ -130,7 +133,7 @@ export function useCreateConnectionWA(props?: {
       groupsAddPrivacy?: "all" | "contacts" | "contact_blacklist";
       readReceiptsPrivacy?: "all" | "none";
       fileImage?: File;
-    }) => ConnectionWAService.createConnectionWA(body),
+    }) => ConnectionWAService.createConnectionWA({ ...body, businessId }),
     async onSuccess(data, body) {
       if (props?.onSuccess) await props.onSuccess(data.id);
       if (queryClient.getQueryData<any>(["connections-wa", null])) {

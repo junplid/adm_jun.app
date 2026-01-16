@@ -7,6 +7,7 @@ export async function getAccount(token: string): Promise<{
   emailVerified: boolean;
   onboarded: boolean;
   isPremium: boolean;
+  businessId: number;
 }> {
   const { data } = await api.get("/private/account", {
     headers: { Authorization: token },

@@ -99,7 +99,7 @@ export function useGetInboxDepartmentsOptions(params?: {
 export function useCreateInboxDepartment(props?: {
   setError?: UseFormSetError<{
     name: string;
-    businessId: number;
+    // businessId: number;
     signBusiness?: boolean;
     signDepartment?: boolean;
     signUser?: boolean;
@@ -109,19 +109,22 @@ export function useCreateInboxDepartment(props?: {
   }>;
   onSuccess?: (id: number) => Promise<void>;
 }) {
-  const { logout } = useContext(AuthContext);
+  const {
+    logout,
+    account: { businessId },
+  } = useContext(AuthContext);
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (body: {
       name: string;
-      businessId: number;
+      // businessId: number;
       signBusiness?: boolean;
       signDepartment?: boolean;
       signUser?: boolean;
       previewNumber?: boolean;
       previewPhoto?: boolean;
       inboxUserIds?: number[];
-    }) => InboxDepartmentService.createInboxDepartment(body),
+    }) => InboxDepartmentService.createInboxDepartment({ ...body, businessId }),
     async onSuccess(data, body) {
       if (props?.onSuccess) await props.onSuccess(data.id);
       if (queryClient.getQueryData<any>(["inbox-departments", null])) {

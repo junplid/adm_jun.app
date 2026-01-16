@@ -342,18 +342,27 @@ function Body(props: IBody): JSX.Element {
       } else if (typeN === "NodeDistribute") {
         newNode.data = { preview: [], exits: [] };
       } else if (typeN === "NodeCreateOrder") {
-        newNode.data = { isDragDisabled: false, actionChannels: [] };
+        newNode.data = {
+          isDragDisabled: false,
+          actionChannels: [],
+          businessId: props.flowData.businessIds[0],
+        };
       } else if (typeN === "NodeCreateAppointment") {
         newNode.data = { actionChannels: [] };
       } else if (typeN === "NodeUpdateAppointment") {
-        newNode.data = { actionChannels: [] };
+        newNode.data = {
+          actionChannels: [],
+          businessId: props.flowData.businessIds[0],
+        };
       } else if (typeN === "NodeUpdateOrder") {
         newNode.data = { actionChannels: [] };
+      } else if (typeN === "NodeCharge") {
+        newNode.data = { businessId: props.flowData.businessIds[0] };
       }
       onNodesChange([{ type: "add", item: newNode }]);
       setTypeDrag(null);
     },
-    [screenToFlowPosition, typeDrag]
+    [screenToFlowPosition, typeDrag, props.flowData.businessIds[0]]
   );
 
   useEffect(() => {

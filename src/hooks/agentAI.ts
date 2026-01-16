@@ -99,7 +99,7 @@ export function useCreateAgentAI(props?: {
     providerCredentialId?: number;
     apiKey?: string;
     nameProvider?: string;
-    businessIds: number[];
+    // businessIds: number[];
     name: string;
     emojiLevel?: "none" | "low" | "medium" | "high";
     language?: string;
@@ -114,14 +114,17 @@ export function useCreateAgentAI(props?: {
   }>;
   onSuccess?: (id: number) => Promise<void>;
 }) {
-  const { logout } = useContext(AuthContext);
+  const {
+    logout,
+    account: { businessId },
+  } = useContext(AuthContext);
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (body: {
       providerCredentialId?: number;
       apiKey?: string;
       nameProvider?: string;
-      businessIds: number[];
+      // businessIds: number[];
       name: string;
       emojiLevel?: "none" | "low" | "medium" | "high";
       language?: string;
@@ -133,13 +136,13 @@ export function useCreateAgentAI(props?: {
       instructions?: string;
       timeout?: number;
       debounce?: number;
-    }) => AgentAIService.createAgentAI(body),
+    }) => AgentAIService.createAgentAI({ ...body, businessIds: [businessId] }),
     async onSuccess(data, body) {
       if (props?.onSuccess) await props.onSuccess(data.id);
       if (queryClient.getQueryData<any>(["agents-ai", null])) {
         queryClient.setQueryData(["agents-ai", null], (old: any) => {
           if (!old) return old;
-          return [{ ...data, name: body.name }, ...old];
+          return [{ ...data, name: body.name, status: "close" }, ...old];
         });
       }
 

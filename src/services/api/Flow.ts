@@ -6,6 +6,7 @@ export async function createFlow(body: {
   name: string;
   type: FlowType;
   businessIds?: number[];
+  agentId?: number;
 }): Promise<{
   id: string;
   createAt: Date;

@@ -14,6 +14,7 @@ export async function getConnectionsWA(params: {
     type: ConnectionWAType;
     id: number;
     createAt: Date;
+    AgentAI: { id: number; name: string } | null;
   }[]
 > {
   const { data } = await api.get("/private/connections-wa", { params });
@@ -43,6 +44,7 @@ export async function createConnectionWA(body: {
   groupsAddPrivacy?: "all" | "contacts" | "contact_blacklist";
   readReceiptsPrivacy?: "all" | "none";
   fileImage?: File;
+  agentId?: number;
 }): Promise<{
   id: number;
   createAt: Date;
@@ -71,6 +73,7 @@ export async function getConnectionWADetails(id: number): Promise<{
   business: { name: string; id: number }[];
   value: string | null;
   type: ConnectionWAType;
+  AgentAI: { id: number; name: string } | null;
 }> {
   const { data } = await api.get(`/private/connections-wa/${id}/details`);
   return data.connectionWA;

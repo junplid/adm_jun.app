@@ -7,7 +7,7 @@ import { ModalDeleteFlow } from "./modals/delete";
 import { Button } from "@chakra-ui/react";
 import { MdDeleteOutline, MdEdit } from "react-icons/md";
 import { ModalViewFlow } from "./modals/view";
-import { LuEye } from "react-icons/lu";
+import { LuBrainCircuit, LuEye } from "react-icons/lu";
 import { IoAdd } from "react-icons/io5";
 import { ModalEditFlow } from "./modals/edit";
 import { FlowType } from "../../../services/api/Flow";
@@ -38,12 +38,22 @@ export const FlowsPage: React.FC = (): JSX.Element => {
         name: "Nome do fluxo",
         render(row) {
           return (
-            <Link
-              to={`/auth/flows/${row.id}`}
-              className="text-blue-300 hover:text-blue-400 underline"
-            >
-              {row.name}
-            </Link>
+            <div className="flex flex-col items-baseline">
+              <Link
+                to={`/auth/flows/${row.id}`}
+                className="text-blue-300 hover:text-blue-400 underline"
+              >
+                {row.name}
+              </Link>
+              <div className="flex items-center">
+                {row.AgentAI && (
+                  <div className="flex items-center gap-x-1 px-1! bg-blue-300/20 text-blue-300">
+                    <LuBrainCircuit />
+                    <span>{row.AgentAI.name}</span>
+                  </div>
+                )}
+              </div>
+            </div>
           );
         },
       },
@@ -113,6 +123,7 @@ export const FlowsPage: React.FC = (): JSX.Element => {
                 bg={"transparent"}
                 _hover={{ bg: "#eb606028" }}
                 _icon={{ width: "20px", height: "20px" }}
+                disabled={!!row.AgentAI}
                 onClick={() => {
                   onOpen({
                     content: (

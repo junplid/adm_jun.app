@@ -31,7 +31,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@components/ui/dialog";
-import SelectBusinesses from "@components/SelectBusinesses";
+// import SelectBusinesses from "@components/SelectBusinesses";
 import { Field } from "@components/ui/field";
 import SelectFlows from "@components/SelectFlows";
 import SelectConnectionsWA from "@components/SelectConnectionsWA";
@@ -70,11 +70,11 @@ const FormSchema = z.object({
     })
     .optional(),
   description: z.string().optional(),
-  businessIds: z
-    .array(z.number(), {
-      message: "Campo obrigatório",
-    })
-    .min(1, { message: "Campo obrigatório" }),
+  // businessIds: z
+  //   .array(z.number(), {
+  //     message: "Campo obrigatório",
+  //   })
+  //   .min(1, { message: "Campo obrigatório" }),
   shootingSpeedId: z.number(),
   connectionIds: z.array(z.number(), {
     message: "Campo obrigatório",
@@ -104,14 +104,17 @@ const optionsOpertaingDays = [
   { label: "Quarta-feira", value: 3 },
   { label: "Quinta-feira", value: 4 },
   { label: "Sexta-feira", value: 5 },
-  { label: "Sábado-feira", value: 6 },
+  { label: "Sábado", value: 6 },
 ];
 
 export function ModalCreateCampaign({
   placement = "bottom",
   ...props
 }: IProps): JSX.Element {
-  const { logout } = useContext(AuthContext);
+  const {
+    logout,
+    account: { businessId },
+  } = useContext(AuthContext);
   const {
     handleSubmit,
     register,
@@ -121,12 +124,12 @@ export function ModalCreateCampaign({
     setValue,
     reset,
     watch,
-    getValues,
+    // getValues,
   } = useForm<Fields>({
     resolver: zodResolver(FormSchema),
   });
   const operatingDays = watch("operatingDays");
-  const businessIds = watch("businessIds");
+  // const businessIds = watch("businessIds");
   const [shootingSpeeds, setShootingSpeeds] = useState<
     {
       id: number;
@@ -154,7 +157,11 @@ export function ModalCreateCampaign({
   const create = useCallback(
     async (fields: Fields): Promise<void> => {
       try {
-        const campaign = await createCampaign({ ...fields, contacts });
+        const campaign = await createCampaign({
+          ...fields,
+          contacts,
+          businessIds: [businessId],
+        });
         const { name } = fields;
         reset();
         props.onCreate?.({
@@ -171,7 +178,7 @@ export function ModalCreateCampaign({
         }
       }
     },
-    [contacts]
+    [contacts, businessId]
   );
 
   const optionsOpertaingDaysMemo = useMemo(() => {
@@ -228,7 +235,7 @@ export function ModalCreateCampaign({
         onSubmit={handleSubmit(create, (error) => {
           if (
             !!error.name ||
-            !!error.businessIds ||
+            // !!error.businessIds ||
             !!error.description ||
             !!error.flowId ||
             !!error.connectionIds ||
@@ -367,7 +374,7 @@ export function ModalCreateCampaign({
             </TabsContent>
             <TabsContent value="start-config">
               <div className="grid w-full gap-y-3">
-                <Field
+                {/* <Field
                   invalid={!!errors.businessIds}
                   label="Anexe o projeto"
                   className="w-full"
@@ -400,7 +407,7 @@ export function ModalCreateCampaign({
                       />
                     )}
                   />
-                </Field>
+                </Field> */}
 
                 <Field
                   errorText={errors.name?.message}
@@ -570,10 +577,10 @@ export function ModalCreateCampaign({
                     control={control}
                     render={({ field }) => (
                       <SelectTags
-                        isDisabled={!businessIds?.length}
+                        // isDisabled={!businessIds?.length}
                         name={field.name}
                         isMulti
-                        params={{ businessIds }}
+                        params={{ businessIds: [businessId] }}
                         onBlur={field.onBlur}
                         onChange={(e: any) => {
                           field.onChange(e.map((item: any) => item.value));

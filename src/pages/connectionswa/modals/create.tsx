@@ -19,7 +19,7 @@ import { AxiosError } from "axios";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import SelectBusinesses from "@components/SelectBusinesses";
+// import SelectBusinesses from "@components/SelectBusinesses";
 import { useCreateConnectionWA } from "../../../hooks/connectionWA";
 import TextareaAutosize from "react-textarea-autosize";
 import {
@@ -42,7 +42,7 @@ interface IProps {
 const FormSchema = z.object({
   name: z.string().min(1, "Campo obrigatório."),
   description: z.string().optional(),
-  businessId: z.number({ message: "Campo obrigatório." }),
+  // businessId: z.number({ message: "Campo obrigatório." }),
   type: z.enum(["chatbot", "marketing"], {
     message: "Campo obrigatório.",
   }),
@@ -187,7 +187,7 @@ export function ModalCreateConnectionWA({
             </Center>
             <TabsContent value="integration">
               <VStack gap={4}>
-                <Field
+                {/* <Field
                   errorText={errors.businessId?.message}
                   invalid={!!errors.businessId}
                   label="Anexe o projeto"
@@ -215,7 +215,7 @@ export function ModalCreateConnectionWA({
                       />
                     )}
                   />
-                </Field>
+                </Field> */}
                 <Field
                   errorText={errors.name?.message}
                   invalid={!!errors.name}

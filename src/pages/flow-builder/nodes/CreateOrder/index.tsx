@@ -14,7 +14,7 @@ import {
   TypeStatusOrder,
 } from "../../../../services/api/Orders";
 import { Field } from "@components/ui/field";
-import SelectBusinesses from "@components/SelectBusinesses";
+// import SelectBusinesses from "@components/SelectBusinesses";
 import SelectComponent from "@components/Select";
 import SelectVariables from "@components/SelectVariables";
 import { TiFlash } from "react-icons/ti";
@@ -59,9 +59,8 @@ type DataNode = {
 };
 
 function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
-  const { updateNode, businessIds } = useStore((s) => ({
+  const { updateNode } = useStore((s) => ({
     updateNode: s.updateNode,
-    businessIds: s.businessIds,
   }));
   const { data: variables } = useGetVariablesOptions();
 
@@ -87,7 +86,7 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
 
   return (
     <div className="flex flex-col gap-y-3 -mt-3">
-      <Field label="Projeto" required>
+      {/* <Field label="Projeto" required>
         <SelectBusinesses
           isMulti={false}
           isClearable={false}
@@ -103,7 +102,7 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
             updateNode(id, { data: { ...data, businessId: e.value } });
           }}
         />
-      </Field>
+      </Field> */}
 
       <Field label="Nome do pedido">
         <AutocompleteTextField

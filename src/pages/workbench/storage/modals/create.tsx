@@ -13,13 +13,13 @@ import {
   DialogActionTrigger,
   DialogDescription,
 } from "@components/ui/dialog";
-import { Field } from "@components/ui/field";
+// import { Field } from "@components/ui/field";
 import { StorageFileRow } from "..";
 import { AxiosError } from "axios";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import SelectBusinesses from "@components/SelectBusinesses";
+// import SelectBusinesses from "@components/SelectBusinesses";
 import {
   FileUploadDropzone,
   FileUploadList,
@@ -52,10 +52,10 @@ export function ModalCreateFlow({
   const {
     handleSubmit,
     control,
-    formState: { errors },
-    setError,
-    setValue,
-    getValues,
+    // formState: { errors },
+    // setError,
+    // setValue,
+    // getValues,
     reset,
   } = useForm<Fields>({
     resolver: zodResolver(FormSchema),
@@ -101,7 +101,7 @@ export function ModalCreateFlow({
         </DialogHeader>
         <DialogBody mt="-8px">
           <VStack gap={4}>
-            <Field
+            {/* <Field
               label="Anexe projetos"
               helperText={
                 "Se nenhum projeto for selecionado, o arquivo será anexado a todos os projetos existentes e os que forem criados no futuro."
@@ -136,7 +136,7 @@ export function ModalCreateFlow({
                   />
                 )}
               />
-            </Field>
+            </Field> */}
 
             <Controller
               control={control}

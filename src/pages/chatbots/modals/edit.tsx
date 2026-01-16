@@ -23,7 +23,7 @@ import { AxiosError } from "axios";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import SelectBusinesses from "@components/SelectBusinesses";
+// import SelectBusinesses from "@components/SelectBusinesses";
 import SelectComponent from "@components/Select";
 import {
   TabsContent,
@@ -44,6 +44,7 @@ import deepEqual from "fast-deep-equal";
 interface IProps {
   id: number;
   close: () => void;
+  isAgent: boolean;
 }
 
 type TypeChatbotInactivity = "seconds" | "minutes" | "hours" | "days";
@@ -133,7 +134,7 @@ const optionsOpertaingDays = [
   { label: "Quarta-feira", value: 3 },
   { label: "Quinta-feira", value: 4 },
   { label: "Sexta-feira", value: 5 },
-  { label: "Sábado-feira", value: 6 },
+  { label: "Sábado", value: 6 },
 ];
 
 const typeDurationOffLeadOptions: {
@@ -151,6 +152,7 @@ function Content({
   ...props
 }: {
   id: number;
+  isAgent: boolean;
   onClose: () => void;
 }): JSX.Element {
   const [currentTab, setCurrentTab] = useState<
@@ -220,7 +222,7 @@ function Content({
   useEffect(() => {
     if (
       !!errors.name ||
-      !!errors.businessId ||
+      // !!errors.businessId ||
       !!errors.status ||
       !!errors.description
     ) {
@@ -237,7 +239,7 @@ function Content({
     }
   }, [
     errors.name,
-    errors.businessId,
+    // errors.businessId,
     errors.status,
     errors.description,
     errors.flowId,
@@ -290,13 +292,13 @@ function Content({
                 value="opening-hours"
                 py={"27px"}
               >
-                Horarios de funcionamento
+                Horários de operação
               </TabsTrigger>
             </TabsList>
           </Center>
           <TabsContent value="start-config">
             <VStack gap={4}>
-              <Field
+              {/* <Field
                 invalid={!!errors.businessId}
                 label="Anexe o projeto"
                 className="w-full"
@@ -324,7 +326,7 @@ function Content({
                     />
                   )}
                 />
-              </Field>
+              </Field> */}
               <Field
                 errorText={errors.name?.message}
                 invalid={!!errors.name}
@@ -415,6 +417,7 @@ function Content({
                 errorText={errors.connectionWAId?.message}
                 invalid={!!errors.connectionWAId}
                 label="Conexão WA"
+                disabled={props.isAgent}
               >
                 <Controller
                   name="connectionWAId"
@@ -423,6 +426,7 @@ function Content({
                     <SelectConnectionsWA
                       name={field.name}
                       isMulti={false}
+                      isDisabled={props.isAgent}
                       onBlur={field.onBlur}
                       onChange={(e: any) => field.onChange(e.value)}
                       value={field.value}
@@ -490,7 +494,7 @@ function Content({
                   )}
                 />
               </Field>
-              <span className="block w-full h-[1px] my-2 bg-white/25"></span>
+              <span className="block w-full h-px my-2 bg-white/25"></span>
               <div className="grid gap-y-1">
                 <Field
                   errorText={errors.name?.message}
@@ -578,7 +582,7 @@ function Content({
                   disponível para usar em seu anúncio do Facebook Ads.
                 </span>
               </div>
-              <span className="block w-full h-[1px] my-2 bg-white/25"></span>
+              <span className="block w-full h-px my-2 bg-white/25"></span>
               <div className="grid gap-y-1">
                 <span className="font-semibold mb-0.5">
                   Intervalo para reativação automática do bot
@@ -648,7 +652,7 @@ function Content({
               </div>
             </VStack>
           </TabsContent>
-          <TabsContent value="opening-hours" className="min-h-[260px]">
+          <TabsContent value="opening-hours" className="min-h-65">
             <div className="-mt-1 flex flex-col gap-4">
               {!operatingDays?.length && (
                 <span className="text-yellow-600 font-semibold text-center">
@@ -926,7 +930,7 @@ export function ModalEditChatbot({ id, ...props }: IProps): JSX.Element {
           80% das empresas usam WhatsApp para o marketing e vendas.
         </DialogDescription>
       </DialogHeader>
-      <Content id={id} onClose={props.close} />
+      <Content isAgent={props.isAgent} id={id} onClose={props.close} />
       <DialogCloseTrigger asChild>
         <CloseButton size="sm" />
       </DialogCloseTrigger>

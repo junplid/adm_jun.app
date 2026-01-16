@@ -54,7 +54,9 @@ export function LayoutInboxesPageProvider(): JSX.Element {
       <div className="h-full gap-y-2 flex flex-col sm:p-0 px-2">
         <div className="flex flex-col gap-y-0.5">
           <div className="flex items-center gap-x-5">
-            <h1 className="text-base sm:text-lg font-semibold">Inboxes</h1>
+            <h1 className="text-base sm:text-lg font-semibold">
+              Suporte humano
+            </h1>
           </div>
           <p className="text-white/60 font-light sm:text-base text-sm">
             Centralizar o suporte humano em tempo real.

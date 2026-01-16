@@ -9,7 +9,7 @@ import SelectVariables from "@components/SelectVariables";
 import { MdErrorOutline, MdPix, MdCheckCircleOutline } from "react-icons/md";
 import { RiMoneyDollarCircleLine } from "react-icons/ri";
 import SelectPaymentIntegrations from "@components/SelectPaymentIntegrations";
-import SelectBusinesses from "@components/SelectBusinesses";
+// import SelectBusinesses from "@components/SelectBusinesses";
 import { useGetVariablesOptions } from "../../../../hooks/variable";
 
 type TypeMethodCharge = "pix";
@@ -28,9 +28,8 @@ type DataNode = {
 };
 
 function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
-  const { updateNode, businessIds } = useStore((s) => ({
+  const { updateNode } = useStore((s) => ({
     updateNode: s.updateNode,
-    businessIds: s.businessIds,
   }));
   const { data: variables } = useGetVariablesOptions();
 
@@ -71,7 +70,7 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
           }}
         />
       </Field>
-      <Field
+      {/* <Field
         label="Projeto"
         helperText={
           "Caso não selecione, será anexada a todos os projetos existentes e aos futuros."
@@ -93,7 +92,7 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
             });
           }}
         />
-      </Field>
+      </Field> */}
 
       <div className="my-2 grid grid-cols-2 gap-x-2">
         <div className="flex flex-col items-center w-full">

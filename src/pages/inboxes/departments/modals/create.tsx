@@ -25,7 +25,7 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useCreateInboxDepartment } from "../../../../hooks/inboxDepartment";
-import SelectBusinesses from "@components/SelectBusinesses";
+// import SelectBusinesses from "@components/SelectBusinesses";
 import SelectInboxUsers from "@components/SelectInboxUsers";
 
 interface IProps {
@@ -36,7 +36,7 @@ interface IProps {
 
 const FormSchema = z.object({
   name: z.string().min(1, "Campo obrigatório."),
-  businessId: z.number({ message: "Campo obrigatório." }),
+  // businessId: z.number({ message: "Campo obrigatório." }),
   signBusiness: z.boolean().optional(),
   signDepartment: z.boolean().optional(),
   signUser: z.boolean().optional(),
@@ -110,7 +110,7 @@ export function ModalCreateInboxDepartment({
         </DialogHeader>
         <DialogBody>
           <VStack gap={4} mt={"-10px"}>
-            <Field
+            {/* <Field
               label="Anexar projeto"
               errorText={errors.businessId?.message}
               invalid={!!errors.businessId}
@@ -132,7 +132,7 @@ export function ModalCreateInboxDepartment({
                   />
                 )}
               />
-            </Field>
+            </Field> */}
             <Field
               errorText={errors.name?.message}
               invalid={!!errors.name}
