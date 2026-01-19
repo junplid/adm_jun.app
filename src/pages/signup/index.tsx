@@ -1,12 +1,4 @@
-import "./styles.css";
-import {
-  // Box,
-  Button,
-  ButtonGroup,
-  Collapsible,
-  Input,
-  InputGroup,
-} from "@chakra-ui/react";
+import { Button, Collapsible, Input, InputGroup } from "@chakra-ui/react";
 import { AxiosError } from "axios";
 import {
   JSX,
@@ -24,12 +16,6 @@ import { toaster } from "@components/ui/toaster";
 import { ErrorResponse_I } from "../../services/api/ErrorResponse";
 import { useHookFormMask } from "use-mask-input";
 import { useQuery } from "@tanstack/react-query";
-import {
-  StepsContent,
-  StepsItem,
-  StepsList,
-  StepsRoot,
-} from "@components/ui/steps";
 import { set } from "idb-keyval";
 
 // import { CardBrand, loadStripe } from "@stripe/stripe-js";
@@ -45,7 +31,7 @@ import { set } from "idb-keyval";
 
 const FormSchema = z.object({
   name: z.string().min(6, "Campo nome completo inválido."),
-  number: z.string().min(1, "Esse campo é obrigatório."),
+  number: z.string().min(1, "Este campo é obrigatório."),
   email: z.string().email({
     message: "Campo de e-mail inválido.",
   }),
@@ -179,7 +165,7 @@ export const FormSignup: React.FC = (): JSX.Element => {
           if (dataError.input.length) {
             dataError.input.forEach(({ text, path }) =>
               // @ts-expect-error
-              setError(path, { message: text })
+              setError(path, { message: text }),
             );
             const isStep0 = dataError.input.some((s) => {
               return /(email|password|name|number|cpfCnpj)/.test(s.path);
@@ -211,7 +197,102 @@ export const FormSignup: React.FC = (): JSX.Element => {
             <h3 className="text-xl font-semibold text-black text-center dark:text-white">
               Cadastre-se e automatize já.
             </h3>
-            <StepsRoot
+
+            <Collapsible.Root open={open}>
+              <Collapsible.Trigger className="w-full pb-2 text-start">
+                <Field
+                  invalid={!!errors.email}
+                  label="E-mail de acesso"
+                  errorText={errors.email?.message}
+                  disabled={isPending || !av}
+                >
+                  <Input
+                    {...register("email", {
+                      onChange() {
+                        setOpen(true);
+                      },
+                    })}
+                    autoComplete="off"
+                    type="text"
+                  />
+                </Field>
+              </Collapsible.Trigger>
+              <Collapsible.Content className="pt-2 flex flex-col gap-y-4 text-start">
+                <Field
+                  invalid={!!errors.name}
+                  label="Nome completo"
+                  errorText={errors.name?.message}
+                  disabled={isPending || !av}
+                >
+                  <Input
+                    {...register("name")}
+                    autoComplete="nope"
+                    type="text"
+                  />
+                </Field>
+
+                <Field
+                  invalid={!!errors.number}
+                  label="Número whatsapp"
+                  errorText={errors.number?.message}
+                  disabled={isPending || !av}
+                >
+                  <InputGroup startElement="+55">
+                    <Input
+                      {...registerWithMask("number", [
+                        "(99) 9999-9999",
+                        "(99) 99999-9999",
+                      ])}
+                      autoComplete="nope"
+                      type="text"
+                    />
+                  </InputGroup>
+                </Field>
+
+                <Field
+                  invalid={!!errors.password}
+                  label="Senha de acesso"
+                  errorText={errors.password?.message}
+                  disabled={isPending || !av}
+                >
+                  <Input
+                    {...register("password")}
+                    autoComplete="nope"
+                    type="password"
+                  />
+                </Field>
+              </Collapsible.Content>
+            </Collapsible.Root>
+
+            <div className="flex flex-col gap-y-2 mt-3">
+              <Button
+                loadingText="Aguarde..."
+                loading={isSubmitting}
+                type="submit"
+                disabled={isPending || !av}
+                variant={"subtle"}
+                colorPalette={"cyan"}
+                borderStyle={"dashed"}
+                size={"md"}
+                className="w-full"
+              >
+                Criar conta
+              </Button>
+              <Button
+                variant={"outline"}
+                borderStyle={"dashed"}
+                borderWidth={"2px"}
+                type="button"
+                as={Link}
+                // @ts-expect-error
+                to={`/login?${searchParams.toString()}`}
+                className="w-full"
+              >
+                Acesse uma conta existente
+              </Button>
+            </div>
+
+            {/* <StepsRoot
               step={step}
               onStepChange={(e) => setStep(e.step)}
               count={2}
@@ -442,7 +523,7 @@ export const FormSignup: React.FC = (): JSX.Element => {
 
                 <span className="text-red-400 mt-1 block h-13 -mb-2">
                   {errors.creditCard?.message || ""}
-                </span> */}
+                </span>
               </StepsContent>
               {!!step && (
                 <p className="text-white text-sm leading-4">
@@ -478,7 +559,7 @@ export const FormSignup: React.FC = (): JSX.Element => {
                   >
                     Continuar
                   </Button>
-                )} */}
+                )}  
                 {!step && (
                   <Button
                     loadingText="Aguarde..."
@@ -501,15 +582,14 @@ export const FormSignup: React.FC = (): JSX.Element => {
                   borderStyle={"dashed"}
                   borderWidth={"2px"}
                   type="button"
-                  as={Link}
-                  // @ts-expect-error
+                  as={Link} 
                   to={`/login?${searchParams.toString()}`}
                   className="w-full"
                 >
                   Acesse uma conta existente
                 </Button>
               )}
-            </StepsRoot>
+            </StepsRoot> */}
           </form>
         </div>
       </div>

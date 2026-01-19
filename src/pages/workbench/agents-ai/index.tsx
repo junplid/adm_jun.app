@@ -131,7 +131,11 @@ export const AgentsAIPage: React.FC = (): JSX.Element => {
                     onOpen({
                       size: "lg",
                       content: (
-                        <ModalConnectConnectionWA close={close} id={row.id} />
+                        <ModalConnectConnectionWA
+                          name={`Conectar "${row.name}" ao WhatsApp`}
+                          close={close}
+                          id={row.id}
+                        />
                       ),
                     })
                   }
@@ -237,7 +241,7 @@ export const AgentsAIPage: React.FC = (): JSX.Element => {
             return oldData;
           });
         }
-      }
+      },
     );
 
     return () => {

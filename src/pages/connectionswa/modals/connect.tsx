@@ -22,6 +22,7 @@ import ReactQRCode from "react-qr-code";
 interface IProps {
   close: () => void;
   id: number;
+  name?: string;
 }
 
 const FormSchema = z.object({
@@ -40,7 +41,7 @@ function QRCode(props: {
 }): JSX.Element {
   const { socket } = useContext(SocketContext);
   const [qrCode, setQrCode] = useState<{ v: string; valid: boolean } | null>(
-    null
+    null,
   );
 
   const requestQRcode = useCallback(() => {
@@ -54,7 +55,7 @@ function QRCode(props: {
   useEffect(() => {
     requestQRcode();
     socket.on(`qr-code-${props.connectionId}`, (data: string) =>
-      setQrCode({ v: data, valid: true })
+      setQrCode({ v: data, valid: true }),
     );
 
     return () => {
@@ -203,7 +204,7 @@ function PIN(props: {
         ...fields,
       });
     },
-    [socket, props.connectionId]
+    [socket, props.connectionId],
   );
 
   useEffect(() => {
@@ -213,7 +214,7 @@ function PIN(props: {
       (data: [string, string]) => {
         setLoad(false);
         setPairingCode(data);
-      }
+      },
     );
 
     return () => {
@@ -390,7 +391,7 @@ function PIN(props: {
 export function ModalConnectConnectionWA({ ...props }: IProps): JSX.Element {
   const { socket } = useContext(SocketContext);
   const [typeConnection, setTypeConnection] = useState<"QRCODE" | "PIN">(
-    "QRCODE"
+    "QRCODE",
   );
 
   useEffect(() => {
@@ -406,7 +407,7 @@ export function ModalConnectConnectionWA({ ...props }: IProps): JSX.Element {
   return (
     <DialogContent backdrop>
       <DialogHeader flexDirection={"column"} gap={0}>
-        <DialogTitle>Conectar Whatsapp</DialogTitle>
+        <DialogTitle>{props.name || "Conectar Whatsapp"}</DialogTitle>
         <DialogDescription>
           Escale suas vendas e fortaleça o relacionamento com seus clientes no
           WhatsApp, com rapidez e eficiência.

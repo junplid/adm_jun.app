@@ -65,7 +65,7 @@ const FormSchema = z.object({
     .string()
     .regex(
       /^([01]\d|2[0-3]):([0-5]\d)$/,
-      "Hora inválida (use HH:mm no formato 24h)"
+      "Hora inválida (use HH:mm no formato 24h)",
     ),
 });
 
@@ -192,7 +192,7 @@ const EditForm: FC<
 function Content({ id }: { id: number; close: () => void }) {
   const { logout } = useContext(AuthContext);
   const [status, setStatus] = useState<"error" | "success" | "pending">(
-    "pending"
+    "pending",
   );
   const [isFetching, setIsFetching] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
@@ -326,7 +326,7 @@ function Content({ id }: { id: number; close: () => void }) {
             {data.reminders.failed > 0 && (
               <span>Lembretes falhados: {data.reminders.failed}</span>
             )}
-            <span>Projeto: {data.business.name}</span>
+            {/* <span>Projeto: {data.business.name}</span> */}
             <span>Status: {data.status}</span>
             <div className="flex items-start gap-2">
               <span>Criado em:</span>
