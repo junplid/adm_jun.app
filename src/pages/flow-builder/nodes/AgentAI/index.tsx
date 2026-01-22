@@ -8,7 +8,6 @@ import { CustomHandle } from "../../customs/node";
 import SelectAgentsAI from "@components/SelectAgentsAI";
 import { Field } from "@components/ui/field";
 import AutocompleteTextField from "@components/Autocomplete";
-import { useGetVariablesOptions } from "../../../../hooks/variable";
 import { BsStars } from "react-icons/bs";
 
 type DataNode = {
@@ -16,14 +15,6 @@ type DataNode = {
   agentId: number;
   preview?: { first?: string[]; property: string[] };
 };
-
-const itemsCorporation = [
-  { name: "[add_var, <Nome da variavel>, <Qual o valor?>]" },
-  { name: "[rm_var, <Nome da variavel>]" },
-  { name: "[add_tag, <Nome da etiqueta>]" },
-  { name: "[rm_tag, <Nome da etiqueta>]" },
-  { name: "[sair_node, <Nome da saída>]" },
-];
 
 function pickExistNode(text: string) {
   const math = text.match(/\/\[sair_node,\s(.+)\]/g);
@@ -37,7 +28,6 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
     updateNode: s.updateNode,
     delEdge: s.delEdge,
   }));
-  const { data: variables } = useGetVariablesOptions();
 
   const [dataMok, setDataMok] = useState(data as DataNode);
   const [init, setInit] = useState(false);
@@ -61,7 +51,7 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
 
   return (
     <div className="flex flex-col -mt-3 mb-5 gap-y-3">
-      <Field label="Selecione o agente IA">
+      <Field label="Selecione o assistente de IA">
         <SelectAgentsAI
           value={data.agentId}
           isMulti={false}
@@ -78,28 +68,22 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
 
       <div className="flex flex-col items-center">
         <span className="font-semibold text-center">
-          Instrução direta pro agente
+          Instrução direta pro assistente
         </span>
         <span className="text-center text-white/70">
           Essas instruções serão priorizadas em relação as que já estão salvas
-          no escopo do agente IA
+          no escopo do assistente de IA
         </span>
       </div>
       <div className="w-full flex flex-col gap-y-2">
         <AutocompleteTextField
           // @ts-expect-error
-          trigger={["/", "{{"]}
-          maxOptions={20}
           matchAny
-          options={{
-            "/": itemsCorporation.map((s) => s.name),
-            "{{": variables?.map((s) => s.name + "}} ") || [],
-          }}
           maxRows={14}
           minRows={5}
           defaultValue={data.prompt || ""}
           type="textarea"
-          placeholder={`- Faça /[add_tag, LEAD_FRIO], ao inicia a conversa`}
+          placeholder={`Ao iniciar a conversa...`}
           onChange={async (target: string) => {
             const listExistNode = pickExistNode(target);
             const itemsDell = data.preview?.property?.filter(
@@ -128,12 +112,12 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
           ⚠️ Importante !
         </span>
         <span className=" text-white/70">
-          Quanto mais nodes o contato percorre desse agente, mais{" "}
+          Quanto mais nodes o contato percorre desse assistente, mais{" "}
           <span className="text-white font-medium">Instrução direta</span> entra
           no histórico.
         </span>
         <span className=" text-white/70">
-          Isso faz o agente lembrar de tudo que já foi dito nesse fluxo,
+          Isso faz o assistente lembrar de tudo que já foi dito nesse fluxo,
           incluindo as{" "}
           <span className="text-white font-medium">Instrução direta</span>.
         </span>
@@ -158,8 +142,8 @@ export const NodeAgentAI: React.FC<
   return (
     <div>
       <PatternNode.PatternPopover
-        title="Node de agente IA"
-        description="Chame um agente IA"
+        title="Node de assistente ded IA"
+        description="Chame um assistente de IA"
         positioning={{ flip: ["left", "right"], placement: "left" }}
         size="380px"
         node={{
@@ -182,7 +166,7 @@ export const NodeAgentAI: React.FC<
               />
             </div>
           ),
-          name: "Agente IA",
+          name: "Assistente IA",
           description: "Chama",
         }}
       >

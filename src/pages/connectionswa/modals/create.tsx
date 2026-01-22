@@ -378,7 +378,7 @@ export function ModalCreateConnectionWA({
                               ? {
                                   label:
                                     optionsPrivacyValue.find(
-                                      (s) => s.value === field.value
+                                      (s) => s.value === field.value,
                                     )?.label || "",
                                   value: field.value,
                                 }
@@ -432,7 +432,7 @@ export function ModalCreateConnectionWA({
                               ? {
                                   label:
                                     optionsPrivacyGroupValue.find(
-                                      (s) => s.value === field.value
+                                      (s) => s.value === field.value,
                                     )?.label || "",
                                   value: field.value,
                                 }

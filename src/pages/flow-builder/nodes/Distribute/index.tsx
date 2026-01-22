@@ -38,10 +38,10 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
                 onClick={() => {
                   delEdge(item.key);
                   const nextItems = data.exits.filter(
-                    (i) => i.key !== item.key
+                    (i) => i.key !== item.key,
                   );
                   const nextPreview = data.preview.filter(
-                    (key: string) => key !== item.key
+                    (key: string) => key !== item.key,
                   );
                   updateNode(id, {
                     data: {
@@ -145,7 +145,7 @@ export const NodeDistribute: React.FC<
         >
           <span
             style={{ fontSize: 9, top: -3, left: -19 }}
-            className="absolute cursor-default text-white/50 -left-[13px] font-medium"
+            className="absolute cursor-default text-white/50 -left-3.25 font-medium"
           >
             {`[${index + 1}]`}
           </span>

@@ -156,7 +156,7 @@ export const NodeUpdateTrelloCard: React.FC<Node<DataNode>> = ({
     <div>
       <PatternNode.PatternPopover
         title="Atualizar card no Trello"
-        description="Atualiza card do trello"
+        description="Atualiza card do Trello"
         positioning={{ flip: ["left", "right"], placement: "left" }}
         size="320px"
         node={{

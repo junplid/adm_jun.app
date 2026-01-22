@@ -41,7 +41,7 @@ export const NodeRemoveTags: React.FC<Node<DataNode>> = ({ id, data }) => {
     <div>
       <PatternNode.PatternPopover
         title="Node de remover etiquetas"
-        description="Remova várias etiquetas/tags do lead"
+        description="Remova várias etiquetas do lead"
         node={{
           children: (
             <div className="p-1 relative">

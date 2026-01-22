@@ -56,10 +56,6 @@ export const ModalDeleteChatbot: React.FC<PropsModalDelete> = ({
             Tem certeza de que deseja deletar o bot de recepção{" "}
             <strong className="font-semibold text-lg">{data?.name}</strong>?
           </p>
-          <p>
-            Bot de recepção será deletado permanentemente e não poderá ser
-            recuperado.
-          </p>
         </div>
       </DialogBody>
       <DialogFooter>

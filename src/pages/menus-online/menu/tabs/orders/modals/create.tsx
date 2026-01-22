@@ -100,7 +100,7 @@ export function ModalCreateProduct({
         }
       }
     },
-    [props.menuUuid]
+    [props.menuUuid],
   );
 
   const fileImage = watch("img");
@@ -203,7 +203,7 @@ export function ModalCreateProduct({
                         ? {
                             label:
                               optionsCategory.find(
-                                (s) => s.value === field.value
+                                (s) => s.value === field.value,
                               )?.label || "",
                             value: field.value,
                           }

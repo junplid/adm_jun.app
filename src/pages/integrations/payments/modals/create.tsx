@@ -30,13 +30,13 @@ interface Props {
 
 export const FormSchema = z.object({
   name: z
-    .string({ message: "Campo obrigatório" })
+    .string({ message: "Campo obrigatório." })
     .trim()
-    .min(1, { message: "Campo obrigatório" }),
+    .min(1, { message: "Campo obrigatório." }),
   access_token: z
-    .string({ message: "Campo obrigatório" })
+    .string({ message: "Campo obrigatório." })
     .trim()
-    .min(1, { message: "Campo obrigatório" }),
+    .min(1, { message: "Campo obrigatório." }),
   status: z.boolean().optional(),
   provider: z.enum(["mercadopago"]),
 });
@@ -74,7 +74,7 @@ export const ModalPayment: React.FC<Props> = (props): JSX.Element => {
       async onSuccess() {
         setOpen(false);
       },
-    }
+    },
   );
 
   const create = useCallback(async (fields: Fields): Promise<void> => {
@@ -140,7 +140,7 @@ export const ModalPayment: React.FC<Props> = (props): JSX.Element => {
                       field.value
                         ? {
                             label: optionsProviders.find(
-                              (item) => item.value === field.value
+                              (item) => item.value === field.value,
                             )?.label,
                             value: field.value,
                           }

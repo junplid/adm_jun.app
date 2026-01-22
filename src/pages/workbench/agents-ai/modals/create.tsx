@@ -64,7 +64,6 @@ import { SocketContext } from "@contexts/socket.context";
 import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import AutocompleteTextField from "@components/Autocomplete";
 import { RxLapTimer } from "react-icons/rx";
 import { Tooltip } from "@components/ui/tooltip";
 import { ErrorResponse_I } from "../../../../services/api/ErrorResponse";
@@ -163,12 +162,12 @@ export const FormSchema = z
     nameProvider: z.string().optional(),
 
     // businessIds: z
-    //   .array(z.number(), { message: "Campo obrigatório" })
-    //   .min(1, { message: "Campo obrigatório" }),
+    //   .array(z.number(), { message: "Campo obrigatório." })
+    //   .min(1, { message: "Campo obrigatório." }),
     name: z
-      .string({ message: "Campo obrigatório" })
+      .string({ message: "Campo obrigatório." })
       .trim()
-      .min(1, { message: "Campo obrigatório" }),
+      .min(1, { message: "Campo obrigatório." }),
     emojiLevel: z.enum(["none", "low", "medium", "high"]).optional(),
     language: z.string().optional(),
     personality: z
@@ -176,8 +175,8 @@ export const FormSchema = z
       .transform((value) => value.trim() || undefined)
       .optional(),
     model: z
-      .string({ message: "Campo obrigatório" })
-      .min(1, { message: "Campo obrigatório" }),
+      .string({ message: "Campo obrigatório." })
+      .min(1, { message: "Campo obrigatório." }),
     temperature: z.preprocess(
       toNumberOrUndef,
       z.number().min(0).max(2).optional(),
@@ -295,13 +294,6 @@ export type Fields = z.infer<typeof FormSchema>;
 //     disabled: true,
 //   },
 // ];
-
-const itemsCorporation = [
-  { name: "[add_var, <Nome da variavel>, <Qual o valor?>" },
-  { name: "[rm_var, <Nome da variavel>" },
-  { name: "[add_tag, <Nome da etiqueta>" },
-  { name: "[rm_tag, <Nome da etiqueta>" },
-];
 
 // todos flex
 // gpt-5.2      call searchFile
@@ -515,7 +507,6 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
 
   const providerCredentialId = watch("providerCredentialId");
   const apiKey = watch("apiKey");
-  const instructions = watch("instructions");
   const operatingDays = watch("chatbot.operatingDays");
   const fileImage = watch("connectionWA.fileImage");
   const service_tier = watch("service_tier");
@@ -1143,21 +1134,13 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
                   </div>
 
                   <div className="w-full flex flex-col gap-y-2">
-                    <AutocompleteTextField
-                      // @ts-expect-error
-                      trigger={["/"]}
-                      maxOptions={20}
-                      matchAny
-                      options={{
-                        "/": itemsCorporation.map((s) => s.name),
-                      }}
+                    <TextareaAutosize
                       maxRows={20}
                       minRows={8}
-                      value={instructions}
-                      spacer={"] "}
-                      type="textarea"
-                      placeholder={`- Quando iniciar a conversa /[add_etiqueta, LEAD_FRIO]`}
-                      onChange={(s: string) => setValue("instructions", s)}
+                      placeholder={`Quando iniciar a conversa ...`}
+                      style={{ resize: "none" }}
+                      className="p-3 py-2.5 rounded-sm w-full border-black/10 dark:border-white/10 border"
+                      {...register("instructions")}
                     />
                     <span className="text-white/70">
                       Digite <strong className="text-green-400">/</strong> para

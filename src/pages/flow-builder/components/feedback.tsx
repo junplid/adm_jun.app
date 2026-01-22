@@ -17,7 +17,7 @@ export function FeedbackComponent(): JSX.Element {
     <PopoverRoot positioning={{ placement: "bottom-end" }}>
       <PopoverTrigger as={"div"}>
         <Button
-          className="dark:bg-white/10 hover:dark:!bg-white/20 bg-black/5 hover:!bg-black/10"
+          className="dark:bg-white/10 hover:dark:bg-white/20! bg-black/5 hover:bg-black/10!"
           pointerEvents={"all"}
           size="sm"
           variant="outline"
@@ -32,7 +32,7 @@ export function FeedbackComponent(): JSX.Element {
           top={0}
           paddingTop={"15px"}
           paddingBottom={"5px"}
-          className="dark:!bg-[#111111] !bg-[#fff] z-10 border border-white/5 rounded-md rounded-b-none border-b-0"
+          className="dark:bg-[#111111]! bg-white! z-10 border border-white/5 rounded-md rounded-b-none border-b-0"
         >
           <PopoverTitle className="font-bold text-base">Feedback</PopoverTitle>
           <PopoverDescription className="dark:text-white/60 text-black/70">

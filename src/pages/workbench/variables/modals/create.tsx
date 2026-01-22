@@ -165,7 +165,7 @@ export function ModalCreateVariable({
                   onChange(event) {
                     setValue(
                       "name",
-                      event.target.value.replace(/\s/g, "_")
+                      event.target.value.replace(/\s/g, "_"),
                       // .replace(/[^a-zA-Z0-9-.-ç_]/g, "")
                     );
                   },
@@ -204,7 +204,7 @@ export function ModalCreateVariable({
                             {
                               label:
                                 optionsType.find(
-                                  (item) => item.value === field.value
+                                  (item) => item.value === field.value,
                                 )?.label || "",
                               value: field.value,
                             },

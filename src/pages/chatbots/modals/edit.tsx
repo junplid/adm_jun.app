@@ -108,10 +108,10 @@ const FormSchema = z.object({
                 const [hh, mm] = value.split(":").map(Number);
                 return hh >= 0 && hh <= 23 && mm >= 0 && mm <= 59;
               }, "Horário inválido (24h)"),
-            })
+            }),
           )
           .optional(),
-      })
+      }),
     )
     .nullish(),
   destLink: z
@@ -364,7 +364,7 @@ function Content({
                           ? {
                               label:
                                 optionsStatus.find(
-                                  (s) => s.value === field.value
+                                  (s) => s.value === field.value,
                                 )?.label || "",
                               value: field.value,
                             }
@@ -628,7 +628,7 @@ function Content({
                               ? {
                                   label:
                                     typeDurationOffLeadOptions.find(
-                                      (dd) => dd.value === field.value
+                                      (dd) => dd.value === field.value,
                                     )?.label ?? "",
                                   value: field.value,
                                 }
@@ -682,8 +682,8 @@ function Content({
                               setValue(
                                 "operatingDays",
                                 operatingDays.filter(
-                                  (o) => o.dayOfWeek !== day.dayOfWeek
-                                )
+                                  (o) => o.dayOfWeek !== day.dayOfWeek,
+                                ),
                               );
                             }}
                           >
@@ -692,7 +692,7 @@ function Content({
                           <div className="flex items-center gap-2 pl-1.5">
                             <span className="font-medium block">
                               {optionsOpertaingDays.find(
-                                (op) => op.value === day.dayOfWeek
+                                (op) => op.value === day.dayOfWeek,
                               )?.label || ""}
                             </span>
                             {!day.workingTimes?.length && (
@@ -728,7 +728,7 @@ function Content({
                                 size={"2xs"}
                                 {...registerWithMask(
                                   `operatingDays.${dayIndex}.workingTimes.${timeIndex}.start`,
-                                  "99:99"
+                                  "99:99",
                                 )}
                               />
                             </Field>
@@ -748,7 +748,7 @@ function Content({
                                 size={"2xs"}
                                 {...registerWithMask(
                                   `operatingDays.${dayIndex}.workingTimes.${timeIndex}.end`,
-                                  "99:99"
+                                  "99:99",
                                 )}
                               />
                             </Field>
@@ -765,11 +765,11 @@ function Content({
                                   operatingDays.map((o) => {
                                     if (o.dayOfWeek === day.dayOfWeek) {
                                       o.workingTimes = o.workingTimes?.filter(
-                                        (__, i) => i !== timeIndex
+                                        (__, i) => i !== timeIndex,
                                       );
                                     }
                                     return o;
-                                  })
+                                  }),
                                 );
                               }}
                             >
@@ -808,7 +808,7 @@ function Content({
                                   }
                                   return o;
                                 }),
-                              ]
+                              ],
                             );
                           }}
                         >

@@ -111,7 +111,7 @@ export const ModalViewVariable: React.FC<IProps> = ({
   return (
     <DialogContent w={"410px"} minH={"400px"}>
       <DialogHeader flexDirection={"column"} gap={0}>
-        <DialogTitle>Vizualizar detalhes da variável</DialogTitle>
+        <DialogTitle>Visualizar detalhes da variável</DialogTitle>
       </DialogHeader>
       <Content id={id} close={close} isDelete={isDelete} />
       <DialogCloseTrigger>

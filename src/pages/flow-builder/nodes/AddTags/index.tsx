@@ -40,7 +40,7 @@ export const NodeAddTags: React.FC<Node<DataNode>> = ({ id, data }) => {
     <div>
       <PatternNode.PatternPopover
         title="Node adicionar etiquetas"
-        description="Adiciona várias etiquetas/tags ao lead"
+        description="Adiciona várias etiquetas ao lead"
         node={{
           children: (
             <div className="p-1 relative">

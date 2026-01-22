@@ -29,17 +29,17 @@ interface Props {
 
 export const FormSchema = z.object({
   name: z
-    .string({ message: "Campo obrigatório" })
+    .string({ message: "Campo obrigatório." })
     .trim()
-    .min(1, { message: "Campo obrigatório" }),
+    .min(1, { message: "Campo obrigatório." }),
   token: z
-    .string({ message: "Campo obrigatório" })
+    .string({ message: "Campo obrigatório." })
     .trim()
-    .min(1, { message: "Campo obrigatório" }),
+    .min(1, { message: "Campo obrigatório." }),
   key: z
-    .string({ message: "Campo obrigatório" })
+    .string({ message: "Campo obrigatório." })
     .trim()
-    .min(1, { message: "Campo obrigatório" }),
+    .min(1, { message: "Campo obrigatório." }),
   status: z.boolean().optional(),
 });
 

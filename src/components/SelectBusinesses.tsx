@@ -14,7 +14,7 @@ interface ISelectBusinessesProps extends SelectProps {
 const SelectBusinesses = forwardRef<any, ISelectBusinessesProps>(
   (
     { isMulti, value, setError, filter, isFlow, ...props },
-    ref
+    ref,
   ): JSX.Element => {
     const canTriggerCreate = useRef(null);
     const [newBusinessName, setNewBusinessName] = useState("");
@@ -71,11 +71,11 @@ const SelectBusinesses = forwardRef<any, ISelectBusinessesProps>(
           return (
             <div className="flex  text-sm flex-col gap-1 pointer-events-auto">
               <span className="text-white/60">
-                Nenhum projeto {inputValue && `"${inputValue}"`} encontrado
+                Nenhum projeto {inputValue && `"${inputValue}"`} encontrado.
               </span>
               {!inputValue && (
                 <span className="text-sm text-white/80">
-                  Digite o nome do projeto que quer adicionar
+                  Digite o nome do projeto que quer adicionar.
                 </span>
               )}
               {inputValue && (
@@ -90,7 +90,7 @@ const SelectBusinesses = forwardRef<any, ISelectBusinessesProps>(
                   ) : (
                     <span className="text-xs">
                       <strong className="text-white/80">ENTER</strong> para
-                      adicionar rapidamente
+                      adicionar rapidamente.
                     </span>
                   )}
                 </div>
@@ -149,7 +149,7 @@ const SelectBusinesses = forwardRef<any, ISelectBusinessesProps>(
         {...props}
       />
     );
-  }
+  },
 );
 
 export default SelectBusinesses;

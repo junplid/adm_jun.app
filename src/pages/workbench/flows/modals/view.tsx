@@ -69,7 +69,7 @@ function Content({ id }: { id: string }) {
       <>
         <DialogBody className="flex">
           <div className="flex w-full items-center justify-center">
-            <span className="text-red-500">Nenhum dado encontrado</span>
+            <span className="text-red-500">Nenhum dado encontrado.</span>
           </div>
         </DialogBody>
         {footer}
@@ -106,7 +106,7 @@ function Content({ id }: { id: string }) {
           </div>
           {data.createAt !== data.updateAt && (
             <div className="flex items-start gap-3">
-              <strong>Ultima atualização:</strong>
+              <strong>Última atualização:</strong>
               <div className="flex items-center gap-2">
                 <span>{moment(data.updateAt).format("DD/MM/YYYY")}</span>
                 <span className="text-xs text-white/50">
@@ -126,7 +126,7 @@ export const ModalViewFlow: React.FC<IProps> = ({ id }): JSX.Element => {
   return (
     <DialogContent w={"410px"} minH={"400px"}>
       <DialogHeader flexDirection={"column"} gap={0}>
-        <DialogTitle>Vizualizar detalhes do projeto</DialogTitle>
+        <DialogTitle>Visualizar detalhes do projeto</DialogTitle>
       </DialogHeader>
       <Content id={id} />
       <DialogCloseTrigger>

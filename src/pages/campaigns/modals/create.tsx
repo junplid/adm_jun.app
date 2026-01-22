@@ -62,22 +62,22 @@ interface IProps {
 }
 
 const FormSchema = z.object({
-  name: z.string().min(1, "Campo obrigatório"),
-  flowId: z.string().min(1, { message: "Campo obrigatório" }),
+  name: z.string().min(1, "Campo obrigatório."),
+  flowId: z.string().min(1, { message: "Campo obrigatório." }),
   tagsIds: z
     .array(z.number(), {
-      message: "Campo obrigatório",
+      message: "Campo obrigatório.",
     })
     .optional(),
   description: z.string().optional(),
   // businessIds: z
   //   .array(z.number(), {
-  //     message: "Campo obrigatório",
+  //     message: "Campo obrigatório.",
   //   })
-  //   .min(1, { message: "Campo obrigatório" }),
+  //   .min(1, { message: "Campo obrigatório." }),
   shootingSpeedId: z.number(),
   connectionIds: z.array(z.number(), {
-    message: "Campo obrigatório",
+    message: "Campo obrigatório.",
   }),
   timeItWillStart: z
     .string()
@@ -90,7 +90,7 @@ const FormSchema = z.object({
         workingTimes: z
           .array(z.object({ start: z.string(), end: z.string() }))
           .optional(),
-      })
+      }),
     )
     .optional(),
 });
@@ -178,7 +178,7 @@ export function ModalCreateCampaign({
         }
       }
     },
-    [contacts, businessId]
+    [contacts, businessId],
   );
 
   const optionsOpertaingDaysMemo = useMemo(() => {
@@ -203,7 +203,7 @@ export function ModalCreateCampaign({
             if (dataError.input.length) {
               dataError.input.forEach(({ text, path }) =>
                 // @ts-expect-error
-                props?.setError?.(path, { message: text })
+                props?.setError?.(path, { message: text }),
               );
             }
           }
@@ -491,7 +491,7 @@ export function ModalCreateCampaign({
                                 background:
                                   "linear-gradient(90deg, #065ca1, #886905, #bb2c09)",
                               }}
-                              className="!h-[66px]"
+                              className="h-16.5!"
                               value={String(field.value)}
                             >
                               <SegmentGroup.Indicator
@@ -500,7 +500,7 @@ export function ModalCreateCampaign({
                                 bg={"#ffffff29"}
                               />
                               <SegmentGroup.Items
-                                className="cursor-pointer !h-[66px]"
+                                className="cursor-pointer h-16.5!"
                                 items={shootingSpeeds.map((s) => ({
                                   label: (
                                     <div className="flex flex-col font-medium items-center">
@@ -597,7 +597,7 @@ export function ModalCreateCampaign({
                   <FormContact
                     onAdd={(contact) => {
                       const exist = contacts.find(
-                        (c) => c.number === contact.number
+                        (c) => c.number === contact.number,
                       );
                       if (!exist) setContacts([contact, ...contacts]);
                     }}
@@ -609,10 +609,10 @@ export function ModalCreateCampaign({
                           key={contact.number}
                           onClick={() =>
                             setContacts((prev) =>
-                              prev.filter((p) => p.number !== contact.number)
+                              prev.filter((p) => p.number !== contact.number),
                             )
                           }
-                          className="flex flex-col justify-end hover:text-red-400 cursor-pointer h-[40px]"
+                          className="flex flex-col justify-end hover:text-red-400 cursor-pointer h-10"
                         >
                           <span className="truncate">{contact.name}</span>
                           <div className="flex items-center gap-x-1">
@@ -630,7 +630,7 @@ export function ModalCreateCampaign({
                 </div>
               </div>
             </TabsContent>
-            <TabsContent value="opening-hours" className="min-h-[260px]">
+            <TabsContent value="opening-hours" className="min-h-65">
               <div className="-mt-1 flex flex-col gap-4">
                 {!operatingDays?.length && (
                   <span className="text-yellow-600 font-semibold text-center">
@@ -659,8 +659,8 @@ export function ModalCreateCampaign({
                               setValue(
                                 "operatingDays",
                                 operatingDays.filter(
-                                  (o) => o.dayOfWeek !== day.dayOfWeek
-                                )
+                                  (o) => o.dayOfWeek !== day.dayOfWeek,
+                                ),
                               );
                             }}
                           >
@@ -669,7 +669,7 @@ export function ModalCreateCampaign({
                           <div className="flex items-center gap-2 pl-1.5">
                             <span className="font-medium block">
                               {optionsOpertaingDays.find(
-                                (op) => op.value === day.dayOfWeek
+                                (op) => op.value === day.dayOfWeek,
                               )?.label || ""}
                             </span>
                             {!day.workingTimes?.length && (
@@ -689,14 +689,14 @@ export function ModalCreateCampaign({
                                 type="time"
                                 size={"2xs"}
                                 {...register(
-                                  `operatingDays.${dayIndex}.workingTimes.${timeIndex}.start`
+                                  `operatingDays.${dayIndex}.workingTimes.${timeIndex}.start`,
                                 )}
                               />
                               <MdHorizontalRule size={33} />
                               <Input
                                 size={"2xs"}
                                 {...register(
-                                  `operatingDays.${dayIndex}.workingTimes.${timeIndex}.end`
+                                  `operatingDays.${dayIndex}.workingTimes.${timeIndex}.end`,
                                 )}
                                 type="time"
                               />
@@ -712,11 +712,11 @@ export function ModalCreateCampaign({
                                     operatingDays.map((o) => {
                                       if (o.dayOfWeek === day.dayOfWeek) {
                                         o.workingTimes = o.workingTimes?.filter(
-                                          (__, i) => i !== timeIndex
+                                          (__, i) => i !== timeIndex,
                                         );
                                       }
                                       return o;
-                                    })
+                                    }),
                                   );
                                 }}
                               >
@@ -753,7 +753,7 @@ export function ModalCreateCampaign({
                                     }
                                   }
                                   return o;
-                                })
+                                }),
                               );
                             }}
                           >

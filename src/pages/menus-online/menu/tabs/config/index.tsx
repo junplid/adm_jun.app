@@ -83,7 +83,7 @@ function SizePizzaComponent({ uuid }: { uuid: string }) {
         }
       }
     },
-    [uuid]
+    [uuid],
   );
 
   return (

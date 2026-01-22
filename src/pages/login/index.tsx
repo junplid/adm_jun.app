@@ -64,7 +64,7 @@ export const LoginPage: React.FC = (): JSX.Element => {
           if (dataError.input.length) {
             dataError.input.forEach(({ text, path }) =>
               // @ts-expect-error
-              setError(path, { message: text })
+              setError(path, { message: text }),
             );
           }
         }
@@ -155,17 +155,6 @@ export const LoginPage: React.FC = (): JSX.Element => {
             Criar conta
           </Button>
         </div>
-
-        <video
-          className="w-full h-auto hidden min-[640px]:block"
-          src="/login-video.mp4"
-          controls={false}
-          controlsList="nodownload noremoteplayback nodownload"
-          disablePictureInPicture
-          autoPlay
-          muted
-          loop
-        />
       </div>
     </div>
   );

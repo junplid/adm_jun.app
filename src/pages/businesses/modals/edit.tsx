@@ -48,7 +48,7 @@ function Content({
   onClose: () => void;
 }): JSX.Element {
   const [fieldsDraft, setFieldsDraft] = useState<FieldCreateBusiness | null>(
-    null
+    null,
   );
 
   const {
@@ -92,7 +92,7 @@ function Content({
         }
       }
     },
-    [fieldsDraft]
+    [fieldsDraft],
   );
 
   const fields = watch();

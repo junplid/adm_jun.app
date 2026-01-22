@@ -52,7 +52,7 @@ export const ModalDeleteAppaintment: React.FC<PropsModalDelete> = ({
   return (
     <DialogContent w={"370px"}>
       <DialogHeader flexDirection={"column"} gap={0}>
-        <DialogTitle>Deletar compromisso</DialogTitle>
+        <DialogTitle>Deletar agendamento</DialogTitle>
         <DialogDescription color={"#f86363"}>
           Essa ação não poderá ser desfeita.
         </DialogDescription>
@@ -60,7 +60,7 @@ export const ModalDeleteAppaintment: React.FC<PropsModalDelete> = ({
       <DialogBody>
         <div className="flex flex-col gap-y-1.5">
           <p className="">
-            Tem certeza de que deseja deletar o compromisso{" "}
+            Tem certeza de que deseja deletar o agendamento{" "}
             <strong className="font-semibold text-lg">
               {props.data?.name}
             </strong>

@@ -34,7 +34,7 @@ const SelectTrelloIntegrations = forwardRef<
         return (
           <div className="flex  text-sm flex-col gap-1 pointer-events-auto">
             <span className="text-white/60">
-              Nenhuma integração {inputValue && `"${inputValue}"`} encontrada
+              Nenhuma integração {inputValue && `"${inputValue}"`} encontrada.
             </span>
           </div>
         );

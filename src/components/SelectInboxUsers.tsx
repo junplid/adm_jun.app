@@ -33,7 +33,7 @@ const SelectInboxUsers = forwardRef<any, ISelectInboxUsersProps>(
           return (
             <div className="flex  text-sm flex-col gap-1 pointer-events-auto">
               <span className="text-white/60">
-                Nenhum atendente {inputValue && `"${inputValue}"`} encontrado
+                Nenhum atendente {inputValue && `"${inputValue}"`} encontrado.
               </span>
             </div>
           );
@@ -89,7 +89,7 @@ const SelectInboxUsers = forwardRef<any, ISelectInboxUsersProps>(
         {...props}
       />
     );
-  }
+  },
 );
 
 export default SelectInboxUsers;

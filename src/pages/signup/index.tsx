@@ -31,7 +31,7 @@ import { set } from "idb-keyval";
 
 const FormSchema = z.object({
   name: z.string().min(6, "Campo nome completo inválido."),
-  number: z.string().min(1, "Este campo é obrigatório."),
+  number: z.string().min(1, "Campo obrigatório."),
   email: z.string().email({
     message: "Campo de e-mail inválido.",
   }),
@@ -202,7 +202,7 @@ export const FormSignup: React.FC = (): JSX.Element => {
               <Collapsible.Trigger className="w-full pb-2 text-start">
                 <Field
                   invalid={!!errors.email}
-                  label="E-mail de acesso"
+                  label="Email de acesso"
                   errorText={errors.email?.message}
                   disabled={isPending || !av}
                 >
@@ -233,7 +233,7 @@ export const FormSignup: React.FC = (): JSX.Element => {
 
                 <Field
                   invalid={!!errors.number}
-                  label="Número whatsapp"
+                  label="Número whatsApp"
                   errorText={errors.number?.message}
                   disabled={isPending || !av}
                 >

@@ -100,7 +100,7 @@ function Content({
         }
       }
     },
-    [fieldsDraft]
+    [fieldsDraft],
   );
 
   const fields = watch();
@@ -161,7 +161,7 @@ function Content({
                 onChange(event) {
                   setValue(
                     "name",
-                    event.target.value.replace(/\s/g, "_")
+                    event.target.value.replace(/\s/g, "_"),
                     // .replace(/[^a-zA-Z0-9-.-ç_]/g, "")
                   );
                 },
@@ -199,7 +199,7 @@ function Content({
                           {
                             label:
                               optionsType.find(
-                                (item) => item.value === field.value
+                                (item) => item.value === field.value,
                               )?.label || "",
                             value: field.value,
                           },

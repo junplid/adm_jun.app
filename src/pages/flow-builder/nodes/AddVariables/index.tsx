@@ -53,7 +53,7 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
   const suggestions = useMemo(() => {
     return variables
       ?.filter(
-        (s) => s.type === "dynamics" && !data.list.some((v) => v.id === s.id)
+        (s) => s.type === "dynamics" && !data.list.some((v) => v.id === s.id),
       )
       .map((s) => ({
         id: String(s.id),
@@ -97,7 +97,7 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
   return (
     <div className="flex flex-col gap-y-3 -mt-3">
       {!data.list.length ? (
-        <span className="text-white/70">*Nenhuma variável selecionada</span>
+        <span className="text-white/70">*Nenhuma variável selecionada.</span>
       ) : (
         <div className="flex flex-col gap-y-1.5 mt-1">
           {data.list.map(({ id: idItem, value }, index) => (

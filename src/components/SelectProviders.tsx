@@ -32,7 +32,7 @@ const SelectProviders = forwardRef<any, ISelectProvidersProps>(
           return (
             <div className="flex  text-sm flex-col gap-1 pointer-events-auto">
               <span className="text-white/60">
-                Nenhum provedor {inputValue && `"${inputValue}"`} encontrado
+                Nenhum provedor {inputValue && `"${inputValue}"`} encontrado.
               </span>
             </div>
           );
@@ -88,7 +88,7 @@ const SelectProviders = forwardRef<any, ISelectProvidersProps>(
         {...props}
       />
     );
-  }
+  },
 );
 
 export default SelectProviders;

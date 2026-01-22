@@ -28,7 +28,7 @@ const optionsStatus: { label: string; value: StatusAppointments }[] = [
   // { label: "Sugerido", value: "suggested" },
   { label: "Agendado", value: "pending_confirmation" },
   { label: "Confirmado", value: "confirmed" },
-  { label: "Concluido", value: "completed" },
+  { label: "Concluído", value: "completed" },
   { label: "Cancelado", value: "canceled" },
   { label: "Expirado", value: "expired" },
 ];
@@ -90,20 +90,20 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
         />
       </Field> */}
 
-      <Field label="Titulo do evento" required>
+      <Field label="Título do agendamento" required>
         <AutocompleteTextField
           // @ts-expect-error
           trigger={["{{"]}
           options={{ "{{": variables?.map((s) => s.name) || [] }}
           spacer={"}} "}
-          placeholder="Digite o titulo ou {{nome}}"
+          placeholder="Digite o título ou {{nome}}"
           defaultValue={data.title || ""}
           onChange={(value: string) => setDataMok({ ...data, title: value })}
         />
       </Field>
 
       <Field
-        label="Data do evento"
+        label="Data do agendamento"
         required
         helperText="Formato YYYY-MM-DDTHH:mm (ISO 8601)."
       >
@@ -112,7 +112,7 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
           trigger={["{{"]}
           options={{ "{{": variables?.map((s) => s.name) || [] }}
           spacer={"}} "}
-          placeholder="YYYY-MM-DDTHH:mm ou {{data_evento}}"
+          placeholder="YYYY-MM-DDTHH:mm ou {{data_agendamento}}"
           defaultValue={data.startAt || ""}
           onChange={(value: string) => setDataMok({ ...data, startAt: value })}
         />
@@ -157,7 +157,7 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
         />
       </Field>
 
-      <Field label="Salvar o código do evento">
+      <Field label="Salvar o código do agendamento">
         <SelectVariables
           isMulti={false}
           isClearable={false}
@@ -184,7 +184,7 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
         {data.actionChannels?.length ? (
           <div>
             <span className="block w-full text-center mb-1 font-medium">
-              Ações do pedido
+              Ações do agendamento
             </span>
             {data.actionChannels!.map((msg, index) => (
               <div
@@ -198,7 +198,7 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
                       data: {
                         ...data,
                         actionChannels: data.actionChannels!.filter(
-                          (s) => s.key !== msg.key
+                          (s) => s.key !== msg.key,
                         ),
                       },
                     });
@@ -268,8 +268,8 @@ export const NodeCreateAppointment: React.FC<Node<DataNode>> = ({
   return (
     <div>
       <PatternNode.PatternPopover
-        title="Node de agendar evento"
-        description="Cria um novo evento"
+        title="Node de agendamento"
+        description="Cria um novo agendamento"
         positioning={{ flip: ["left", "right"], placement: "left" }}
         size="330px"
         node={{
@@ -335,7 +335,7 @@ export const NodeCreateAppointment: React.FC<Node<DataNode>> = ({
         className="dark:border-[#22c55eef]! dark:bg-[#22c55eef]/15! border-[#22c55eef]! bg-[#22c55eef]/15!"
       />
       <span className="font-semibold text-[#22c55eef] text-[8px] absolute -right-7.5 top-16.25">
-        Concluido
+        Concluído
       </span>
 
       <CustomHandle

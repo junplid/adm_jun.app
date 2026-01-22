@@ -32,7 +32,7 @@ export const ModalOnboarded: React.FC<IProps> = ({ onClose }): JSX.Element => {
               <p className="text-lg mb-12 text-gray-300">
                 Transforme conexões em resultados. Descubra como nossa
                 ferramenta pode simplificar suas operações e impulsionar suas
-                vendas e estratégias de marketing
+                vendas e estratégias de marketing.
               </p>
             </div>
 

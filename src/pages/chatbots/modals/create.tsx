@@ -418,7 +418,7 @@ export function ModalCreateChatbot({
                 <Field
                   errorText={errors.name?.message}
                   invalid={!!errors.name}
-                  label="Nome do bot"
+                  label="Nome do bot de recepção"
                 >
                   <Input
                     {...register("name", {
@@ -428,7 +428,7 @@ export function ModalCreateChatbot({
                     })}
                     autoFocus
                     autoComplete="off"
-                    placeholder="Digite o nome do bot de recepção"
+                    placeholder="Digite o nome do bot"
                   />
                 </Field>
                 <Field

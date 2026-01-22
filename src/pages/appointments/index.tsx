@@ -48,7 +48,7 @@ const messages = {
   date: "Data",
   time: "Hora",
   event: "Evento",
-  noEventsInRange: "Não há compromisso neste período.",
+  noEventsInRange: "Não há agendamento neste período.",
   showMore: (total: number) => `Ver +${total}`,
 };
 
@@ -191,7 +191,7 @@ export const AppointmentsPage: React.FC = (): JSX.Element => {
           if (props.accountId === account.id) {
             setAppointments((state) => [...state, props.appointment]);
           }
-        }
+        },
       );
       socket.on(
         "appointment:remove",
@@ -199,7 +199,7 @@ export const AppointmentsPage: React.FC = (): JSX.Element => {
           if (props.accountId === account.id) {
             setAppointments((state) => state.filter((s) => s.id !== props.id));
           }
-        }
+        },
       );
       socket.on(
         "appointment:update",
@@ -215,7 +215,7 @@ export const AppointmentsPage: React.FC = (): JSX.Element => {
               });
             });
           }
-        }
+        },
       );
     }
 
@@ -318,7 +318,7 @@ export const AppointmentsPage: React.FC = (): JSX.Element => {
                       <button
                         className={clsx(
                           "p-4 py-1 cursor-pointer text-sm rounded-full",
-                          props.view === "month" ? "bg-gray-300/10" : ""
+                          props.view === "month" ? "bg-gray-300/10" : "",
                         )}
                         onClick={() => props.onView("month")}
                       >
@@ -327,7 +327,7 @@ export const AppointmentsPage: React.FC = (): JSX.Element => {
                       <button
                         className={clsx(
                           "p-4 py-1 cursor-pointer text-sm rounded-full",
-                          props.view === "week" ? "bg-gray-300/10" : ""
+                          props.view === "week" ? "bg-gray-300/10" : "",
                         )}
                         onClick={() => props.onView("week")}
                       >
@@ -336,7 +336,7 @@ export const AppointmentsPage: React.FC = (): JSX.Element => {
                       <button
                         className={clsx(
                           "p-4 py-1 cursor-pointer text-sm rounded-full",
-                          props.view === "day" ? "bg-gray-300/10" : ""
+                          props.view === "day" ? "bg-gray-300/10" : "",
                         )}
                         onClick={() => props.onView("day")}
                       >
@@ -345,7 +345,7 @@ export const AppointmentsPage: React.FC = (): JSX.Element => {
                       <button
                         className={clsx(
                           "p-4 py-1 cursor-pointer text-sm rounded-full",
-                          props.view === "agenda" ? "bg-gray-300/10" : ""
+                          props.view === "agenda" ? "bg-gray-300/10" : "",
                         )}
                         onClick={() => props.onView("agenda")}
                       >

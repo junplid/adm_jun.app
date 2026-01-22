@@ -17,7 +17,7 @@ const SelectListsOnBoardTrelloIntegration = forwardRef<
 >(
   (
     { isMulti, value, isFlow, trelloIntegrationId, boardId, ...props },
-    ref
+    ref,
   ): JSX.Element => {
     const {
       data: opt,
@@ -26,7 +26,7 @@ const SelectListsOnBoardTrelloIntegration = forwardRef<
       isPending,
     } = useGetListsOnBoardTrelloIntegrationOptions(
       trelloIntegrationId,
-      boardId
+      boardId,
     );
 
     return (
@@ -43,7 +43,7 @@ const SelectListsOnBoardTrelloIntegration = forwardRef<
           return (
             <div className="flex  text-sm flex-col gap-1 pointer-events-auto">
               <span className="text-white/60">
-                Nenhuma lista {inputValue && `"${inputValue}"`} encontrada
+                Nenhuma lista {inputValue && `"${inputValue}"`} encontrada.
               </span>
             </div>
           );
@@ -99,7 +99,7 @@ const SelectListsOnBoardTrelloIntegration = forwardRef<
         {...props}
       />
     );
-  }
+  },
 );
 
 export default SelectListsOnBoardTrelloIntegration;

@@ -325,7 +325,7 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
                       data: {
                         ...data,
                         actionChannels: data.actionChannels!.filter(
-                          (s) => s.key !== msg.key
+                          (s) => s.key !== msg.key,
                         ),
                       },
                     });

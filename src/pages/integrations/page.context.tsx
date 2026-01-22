@@ -13,7 +13,6 @@ import { JSX } from "@emotion/react/jsx-runtime";
 import { HiMenu } from "react-icons/hi";
 import { useColorModeValue } from "@components/ui/color-mode";
 import { LayoutIntegrationsPageContext } from "./contexts";
-import { Badge } from "@chakra-ui/react";
 import { RiMoneyDollarCircleLine, RiTrelloLine } from "react-icons/ri";
 import { AuthContext } from "@contexts/auth.context";
 
@@ -55,7 +54,7 @@ export function LayoutIntegrationsPageProvider(): JSX.Element {
     () => ({
       ToggleMenu: ToggleMenu({ setToggledMenu, toggledMenu }),
     }),
-    [toggledMenu]
+    [toggledMenu],
   );
 
   return (
@@ -142,14 +141,14 @@ export function LayoutIntegrationsPageProvider(): JSX.Element {
                     active={pathname === "/auth/integrations/payments"}
                     component={<Link to={"integrations/payments"} />}
                   >
-                    Pagamentos <Badge colorPalette={"green"}>NEW</Badge>
+                    Pagamentos
                   </MenuItem>
                   <MenuItem
                     icon={<RiTrelloLine size={23} />}
                     active={pathname === "/auth/integrations/trello"}
                     component={<Link to={"integrations/trello"} />}
                   >
-                    Trello <Badge colorPalette={"green"}>NEW</Badge>
+                    Trello
                   </MenuItem>
                 </Menu>
               </div>

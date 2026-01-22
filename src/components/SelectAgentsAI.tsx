@@ -11,7 +11,7 @@ interface ISelectAgentsAIProps extends SelectProps {
     opt: {
       id: number;
       name: string;
-    }[]
+    }[],
   ) => any;
 }
 
@@ -33,7 +33,7 @@ const SelectAgentsAI = forwardRef<any, ISelectAgentsAIProps>(
       <SelectComponent
         ref={ref}
         isLoading={isLoading || isFetching || isPending}
-        placeholder={`Selecione ${isMulti ? "os agentes IA" : "o agente IA"}`}
+        placeholder={`Selecione ${isMulti ? "os assistentes de IA" : "o assistente de IA"}`}
         options={resolveOpt.map((item: any) => ({
           label: item.name,
           value: item.id,
@@ -44,7 +44,8 @@ const SelectAgentsAI = forwardRef<any, ISelectAgentsAIProps>(
           return (
             <div className="flex  text-sm flex-col gap-1 pointer-events-auto">
               <span className="text-white/60">
-                Nenhum agente {inputValue && `"${inputValue}"`} encontrado
+                Nenhum assistente de IA {inputValue && `"${inputValue}"`}{" "}
+                encontrado.
               </span>
             </div>
           );
@@ -100,7 +101,7 @@ const SelectAgentsAI = forwardRef<any, ISelectAgentsAIProps>(
         {...props}
       />
     );
-  }
+  },
 );
 
 export default SelectAgentsAI;

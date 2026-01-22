@@ -18,7 +18,7 @@ interface ISelectTagsProps extends SelectProps {
 const SelectTags = forwardRef<any, ISelectTagsProps>(
   (
     { isMulti, value, isCreatable = true, params, isFlow, ...props },
-    ref
+    ref,
   ): JSX.Element => {
     const canTriggerCreate = useRef(null);
     const [newTagName, setNewTagName] = useState("");
@@ -70,11 +70,11 @@ const SelectTags = forwardRef<any, ISelectTagsProps>(
           return (
             <div className="flex  text-sm flex-col gap-1 pointer-events-auto">
               <span className="text-white/60">
-                Nenhuma etiqueta {inputValue && `"${inputValue}"`} encontrada
+                Nenhuma etiqueta {inputValue && `"${inputValue}"`} encontrada.
               </span>
               {isCreatable && !inputValue && (
                 <span className="text-sm text-white/80">
-                  Digite o nome da etiqueta que quer adicionar
+                  Digite o nome da etiqueta que quer adicionar.
                 </span>
               )}
               {isCreatable && inputValue && (
@@ -89,7 +89,7 @@ const SelectTags = forwardRef<any, ISelectTagsProps>(
                   ) : (
                     <span className="text-xs">
                       <strong className="text-white/80">ENTER</strong> para
-                      adicionar rapidamente
+                      adicionar rapidamente.
                     </span>
                   )}
                 </div>
@@ -148,7 +148,7 @@ const SelectTags = forwardRef<any, ISelectTagsProps>(
         {...props}
       />
     );
-  }
+  },
 );
 
 export default SelectTags;

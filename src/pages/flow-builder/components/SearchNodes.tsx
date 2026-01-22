@@ -350,7 +350,7 @@ const nodesList: {
         size={29}
       />
     ),
-    name: "Notificar WhatsApps",
+    name: "Notificar WhatsApp",
     description: "Notifique números de WhatsApp",
     type: "NodeNotifyWA",
     new: true,
@@ -412,8 +412,8 @@ const nodesList: {
     icon: (
       <BsStars className="dark:text-teal-600 text-teal-600 w-8" size={31} />
     ),
-    name: "Chama agente IA",
-    description: "Chama um agente de IA",
+    name: "Chamar assistente de IA",
+    description: "Chama um assistente de IA",
     type: "NodeAgentAI",
     new: true,
     premium: true,
@@ -497,7 +497,7 @@ const nodesList: {
       />
     ),
     name: "Fila temporizada",
-    description: "Cria uma fila temporizada de anti-repique",
+    description: "Cria uma fila temporizada de antirrepique",
     type: "NodeTimedQueue",
     new: true,
   },
@@ -516,7 +516,7 @@ const nodesList: {
       />
     ),
     name: "Adicionar card no Trello",
-    description: "Adiciona um novo card no trello",
+    description: "Adiciona um novo card no Trello",
     type: "NodeAddTrelloCard",
     new: true,
     premium: true,
@@ -525,8 +525,8 @@ const nodesList: {
     icon: (
       <RiTrelloLine className="dark:text-red-400  text-red-500 w-8" size={31} />
     ),
-    name: "Remove card no Trello",
-    description: "Remove um card da lista do trello",
+    name: "Remover card no Trello",
+    description: "Remove um card da lista do Trello",
     type: "NodeRemoveTrelloCard",
     new: true,
     premium: true,
@@ -539,7 +539,7 @@ const nodesList: {
       />
     ),
     name: "Atualizar card no Trello",
-    description: "Atualiza card do trello",
+    description: "Atualiza card do Trello",
     type: "NodeUpdateTrelloCard",
     new: true,
     premium: true,
@@ -552,7 +552,7 @@ const nodesList: {
       />
     ),
     name: "Mover card no Trello",
-    description: "Mova um card do trello",
+    description: "Mova um card do Trello",
     type: "NodeMoveTrelloCard",
     new: true,
     premium: true,
@@ -562,7 +562,7 @@ const nodesList: {
       <RiTrelloLine className="dark:text-white  text-black w-8" size={31} />
     ),
     name: "Webhook card do Trello",
-    description: "Escute mudanças de lista do card",
+    description: "Escuta mudanças de lista do card",
     type: "NodeWebhookTrelloCard",
     new: true,
     premium: true,

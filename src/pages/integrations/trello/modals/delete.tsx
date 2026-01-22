@@ -20,7 +20,7 @@ interface PropsModalDelete {
 }
 
 export const ModalDeleteAgentAI: React.FC<PropsModalDelete> = (
-  props
+  props,
 ): JSX.Element => {
   const { mutateAsync: deleteTrello, isPending } = useDeleteTrelloIntegration({
     async onSuccess() {

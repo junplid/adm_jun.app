@@ -292,11 +292,11 @@ export const NodeCharge: React.FC<Node<DataNode>> = ({ id, data }) => {
       <PatternNode.PatternPopover
         size="320px"
         title="Gerar cobrança"
-        description="Crie uma cobrança e fica escutando o status do pagamento."
+        description="Cria uma cobrança e fica esperando status de pagamento."
         positioning={{ flip: ["left", "right"], placement: "left" }}
         node={{
           children: (
-            <div className="p-1 relative h-[65px] flex items-center justify-center">
+            <div className="p-1 relative h-16.25 flex items-center justify-center">
               <div className="flex justify-end absolute -top-1 -right-1 opacity-10 group-hover:opacity-100 duration-200">
                 <PatternNode.Actions id={id} />
               </div>
@@ -322,10 +322,10 @@ export const NodeCharge: React.FC<Node<DataNode>> = ({ id, data }) => {
         type="source"
         style={{ right: -20, top: 5 }}
         isConnectable={true}
-        className="relative dark:!border-green-600 dark:!bg-green-600/30 !border-green-600 !bg-green-600/30"
+        className="relative dark:border-green-600! dark:bg-green-600/30! border-green-600! bg-green-600/30!"
         title="Error ao tentar criar cobrança"
       >
-        <span className="text-green-600 absolute -top-[1.5px] -left-[14px]">
+        <span className="text-green-600 absolute -top-[1.5px] -left-3.5">
           <MdCheckCircleOutline size={12} />
         </span>
       </CustomHandle>
@@ -336,10 +336,10 @@ export const NodeCharge: React.FC<Node<DataNode>> = ({ id, data }) => {
         type="source"
         style={{ right: -20, top: 17 }}
         isConnectable={true}
-        className="relative dark:!border-red-600 dark:!bg-red-600/30 !border-red-600 !bg-red-600/30"
+        className="relative dark:border-red-600! dark:bg-red-600/30! border-red-600! bg-red-600/30!"
         title="Error ao tentar criar cobrança"
       >
-        <span className="text-red-600 absolute -top-[1.5px] -left-[14px]">
+        <span className="text-red-600 absolute -top-[1.5px] -left-3.5">
           <MdErrorOutline size={12} />
         </span>
       </CustomHandle>
@@ -351,10 +351,10 @@ export const NodeCharge: React.FC<Node<DataNode>> = ({ id, data }) => {
         type="source"
         style={{ right: -20, top: 36 }}
         isConnectable={true}
-        className="relative dark:!border-green-400/40 dark:!bg-green-400/15 !border-green-500/40 !bg-green-500/15"
+        className="relative dark:border-green-400/40! dark:bg-green-400/15! border-green-500/40! bg-green-500/15!"
         title="Pagamento efetuado"
       >
-        <span className="w-2.5 h-2.5 rounded-full bg-green-500/40 absolute -top-[0.5px] -left-[13px]" />
+        <span className="w-2.5 h-2.5 rounded-full bg-green-500/40 absolute -top-[0.5px] -left-3.25" />
       </CustomHandle>
       <CustomHandle
         nodeId={id}
@@ -363,10 +363,10 @@ export const NodeCharge: React.FC<Node<DataNode>> = ({ id, data }) => {
         type="source"
         style={{ right: -20, top: 48 }}
         isConnectable={true}
-        className="relative dark:!border-red-500/40 dark:!bg-red-500/15 !border-red-500/40 !bg-red-500/15"
+        className="relative dark:border-red-500/40! dark:bg-red-500/15! border-red-500/40! bg-red-500/15!"
         title="Pagamento recusado"
       >
-        <span className="w-2.5 h-2.5 rounded-full bg-red-500/40 absolute -top-[0.5px] -left-[13px]" />
+        <span className="w-2.5 h-2.5 rounded-full bg-red-500/40 absolute -top-[0.5px] -left-3.25" />
       </CustomHandle>
       <CustomHandle
         nodeId={id}
@@ -375,10 +375,10 @@ export const NodeCharge: React.FC<Node<DataNode>> = ({ id, data }) => {
         type="source"
         style={{ right: -20, top: 60 }}
         isConnectable={true}
-        className="relative dark:!border-teal-400/40 dark:!bg-teal-400/15 !border-teal-500/40 !bg-teal-500/15"
+        className="relative dark:border-teal-400/40! dark:bg-teal-400/15! border-teal-500/40! bg-teal-500/15!"
         title="Pagamento reembolsado"
       >
-        <span className="w-2.5 h-2.5 rounded-full bg-teal-500/40 absolute -top-[0.5px] -left-[13px]" />
+        <span className="w-2.5 h-2.5 rounded-full bg-teal-500/40 absolute -top-[0.5px] -left-3.25" />
       </CustomHandle>
       <CustomHandle
         nodeId={id}
@@ -387,10 +387,10 @@ export const NodeCharge: React.FC<Node<DataNode>> = ({ id, data }) => {
         type="source"
         style={{ right: -20, top: 72 }}
         isConnectable={true}
-        className="relative dark:!border-gray-400/40 dark:!bg-gray-400/15 !border-gray-500/40 !bg-gray-500/15"
+        className="relative dark:border-gray-400/40! dark:bg-gray-400/15! border-gray-500/40! bg-gray-500/15!"
         title="Pagamento cancelado"
       >
-        <span className="w-2.5 h-2.5 rounded-full bg-gray-500/40 absolute -top-[0.5px] -left-[13px]" />
+        <span className="w-2.5 h-2.5 rounded-full bg-gray-500/40 absolute -top-[0.5px] -left-3.25" />
       </CustomHandle>
     </div>
   );

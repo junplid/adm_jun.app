@@ -33,7 +33,8 @@ const SelectInboxDepartments = forwardRef<any, ISelectInboxDepartmentsProps>(
           return (
             <div className="flex  text-sm flex-col gap-1 pointer-events-auto">
               <span className="text-white/60">
-                Nenhum departamento {inputValue && `"${inputValue}"`} encontrado
+                Nenhum departamento {inputValue && `"${inputValue}"`}{" "}
+                encontrado.
               </span>
             </div>
           );
@@ -89,7 +90,7 @@ const SelectInboxDepartments = forwardRef<any, ISelectInboxDepartmentsProps>(
         {...props}
       />
     );
-  }
+  },
 );
 
 export default SelectInboxDepartments;

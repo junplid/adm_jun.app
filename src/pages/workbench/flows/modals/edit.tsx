@@ -87,7 +87,7 @@ function Content({
         }
       }
     },
-    [fieldsDraft]
+    [fieldsDraft],
   );
 
   const fields = watch();

@@ -42,7 +42,7 @@ interface IProps {
 //   // { label: "Sugerido", value: "suggested" },
 //   { label: "Agendado", value: "pending_confirmation" },
 //   { label: "Confirmado", value: "confirmed" },
-//   { label: "Concluido", value: "completed" },
+//   { label: "Concluído", value: "completed" },
 //   { label: "Cancelado", value: "canceled" },
 // ];
 
@@ -99,18 +99,18 @@ const EditForm: FC<
       <Field
         errorText={errors.title?.message}
         invalid={!!errors.title}
-        label="Titulo do evento"
+        label="Título do agendamento"
       >
         <Input
           {...register("title")}
           autoComplete="off"
-          placeholder="Digite o nome do projeto"
+          placeholder="Digite o título do agendamento"
         />
       </Field>
       <Field
         errorText={errors.dateAt?.message}
         invalid={!!errors.dateAt}
-        label="Data do evento"
+        label="Data do agendamento"
       >
         <Input
           type="date"
@@ -121,7 +121,7 @@ const EditForm: FC<
       <Field
         errorText={errors.timeAt?.message}
         invalid={!!errors.timeAt}
-        label="Horario do evento"
+        label="Horário do agendamento"
       >
         <Input {...registerWithMask("timeAt", "99:99")} placeholder="HH:mm" />
       </Field>
@@ -259,7 +259,7 @@ function Content({ id }: { id: number; close: () => void }) {
     return (
       <PopoverBody className="scroll-hidden overflow-y-scroll duration-300">
         <div className="flex w-full items-center justify-center">
-          <span className="text-red-500">Compromisso não encontrado</span>
+          <span className="text-red-500">Agendamento não encontrado.</span>
         </div>
       </PopoverBody>
     );
@@ -319,10 +319,7 @@ function Content({ id }: { id: number; close: () => void }) {
             </div>
             <div className="mt-2"></div>
 
-            <span>
-              Lembretes enviados: {data.reminders.sent}/
-              {3 - (data.reminders.failed || 0)}
-            </span>
+            <span>Lembretes enviados: {data.reminders.sent}</span>
             {data.reminders.failed > 0 && (
               <span>Lembretes falhados: {data.reminders.failed}</span>
             )}

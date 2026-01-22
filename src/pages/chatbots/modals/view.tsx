@@ -179,7 +179,7 @@ export const ModalViewChatbot: React.FC<IProps> = ({
   return (
     <DialogContent w={"410px"} minH={"400px"}>
       <DialogHeader flexDirection={"column"} gap={0}>
-        <DialogTitle>Vizualizar detalhes do bot de recepção</DialogTitle>
+        <DialogTitle>Visualizar detalhes do bot de recepção</DialogTitle>
       </DialogHeader>
       <Content id={id} close={close} />
       <DialogCloseTrigger>

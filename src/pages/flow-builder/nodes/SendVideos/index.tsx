@@ -67,7 +67,7 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
           </div>
         ) : (
           <span className="text-sm text-center text-white/60">
-            *Nenhum video selecionado
+            *Nenhum vídeo selecionado.
           </span>
         )}
         <ModalStorageFiles

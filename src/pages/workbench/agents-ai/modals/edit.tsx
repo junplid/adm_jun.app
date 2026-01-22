@@ -160,18 +160,18 @@ export const FormSchema = z
     nameProvider: z.string().optional(),
 
     businessIds: z
-      .array(z.number(), { message: "Campo obrigatório" })
-      .min(1, { message: "Campo obrigatório" }),
+      .array(z.number(), { message: "Campo obrigatório." })
+      .min(1, { message: "Campo obrigatório." }),
     name: z
-      .string({ message: "Campo obrigatório" })
+      .string({ message: "Campo obrigatório." })
       .trim()
-      .min(1, { message: "Campo obrigatório" }),
+      .min(1, { message: "Campo obrigatório." }),
     emojiLevel: z.enum(["none", "low", "medium", "high"]).optional(),
     language: z.string().optional(),
     personality: z.string().optional(),
     model: z
-      .string({ message: "Campo obrigatório" })
-      .min(1, { message: "Campo obrigatório" }),
+      .string({ message: "Campo obrigatório." })
+      .min(1, { message: "Campo obrigatório." }),
     temperature: z.preprocess(
       toNumberOrUndef,
       z.number().min(0).max(2).optional(),

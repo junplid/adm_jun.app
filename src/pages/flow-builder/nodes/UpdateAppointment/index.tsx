@@ -24,18 +24,18 @@ const optionsStatus: { label: string; value: StatusAppointments }[] = [
   // { label: "Sugerido", value: "suggested" },
   { label: "Agendado", value: "pending_confirmation" },
   { label: "Confirmado", value: "confirmed" },
-  { label: "Concluido", value: "completed" },
+  { label: "Concluído", value: "completed" },
   { label: "Cancelado", value: "canceled" },
   { label: "Expirado", value: "expired" },
 ];
 
 const optionsFields: { label: string; value: string }[] = [
-  { label: "Titulo", value: "title" },
+  { label: "Título", value: "title" },
   { label: "Descrição", value: "desc" },
   { label: "Situação", value: "status" },
-  { label: "Data do evento", value: "startAt" },
+  { label: "Data do agendamento", value: "startAt" },
   // { label: "Data do evento", value: "endAt" },
-  { label: "Ações do pedido", value: "actionChannels" },
+  { label: "Ações do agendamento", value: "actionChannels" },
   { label: "Arrastar e soltar", value: "dragDrop" },
 ];
 
@@ -77,13 +77,13 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
 
   return (
     <div className="flex flex-col gap-y-3 -mt-3">
-      <Field label="Código do evento">
+      <Field label="Código do agendamento">
         <AutocompleteTextField
           // @ts-expect-error
           trigger={["{{"]}
           options={{ "{{": variables?.map((s) => s.name) || [] }}
           spacer={"}}"}
-          placeholder="Digite o código do pedido"
+          placeholder="Digite o código do agendamento"
           defaultValue={data.n_appointment || ""}
           onChange={(value: string) =>
             setDataMok({ ...data, n_appointment: value })
@@ -92,13 +92,13 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
       </Field>
 
       {data.fields?.includes("title") && (
-        <Field label="Titulo do evento">
+        <Field label="Título do agendamento">
           <AutocompleteTextField
             // @ts-expect-error
             trigger={["{{"]}
             options={{ "{{": variables?.map((s) => s.name) || [] }}
             spacer={"}} "}
-            placeholder="Digite o titulo ou {{nome}}"
+            placeholder="Digite o título ou {{nome}}"
             defaultValue={data.title || ""}
             onChange={(value: string) => setDataMok({ ...data, title: value })}
           />
@@ -107,7 +107,7 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
 
       {data.fields?.includes("startAs") && (
         <Field
-          label="Nova data do evento"
+          label="Nova data do agendamento"
           required
           helperText="Use o formato YYYY-MM-DDTHH:mm (ISO 8601)."
         >
@@ -155,10 +155,10 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
 
       {data.status &&
         ["confirmed", "completed", "canceled", "expired"].some((s) =>
-          data.status?.includes(s)
+          data.status?.includes(s),
         ) && (
           <Field
-            helperText={"Para a saida de status do Node de Agendar Evento"}
+            helperText={"Para a saída de status do Node de Agendar Evento"}
           >
             <Checkbox.Root
               onCheckedChange={(e) =>
@@ -197,7 +197,7 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
             {data.actionChannels?.length ? (
               <div>
                 <span className="block w-full text-center mb-1 font-medium">
-                  Ações do pedido
+                  Ações do agendamento
                 </span>
                 {data.actionChannels!.map((msg, index) => (
                   <div
@@ -210,7 +210,7 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
                         updateNode(id, {
                           data: {
                             actionChannels: data.actionChannels!.filter(
-                              (s) => s.key !== msg.key
+                              (s) => s.key !== msg.key,
                             ),
                           },
                         });
@@ -243,7 +243,7 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
               </div>
             ) : (
               <span className="text-white/70">
-                As ações do pedido serão todas deletadas*
+                As ações do agendamento serão todas deletadas*
               </span>
             )}
 
@@ -296,8 +296,8 @@ export const NodeUpdateAppointment: React.FC<Node<DataNode>> = ({
   return (
     <div>
       <PatternNode.PatternPopover
-        title="Node de atualizar evento"
-        description="Atualiza um novo evento"
+        title="Node de atualizar agendamento"
+        description="Atualiza agendamento"
         positioning={{ flip: ["left", "right"], placement: "left" }}
         size="330px"
         node={{

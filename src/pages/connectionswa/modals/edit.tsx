@@ -182,7 +182,7 @@ function Content({
         }
       }
     },
-    [fieldsDraft]
+    [fieldsDraft],
   );
 
   const fields = watch();
@@ -403,7 +403,7 @@ function Content({
                             ? {
                                 label:
                                   optionsPrivacyValue.find(
-                                    (s) => s.value === field.value
+                                    (s) => s.value === field.value,
                                   )?.label || "",
                                 value: field.value,
                               }
@@ -457,7 +457,7 @@ function Content({
                             ? {
                                 label:
                                   optionsPrivacyGroupValue.find(
-                                    (s) => s.value === field.value
+                                    (s) => s.value === field.value,
                                   )?.label || "",
                                 value: field.value,
                               }

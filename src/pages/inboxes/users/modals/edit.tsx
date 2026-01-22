@@ -37,7 +37,7 @@ const FormSchema = z.object({
     .email("E-mail inválido.")
     .min(1, "Campo obrigatório.")
     .max(200, "Máximo de 200 caracteres."),
-  password: z.string({ message: "Campo obrigatório" }).optional(),
+  password: z.string({ message: "Campo obrigatório." }).optional(),
   inboxDepartmentId: z.number().nullish(),
 });
 

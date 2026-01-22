@@ -14,7 +14,7 @@ export const ViewBottomTableComponent = memo(() => {
 
   return (
     <tr ref={ref} style={{ opacity: 0 }}>
-      <td className="text-center">Fim da Tabela</td>
+      <td className="text-center">Fim da tabela.</td>
     </tr>
   );
 });

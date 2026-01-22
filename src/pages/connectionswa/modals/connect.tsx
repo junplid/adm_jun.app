@@ -28,7 +28,7 @@ interface IProps {
 const FormSchema = z.object({
   number: z
     .string()
-    .min(1, "Campo obrigatório")
+    .min(1, "Campo obrigatório.")
     .transform((s) => "+55" + s),
   // .regex(/^\(\d{2}\) \d{4,5}-\d{4}$/, "Número inválido"),
 });

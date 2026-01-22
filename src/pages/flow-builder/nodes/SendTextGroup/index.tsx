@@ -53,7 +53,7 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
       <Field
         label="Nome do grupo"
         helperText={
-          "Este node será skipado caso a conexão WA não seja membro do grupo"
+          "Este node será skipado caso a Conexão WA não seja membro do grupo"
         }
       >
         <Input

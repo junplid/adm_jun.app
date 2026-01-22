@@ -56,9 +56,6 @@ export const ModalDeleteConnectionWA: React.FC<PropsModalDelete> = ({
             Tem certeza de que deseja deletar a conexão{" "}
             <strong className="font-semibold text-lg">{data?.name}</strong>?
           </p>
-          <p>
-            Conexão será deletada permanentemente e não poderá ser recuperada.
-          </p>
         </div>
       </DialogBody>
       <DialogFooter>

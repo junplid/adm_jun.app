@@ -16,7 +16,7 @@ const SelectBoardsTrelloIntegration = forwardRef<
 >(
   (
     { isMulti, value, isFlow, trelloIntegrationId, ...props },
-    ref
+    ref,
   ): JSX.Element => {
     const {
       data: opt,
@@ -39,7 +39,7 @@ const SelectBoardsTrelloIntegration = forwardRef<
           return (
             <div className="flex  text-sm flex-col gap-1 pointer-events-auto">
               <span className="text-white/60">
-                Nenhuma quadro {inputValue && `"${inputValue}"`} encontrado
+                Nenhuma quadro {inputValue && `"${inputValue}"`} encontrado.
               </span>
             </div>
           );
@@ -95,7 +95,7 @@ const SelectBoardsTrelloIntegration = forwardRef<
         {...props}
       />
     );
-  }
+  },
 );
 
 export default SelectBoardsTrelloIntegration;

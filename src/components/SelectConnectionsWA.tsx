@@ -30,7 +30,7 @@ const SelectConnectionsWA = forwardRef<any, ISelectConnectionsWAProps>(
           return (
             <div className="flex  text-sm flex-col gap-1 pointer-events-auto">
               <span className="text-white/60">
-                Nenhuma conexão WA {inputValue && `"${inputValue}"`} encontrada
+                Nenhuma conexão WA {inputValue && `"${inputValue}"`} encontrada.
               </span>
             </div>
           );
@@ -53,7 +53,7 @@ const SelectConnectionsWA = forwardRef<any, ISelectConnectionsWAProps>(
         {...props}
       />
     );
-  }
+  },
 );
 
 export default SelectConnectionsWA;

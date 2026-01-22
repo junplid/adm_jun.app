@@ -66,7 +66,7 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
   return (
     <div className="flex flex-col gap-y-2 -mt-2">
       {!data.numbers.length ? (
-        <span className="text-white/70">*Nenhum Whatsapp selecionado</span>
+        <span className="text-white/70">*Nenhum WhatsApp selecionado</span>
       ) : (
         <div className="flex flex-wrap gap-1.5">
           {data.numbers.map((item, index) => (

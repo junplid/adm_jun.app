@@ -435,7 +435,7 @@ class AutocompleteTextField extends React.Component {
 
   updateCaretPosition(caret) {
     this.setState({ caret }, () =>
-      setCaretPosition(this.refInput.current, caret)
+      setCaretPosition(this.refInput.current, caret),
     );
   }
 
@@ -453,7 +453,7 @@ class AutocompleteTextField extends React.Component {
         /* Fully inside the viewport */
         caretPos.left + rect.left - input.scrollLeft,
         /* Ensure minimal width inside viewport */
-        window.innerWidth - OPTION_LIST_MIN_WIDTH
+        window.innerWidth - OPTION_LIST_MIN_WIDTH,
       );
 
       const { minChars, onRequestOptions, requestOnlyIfNoOptions } = this.props;
@@ -557,7 +557,7 @@ class AutocompleteTextField extends React.Component {
         zIndex={99999}
       >
         <ul
-          className="react-autocomplete-input scroll-custom-table !shadow-xl shadow-black/50"
+          className="react-autocomplete-input scroll-custom-table shadow-xl! shadow-black/50"
           style={{
             maxHeight,
             maxWidth,
@@ -567,7 +567,7 @@ class AutocompleteTextField extends React.Component {
           {helperOptions}
         </ul>
       </Presence>,
-      document.body
+      document.body,
     );
   }
 

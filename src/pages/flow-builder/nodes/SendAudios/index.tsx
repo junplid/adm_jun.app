@@ -51,7 +51,7 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
           </div>
         ) : (
           <span className="text-sm text-center text-white/60">
-            *Nenhum áudio selecionado
+            *Nenhum áudio selecionado.
           </span>
         )}
 

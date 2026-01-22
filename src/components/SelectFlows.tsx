@@ -14,7 +14,7 @@ interface ISelectFlowsProps extends SelectProps {
 const SelectFlows = forwardRef<any, ISelectFlowsProps>(
   (
     { isMulti, value, isCreatable = true, isFlow, params, ...props },
-    ref
+    ref,
   ): JSX.Element => {
     const canTriggerCreate = useRef(null);
     const [newTagName, setNewTagName] = useState("");
@@ -66,11 +66,11 @@ const SelectFlows = forwardRef<any, ISelectFlowsProps>(
           return (
             <div className="flex  text-sm flex-col gap-1 pointer-events-auto">
               <span className="text-white/60">
-                Nenhum fluxo {inputValue && `"${inputValue}"`} encontrado
+                Nenhum fluxo {inputValue && `"${inputValue}"`} encontrado.
               </span>
               {isCreatable && !inputValue && (
                 <span className="text-sm text-white/80">
-                  Digite o nome do fluxo que quer adicionar
+                  Digite o nome do fluxo que quer adicionar.
                 </span>
               )}
               {isCreatable && inputValue && (
@@ -83,7 +83,7 @@ const SelectFlows = forwardRef<any, ISelectFlowsProps>(
                   ) : (
                     <span className="text-xs">
                       <strong className="text-white/80">ENTER</strong> para
-                      adicionar rapidamente
+                      adicionar rapidamente.
                     </span>
                   )}
                 </div>
@@ -142,7 +142,7 @@ const SelectFlows = forwardRef<any, ISelectFlowsProps>(
         {...props}
       />
     );
-  }
+  },
 );
 
 export default SelectFlows;

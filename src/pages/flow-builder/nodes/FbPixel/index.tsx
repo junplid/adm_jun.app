@@ -265,7 +265,7 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
                     options={{ "{{": variables?.map((s) => s.name) || [] }}
                     spacer={"}} "}
                     placeholder="Digite o valor ou a {{variável}}"
-                    className="!px-1.5 py-0.5 w-full !resize-none border-none !text-[12px] focus:!bg-white/10 !bg-white/5 !rounded-none !outline-none"
+                    className="px-1.5! py-0.5 w-full resize-none! border-none text-[12px]! focus:!bg-white/10 !bg-white/5 !rounded-none !outline-none"
                     // @ts-expect-error
                     defaultValue={data.event?.[field.name] || ""}
                     minRows={1}

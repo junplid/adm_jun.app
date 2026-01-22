@@ -33,7 +33,7 @@ const SelectFbPixels = forwardRef<any, ISelectFbPixelsProps>(
           return (
             <div className="flex  text-sm flex-col gap-1 pointer-events-auto">
               <span className="text-white/60">
-                Nenhum pixel {inputValue && `"${inputValue}"`} encontrado
+                Nenhum pixel {inputValue && `"${inputValue}"`} encontrado.
               </span>
             </div>
           );
@@ -89,7 +89,7 @@ const SelectFbPixels = forwardRef<any, ISelectFbPixelsProps>(
         {...props}
       />
     );
-  }
+  },
 );
 
 export default SelectFbPixels;

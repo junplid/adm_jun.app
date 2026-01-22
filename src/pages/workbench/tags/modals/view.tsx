@@ -70,7 +70,7 @@ function Content({ id, close, isDelete }: IProps) {
       <>
         <DialogBody className="flex">
           <div className="flex w-full items-center justify-center">
-            <span className="text-red-500">Nenhum dado encontrado</span>
+            <span className="text-red-500">Nenhum dado encontrado.</span>
           </div>
         </DialogBody>
         {footer}
@@ -111,7 +111,7 @@ export const ModalViewTag: React.FC<IProps> = ({
   return (
     <DialogContent w={"410px"} minH={"400px"}>
       <DialogHeader flexDirection={"column"} gap={0}>
-        <DialogTitle>Vizualizar detalhes da etiqueta</DialogTitle>
+        <DialogTitle>Visualizar detalhes da etiqueta</DialogTitle>
       </DialogHeader>
       <Content id={id} close={close} isDelete={isDelete} />
       <DialogCloseTrigger>

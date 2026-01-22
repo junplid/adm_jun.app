@@ -24,14 +24,14 @@ interface ISelectTagsProps extends SelectProps {
       }[];
       value: string | null;
       type: VariableType;
-    }[]
+    }[],
   ) => any;
 }
 
 const SelectVariables = forwardRef<any, ISelectTagsProps>(
   (
     { isMulti, value, isCreatable = true, params, ...props },
-    ref
+    ref,
   ): JSX.Element => {
     const canTriggerCreate = useRef(null);
     const [newTagName, setNewTagName] = useState("");
@@ -88,11 +88,11 @@ const SelectVariables = forwardRef<any, ISelectTagsProps>(
           return (
             <div className="flex  text-sm flex-col gap-1 pointer-events-auto">
               <span className="text-white/60">
-                Nenhuma variável {inputValue && `"${inputValue}"`} encontrada
+                Nenhuma variável {inputValue && `"${inputValue}"`} encontrada.
               </span>
               {isCreatable && !inputValue && (
                 <span className="text-sm text-white/80">
-                  Digite o nome da variável que quer adicionar
+                  Digite o nome da variável que quer adicionar.
                 </span>
               )}
               {isCreatable && inputValue && (
@@ -107,7 +107,7 @@ const SelectVariables = forwardRef<any, ISelectTagsProps>(
                   ) : (
                     <span className="text-xs">
                       <strong className="text-white/80">ENTER</strong> para
-                      adicionar rapidamente
+                      adicionar rapidamente.
                     </span>
                   )}
                 </div>
@@ -166,7 +166,7 @@ const SelectVariables = forwardRef<any, ISelectTagsProps>(
         {...props}
       />
     );
-  }
+  },
 );
 
 export default SelectVariables;

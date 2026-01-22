@@ -68,7 +68,7 @@ export const NodeTimedQueue: React.FC<Node<DataNode>> = ({ id, data }) => {
     <div>
       <PatternNode.PatternPopover
         title="Node de fila debounce"
-        description="Cria uma fila de anti-repique"
+        description="Cria uma fila de antirepique"
         node={{
           children: (
             <div className="p-1 relative">

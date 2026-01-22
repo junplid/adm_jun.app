@@ -642,7 +642,7 @@ export const OnlyChatPlayer: FC<Props> = ({
                 handleFilterSuggestions={(query, suggestions) => {
                   return suggestions
                     .filter((s) =>
-                      s.text.toLowerCase().includes(query.toLowerCase())
+                      s.text.toLowerCase().includes(query.toLowerCase()),
                     )
                     .slice(0, 3);
                 }}
@@ -762,7 +762,7 @@ export const OnlyChatPlayer: FC<Props> = ({
                     onClick={() => {
                       textareaRef.current?.focus();
                       setFilesSelected((prev) =>
-                        prev.filter((id) => id.id !== file.id)
+                        prev.filter((id) => id.id !== file.id),
                       );
                     }}
                   >
@@ -873,7 +873,7 @@ export const OnlyChatPlayer: FC<Props> = ({
             </IconButton>
           </div>
           <TextareaAutosize
-            placeholder="Digite {{ para abrir o menu de variaveis"
+            placeholder="Digite {{ para abrir o menu de variáveis"
             style={{ resize: "none" }}
             minRows={1}
             maxRows={8}
@@ -936,7 +936,7 @@ export const ShadowLeftMemoComponent = memo(() => {
   const [showShadowTop, setShowShadowTop] = useState(true);
   const gradient = useColorModeValue(
     "linear-gradient(90deg, rgba(255, 255, 255, 0.797) 0%, rgba(214, 214, 214, 0) 90%)",
-    "linear-gradient(90deg, #121111 0%, transparent 90%)"
+    "linear-gradient(90deg, #121111 0%, transparent 90%)",
   );
 
   return (
@@ -957,7 +957,7 @@ const ShadowRightMemoComponent = memo(() => {
   const [showShadowBottom, setShowShadowBottom] = useState(false);
   const gradient = useColorModeValue(
     "linear-gradient(90deg, rgba(214, 214, 214, 0) 0%,rgba(255, 255, 255, 0.797) 90%)",
-    "linear-gradient(90deg, transparent 0%, #121111 90%)"
+    "linear-gradient(90deg, transparent 0%, #121111 90%)",
   );
 
   return (
@@ -1131,7 +1131,7 @@ const ImageBubbleComponent: FC<{
         <div className="flex flex-col">
           {sentBy === "system" && (
             <i className="text-xs font-semibold mb-1">
-              Mensagem automatica do sistema
+              Mensagem automática do sistema
             </i>
           )}
           <Image
@@ -1295,7 +1295,7 @@ const FileBubbleComponent: FC<{
               !isInProgress &&
               download(
                 `${api.getUri()}/public/storage/${fileName}`,
-                fileNameOriginal || fileName
+                fileNameOriginal || fileName,
               )
             }
             title="Baixar arquivo"

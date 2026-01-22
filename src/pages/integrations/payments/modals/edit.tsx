@@ -29,9 +29,9 @@ interface Props {
 
 export const FormSchema = z.object({
   name: z
-    .string({ message: "Campo obrigatório" })
+    .string({ message: "Campo obrigatório." })
     .trim()
-    .min(1, { message: "Campo obrigatório" }),
+    .min(1, { message: "Campo obrigatório." }),
   access_token: z.string().optional(),
   status: z.boolean().optional(),
   provider: z.enum(["mercadopago"]),
@@ -83,7 +83,7 @@ function Content({
         props.onClose();
         await new Promise((resolve) => setTimeout(resolve, 220));
       },
-    }
+    },
   );
 
   const edit = useCallback(async (): Promise<void> => {
@@ -132,7 +132,7 @@ function Content({
                     field.value
                       ? {
                           label: optionsProviders.find(
-                            (item) => item.value === field.value
+                            (item) => item.value === field.value,
                           )?.label,
                           value: field.value,
                         }

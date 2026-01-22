@@ -20,7 +20,7 @@ interface PropsModalDelete {
 }
 
 export const ModalDeleteAgentAI: React.FC<PropsModalDelete> = (
-  props
+  props,
 ): JSX.Element => {
   const { mutateAsync: deletePayment, isPending } = useDeletePaymentIntegration(
     {
@@ -28,7 +28,7 @@ export const ModalDeleteAgentAI: React.FC<PropsModalDelete> = (
         props.close();
         await new Promise((resolve) => setTimeout(resolve, 220));
       },
-    }
+    },
   );
 
   const onDelete = useCallback(async (): Promise<void> => {
@@ -59,10 +59,6 @@ export const ModalDeleteAgentAI: React.FC<PropsModalDelete> = (
               {props.data?.name}
             </strong>
             ?
-          </p>
-          <p>
-            Fluxos de conversa que geram cobranças com essa integração serão
-            afetados.
           </p>
         </div>
       </DialogBody>

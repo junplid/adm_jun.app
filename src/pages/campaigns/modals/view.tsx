@@ -105,7 +105,7 @@ export const ModalViewCampaign: React.FC<IProps> = ({
           </div>
           {data.createAt !== data.updateAt && (
             <div className="flex items-start gap-3">
-              <strong>Ultima atualização:</strong>
+              <strong>Última atualização:</strong>
               <div className="flex items-center gap-2">
                 <span>{moment(data.updateAt).format("DD/MM/YYYY")}</span>
                 <span className="text-xs text-white/50">

@@ -38,7 +38,7 @@ const FormSchema = z.object({
     .min(1, "Campo obrigatório.")
     .max(200, "Máximo de 200 caracteres."),
   password: z
-    .string({ message: "Campo obrigatório" })
+    .string({ message: "Campo obrigatório." })
     .min(8, "Senha deve ter pelo menos 8 caracteres."),
   inboxDepartmentId: z.number().optional(),
 });
