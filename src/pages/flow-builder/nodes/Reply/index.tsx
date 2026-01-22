@@ -11,7 +11,6 @@ import { Handle, Node, Position } from "@xyflow/react";
 import { PatternNode } from "../Pattern";
 import { BsChatLeftDots } from "react-icons/bs";
 import { RxLapTimer } from "react-icons/rx";
-import { useColorModeValue } from "@components/ui/color-mode";
 
 import { WithContext as ReactTags, SEPARATORS, Tag } from "react-tag-input";
 import { JSX, useEffect, useMemo, useState } from "react";
@@ -66,7 +65,6 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
     updateNode: s.updateNode,
     businessIds: s.businessIds,
   }));
-  const colorQuery = useColorModeValue("#000000", "#ffffff");
   const { data: variables } = useGetVariablesOptions();
 
   const [dataMok, setDataMok] = useState(data as DataNode);
@@ -92,7 +90,7 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
   const suggestions = useMemo(() => {
     return (variables || [])
       .filter(
-        (s) => s.type === "dynamics" && !data.list?.some((v) => v === s.id)
+        (s) => s.type === "dynamics" && !data.list?.some((v) => v === s.id),
       )
       .map((s) => ({
         id: String(s.id),
@@ -155,14 +153,14 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
           renderSuggestion={(item, query) => (
             <div
               key={item.id}
-              className="p-2 dark:text-white/50 text-black/40 py-1.5 cursor-pointer"
+              className="p-2 text-white/50 py-1.5 cursor-pointer"
               style={{ borderRadius: 20 }}
             >
               <Highlight
                 styles={{
                   // px: "0.5",
                   // bg: "#ea5c0a",
-                  color: colorQuery,
+                  color: "#ffffff",
                   fontWeight: 600,
                 }}
                 query={query}
@@ -173,13 +171,13 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
           )}
           classNames={{
             selected: `flex flex-wrap border gap-1.5 gap-y-2 w-full border-none`,
-            tagInputField: `p-2.5 rounded-sm w-full border dark:border-white/10 border-black/10`,
+            tagInputField: `p-2.5 rounded-sm w-full border border-white/10`,
             remove: "hidden",
-            tag: "hover:bg-red-500 rounded-xs duration-300 !cursor-pointer dark:bg-white/15 bg-black/15 px-1",
+            tag: "hover:bg-red-500 rounded-xs duration-300 !cursor-pointer bg-white/15 px-1",
             tagInput: "w-full",
             tags: "w-full relative",
             suggestions:
-              "absolute z-50 dark:bg-[#111111] bg-white w-full translate-y-2 shadow-xl p-1 border dark:border-white/10 border-black/10 rounded-sm",
+              "absolute z-50 bg-[#111111] w-full translate-y-2 shadow-xl p-1 border border-white/10 rounded-sm",
           }}
         />
       )}
@@ -197,9 +195,7 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
       <div className="grid grid-cols-[1fr_43px_75px] gap-x-1 w-full justify-between">
         <div className="flex flex-col">
           <span className="font-medium">Tempo esperando</span>
-          <span className="dark:text-white/70 text-black/50 font-light">
-            Resposta do lead
-          </span>
+          <span className="text-white/70 font-light">Resposta do lead</span>
         </div>
         <NumberInput.Root
           min={0}
@@ -258,8 +254,6 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
 }
 
 export const NodeReply: React.FC<Node<DataNode>> = ({ id, data }) => {
-  const colorTimeout = useColorModeValue("#F94A65", "#B1474A");
-
   return (
     <div>
       <PatternNode.PatternPopover
@@ -271,10 +265,7 @@ export const NodeReply: React.FC<Node<DataNode>> = ({ id, data }) => {
               <div className="flex justify-end absolute -top-1 -right-1 opacity-10 group-hover:opacity-100 duration-200">
                 <PatternNode.Actions id={id} />
               </div>
-              <BsChatLeftDots
-                className="dark:text-blue-400 text-blue-700"
-                size={22}
-              />
+              <BsChatLeftDots className="text-blue-400" size={22} />
             </div>
           ),
           name: "Resposta",
@@ -294,18 +285,18 @@ export const NodeReply: React.FC<Node<DataNode>> = ({ id, data }) => {
         style={{ right: -8, top: 12 }}
         isConnectable={true}
       />
-      <span className="absolute -right-[13px] top-[31px] dark:text-red-400 text-red-500">
+      <span className="absolute -right-3.25 top-7.75 text-red-400">
         <RxLapTimer size={11} />
       </span>
 
       <CustomHandle
         nodeId={id}
-        handleId={`${colorTimeout} timeout`}
+        handleId={`#B1474A timeout`}
         position={Position.Right}
         type="source"
         style={{ right: -20, top: 37 }}
         isConnectable={true}
-        className="dark:!border-red-400/60 dark:!bg-red-400/15 !border-red-500/70 !bg-red-500/15"
+        className="border-red-400/60! bg-red-400/15!"
       />
     </div>
   );

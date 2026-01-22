@@ -83,78 +83,63 @@ export const LoginPage: React.FC = (): JSX.Element => {
   return (
     <div className="my-10 flex flex-col gap-y-10 px-3 items-center justify-center w-full h-full">
       <img src="/logo.svg" className="max-w-40" alt="Logo" />
-      <div className="m-auto w-full flex-1 gap-3 grid min-[640px]:grid-cols-[310px_1fr] items-center max-w-3xl">
-        {/* <video
-          className="w-full h-auto mb-5 px-9 min-[640px]:hidden"
-          src="/login-video.mp4"
-          controls={false}
-          controlsList="nodownload noremoteplayback nodownload"
-          disablePictureInPicture
-          autoPlay
-          muted
-          loop
-        /> */}
-
-        <div className="min-h-full max-w-80 mx-auto w-full rounded-sm flex-col flex gap-y-3 bg-[#f5f5f5] p-6 py-8 dark:bg-[#111111] shadow-xl border border-black/5 dark:border-none">
-          <div>
-            <h3 className="text-xl font-semibold text-black dark:text-white">
-              Acessar conta
-            </h3>
-            {errorContainer && (
-              <span className="text-red-400 text-sm">{errorContainer}</span>
-            )}
-          </div>
-          <form
-            onSubmit={handleSubmit(login)}
-            className="w-full space-y-4 flex flex-col"
-          >
-            <div className="flex w-full flex-col gap-y-3">
-              <Field
-                invalid={!!errors.email}
-                label="Email"
-                errorText={errors.email?.message}
-              >
-                <Input
-                  {...register("email")}
-                  autoComplete="nope"
-                  type="text"
-                  placeholder="Email de acesso"
-                />
-              </Field>
-
-              <Field
-                invalid={!!errors.password}
-                label="Senha"
-                errorText={errors.password?.message}
-              >
-                <Input
-                  {...register("password")}
-                  autoComplete="nope"
-                  type="password"
-                  placeholder="Senha de acesso"
-                />
-              </Field>
-
-              <div className="mt-1 flex justify-end">
-                {/* <RecoverPasswordComponent /> */}
-              </div>
-            </div>
-            <Button loadingText="Entrando" loading={isSubmitting} type="submit">
-              Entrar
-            </Button>
-          </form>
-          <Button
-            variant={"outline"}
-            borderStyle={"dashed"}
-            borderWidth={"2px"}
-            as={Link}
-            // @ts-expect-error
-            to={`/signup?${searchParams.toString()}`}
-            className="w-full"
-          >
-            Criar conta
-          </Button>
+      <div className="min-h-full max-w-80 mx-auto w-full rounded-sm flex-col flex gap-y-3 bg-[#111111] p-6 py-8 shadow-xl">
+        <div>
+          <h3 className="text-xl font-semibold text-white">Acessar conta</h3>
+          {errorContainer && (
+            <span className="text-red-400 text-sm">{errorContainer}</span>
+          )}
         </div>
+        <form
+          onSubmit={handleSubmit(login)}
+          className="w-full space-y-4 flex flex-col"
+        >
+          <div className="flex w-full flex-col gap-y-3">
+            <Field
+              invalid={!!errors.email}
+              label="Email"
+              errorText={errors.email?.message}
+            >
+              <Input
+                {...register("email")}
+                autoComplete="nope"
+                type="text"
+                placeholder="Email de acesso"
+              />
+            </Field>
+
+            <Field
+              invalid={!!errors.password}
+              label="Senha"
+              errorText={errors.password?.message}
+            >
+              <Input
+                {...register("password")}
+                autoComplete="nope"
+                type="password"
+                placeholder="Senha de acesso"
+              />
+            </Field>
+
+            <div className="mt-1 flex justify-end">
+              {/* <RecoverPasswordComponent /> */}
+            </div>
+          </div>
+          <Button loadingText="Entrando" loading={isSubmitting} type="submit">
+            Entrar
+          </Button>
+        </form>
+        <Button
+          variant={"outline"}
+          borderStyle={"dashed"}
+          borderWidth={"2px"}
+          as={Link}
+          // @ts-expect-error
+          to={`/signup?${searchParams.toString()}`}
+          className="w-full"
+        >
+          Criar conta
+        </Button>
       </div>
     </div>
   );

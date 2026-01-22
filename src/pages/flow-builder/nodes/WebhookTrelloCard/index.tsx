@@ -99,7 +99,7 @@ export const NodeWebhookTrelloCard: React.FC<Node<DataNode>> = ({
               <div className="flex justify-end absolute -top-1 -right-1 opacity-10 group-hover:opacity-100 duration-200">
                 <PatternNode.Actions id={id} />
               </div>
-              <RiTrelloLine className="dark:text-white  text-black" size={31} />
+              <RiTrelloLine className="text-white" size={31} />
             </div>
           ),
           name: "Card",

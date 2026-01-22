@@ -1,6 +1,5 @@
 import { forwardRef } from "react";
 import Select, { Props as SelectProps } from "react-select";
-import { useColorModeValue } from "./ui/color-mode";
 
 interface SelectInputProps extends SelectProps {
   isFlow?: boolean;
@@ -8,8 +7,6 @@ interface SelectInputProps extends SelectProps {
 
 const SelectComponent = forwardRef<any, SelectInputProps>(
   ({ isFlow, ...props }, ref) => {
-    const colorBorder = useColorModeValue("#e4e4e7", "#27272a");
-
     return (
       <Select
         isClearable
@@ -27,9 +24,9 @@ const SelectComponent = forwardRef<any, SelectInputProps>(
           control: (base, props) => ({
             ...base,
             backgroundColor: "transparent",
-            border: `1px solid ${colorBorder}`,
+            border: `1px solid #27272a`,
             ":hover": {
-              border: `1px solid ${colorBorder}`,
+              border: `1px solid #27272a`,
             },
             cursor: "text",
             boxShadow: props.menuIsOpen ? "0px 0px 0px 1.5px white" : undefined,
@@ -77,7 +74,7 @@ const SelectComponent = forwardRef<any, SelectInputProps>(
           menu: (base) => ({
             ...base,
             backgroundColor: "#111111",
-            border: `1px solid ${colorBorder}`,
+            border: `1px solid #27272a`,
             marginTop: 7,
             borderRadius: "3px",
             boxShadow: "0px 6px 10px -3px #090909e4",
@@ -137,7 +134,7 @@ const SelectComponent = forwardRef<any, SelectInputProps>(
         {...props}
       />
     );
-  }
+  },
 );
 
 export default SelectComponent;

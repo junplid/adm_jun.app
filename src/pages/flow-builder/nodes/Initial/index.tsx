@@ -7,7 +7,7 @@ export const NodeInitial: React.FC<Node> = ({ id }) => {
   return (
     <PatternNode.PatternContainer descriptionNode="Inicia" nameNode="fluxo">
       <div className="">
-        <VscDebugStart className="dark:text-zinc-100 text-zinc-800" size={35} />
+        <VscDebugStart className="text-zinc-100" size={35} />
       </div>
       <CustomHandle
         nodeId={id}

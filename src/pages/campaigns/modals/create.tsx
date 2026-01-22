@@ -436,7 +436,7 @@ export function ModalCreateCampaign({
                     style={{ resize: "none" }}
                     minRows={3}
                     maxRows={10}
-                    className="p-3 py-2.5 rounded-sm w-full border-black/10 dark:border-white/10 border"
+                    className="p-3 py-2.5 rounded-sm w-full border-white/10 border"
                     {...register("description")}
                   />
                 </Field>

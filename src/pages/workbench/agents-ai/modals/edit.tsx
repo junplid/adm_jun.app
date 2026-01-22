@@ -803,7 +803,7 @@ function Content({
                     style={{ resize: "none" }}
                     minRows={3}
                     maxRows={6}
-                    className="p-3 py-2.5 rounded-sm w-full border-black/10 dark:border-white/10 border"
+                    className="p-3 py-2.5 rounded-sm w-full border-white/10 border"
                     {...register("personality")}
                   />
                 </Field>
@@ -919,7 +919,7 @@ function Content({
                           sairá pelo canal Node:{" "}
                           <RxLapTimer
                             size={16}
-                            className="dark:text-red-400 text-red-500 -translate-y-0.5"
+                            className="text-red-400 -translate-y-0.5"
                           />
                         </span>
                       </div>
@@ -993,7 +993,7 @@ function Content({
                       style={{ resize: "none" }}
                       minRows={2}
                       maxRows={16}
-                      className="p-3 py-2.5 rounded-sm w-full border-black/10 dark:border-white/10 border"
+                      className="p-3 py-2.5 rounded-sm w-full border-white/10 border"
                       {...register("knowledgeBase")}
                     />
                   </Field>
@@ -1063,7 +1063,7 @@ function Content({
                     minRows={8}
                     placeholder={`Quando iniciar a conversa ...`}
                     style={{ resize: "none" }}
-                    className="p-3 py-2.5 rounded-sm w-full border-black/10 dark:border-white/10 border"
+                    className="p-3 py-2.5 rounded-sm w-full border-white/10 border"
                     {...register("instructions")}
                   />
                   <span className="text-white/70">
@@ -1289,7 +1289,7 @@ function Content({
                     style={{ resize: "none" }}
                     minRows={2}
                     maxRows={6}
-                    className="p-3 py-2.5 rounded-sm w-full border-black/10 dark:border-white/10 border"
+                    className="p-3 py-2.5 rounded-sm w-full border-white/10 border"
                     {...register("chatbot.fallback")}
                   />
                 </Field>
@@ -1585,7 +1585,7 @@ function Content({
                   style={{ resize: "none" }}
                   minRows={1}
                   maxRows={6}
-                  className="p-3 py-2.5 rounded-sm w-full border-black/10 dark:border-white/10 border"
+                  className="p-3 py-2.5 rounded-sm w-full border-white/10 border"
                   value={draft}
                   disabled={loadSend}
                   onChange={(e) => setDraft(e.target.value)}

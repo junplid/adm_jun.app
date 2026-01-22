@@ -53,7 +53,6 @@ import {
   PiFileTextFill,
   PiFileVideoFill,
 } from "react-icons/pi";
-import { useColorModeValue } from "@components/ui/color-mode";
 import { WithContext as ReactTags, SEPARATORS, Tag } from "react-tag-input";
 import {
   useAddTagOnContactWA,
@@ -141,7 +140,6 @@ export const ChatPlayer: FC = () => {
   const caretRef = useRef<{ start: number; end: number }>({ start: 0, end: 0 });
   const [filesSelected, setFilesSelected] = useState<FileSelected[]>([]);
   const [errorTags, setErrorTags] = useState<string | undefined>(undefined);
-  const colorQuery = useColorModeValue("#000000", "#ffffff");
 
   const { data: tags } = useGetTagsOptions();
   const { mutateAsync: createTag, status: statusCreateTag } = useCreateTag({});
@@ -549,14 +547,14 @@ export const ChatPlayer: FC = () => {
                 renderSuggestion={(item, query) => (
                   <div
                     key={item.id}
-                    className="p-2 dark:text-white/50 text-black/40 py-1.5 cursor-pointer"
+                    className="p-2 text-white/50 py-1.5 cursor-pointer"
                     style={{ borderRadius: 20 }}
                   >
                     <Highlight
                       styles={{
                         // px: "0.5",
                         // bg: "#ea5c0a",
-                        color: colorQuery,
+                        color: "#ffffff",
                         fontWeight: 600,
                       }}
                       query={query}
@@ -567,13 +565,13 @@ export const ChatPlayer: FC = () => {
                 )}
                 classNames={{
                   selected: `flex flex-wrap border gap-1.5 gap-y-2 w-full border-none`,
-                  tagInputField: `p-0.5 pl-2 text-sm rounded-sm w-full border dark:border-white/10 border-black/10`,
+                  tagInputField: `p-0.5 pl-2 text-sm rounded-sm w-full border border-white/10`,
                   remove: "hidden",
-                  tag: "hover:bg-red-500 duration-300 !cursor-pointer dark:bg-white/15 bg-black/15 px-1",
+                  tag: "hover:bg-red-500 duration-300 cursor-pointer! bg-white/15 px-1",
                   tagInput: "w-full",
                   tags: "w-full relative",
                   suggestions:
-                    "absolute z-50 dark:bg-[#111111] bg-white w-full translate-y-2 shadow-xl p-1 border dark:border-white/10 border-black/10 rounded-sm",
+                    "absolute z-50 bg-[#111111] w-full translate-y-2 shadow-xl p-1 border border-white/10 rounded-sm",
                 }}
               />
             </div>
@@ -779,7 +777,7 @@ export const ChatPlayer: FC = () => {
             maxRows={8}
             ref={textareaRef}
             autoFocus
-            className="p-3 py-2.5 rounded-sm w-full outline-none border-black/10 dark:border-white/10 border"
+            className="p-3 py-2.5 rounded-sm w-full outline-none border-white/10 border"
             disabled={
               loadMsg ||
               dataTicket.status === "RESOLVED" ||
@@ -834,18 +832,13 @@ export const ChatPlayer: FC = () => {
 
 export const ShadowLeftMemoComponent = memo(() => {
   const [showShadowTop, setShowShadowTop] = useState(true);
-  const gradient = useColorModeValue(
-    "linear-gradient(90deg, rgba(255, 255, 255, 0.797) 0%, rgba(214, 214, 214, 0) 90%)",
-    "linear-gradient(90deg, #121111 0%, transparent 90%)",
-  );
-
   return (
     <>
       <InViewComponent onChange={(isTop) => setShowShadowTop(isTop)} />
       <div
         className={`pointer-events-none absolute left-0 top-0 z-30 h-4 w-12`}
         style={{
-          background: gradient,
+          background: "linear-gradient(90deg, #121111 0%, transparent 90%)",
           opacity: Number(!showShadowTop),
         }}
       />
@@ -855,17 +848,12 @@ export const ShadowLeftMemoComponent = memo(() => {
 
 const ShadowRightMemoComponent = memo(() => {
   const [showShadowBottom, setShowShadowBottom] = useState(false);
-  const gradient = useColorModeValue(
-    "linear-gradient(90deg, rgba(214, 214, 214, 0) 0%,rgba(255, 255, 255, 0.797) 90%)",
-    "linear-gradient(90deg, transparent 0%, #121111 90%)",
-  );
-
   return (
     <>
       <div
         className={`pointer-events-none absolute right-0 top-0 z-30 h-4 w-12`}
         style={{
-          background: gradient,
+          background: "linear-gradient(90deg, transparent 0%, #121111 90%)",
           opacity: Number(showShadowBottom),
         }}
       />

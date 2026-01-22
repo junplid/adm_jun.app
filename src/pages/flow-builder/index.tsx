@@ -19,10 +19,6 @@ import {
   ReactFlow,
   useReactFlow,
 } from "@xyflow/react";
-import {
-  useColorModeValue,
-  // ColorModeButton
-} from "@components/ui/color-mode";
 import { LayoutPrivateContext } from "@contexts/layout-private.context";
 import { useShallow } from "zustand/react/shallow";
 import useStore from "./flowStore";
@@ -218,12 +214,11 @@ function Body(props: IBody): JSX.Element {
       setIsPull: s.setIsPull,
       typeDrag: s.typeDrag,
       setTypeDrag: s.setTypeDrag,
-    }))
+    })),
   );
 
   const reactFlowWrapper = useRef(null);
   const { screenToFlowPosition } = useReactFlow();
-  const colorDotFlow = useColorModeValue("#c6c6c6", "#373737");
   const { load: syncLoad, setLoad } = useSyncLoadStore((s) => s);
   const [viewReady, setViewReady] = useState(false);
 
@@ -248,7 +243,7 @@ function Body(props: IBody): JSX.Element {
         position: n.position,
         deletable: n.deletable,
         preview: n.preview,
-      }))
+      })),
     );
 
     setEdges(
@@ -258,7 +253,7 @@ function Body(props: IBody): JSX.Element {
         target: e.target,
         sourceHandle: e.sourceHandle,
         targetHandle: e.targetHandle,
-      }))
+      })),
     );
     return () => {
       setNodes([]);
@@ -362,7 +357,7 @@ function Body(props: IBody): JSX.Element {
       onNodesChange([{ type: "add", item: newNode }]);
       setTypeDrag(null);
     },
-    [screenToFlowPosition, typeDrag, props.flowData.businessIds[0]]
+    [screenToFlowPosition, typeDrag, props.flowData.businessIds[0]],
   );
 
   useEffect(() => {
@@ -375,7 +370,7 @@ function Body(props: IBody): JSX.Element {
             return { type: n.type, node: { id: n.id } };
           }
           const { position, type, deletable, preview, data } = nodes.find(
-            (node) => node.id === n.id
+            (node) => node.id === n.id,
           )!;
           return {
             type: n.type,
@@ -388,7 +383,7 @@ function Body(props: IBody): JSX.Element {
               data,
             },
           };
-        })
+        }),
       );
 
       const edgesxx = await Promise.all(
@@ -407,7 +402,7 @@ function Body(props: IBody): JSX.Element {
               targetHandle: findEdge.targetHandle,
             },
           };
-        })
+        }),
       );
 
       updateFlowData({
@@ -435,13 +430,13 @@ function Body(props: IBody): JSX.Element {
               return { type: n.type, node: { id: n.id } };
             }
             const { position, type, deletable, preview, data } = nodes.find(
-              (node) => node.id === n.id
+              (node) => node.id === n.id,
             )!;
             return {
               type: n.type,
               node: { preview, position, type, id: n.id, deletable, data },
             };
-          })
+          }),
         );
 
         const edgesxx = await Promise.all(
@@ -460,7 +455,7 @@ function Body(props: IBody): JSX.Element {
                 targetHandle: findEdge.targetHandle,
               },
             };
-          })
+          }),
         );
         updateFlowData({
           id: props.id,
@@ -517,7 +512,7 @@ function Body(props: IBody): JSX.Element {
       >
         <MiniMap
           style={{ width: 180, height: 100 }}
-          className="dark:bg-[#37373791]! bg-[#47484971]! sm:block hidden"
+          className="bg-[#37373791]! sm:block hidden"
         />
         <Panel
           position="top-left"
@@ -624,7 +619,7 @@ function Body(props: IBody): JSX.Element {
             )}
           </span>
         </Panel>
-        <Background color={colorDotFlow} gap={9} size={0.8} />
+        <Background color={"#373737"} gap={9} size={0.8} />
       </ReactFlow>
     </div>
   );
@@ -692,10 +687,10 @@ export function FlowBuilderPage() {
           className="absolute top-0 left-0 w-full h-full z-50 flex justify-center"
         >
           <div className="flex items-center flex-col gap-y-0.5 mt-14">
-            <div className="text-lg font-bold text-gray-500 dark:text-gray-200">
+            <div className="text-lg font-bold text-gray-200">
               Fluxo não encontrado
             </div>
-            <div className="text-sm text-gray-400 dark:text-gray-400">
+            <div className="text-sm text-gray-400">
               O construtor de fluxo que você está tentando acessar não existe ou
               foi excluído.
             </div>
@@ -725,10 +720,10 @@ export function FlowBuilderPage() {
         <div className="flex items-center justify-center gap-x-5">
           <Spinner borderWidth="2px" color="teal.500" size="md" />
           <div>
-            <div className="text-lg font-bold text-gray-500 dark:text-gray-200">
+            <div className="text-lg font-bold text-gray-200">
               Carregando fluxo...
             </div>
-            <div className="text-sm text-gray-400 dark:text-gray-400">
+            <div className="text-sm text-gray-400">
               Aguarde enquanto carregamos os dados do fluxo.
             </div>
           </div>
@@ -744,10 +739,10 @@ export function FlowBuilderPage() {
         className="top-0 left-0 w-full h-full z-50 flex justify-center"
       >
         <div className="flex items-center flex-col gap-y-0.5 mt-14">
-          <div className="text-lg font-bold text-gray-500 dark:text-gray-200">
+          <div className="text-lg font-bold text-gray-200">
             Fluxo não encontrado
           </div>
-          <div className="text-sm text-gray-400 dark:text-gray-400">
+          <div className="text-sm text-gray-400">
             O construtor de fluxo que você está tentando acessar não existe ou
             foi excluído.
           </div>

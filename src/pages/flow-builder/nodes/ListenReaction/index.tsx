@@ -70,12 +70,9 @@ export const NodeListenReaction: React.FC<Node<DataNode>> = ({ id, data }) => {
               <div className="flex justify-end absolute -top-1 -right-1 opacity-10 group-hover:opacity-100 duration-200">
                 <PatternNode.Actions id={id} />
               </div>
-              <PiEarBold
-                className="dark:text-white translate-x-1 text-black/70"
-                size={26.8}
-              />
+              <PiEarBold className="text-white translate-x-1" size={26.8} />
               <LuMessageCircleHeart
-                className="dark:text-red-300 absolute top-4 left-[1px] text-black/70"
+                className="text-red-300 absolute top-4 left-px"
                 size={13}
               />
             </div>
@@ -103,7 +100,7 @@ export const NodeListenReaction: React.FC<Node<DataNode>> = ({ id, data }) => {
         style={{ right: -20, bottom: 11, top: "initial" }}
         isConnectable={true}
         title="Canal paralelo independente"
-        className="relative dark:text-blue-300 text-blue-400 dark:!border-blue-300/60 dark:!bg-blue-200/15 !border-blue-4500/70 !bg-blue-400/15"
+        className="relative text-blue-300 border-blue-300/60! bg-blue-200/15!"
       >
         <TiFlowParallel
           size={11}

@@ -1,7 +1,6 @@
+import "./styles.css";
 import { FC, ReactNode } from "react";
 import { styled } from "styled-components";
-import "./styles.css";
-import { useColorModeValue } from "@components/ui/color-mode";
 import { VStack } from "@chakra-ui/react";
 
 const Container = styled.div<{ size?: string }>`
@@ -56,11 +55,6 @@ export const PatternNodeComponent: FC<PropsPatternNodeComponent> = ({
   isConnectable = true,
   ...props
 }) => {
-  const bgContainer = useColorModeValue("#e0e0e0", "#151516");
-  const boderColor = useColorModeValue("#b1b1b1", "#333335");
-  const colorName = useColorModeValue("#1a1919", "#ffffff");
-  const colorDesc = useColorModeValue("#7c7c7c", "#aaaaaa");
-
   return (
     <VStack className="group" alignItems={"baseline"} gap={0}>
       <Container
@@ -70,16 +64,15 @@ export const PatternNodeComponent: FC<PropsPatternNodeComponent> = ({
       >
         <Content
           style={{
-            background: bgContainer,
-            borderColor: boderColor,
+            background: "#151516",
+            borderColor: "#333335",
             borderWidth: 0.5,
           }}
           {...(props.clickable && {
-            className:
-              "dark:hover:!bg-[#1d1d1d] hover:!bg-[#e4e4e4] duration-300",
+            className: "hover:bg-[#1d1d1d]! duration-300",
           })}
           {...(props.open && {
-            className: "dark:!bg-[#1d1d1d] !bg-[#f0f0f0] duration-300",
+            className: "bg-[#1d1d1d]! duration-300",
           })}
         >
           {props.children}
@@ -87,10 +80,10 @@ export const PatternNodeComponent: FC<PropsPatternNodeComponent> = ({
       </Container>
       <div style={{ position: "relative", width: "100%" }}>
         <Header>
-          <DescriptionNode style={{ color: colorDesc }}>
+          <DescriptionNode style={{ color: "#aaaaaa" }}>
             {props.descriptionNode}
           </DescriptionNode>
-          <NameNode style={{ color: colorName }}>{props.nameNode}</NameNode>
+          <NameNode style={{ color: "#ffffff" }}>{props.nameNode}</NameNode>
         </Header>
       </div>
     </VStack>

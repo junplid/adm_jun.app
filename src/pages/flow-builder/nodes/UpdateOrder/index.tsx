@@ -290,7 +290,7 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
                         updateNode(id, {
                           data: {
                             actionChannels: data.actionChannels!.filter(
-                              (s) => s.key !== msg.key
+                              (s) => s.key !== msg.key,
                             ),
                           },
                         });
@@ -421,10 +421,7 @@ export const NodeUpdateOrder: React.FC<Node<DataNode>> = ({ id, data }) => {
               <div className="flex justify-end absolute -top-1 -right-1 opacity-10 group-hover:opacity-100 duration-200">
                 <PatternNode.Actions id={id} />
               </div>
-              <LuNotepadText
-                className="dark:text-blue-400 text-blue-700"
-                size={31}
-              />
+              <LuNotepadText className="text-blue-400" size={31} />
             </div>
           ),
           name: "Pedido",

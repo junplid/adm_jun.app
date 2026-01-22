@@ -50,7 +50,7 @@ export const NodeTransferDepartment: React.FC<Node<DataNode>> = ({
                 <PatternNode.Actions id={id} />
               </div>
               <LuBriefcaseBusiness
-                className="dark:text-neutral-300 text-neutral-800 mx-auto"
+                className="text-neutral-300 mx-auto"
                 size={26.8}
               />
             </div>

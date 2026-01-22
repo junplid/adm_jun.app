@@ -51,7 +51,7 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
                 className="flex flex-col group items-center border border-zinc-700 gap-x-0.5 relative"
               >
                 <a
-                  className="absolute -top-0 -left-0 w-full h-full bg-red-200/50 backdrop-blur-[2px] duration-500 flex items-center group-hover:opacity-100 opacity-0 cursor-pointer"
+                  className="absolute top-0 left-0 w-full h-full bg-red-200/50 backdrop-blur-[2px] duration-500 flex items-center group-hover:opacity-100 opacity-0 cursor-pointer"
                   onClick={() => {
                     updateNode(id, {
                       data: {
@@ -125,10 +125,7 @@ export const NodeSendImages: React.FC<Node<DataNode>> = ({ id, data }) => {
               <div className="flex justify-end absolute -top-1 -right-1 opacity-10 group-hover:opacity-100">
                 <PatternNode.Actions id={id} />
               </div>
-              <MdOutlineImage
-                className="dark:text-[#6daebe] text-teal-700"
-                size={31}
-              />
+              <MdOutlineImage className="text-[#6daebe]" size={31} />
             </div>
           ),
           name: "Imagens",

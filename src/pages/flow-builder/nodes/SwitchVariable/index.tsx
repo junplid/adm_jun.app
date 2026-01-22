@@ -8,7 +8,6 @@ import { Field } from "@components/ui/field";
 import SelectVariables from "@components/SelectVariables";
 import { IoMdAdd, IoMdClose } from "react-icons/io";
 import { GiDirectionSigns } from "react-icons/gi";
-import { useColorModeValue } from "@components/ui/color-mode";
 import { MdReportGmailerrorred } from "react-icons/md";
 import { nanoid } from "nanoid";
 import AutocompleteTextField from "@components/Autocomplete";
@@ -85,10 +84,10 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
                     onClick={() => {
                       delEdge(item.key);
                       const nextItems = data.values.filter(
-                        (i) => i.key !== item.key
+                        (i) => i.key !== item.key,
                       );
                       const nextPreview = data.preview.filter(
-                        (p) => p.key !== item.key
+                        (p) => p.key !== item.key,
                       );
                       updateNode(id, {
                         data: {
@@ -154,8 +153,6 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
 }
 
 export const NodeSwitchVariable: React.FC<Node<DataNode>> = (props) => {
-  const colorFailed = useColorModeValue("#F94A65", "#B1474A");
-
   return (
     <div>
       <PatternNode.PatternPopover
@@ -180,7 +177,7 @@ export const NodeSwitchVariable: React.FC<Node<DataNode>> = (props) => {
               <div className="flex justify-end absolute -top-1 -right-1 opacity-10 group-hover:opacity-100 duration-200">
                 <PatternNode.Actions id={props.id} />
               </div>
-              <GiDirectionSigns className="dark:text-white/70" size={27} />
+              <GiDirectionSigns className="text-white/70" size={27} />
             </div>
           ),
           name: "Variável",
@@ -222,13 +219,13 @@ export const NodeSwitchVariable: React.FC<Node<DataNode>> = (props) => {
       {!!props.data.preview?.filter((s) => s.v).length && (
         <CustomHandle
           nodeId={props.id}
-          handleId={`${colorFailed} failed`}
+          handleId={`#B1474A failed`}
           position={Position.Right}
           type="source"
           style={{ right: -20, bottom: -3, top: "initial" }}
           isConnectable={true}
           title="Tempo esgotado"
-          className="relative dark:text-red-400 text-red-500 dark:!border-red-400/60 dark:!bg-red-400/15 !border-red-500/70 !bg-red-500/15"
+          className="relative text-red-400 border-red-400/60! bg-red-400/15!"
         >
           <MdReportGmailerrorred
             size={11}

@@ -18,7 +18,6 @@ import { Field } from "@components/ui/field";
 import SelectComponent from "@components/Select";
 import SelectVariables from "@components/SelectVariables";
 import { TiFlash } from "react-icons/ti";
-import { useColorModeValue } from "@components/ui/color-mode";
 
 const optionsStatus: { label: string; value: TypeStatusOrder }[] = [
   { label: "Rascunho", value: "draft" },
@@ -387,8 +386,6 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
 }
 
 export const NodeCreateOrder: React.FC<Node<DataNode>> = ({ id, data }) => {
-  const colorAction = useColorModeValue("#b99909", "#b99909");
-
   return (
     <div>
       <PatternNode.PatternPopover
@@ -402,10 +399,7 @@ export const NodeCreateOrder: React.FC<Node<DataNode>> = ({ id, data }) => {
               <div className="flex justify-end absolute -top-1 -right-1 opacity-10 group-hover:opacity-100 duration-200">
                 <PatternNode.Actions id={id} />
               </div>
-              <LuNotepadText
-                className="dark:text-green-400 text-green-700"
-                size={31}
-              />
+              <LuNotepadText className="text-green-400" size={31} />
             </div>
           ),
           name: "Pedido",
@@ -423,17 +417,17 @@ export const NodeCreateOrder: React.FC<Node<DataNode>> = ({ id, data }) => {
         style={{ right: -9, top: 11 }}
         isConnectable={true}
       />
-      <span className="absolute -right-3.75 top-6 dark:text-yellow-400 text-yellow-500">
+      <span className="absolute -right-3.75 top-6 text-yellow-400">
         <TiFlash size={13} />
       </span>
       <CustomHandle
         nodeId={id}
-        handleId={`${colorAction} action`}
+        handleId={`#b99909 action`}
         position={Position.Right}
         type="source"
         style={{ right: -20, top: 30 }}
         isConnectable={true}
-        className="dark:border-yellow-400/60! dark:bg-yellow-400/15! border-yellow-500/70! bg-yellow-500/15!"
+        className="border-yellow-400/60! bg-yellow-400/15!"
       />
 
       <CustomHandle
@@ -443,7 +437,7 @@ export const NodeCreateOrder: React.FC<Node<DataNode>> = ({ id, data }) => {
         type="source"
         style={{ right: -48, top: 44 }}
         isConnectable={true}
-        className="dark:border-[#f59f0bdf]! dark:bg-[#f59f0bdf]/15! border-[#f59f0bdf]! bg-[#f59f0bdf]/15!"
+        className="border-[#f59f0bdf]! bg-[#f59f0bdf]/15!"
       />
       <span className="font-semibold text-[#f59f0bdf] text-[8px] absolute -right-10 top-9.5">
         Pendente
@@ -456,7 +450,7 @@ export const NodeCreateOrder: React.FC<Node<DataNode>> = ({ id, data }) => {
         type="source"
         style={{ right: -57, top: 44 + 14 }}
         isConnectable={true}
-        className="dark:border-[#0ea4e9c6]! dark:bg-[#0ea4e9c6]/15! border-[#0ea4e9c6]! bg-[#0ea4e9c6]/15!"
+        className="border-[#0ea4e9c6]! bg-[#0ea4e9c6]/15!"
       />
       <span className="font-semibold text-[#0ea4e9c6] text-[8px] absolute -right-12.5 top-13">
         Aguardando
@@ -469,7 +463,7 @@ export const NodeCreateOrder: React.FC<Node<DataNode>> = ({ id, data }) => {
         type="source"
         style={{ right: -56, top: 44 + 28 }}
         isConnectable={true}
-        className="dark:border-[#f97416]! dark:bg-[#f97416]/15! border-[#f97416]! bg-[#f97416]/15!"
+        className="border-[#f97416]! bg-[#f97416]/15!"
       />
       <span className="font-semibold text-[#f97416] text-[8px] absolute -right-12 top-16.5">
         Preparando
@@ -482,7 +476,7 @@ export const NodeCreateOrder: React.FC<Node<DataNode>> = ({ id, data }) => {
         type="source"
         style={{ right: -38, top: 44 + 42 }}
         isConnectable={true}
-        className="dark:border-[#22c55eef]! dark:bg-[#22c55eef]/15! border-[#22c55eef]! bg-[#22c55eef]/15!"
+        className="border-[#22c55eef]! bg-[#22c55eef]/15!"
       />
       <span className="font-semibold text-[#22c55eef] text-[8px] absolute -right-7.5 top-20">
         Pronto
@@ -495,7 +489,7 @@ export const NodeCreateOrder: React.FC<Node<DataNode>> = ({ id, data }) => {
         type="source"
         style={{ right: -51, top: 44 + 56 }}
         isConnectable={true}
-        className="dark:border-[#3b83f6fa]! dark:bg-[#3b83f6fa]/15! border-[#3b83f6fa]! bg-[#3b83f6fa]/15!"
+        className="border-[#3b83f6fa]! bg-[#3b83f6fa]/15!"
       />
       <span className="font-semibold text-[#3b83f6fa] text-[8px] absolute -right-10.75 top-23.5">
         A caminho
@@ -508,7 +502,7 @@ export const NodeCreateOrder: React.FC<Node<DataNode>> = ({ id, data }) => {
         type="source"
         style={{ right: -51, top: 44 + 70 }}
         isConnectable={true}
-        className="dark:border-[#14b8a5]! dark:bg-[#14b8a5]/15! border-[#14b8a5]! bg-[#14b8a5]/15!"
+        className="border-[#14b8a5]! bg-[#14b8a5]/15!"
       />
       <span className="font-semibold text-[#14b8a5] text-[8px] absolute -right-10.5 top-27">
         Finalizado

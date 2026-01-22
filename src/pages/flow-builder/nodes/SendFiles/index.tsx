@@ -135,7 +135,7 @@ export const NodeSendFiles: React.FC<Node<DataNode>> = ({ id, data }) => {
               <div className="flex justify-end absolute -top-1 -right-1 opacity-10 group-hover:opacity-100 duration-200">
                 <PatternNode.Actions id={id} />
               </div>
-              <PiFile className="dark:text-[#999999] text-teal-700" size={31} />
+              <PiFile className="text-[#999999]" size={31} />
             </div>
           ),
           name: "Documentos",

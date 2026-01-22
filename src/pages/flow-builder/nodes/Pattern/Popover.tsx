@@ -30,7 +30,7 @@ interface PropsPatternNodeComponent {
 }
 
 export const PatternNodePopoverComponent: FC<PropsPatternNodeComponent> = (
-  props
+  props,
 ) => {
   const [open, setOpen] = useState(false);
 
@@ -66,13 +66,13 @@ export const PatternNodePopoverComponent: FC<PropsPatternNodeComponent> = (
           top={0}
           paddingTop={"15px"}
           paddingBottom={"5px"}
-          className="dark:!bg-[#111111] !bg-[#fff] z-10 border border-white/5 rounded-md rounded-b-none border-b-0"
+          className="bg-[#111111]! z-10 border border-white/5 rounded-md rounded-b-none border-b-0"
         >
           <PopoverTitle className="font-bold text-base">
             {props.title}
           </PopoverTitle>
           {!!props.description && (
-            <PopoverDescription className="dark:text-white/60 text-black/70">
+            <PopoverDescription className="text-white/60">
               {props.description}
             </PopoverDescription>
           )}

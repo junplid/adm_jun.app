@@ -6,7 +6,7 @@ export function DashboardPage(): JSX.Element {
   return (
     <div>
       {/* <div className="pointer-events-none select-none opacity-40 grid grid-cols-[repeat(auto-fill,minmax(230px,1fr))] gap-2.5">
-        <div className="flex flex-col dark:bg-[#2e2b2b85] overflow-hidden rounded-xl shadow-lg shadow-black/30">
+        <div className="flex flex-col bg-[#2e2b2b85] overflow-hidden rounded-xl shadow-lg shadow-black/30">
           <div className="flex items-center justify-between p-3 pb-0 gap-2">
             <div className="">
               <h1 className="text-xs text-white/70 font-medium">
@@ -91,7 +91,7 @@ export function DashboardPage(): JSX.Element {
             />
           </div>
         </div>
-        <div className="flex flex-col gap-y-2 dark:bg-[#2e2b2b85] overflow-hidden rounded-xl shadow-lg shadow-black/30">
+        <div className="flex flex-col gap-y-2 bg-[#2e2b2b85] overflow-hidden rounded-xl shadow-lg shadow-black/30">
           <div className="flex items-center justify-between p-3 pb-0 gap-2">
             <h1 className="text-xs text-white/70 font-medium">
               Top 4 Etiquetas

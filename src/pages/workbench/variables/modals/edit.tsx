@@ -221,7 +221,7 @@ function Content({
               <TextareaAutosize
                 minRows={1}
                 maxRows={12}
-                className="p-3 py-2.5 rounded-sm w-full resize-none dark:border-white/10 border-black/10 border"
+                className="p-3 py-2.5 rounded-sm w-full resize-none border-white/10 border"
                 placeholder="Digite o valor da variável"
                 autoComplete="off"
                 {...register("value")}

@@ -203,7 +203,7 @@ export const NodeExtractVariable: React.FC<Node<DataNode>> = ({ id, data }) => {
               <div className="flex justify-end absolute -top-1 -right-1 opacity-10 group-hover:opacity-100 duration-200">
                 <PatternNode.Actions id={id} />
               </div>
-              <BsRegex className="dark:text-white/70" size={27} />
+              <BsRegex className="text-white/70" size={27} />
             </div>
           ),
           name: "Variável",

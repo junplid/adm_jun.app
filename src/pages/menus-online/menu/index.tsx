@@ -42,10 +42,10 @@ export const MenuOnlinePage: React.FC = (): JSX.Element => {
   if (isError || !data) {
     return (
       <div className="flex items-center w-full flex-col gap-y-0.5 mt-14">
-        <div className="text-lg font-bold text-gray-500 dark:text-gray-200">
+        <div className="text-lg font-bold text-gray-200">
           Cardápio on-line não encontrado
         </div>
-        <div className="text-sm text-gray-400 dark:text-gray-400">
+        <div className="text-sm text-gray-400">
           O cardápio que você está tentando acessar não existe ou foi excluído.
         </div>
       </div>
@@ -115,10 +115,10 @@ export const MenuOnlinePage: React.FC = (): JSX.Element => {
             </span>
           </div>
         </TabsContent>
-        <TabsContent value="items" className="flex-1 !pt-0 grid h-full">
+        <TabsContent value="items" className="flex-1 pt-0! grid h-full">
           <TabProducts uuid={params.uuid!} />
         </TabsContent>
-        <TabsContent value="orders" className="flex-1 !pt-0 grid h-full">
+        <TabsContent value="orders" className="flex-1 pt-0! grid h-full">
           <TabOrders uuid={params.uuid!} />
         </TabsContent>
         <TabsContent value="config">

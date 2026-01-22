@@ -85,10 +85,7 @@ export const NodeSendAudios: React.FC<Node<DataNode>> = ({ id, data }) => {
               <div className="flex justify-end absolute -top-1 -right-1 opacity-10 group-hover:opacity-100">
                 <PatternNode.Actions id={id} />
               </div>
-              <TbHeadphones
-                className="dark:text-[#daa557] text-teal-700"
-                size={31}
-              />
+              <TbHeadphones className="text-[#daa557]" size={31} />
             </div>
           ),
           name: "Áudios",

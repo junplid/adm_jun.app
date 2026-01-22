@@ -59,10 +59,7 @@ export const NodeSendFlow: React.FC<Node<DataNode>> = ({ id, data }) => {
               <div className="flex justify-end absolute -top-1 -right-1 opacity-10 group-hover:opacity-100 duration-200">
                 <PatternNode.Actions id={id} />
               </div>
-              <PiFlowArrowBold
-                className="dark:text-neutral-300 text-neutral-800"
-                size={26.8}
-              />
+              <PiFlowArrowBold className="text-neutral-300" size={26.8} />
             </div>
           ),
           name: "Fluxo",

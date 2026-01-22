@@ -5,7 +5,6 @@ import { WithContext as ReactTags, SEPARATORS, Tag } from "react-tag-input";
 import useStore from "../../flowStore";
 import { JSX, useMemo } from "react";
 import { Highlight } from "@chakra-ui/react";
-import { useColorModeValue } from "@components/ui/color-mode";
 import { GrClose } from "react-icons/gr";
 import { CustomHandle } from "../../customs/node";
 import { useGetVariablesOptions } from "../../../../hooks/variable";
@@ -15,7 +14,6 @@ type DataNode = {
 };
 
 function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
-  const colorQuery = useColorModeValue("#000000", "#ffffff");
   const { updateNode } = useStore((s) => ({ updateNode: s.updateNode }));
   const { data: variables } = useGetVariablesOptions();
 
@@ -90,14 +88,14 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
         renderSuggestion={(item, query) => (
           <div
             key={item.id}
-            className="p-2 dark:text-white/50 text-black/40 py-1.5 cursor-pointer"
+            className="p-2 text-white/50 py-1.5 cursor-pointer"
             style={{ borderRadius: 20 }}
           >
             <Highlight
               styles={{
                 // px: "0.5",
                 // bg: "#ea5c0a",
-                color: colorQuery,
+                color: "#ffffff",
                 fontWeight: 600,
               }}
               query={query}
@@ -108,13 +106,13 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
         )}
         classNames={{
           selected: `flex flex-wrap border gap-1.5 gap-y-2 w-full border-none`,
-          tagInputField: `p-2.5 rounded-sm w-full border dark:border-white/10 border-black/10`,
+          tagInputField: `p-2.5 rounded-sm w-full border border-white/10`,
           remove: "hidden",
-          tag: "hover:bg-red-500 duration-300 !cursor-pointer dark:bg-white/15 bg-black/15 px-1",
+          tag: "bg-red-500 duration-300 !cursor-pointer bg-white/15 px-1",
           tagInput: "w-full",
           tags: "w-full relative",
           suggestions:
-            "absolute z-50 dark:bg-[#111111] bg-white w-full translate-y-2 shadow-xl p-1 border dark:border-white/10 border-black/10 rounded-sm",
+            "absolute z-50 bg-[#111111] w-full translate-y-2 shadow-xl p-1 border border-white/10 rounded-sm",
         }}
       />
       <div className="mt-24"></div>
@@ -134,10 +132,7 @@ export const NodeRemoveVariables: React.FC<Node<DataNode>> = ({ id, data }) => {
               <div className="flex justify-end absolute -top-1 -right-1 opacity-10 group-hover:opacity-100 duration-200">
                 <PatternNode.Actions id={id} />
               </div>
-              <PiBracketsCurlyBold
-                className="dark:text-red-300 text-red-800"
-                size={26.8}
-              />
+              <PiBracketsCurlyBold className="text-red-300" size={26.8} />
             </div>
           ),
           name: "Variáveis",

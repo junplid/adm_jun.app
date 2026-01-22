@@ -69,7 +69,7 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
         data.messages!.map((msg, index) => (
           <div
             key={msg.key}
-            className="relative group gap-y-2 flex flex-col dark:bg-zinc-600/10 py-2.5 rounded-sm p-2"
+            className="relative group gap-y-2 flex flex-col bg-zinc-600/10 py-2.5 rounded-sm p-2"
           >
             {data.messages!.length > 1 && (
               <a
@@ -105,7 +105,7 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
                   <NumberInput.Label fontWeight={"medium"}>
                     Segundos digitando...
                   </NumberInput.Label>
-                  <span className="dark:text-white/70 text-black/50 font-light">
+                  <span className="text-white/70 font-light">
                     Para enviar o prox balão
                   </span>
                 </div>
@@ -218,10 +218,7 @@ export const NodeSendTextGroup: React.FC<Node<DataNode>> = ({ id, data }) => {
               <div className="flex justify-end absolute -top-1 -right-1 opacity-10 group-hover:opacity-100 duration-200">
                 <PatternNode.Actions id={id} />
               </div>
-              <HiOutlineUserGroup
-                className="dark:text-teal-600 text-teal-800"
-                size={31}
-              />
+              <HiOutlineUserGroup className="text-teal-600" size={31} />
             </div>
           ),
           name: "Grupo",

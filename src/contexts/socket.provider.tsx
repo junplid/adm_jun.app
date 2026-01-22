@@ -71,7 +71,7 @@ export const SocketProvider = ({
 
   const socket = useMemo(
     () => manager.socket("/", { auth: { accountId: account.id, clientMeta } }),
-    [manager, account.id, clientMeta]
+    [manager, account.id, clientMeta],
   );
 
   const ns = (nsp: string, opts = {}) => manager.socket(nsp, { ...opts });
@@ -80,7 +80,7 @@ export const SocketProvider = ({
     (focus: string | null) => {
       socket.emit("set-focused", { focus });
     },
-    [socket]
+    [socket],
   );
 
   useEffect(() => {
@@ -94,7 +94,7 @@ export const SocketProvider = ({
             if (props.url_redirect) {
               const redirect = props.url_redirect.replace(
                 "$self",
-                location.pathname + location.search
+                location.pathname + location.search,
               );
               navigate(redirect);
             }
@@ -115,7 +115,7 @@ export const SocketProvider = ({
             content: "w-full border-0!",
           },
           unstyled: true,
-        }
+        },
       );
       // aparecer o toast;
 
@@ -134,7 +134,7 @@ export const SocketProvider = ({
       if (!location.search) return;
 
       const params = Object.fromEntries(
-        new URLSearchParams(location.search).entries()
+        new URLSearchParams(location.search).entries(),
       );
 
       if (params.open_ticket) {
@@ -191,7 +191,7 @@ export const SocketProvider = ({
                     tickets_open,
                   };
                 });
-              }
+              },
             );
           }
           if (departmentOpenId === data.departmentId) return;
@@ -224,10 +224,7 @@ export const SocketProvider = ({
             toaster.create({
               title: (
                 <div className="flex items-center gap-x-2">
-                  <LuNotepadText
-                    className="dark:text-green-400 text-green-700"
-                    size={31}
-                  />{" "}
+                  <LuNotepadText className="text-green-400" size={31} />{" "}
                   <span text-green-300>{data.title}</span>
                 </div>
               ),

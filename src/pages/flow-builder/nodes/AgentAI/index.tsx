@@ -3,7 +3,6 @@ import { Handle, Node, Position, useUpdateNodeInternals } from "@xyflow/react";
 import { PatternNode } from "../Pattern";
 import useStore from "../../flowStore";
 import { RxLapTimer } from "react-icons/rx";
-import { useColorModeValue } from "@components/ui/color-mode";
 import { CustomHandle } from "../../customs/node";
 import SelectAgentsAI from "@components/SelectAgentsAI";
 import { Field } from "@components/ui/field";
@@ -129,7 +128,6 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
 export const NodeAgentAI: React.FC<
   Node<DataNode & { preview: { first: string[]; property: string[] } }>
 > = ({ id, data }) => {
-  const colorTimeout = useColorModeValue("#F94A65", "#B1474A");
   // const colorFailed = useColorModeValue("#ee9e42", "#a55d29");
 
   const previewUnique = [
@@ -160,10 +158,7 @@ export const NodeAgentAI: React.FC<
               <div className="flex justify-end absolute -top-1 -right-1 opacity-10 group-hover:opacity-100 duration-200">
                 <PatternNode.Actions id={id} />
               </div>
-              <BsStars
-                className="dark:text-teal-700  text-teal-700"
-                size={31}
-              />
+              <BsStars className="text-teal-700" size={31} />
             </div>
           ),
           name: "Assistente IA",
@@ -202,13 +197,13 @@ export const NodeAgentAI: React.FC<
 
       <CustomHandle
         nodeId={id}
-        handleId={`${colorTimeout} timeout`}
+        handleId={`#B1474A timeout`}
         position={Position.Right}
         type="source"
         style={{ right: -20, bottom: -3, top: "initial" }}
         isConnectable={true}
         title="Tempo esgotado"
-        className="relative dark:text-red-400 text-red-500 dark:border-red-400/60! dark:bg-red-400/15! border-red-500/70! bg-red-500/15!"
+        className="relative text-red-400 border-red-400/60! bg-red-400/15!"
       >
         <RxLapTimer
           size={11}

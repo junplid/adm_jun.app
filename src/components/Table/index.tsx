@@ -97,12 +97,12 @@ export const TableComponent = (props: Props): JSX.Element => {
         }
       />
       {!rows.length && props.textEmpity && !props.load && (
-        <div className="cursor-default absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 px-4 py-2 text-sm dark:text-white/30 text-black/50">
+        <div className="cursor-default absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 px-4 py-2 text-sm text-white/30">
           {props.textEmpity}
         </div>
       )}
       {props.load && (
-        <div className="cursor-default absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 px-4 py-2 text-sm dark:text-white/30 text-black/50">
+        <div className="cursor-default absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 px-4 py-2 text-sm text-white/30">
           <Spinner size={"md"} />
         </div>
       )}
@@ -127,12 +127,12 @@ export const TableMobileComponent = (props: PropsMobile): JSX.Element => {
         itemContent={props.renderItem}
       />
       {!props.totalCount && props.textEmpity && !props.load && (
-        <div className="cursor-default  w-full absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 px-1 py-2 text-sm dark:text-white/30 text-black/50">
+        <div className="cursor-default  w-full absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 px-1 py-2 text-sm text-white/30">
           {props.textEmpity}
         </div>
       )}
       {props.load && (
-        <div className="cursor-default absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 px-4 py-2 text-sm dark:text-white/30 text-black/50">
+        <div className="cursor-default absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 px-4 py-2 text-sm text-white/30">
           <Spinner size={"md"} />
         </div>
       )}

@@ -41,10 +41,7 @@ export const NodeRandomCode: React.FC<Node<DataNode>> = ({ id, data }) => {
               <div className="flex justify-end absolute -top-1 -right-1 opacity-10 group-hover:opacity-100 duration-200">
                 <PatternNode.Actions id={id} />
               </div>
-              <TbNumber123
-                className="dark:text-white/70 text-black/70"
-                size={26.8}
-              />
+              <TbNumber123 className="text-white/70" size={26.8} />
             </div>
           ),
           name: "Randômico",

@@ -39,9 +39,7 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
       <div className="grid grid-cols-[1fr_43px] gap-x-1 w-full justify-between">
         <div className="flex flex-col">
           <span className="font-medium">Segundos de debounce</span>
-          <span className="dark:text-white/70 text-black/50 font-light">
-            Para seguir o fluxo
-          </span>
+          <span className="text-white/70 font-light">Para seguir o fluxo</span>
         </div>
         <NumberInput.Root
           min={0}
@@ -75,10 +73,7 @@ export const NodeTimedQueue: React.FC<Node<DataNode>> = ({ id, data }) => {
               <div className="flex justify-end absolute -top-1 -right-1 opacity-10 group-hover:opacity-100 duration-200">
                 <PatternNode.Actions id={id} />
               </div>
-              <HiOutlineQueueList
-                className="dark:text-white text-black/70"
-                size={26.8}
-              />
+              <HiOutlineQueueList className="text-white" size={26.8} />
             </div>
           ),
           name: "Debounce",
@@ -97,7 +92,7 @@ export const NodeTimedQueue: React.FC<Node<DataNode>> = ({ id, data }) => {
         type="source"
         style={{ right: -20, top: 15 }}
         isConnectable={true}
-        className="relative dark:!border-blue-400/60 text-blue-400 dark:!bg-blue-400/15 !border-blue-500/70 !bg-blue-500/15"
+        className="relative border-blue-400/60! text-blue-400 bg-blue-400/15!"
       >
         <MdHourglassFull
           size={11}
@@ -111,7 +106,7 @@ export const NodeTimedQueue: React.FC<Node<DataNode>> = ({ id, data }) => {
         type="source"
         style={{ right: -20, bottom: 11, top: "initial" }}
         isConnectable={true}
-        className="relative dark:!border-red-400/60 text-red-400 dark:!bg-red-400/15 !border-red-500/70 !bg-red-500/15"
+        className="relative border-red-400/60! text-red-400 bg-red-400/15!"
       >
         <MdHourglassEmpty
           size={11}

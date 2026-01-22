@@ -473,7 +473,7 @@ export function ModalCreateChatbot({
                     style={{ resize: "none" }}
                     minRows={2}
                     maxRows={6}
-                    className="p-3 py-2.5 rounded-sm w-full border-black/10 dark:border-white/10 border"
+                    className="p-3 py-2.5 rounded-sm w-full border-white/10 border"
                     {...register("description")}
                   />
                 </Field>
@@ -961,7 +961,7 @@ export function ModalCreateChatbot({
                     style={{ resize: "none" }}
                     minRows={2}
                     maxRows={6}
-                    className="p-3 py-2.5 rounded-sm w-full border-black/10 dark:border-white/10 border"
+                    className="p-3 py-2.5 rounded-sm w-full border-white/10 border"
                     {...register("fallback")}
                   />
                 </Field>

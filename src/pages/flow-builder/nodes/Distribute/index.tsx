@@ -117,10 +117,7 @@ export const NodeDistribute: React.FC<
               <div className="flex justify-end absolute -top-1 -right-1 opacity-10 group-hover:opacity-100 duration-200">
                 <PatternNode.Actions id={props.id} />
               </div>
-              <FaRandom
-                className="dark:text-purple-400 text-purple-700"
-                size={24}
-              />
+              <FaRandom className="text-purple-400" size={24} />
             </div>
           ),
           name: "Aleatório",

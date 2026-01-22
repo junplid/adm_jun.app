@@ -114,10 +114,7 @@ export const NodeSendVideos: React.FC<Node<DataNode>> = ({ id, data }) => {
               <div className="flex justify-end absolute -top-1 -right-1 opacity-10 group-hover:opacity-100">
                 <PatternNode.Actions id={id} />
               </div>
-              <PiFileVideoFill
-                className="dark:text-[#8eb87a] text-teal-700"
-                size={31}
-              />
+              <PiFileVideoFill className="text-[#8eb87a]" size={31} />
             </div>
           ),
           name: "Vídeos",

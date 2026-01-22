@@ -109,10 +109,7 @@ export const NodeMoveTrelloCard: React.FC<Node<DataNode>> = ({ id, data }) => {
               <div className="flex justify-end absolute -top-1 -right-1 opacity-10 group-hover:opacity-100 duration-200">
                 <PatternNode.Actions id={id} />
               </div>
-              <RiTrelloLine
-                className="dark:text-yellow-400  text-yellow-500"
-                size={31}
-              />
+              <RiTrelloLine className="text-yellow-400" size={31} />
             </div>
           ),
           name: "Card",

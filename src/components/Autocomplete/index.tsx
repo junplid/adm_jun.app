@@ -595,7 +595,7 @@ class AutocompleteTextField extends React.Component {
           <TextareaAutosize
             minRows={this.props.minRows || 2}
             maxRows={this.props.maxRows || 6}
-            className="p-3 py-2.5 rounded-sm resize-none w-full dark:border-white/10 border-black/10 border"
+            className="p-3 py-2.5 rounded-sm resize-none w-full border-white/10 border"
             disabled={disabled}
             onBlur={this.handleBlur}
             onChange={this.handleChange}
@@ -607,7 +607,7 @@ class AutocompleteTextField extends React.Component {
           />
         ) : (
           <Input
-            className="p-3 py-2.5 rounded-sm resize-none dark:border-white/10 border-black/10 border"
+            className="p-3 py-2.5 rounded-sm resize-none border-white/10 border"
             disabled={disabled}
             onBlur={this.handleBlur}
             onChange={this.handleChange}

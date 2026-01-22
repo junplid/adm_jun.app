@@ -16,7 +16,6 @@ import useStore from "../../flowStore";
 import { Field } from "@components/ui/field";
 import { RxLapTimer } from "react-icons/rx";
 import { IoReloadOutline } from "react-icons/io5";
-import { useColorModeValue } from "@components/ui/color-mode";
 import AutocompleteTextField from "@components/Autocomplete";
 import {
   SelectContent,
@@ -99,7 +98,7 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
             <NumberInput.Label fontWeight={"medium"}>
               Segundos digitando...
             </NumberInput.Label>
-            <span className="dark:text-white/70 text-black/50 font-light">
+            <span className="text-white/70 font-light">
               Pra enviar o menu de opções
             </span>
           </div>
@@ -133,10 +132,10 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
                     onClick={() => {
                       delEdge(item.key);
                       const nextItems = data.items.filter(
-                        (i) => i.key !== item.key
+                        (i) => i.key !== item.key,
                       );
                       const nextPreview = data.preview.filter(
-                        (key: string) => key !== item.key
+                        (key: string) => key !== item.key,
                       );
                       updateNode(id, {
                         data: {
@@ -234,7 +233,7 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
                     <NumberInput.Label fontWeight={"medium"}>
                       Segundos digitando...
                     </NumberInput.Label>
-                    <span className="dark:text-white/70 text-black/50 font-light">
+                    <span className="text-white/70 font-light">
                       Pra enviar mensagem de erro
                     </span>
                   </div>
@@ -282,7 +281,7 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
                 <NumberInput.Label fontWeight={"medium"}>
                   Quantidade de tentativas
                 </NumberInput.Label>
-                <span className="dark:text-white/70 flex items-center gap-x-1.5 tracking-tight text-black/50 font-light">
+                <span className="text-white/70 flex items-center gap-x-1.5 tracking-tight font-light">
                   Para sair no próximo passo{" "}
                   <IoReloadOutline size={14} className="text-orange-400" />
                 </span>
@@ -294,7 +293,7 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
           <div className="grid grid-cols-[1fr_43px_75px] gap-x-1 px-2 w-full justify-between">
             <div className="flex flex-col">
               <span className="font-medium">Tempo máximo</span>
-              <span className="dark:text-white/70 flex items-center gap-x-1.5 tracking-tight text-black/50 font-light">
+              <span className="text-white/70 flex items-center gap-x-1.5 tracking-tight font-light">
                 Para sair no
                 <RxLapTimer size={15} className="text-red-400" />
               </span>
@@ -355,11 +354,8 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
 }
 
 export const NodeMenu: React.FC<Node<DataNode & { preview: string[] }>> = (
-  props
+  props,
 ) => {
-  const colorTimeout = useColorModeValue("#F94A65", "#B1474A");
-  const colorFailed = useColorModeValue("#ee9e42", "#a55d29");
-
   return (
     <div>
       <PatternNode.PatternPopover
@@ -380,10 +376,7 @@ export const NodeMenu: React.FC<Node<DataNode & { preview: string[] }>> = (
               <div className="flex justify-end absolute -top-1 -right-1 opacity-10 group-hover:opacity-100 duration-200">
                 <PatternNode.Actions id={props.id} />
               </div>
-              <LiaListSolid
-                className="dark:text-purple-400 text-purple-700"
-                size={31}
-              />
+              <LiaListSolid className="text-purple-400" size={31} />
             </div>
           ),
           name: "Menu",
@@ -408,7 +401,7 @@ export const NodeMenu: React.FC<Node<DataNode & { preview: string[] }>> = (
         >
           <span
             style={{ fontSize: 9, top: -3, left: -13.8 }}
-            className="absolute cursor-default text-white/50 -left-[13px] font-medium"
+            className="absolute cursor-default text-white/50 -left-3.25 font-medium"
           >
             {`[${index + 1}]`}
           </span>
@@ -417,12 +410,12 @@ export const NodeMenu: React.FC<Node<DataNode & { preview: string[] }>> = (
 
       <CustomHandle
         nodeId={props.id}
-        handleId={`${colorFailed} failed`}
+        handleId={`#a55d29 failed`}
         position={Position.Right}
         type="source"
         style={{ right: -20, bottom: 10, top: "initial" }}
         isConnectable={true}
-        className="relative dark:text-orange-400 text-orange-500 dark:!border-orange-400/60 dark:!bg-orange-400/15 !border-orange-500/70 !bg-orange-500/15"
+        className="relative text-orange-400 border-orange-400/60! bg-orange-400/15!"
         title="Tentativa de resposta"
       >
         <IoReloadOutline
@@ -433,13 +426,13 @@ export const NodeMenu: React.FC<Node<DataNode & { preview: string[] }>> = (
 
       <CustomHandle
         nodeId={props.id}
-        handleId={`${colorTimeout} timeout`}
+        handleId={`#B1474A timeout`}
         position={Position.Right}
         type="source"
         style={{ right: -20, bottom: -3, top: "initial" }}
         isConnectable={true}
         title="Tempo esgotado"
-        className="relative dark:text-red-400 text-red-500 dark:!border-red-400/60 dark:!bg-red-400/15 !border-red-500/70 !bg-red-500/15"
+        className="relative text-red-400 bg-red-400/15! border-red-400/60!"
       >
         <RxLapTimer
           size={11}

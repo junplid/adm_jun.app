@@ -10,10 +10,7 @@ export const NodeFinish: React.FC<Node> = ({ id }) => {
           <div className="flex justify-end absolute -top-1 -right-1 opacity-10 group-hover:opacity-100 duration-200">
             <PatternNode.Actions id={id} />
           </div>
-          <VscDebugStop
-            className="dark:text-zinc-100 text-zinc-800"
-            size={28}
-          />
+          <VscDebugStop className="text-zinc-100" size={28} />
         </div>
       </PatternNode.PatternContainer>
       <Handle

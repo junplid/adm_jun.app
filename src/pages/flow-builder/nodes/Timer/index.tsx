@@ -77,9 +77,7 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
       <div className="grid grid-cols-[1fr_43px_75px] gap-x-1 w-full justify-between">
         <div className="flex flex-col">
           <span className="font-medium">Tempo esperando</span>
-          <span className="dark:text-white/70 text-black/50 font-light">
-            Para seguir o fluxo
-          </span>
+          <span className="text-white/70 font-light">Para seguir o fluxo</span>
         </div>
         <NumberInput.Root
           min={0}
@@ -140,10 +138,7 @@ export const NodeTimer: React.FC<Node<DataNode>> = ({ id, data }) => {
               <div className="flex justify-end absolute -top-1 -right-1 opacity-10 group-hover:opacity-100 duration-200">
                 <PatternNode.Actions id={id} />
               </div>
-              <LiaHourglassHalfSolid
-                className="dark:text-zinc-400 text-zinc-700"
-                size={31}
-              />
+              <LiaHourglassHalfSolid className="text-zinc-400" size={31} />
             </div>
           ),
           description: "Aguardar",

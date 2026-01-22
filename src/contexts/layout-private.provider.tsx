@@ -15,7 +15,6 @@ import { Link, Outlet, useLocation } from "react-router-dom";
 import { InViewComponent } from "@components/InView";
 import { JSX } from "@emotion/react/jsx-runtime";
 import { HiMenu } from "react-icons/hi";
-import { useColorModeValue } from "@components/ui/color-mode";
 import { Tooltip } from "@components/ui/tooltip";
 import { TbDoorExit } from "react-icons/tb";
 import {
@@ -38,10 +37,6 @@ import { BsStars } from "react-icons/bs";
 
 export const ShadowTopMemoComponent = memo(() => {
   const [showShadowTop, setShowShadowTop] = useState(true);
-  const gradient = useColorModeValue(
-    "linear-gradient(rgba(255, 255, 255, 0.797) 0%, rgba(214, 214, 214, 0) 90%)",
-    "linear-gradient(#121111 0%, transparent 90%)",
-  );
 
   return (
     <>
@@ -49,7 +44,7 @@ export const ShadowTopMemoComponent = memo(() => {
       <div
         className={`pointer-events-none absolute left-0 z-30 h-12 w-full`}
         style={{
-          background: gradient,
+          background: "linear-gradient(#121111 0%, transparent 90%)",
           opacity: Number(!showShadowTop),
           // top: 50,
           top: 0,
@@ -61,10 +56,6 @@ export const ShadowTopMemoComponent = memo(() => {
 
 const ShadowBottomMemoComponent = memo(() => {
   const [showShadowBottom, setShowShadowBottom] = useState(true);
-  const gradient = useColorModeValue(
-    "linear-gradient(rgba(214, 214, 214, 0) 0%,rgba(255, 255, 255, 0.797) 90%)",
-    "linear-gradient(transparent 0%, #121111 90%)",
-  );
 
   return (
     <>
@@ -72,7 +63,7 @@ const ShadowBottomMemoComponent = memo(() => {
       <div
         className={`pointer-events-none absolute left-0 z-30 h-12 w-full`}
         style={{
-          background: gradient,
+          background: "linear-gradient(transparent 0%, #121111 90%)",
           opacity: Number(!showShadowBottom),
           bottom: 58,
         }}
@@ -98,7 +89,7 @@ const ToggleMenu = ({
         setToggledMenu(!toggledMenu);
       }
     }}
-    className="dark:text-[#ededed] text-[#1c1c1c] cursor-pointer pointer-events-auto"
+    className="text-[#ededed] cursor-pointer pointer-events-auto"
   >
     {toggledMenu ? <IoClose size={25} /> : <HiMenu size={25} />}
   </button>
@@ -113,13 +104,6 @@ export function LayoutPrivateProvider(): JSX.Element {
   const [toggledMenu, setToggledMenu] = useState(false);
   // const [toggledTo, setToggledTo] = useState<null | string>(null);
   const { pathname } = useLocation();
-
-  const bgSideBar = useColorModeValue("#ffffff", "#121111");
-  const shadowSideBar = useColorModeValue("#e9e9e940", "#12111149");
-
-  const activeColor = useColorModeValue("#1d1d1d", "#ffffff");
-  const disabledColor = useColorModeValue("#979797", "#a7a7a7");
-  const subMenuBg = useColorModeValue("#cecece67", "#2b2b2b42");
 
   const dataValue = useMemo(
     () => ({
@@ -159,12 +143,12 @@ export function LayoutPrivateProvider(): JSX.Element {
       >
         <Sidebar
           collapsed={!toggledMenu}
-          backgroundColor={bgSideBar}
+          backgroundColor={"#121111"}
           collapsedWidth="70px"
           width="250px"
           rootStyles={{
             border: "none !important",
-            boxShadow: toggledMenu ? `4px 0 8px ${shadowSideBar}` : undefined,
+            boxShadow: toggledMenu ? `4px 0 8px #12111149` : undefined,
             zIndex: 9,
             position: "relative",
           }}
@@ -173,7 +157,7 @@ export function LayoutPrivateProvider(): JSX.Element {
             <ShadowTopMemoComponent />
 
             <div
-              style={{ minHeight: 50, background: bgSideBar }}
+              style={{ minHeight: 50, background: "#121111" }}
               className="sticky top-0 z-50 flex w-full items-center gap-x-2 p-1 px-2 pl-4"
             >
               <img
@@ -226,29 +210,23 @@ export function LayoutPrivateProvider(): JSX.Element {
                 button(params) {
                   return {
                     ...params,
-                    color:
-                      params.open || params.active
-                        ? activeColor
-                        : disabledColor,
+                    color: params.open || params.active ? "#ffffff" : "#a7a7a7",
                     fontWeight: params.active ? 500 : 300,
                     fontSize: 15.3,
                     ":hover": {
                       background: "transparent",
-                      color: `${activeColor} !important`,
+                      color: `#ffffff !important`,
                     },
                   };
                 },
-                subMenuContent: { background: subMenuBg },
+                subMenuContent: { background: "#2b2b2b42" },
                 icon(params) {
                   return {
                     ...params,
                     width: 23,
                     height: 23,
                     minWidth: 23,
-                    color:
-                      params.open || params.active
-                        ? activeColor
-                        : disabledColor,
+                    color: params.open || params.active ? "#ffffff" : "#a7a7a7",
                     marginRight: 10,
                   };
                 },
@@ -381,7 +359,7 @@ export function LayoutPrivateProvider(): JSX.Element {
             </Menu>
 
             <div
-              style={{ background: bgSideBar }}
+              style={{ background: "#121111" }}
               className="sticky bottom-0 gap-2 z-50 pb-3 pt-3 flex flex-wrap w-full items-center justify-center p-1 px-2"
             >
               <Tooltip

@@ -136,7 +136,7 @@ const EditForm: FC<
           style={{ resize: "none" }}
           minRows={4}
           maxRows={10}
-          className="p-3 py-2.5 rounded-sm w-full border-black/10 dark:border-white/10 border"
+          className="p-3 py-2.5 rounded-sm w-full border-white/10 border"
           {...register("desc")}
         />
       </Field>

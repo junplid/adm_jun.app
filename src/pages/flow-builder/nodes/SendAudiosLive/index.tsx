@@ -86,7 +86,7 @@ export const NodeSendAudiosLive: React.FC<Node<DataNode>> = ({ id, data }) => {
               <div className="flex justify-end absolute -top-1 -right-1 opacity-10 group-hover:opacity-100">
                 <PatternNode.Actions id={id} />
               </div>
-              <VscMic className="dark:text-[#0dacd4] text-teal-700" size={31} />
+              <VscMic className="text-[#0dacd4]" size={31} />
             </div>
           ),
           name: "Áudios",

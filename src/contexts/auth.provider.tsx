@@ -54,7 +54,7 @@ export function AuthProvider(props: IProps): JSX.Element {
   const [load, setLoad] = useState<boolean>(false);
   const [statusAPI, setStatusAPI] = useState<boolean>(false);
   const [clientMeta, setClientMeta] = useState<IClienteMeta>(
-    {} as IClienteMeta
+    {} as IClienteMeta,
   );
 
   const navigate = useNavigate();
@@ -91,7 +91,7 @@ export function AuthProvider(props: IProps): JSX.Element {
             if (dataError.input.length) {
               dataError.input.forEach(({ text, path }) =>
                 // @ts-expect-error
-                setError(path, { message: text })
+                setError(path, { message: text }),
               );
             }
           }
@@ -110,11 +110,11 @@ export function AuthProvider(props: IProps): JSX.Element {
       logout,
       setAccount,
     }),
-    [account, clientMeta]
+    [account, clientMeta],
   );
 
   return (
-    <div className="bg-[#f5f5f5] dark:bg-[#181616c5] h-svh">
+    <div className="bg-[#181616c5] h-svh">
       {/* @ts-expect-error */}
       <AuthContext.Provider value={dataValue}>
         {!load && (

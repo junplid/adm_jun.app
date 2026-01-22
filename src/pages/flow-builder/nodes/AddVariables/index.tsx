@@ -10,7 +10,6 @@ import {
   useGetVariablesOptions,
 } from "../../../../hooks/variable";
 import { GrClose } from "react-icons/gr";
-import { useColorModeValue } from "@components/ui/color-mode";
 import { CustomHandle } from "../../customs/node";
 import AutocompleteTextField from "@components/Autocomplete";
 
@@ -22,7 +21,6 @@ type DataNode = {
 };
 
 function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
-  const colorQuery = useColorModeValue("#000000", "#ffffff");
   const { updateNode, businessIds } = useStore((s) => ({
     updateNode: s.updateNode,
     businessIds: s.businessIds,
@@ -166,14 +164,14 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
           renderSuggestion={(item, query) => (
             <div
               key={item.id}
-              className="p-2 dark:text-white/50 text-black/40 py-1.5 cursor-pointer"
+              className="p-2 text-white/50 py-1.5 cursor-pointer"
               style={{ borderRadius: 20 }}
             >
               <Highlight
                 styles={{
                   // px: "0.5",
                   // bg: "#ea5c0a",
-                  color: colorQuery,
+                  color: "#ffffff",
                   fontWeight: 600,
                 }}
                 query={query}
@@ -184,13 +182,13 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
           )}
           classNames={{
             selected: `flex flex-wrap border gap-1.5 gap-y-2 w-full border-none`,
-            tagInputField: `p-2.5 rounded-sm w-full border dark:border-white/10 border-black/10`,
+            tagInputField: `p-2.5 rounded-sm w-full border border-white/10`,
             remove: "hidden",
-            tag: "hover:bg-red-500 duration-300 !cursor-pointer dark:bg-white/15 bg-black/15 px-1",
+            tag: "hover:bg-red-500 duration-300 !cursor-pointer bg-white/15 px-1",
             tagInput: "w-full",
             tags: "w-full relative",
             suggestions:
-              "absolute z-50 dark:bg-[#111111] bg-white w-full translate-y-2 shadow-xl p-1 border dark:border-white/10 border-black/10 rounded-sm",
+              "absolute z-50 bg-[#111111] w-full translate-y-2 shadow-xl p-1 border border-white/10 rounded-sm",
           }}
         />
       </div>
@@ -211,10 +209,7 @@ export const NodeAddVariables: React.FC<Node<DataNode>> = ({ id, data }) => {
               <div className="flex justify-end absolute -top-1 -right-1 opacity-10 group-hover:opacity-100 duration-200">
                 <PatternNode.Actions id={id} />
               </div>
-              <PiBracketsCurlyBold
-                className="dark:text-green-300 text-green-800"
-                size={26.8}
-              />
+              <PiBracketsCurlyBold className="text-green-300" size={26.8} />
             </div>
           ),
           name: "Variáveis",

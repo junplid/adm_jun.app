@@ -4,7 +4,6 @@ import { Menu, MenuItem, Sidebar } from "react-pro-sidebar";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { JSX } from "@emotion/react/jsx-runtime";
 import { HiMenu } from "react-icons/hi";
-import { useColorModeValue } from "@components/ui/color-mode";
 import { LayoutWorkbenchPageContext } from "./contexts";
 import { ModalCreateMenuOnline } from "./modals/create";
 import { Button, Spinner } from "@chakra-ui/react";
@@ -27,7 +26,7 @@ const ToggleMenu = ({
         setToggledMenu(!toggledMenu);
       }
     }}
-    className="dark:text-[#ededed] text-[#1c1c1c] cursor-pointer pointer-events-auto"
+    className="text-[#ededed] cursor-pointer pointer-events-auto"
   >
     {toggledMenu ? <IoClose size={25} /> : <HiMenu size={25} />}
   </button>
@@ -38,17 +37,11 @@ export function LayoutSitesPageProvider(): JSX.Element {
   const { pathname } = useLocation();
   const { data: menusOnline, isFetching, isPending } = useGetMenusOnline();
 
-  const bgSideBar = useColorModeValue("", "#1f1d1d73");
-  const shadowSideBar = useColorModeValue("#e9e9e940", "#12111149");
-  const activeColor = useColorModeValue("#1d1d1d", "#ffffff");
-  const disabledColor = useColorModeValue("#979797", "#a7a7a7");
-  const subMenuBg = useColorModeValue("#cecece67", "#2b2b2b42");
-
   const dataValue = useMemo(
     () => ({
       ToggleMenu: ToggleMenu({ setToggledMenu, toggledMenu }),
     }),
-    [toggledMenu]
+    [toggledMenu],
   );
 
   return (
@@ -104,11 +97,9 @@ export function LayoutSitesPageProvider(): JSX.Element {
               style={{}}
               rootStyles={{
                 borderRadius: "8px !important",
-                backgroundColor: toggledMenu ? bgSideBar : "transparent",
+                backgroundColor: toggledMenu ? "#1f1d1d73" : "transparent",
                 border: "none !important",
-                boxShadow: toggledMenu
-                  ? `4px 0 8px ${shadowSideBar}`
-                  : undefined,
+                boxShadow: toggledMenu ? `4px 0 8px #12111149` : undefined,
                 zIndex: 9,
                 position: "relative",
                 marginLeft: -15,
@@ -125,18 +116,16 @@ export function LayoutSitesPageProvider(): JSX.Element {
                       return {
                         ...params,
                         color:
-                          params.open || params.active
-                            ? activeColor
-                            : disabledColor,
+                          params.open || params.active ? "#ffffff" : "#a7a7a7",
                         fontWeight: params.active ? 500 : 300,
                         fontSize: 15.3,
                         ":hover": {
                           background: "transparent",
-                          color: `${activeColor} !important`,
+                          color: `#ffffff !important`,
                         },
                       };
                     },
-                    subMenuContent: { background: subMenuBg },
+                    subMenuContent: { background: "#2b2b2b42" },
                     icon(params) {
                       return {
                         ...params,
@@ -144,9 +133,7 @@ export function LayoutSitesPageProvider(): JSX.Element {
                         height: 23,
                         minWidth: 23,
                         color:
-                          params.open || params.active
-                            ? activeColor
-                            : disabledColor,
+                          params.open || params.active ? "#ffffff" : "#a7a7a7",
                         marginRight: 10,
                       };
                     },

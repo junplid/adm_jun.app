@@ -47,10 +47,7 @@ export const NodeAddTags: React.FC<Node<DataNode>> = ({ id, data }) => {
               <div className="flex justify-end absolute -top-1 -right-1 opacity-10 group-hover:opacity-100 duration-200">
                 <PatternNode.Actions id={id} />
               </div>
-              <TbTags
-                className="dark:text-green-300 text-green-800"
-                size={26.8}
-              />
+              <TbTags className="text-green-300" size={26.8} />
             </div>
           ),
           name: "Etiquetas",

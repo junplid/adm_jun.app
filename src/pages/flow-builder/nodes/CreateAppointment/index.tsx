@@ -13,7 +13,6 @@ import { Field } from "@components/ui/field";
 // import SelectBusinesses from "@components/SelectBusinesses";
 import SelectComponent from "@components/Select";
 import { TiFlash } from "react-icons/ti";
-import { useColorModeValue } from "@components/ui/color-mode";
 import SelectVariables from "@components/SelectVariables";
 
 type StatusAppointments =
@@ -263,8 +262,6 @@ export const NodeCreateAppointment: React.FC<Node<DataNode>> = ({
   id,
   data,
 }) => {
-  const colorAction = useColorModeValue("#b99909", "#b99909");
-
   return (
     <div>
       <PatternNode.PatternPopover
@@ -278,10 +275,7 @@ export const NodeCreateAppointment: React.FC<Node<DataNode>> = ({
               <div className="flex justify-end absolute -top-1 -right-1 opacity-10 group-hover:opacity-100 duration-200">
                 <PatternNode.Actions id={id} />
               </div>
-              <LuCalendarDays
-                className="dark:text-green-400 text-green-700"
-                size={31}
-              />
+              <LuCalendarDays className="text-green-400" size={31} />
             </div>
           ),
           name: "Evento",
@@ -299,17 +293,17 @@ export const NodeCreateAppointment: React.FC<Node<DataNode>> = ({
         style={{ right: -9, top: 11 }}
         isConnectable={true}
       />
-      <span className="absolute -right-3.75 top-6 dark:text-yellow-400 text-yellow-500">
+      <span className="absolute -right-3.75 top-6 text-yellow-400">
         <TiFlash size={13} />
       </span>
       <CustomHandle
         nodeId={id}
-        handleId={`${colorAction} action`}
+        handleId={`#b99909 action`}
         position={Position.Right}
         type="source"
         style={{ right: -20, top: 30 }}
         isConnectable={true}
-        className="dark:border-yellow-400/60! dark:bg-yellow-400/15! border-yellow-500/70! bg-yellow-500/15!"
+        className="border-yellow-400/60! bg-yellow-400/15!"
       />
 
       <CustomHandle
@@ -319,7 +313,7 @@ export const NodeCreateAppointment: React.FC<Node<DataNode>> = ({
         type="source"
         style={{ right: -57, top: 44 + 14 }}
         isConnectable={true}
-        className="dark:border-[#0ea4e9c6]! dark:bg-[#0ea4e9c6]/15! border-[#0ea4e9c6]! bg-[#0ea4e9c6]/15!"
+        className="border-[#0ea4e9c6]! bg-[#0ea4e9c6]/15!"
       />
       <span className="font-semibold text-[#0ea4e9c6] text-[8px] absolute -right-12.5 top-13">
         Confirmado
@@ -332,7 +326,7 @@ export const NodeCreateAppointment: React.FC<Node<DataNode>> = ({
         type="source"
         style={{ right: -38, top: 44 + 14 * 2 }}
         isConnectable={true}
-        className="dark:border-[#22c55eef]! dark:bg-[#22c55eef]/15! border-[#22c55eef]! bg-[#22c55eef]/15!"
+        className="border-[#22c55eef]! bg-[#22c55eef]/15!"
       />
       <span className="font-semibold text-[#22c55eef] text-[8px] absolute -right-7.5 top-16.25">
         Concluído
@@ -345,7 +339,7 @@ export const NodeCreateAppointment: React.FC<Node<DataNode>> = ({
         type="source"
         style={{ right: -51, top: 44 + 14 * 3 }}
         isConnectable={true}
-        className="dark:border-[#f63b3bf9]! dark:bg-[#f63b3bf9]/15! border-[#f63b3bf9]! bg-[#f63b3bf9]/15!"
+        className="border-[#f63b3bf9]! bg-[#f63b3bf9]/15!"
       />
       <span className="font-semibold text-[#f63b3bfa] text-[8px] absolute -right-10.75 top-19.75">
         Cancelado
@@ -358,7 +352,7 @@ export const NodeCreateAppointment: React.FC<Node<DataNode>> = ({
         type="source"
         style={{ right: -51, top: 44 + 14 * 4 }}
         isConnectable={true}
-        className="dark:border-[#426561]! dark:bg-[#426561]/15! border-[#426561]! bg-[#426561]/15!"
+        className="border-[#426561]! bg-[#426561]/15!"
       />
       <span className="font-semibold text-[#91aba8] text-[8px] absolute -right-10.5 top-23.25">
         Expirado
@@ -371,7 +365,7 @@ export const NodeCreateAppointment: React.FC<Node<DataNode>> = ({
         type="source"
         style={{ right: -51, top: 44 + 13 * 6 }}
         isConnectable={true}
-        className="dark:border-[#426561]! dark:bg-[#426561]/15! border-[#426561]! bg-[#426561]/15!"
+        className="border-[#426561]! bg-[#426561]/15!"
       />
       <span className="font-semibold text-[#91aba8] text-[8px] absolute -right-10.5 top-28.75">
         1 dia
@@ -383,7 +377,7 @@ export const NodeCreateAppointment: React.FC<Node<DataNode>> = ({
         type="source"
         style={{ right: -51, top: 44 + 13 * 7 }}
         isConnectable={true}
-        className="dark:border-[#426561]! dark:bg-[#426561]/15! border-[#426561]! bg-[#426561]/15!"
+        className="border-[#426561]! bg-[#426561]/15!"
       />
       <span className="font-semibold text-[#91aba8] text-[8px] absolute -right-10.5 top-32">
         2 horas
@@ -395,7 +389,7 @@ export const NodeCreateAppointment: React.FC<Node<DataNode>> = ({
         type="source"
         style={{ right: -51, top: 44 + 13 * 8 }}
         isConnectable={true}
-        className="dark:border-[#426561]! dark:bg-[#426561]/15! border-[#426561]! bg-[#426561]/15!"
+        className="border-[#426561]! bg-[#426561]/15!"
       />
       <span className="font-semibold text-[#91aba8] text-[8px] absolute -right-10.5 top-35.5">
         30 min

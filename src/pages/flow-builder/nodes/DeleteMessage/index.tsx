@@ -89,10 +89,7 @@ export const NodeDeleteMessage: React.FC<Node<DataNode>> = ({ id, data }) => {
               <div className="flex justify-end absolute -top-1 -right-1 opacity-10 group-hover:opacity-100 duration-200">
                 <PatternNode.Actions id={id} />
               </div>
-              <TbTextSize
-                className="dark:text-red-600 text-red-800"
-                size={31}
-              />
+              <TbTextSize className="text-red-600" size={31} />
             </div>
           ),
           name: "Deletar",

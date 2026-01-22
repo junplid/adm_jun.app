@@ -152,7 +152,7 @@ export const NodeNotifyWA: React.FC<Node<DataNode>> = ({ id, data }) => {
                 <PatternNode.Actions id={id} />
               </div>
               <MdOutlineNotificationsActive
-                className="dark:text-green-500 text-green-600"
+                className="text-green-500"
                 size={28}
               />
             </div>

@@ -78,7 +78,7 @@ export const NodeCalculator: React.FC<Node<DataNode>> = ({ id, data }) => {
               <div className="flex justify-end absolute -top-1 -right-1 opacity-10 group-hover:opacity-100 duration-200">
                 <PatternNode.Actions id={id} />
               </div>
-              <CgCalculator className="dark:text-white text-black" size={27} />
+              <CgCalculator className="text-white" size={27} />
             </div>
           ),
           name: "Calculadora",

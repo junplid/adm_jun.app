@@ -1,7 +1,6 @@
 import { Handle, Node, Position } from "@xyflow/react";
 import { PatternNode } from "../Pattern";
 import { FaCheck, FaTimes } from "react-icons/fa";
-import { useColorModeValue } from "@components/ui/color-mode";
 import useStore from "../../flowStore";
 import { JSX, useEffect, useState } from "react";
 import { nanoid } from "nanoid";
@@ -161,7 +160,7 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
                       value={data.list![index].tagIds}
                       onChange={(e: any) => {
                         data.list![index].tagIds = e.map(
-                          (item: any) => item.value
+                          (item: any) => item.value,
                         );
                         updateNode(id, {
                           data: { list: data.list },
@@ -184,7 +183,7 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
                       value={data.list![index].tagIds}
                       onChange={(e: any) => {
                         data.list![index].tagIds = e.map(
-                          (item: any) => item.value
+                          (item: any) => item.value,
                         );
                         updateNode(id, {
                           data: { list: data.list },
@@ -314,9 +313,6 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
 }
 
 export const NodeIF: React.FC<Node<DataNode>> = ({ id, data }) => {
-  const colorTrue = useColorModeValue("#00CE6B", "#179952");
-  const colorFalse = useColorModeValue("#FB4F6A", "#FB4F6A");
-
   return (
     <div>
       <PatternNode.PatternPopover
@@ -325,7 +321,7 @@ export const NodeIF: React.FC<Node<DataNode>> = ({ id, data }) => {
         description="Verifica e executa regras lógicas"
         node={{
           children: (
-            <div className="relative p-[4.5px] translate-y-0.5 py-[9.5px] text-xs font-bold dark:text-yellow-300 text-yellow-600">
+            <div className="relative p-[4.5px] translate-y-0.5 py-[9.5px] text-xs font-bold text-yellow-300">
               <div className="flex justify-end absolute -top-1 -right-1 opacity-10 group-hover:opacity-100 duration-200">
                 <PatternNode.Actions id={id} />
               </div>
@@ -341,30 +337,30 @@ export const NodeIF: React.FC<Node<DataNode>> = ({ id, data }) => {
 
       <Handle type="target" position={Position.Left} style={{ left: -8 }} />
 
-      <span className="absolute -right-[12.3px] top-[8.3px] dark:text-green-400 text-green-500">
+      <span className="absolute -right-[12.3px] top-[8.3px] text-green-400">
         <FaCheck size={9.5} />
       </span>
       <CustomHandle
         nodeId={id}
-        handleId={`${colorTrue} true`}
+        handleId={`#179952 true`}
         position={Position.Right}
         type="source"
         style={{ right: -20, top: 13 }}
         isConnectable={true}
-        className="dark:!border-green-400/60 dark:!bg-green-400/15 !border-green-500/80 !bg-green-500/15"
+        className="border-green-400/60! bg-green-400/15!"
       />
 
-      <span className="absolute -right-[13px] top-[31px] dark:text-red-400 text-red-500">
+      <span className="absolute -right-3.25 top-7.75 text-red-400">
         <FaTimes size={11} />
       </span>
       <CustomHandle
         nodeId={id}
-        handleId={`${colorFalse} false`}
+        handleId={`#FB4F6A false`}
         position={Position.Right}
         type="source"
         style={{ right: -20, top: 37 }}
         isConnectable={true}
-        className="dark:!border-red-400/60 dark:!bg-red-400/15 !border-red-500/70 !bg-red-500/15"
+        className="border-red-400/60! bg-red-400/15!"
       />
     </div>
   );

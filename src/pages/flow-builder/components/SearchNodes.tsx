@@ -1,5 +1,4 @@
 import { Badge, Input, InputGroup } from "@chakra-ui/react";
-import { useColorModeValue } from "@components/ui/color-mode";
 import {
   PopoverBody,
   PopoverContent,
@@ -45,7 +44,6 @@ import { CgCalculator } from "react-icons/cg";
 export function SearchNodesComponents(): JSX.Element {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLInputElement | null>(null);
-  const bg = useColorModeValue("#ffffffd8", "#252525d5");
   const [search, setSearch] = useState("");
   const setTypeDrag = useStore((s) => s.setTypeDrag);
 
@@ -83,17 +81,12 @@ export function SearchNodesComponents(): JSX.Element {
     >
       <PopoverTrigger>
         <InputGroup
-          endElement={
-            <IoSearchSharp
-              size={16}
-              className="text-[#242424]! dark:text-[#f0f0f0c5]!"
-            />
-          }
+          endElement={<IoSearchSharp size={16} className="text-[#f0f0f0c5]!" />}
         >
           <Input
             ref={ref}
             size={"sm"}
-            className="text-[#1f1f1f]! dark:placeholder:text-[#dadadac5] dark:text-[#ffffff]!  pointer-events-auto bg-[#f5f5f5]! dark:bg-[#181616c5]!"
+            className="text-[#ffffff]! placeholder:text-[#dadadac5] pointer-events-auto bg-[#181616c5]!"
             placeholder="Busque pelo node"
             fontSize={"14px"}
             w={"210px"}
@@ -103,7 +96,7 @@ export function SearchNodesComponents(): JSX.Element {
         </InputGroup>
       </PopoverTrigger>
       <PopoverContent
-        css={{ "--popover-bg": bg }}
+        css={{ "--popover-bg": "#252525d5" }}
         w={"320px"}
         h={"100vh"}
         className="scroll-hidden overflow-y-scroll backdrop-blur-xs duration-300"
@@ -123,13 +116,14 @@ export function SearchNodesComponents(): JSX.Element {
           <ul>
             {nodeListFilter.map((node) => (
               <li
-                // className={`${!isPremium && node.premium ? "" : "dndnode cursor-grab dark:hover:bg-zinc-700/40 hover:bg-zinc-300/50"} flex min-h-13 items-center gap-3.5 select-none p-1.5 rounded-lg px-3`}
-                className={`flex min-h-13 items-center gap-3.5 select-none p-1.5 rounded-lg px-3`}
+                // className={`${!isPremium && node.premium ? "" : ""} flex min-h-13 items-center gap-3.5 select-none p-1.5 rounded-lg px-3`}
+                className={`dndnode cursor-grab dark:hover:bg-zinc-700/40 hover:bg-zinc-300/50 flex min-h-13 items-center gap-3.5 select-none p-1.5 rounded-lg px-3`}
                 onDragStart={(event) => {
                   // if (!isPremium && node.premium) return;
                   onDragStart(event, node.type);
                 }}
                 // draggable={isPremium ? true : !node.premium}
+                draggable
                 key={node.type}
               >
                 <div className="relative">
@@ -150,7 +144,7 @@ export function SearchNodesComponents(): JSX.Element {
                     </Badge>
                   </span>
                   {node.description && (
-                    <p className="font-light dark:text-white/65 text-black/65">
+                    <p className="font-light text-white/65">
                       {node.description}
                     </p>
                   )}
@@ -173,198 +167,137 @@ const nodesList: {
   premium?: boolean;
 }[] = [
   {
-    icon: (
-      <TbTextSize className="dark:text-teal-400 text-teal-700 w-8" size={31} />
-    ),
+    icon: <TbTextSize className="text-teal-400 w-8" size={31} />,
     name: "Enviar texto",
     description: "Envie vários balões de texto",
     type: "NodeMessage",
   },
   {
-    icon: (
-      <HiOutlineUserGroup
-        className="dark:text-teal-600 text-teal-800 w-8"
-        size={31}
-      />
-    ),
+    icon: <HiOutlineUserGroup className="text-teal-600 w-8" size={31} />,
     name: "Enviar mensagem para grupo",
     description: "Envie vários balões de texto para um grupo",
     type: "NodeSendTextGroup",
-    new: true,
+    new: false,
     premium: true,
   },
   {
-    icon: (
-      <LiaHourglassHalfSolid
-        className="dark:text-zinc-400 text-zinc-700 w-8"
-        size={31}
-      />
-    ),
+    icon: <LiaHourglassHalfSolid className="text-zinc-400 w-8" size={31} />,
     name: "Aguardar tempo",
     description: "Pausa o fluxo por um tempo",
     type: "NodeTimer",
   },
   {
-    icon: (
-      <MdInsights className="dark:text-blue-600 text-blue-800 w-8" size={27} />
-    ),
+    icon: <MdInsights className="text-blue-600 w-8" size={27} />,
     name: "Rastrear pixel de conversão",
     description: "Rastreia evento do Facebook Pixel",
     type: "NodeFbPixel",
-    new: true,
+    new: false,
     premium: true,
   },
   {
-    icon: (
-      <LiaListSolid
-        className="dark:text-purple-400 text-purple-700 w-8"
-        size={31}
-      />
-    ),
+    icon: <LiaListSolid className="text-purple-400 w-8" size={31} />,
     name: "Menu",
     description: "Envia um menu de opções",
     type: "NodeMenu",
   },
   {
-    icon: (
-      <BsChatLeftDots
-        className="dark:text-blue-400 text-blue-700 w-8"
-        size={26.8}
-      />
-    ),
+    icon: <BsChatLeftDots className="text-blue-400 w-8" size={26.8} />,
     name: "Receber resposta",
     description: "Espera a resposta do lead",
     type: "NodeReply",
   },
   {
-    icon: <GiDirectionSigns className="dark:text-white/70 w-8" size={27} />,
+    icon: <GiDirectionSigns className="text-white/70 w-8" size={27} />,
     name: "Switch de variável",
     description: "Verifica e direciona o fluxo",
     type: "NodeSwitchVariable",
-    new: true,
+    new: false,
   },
   {
-    icon: (
-      <LuBriefcaseBusiness
-        className="dark:text-neutral-300 text-neutral-800 w-8"
-        size={27}
-      />
-    ),
+    icon: <LuBriefcaseBusiness className="text-neutral-300 w-8" size={27} />,
     name: "Transferir para departamento",
     description: "Transfere a conversa para um departamento",
     type: "NodeTransferDepartment",
-    new: true,
+    new: false,
   },
   {
-    icon: (
-      <PiFile className="dark:text-[#999999] text-teal-700 w-8" size={31} />
-    ),
+    icon: <PiFile className="text-[#999999] w-8" size={31} />,
     name: "Enviar documentos",
     description: "Envie vários documentos",
     type: "NodeSendFiles",
-    new: true,
+    new: false,
   },
   {
-    icon: (
-      <MdOutlineImage
-        className="dark:text-[#6daebe] text-teal-700 w-8"
-        size={31}
-      />
-    ),
+    icon: <MdOutlineImage className="text-[#6daebe] w-8" size={31} />,
     name: "Enviar imagens",
     description: "Envie várias imagens",
     type: "NodeSendImages",
-    new: true,
+    new: false,
   },
   {
-    icon: (
-      <PiFileVideoFill
-        className="dark:text-[#8eb87a] text-teal-700 w-8"
-        size={31}
-      />
-    ),
+    icon: <PiFileVideoFill className="text-[#8eb87a] w-8" size={31} />,
     name: "Enviar vídeos",
     description: "Envie vários vídeos",
     type: "NodeSendVideos",
-    new: true,
+    new: false,
   },
   {
-    icon: (
-      <VscMic className="dark:text-[#0dacd4] text-teal-700 w-8" size={31} />
-    ),
+    icon: <VscMic className="text-[#0dacd4] w-8" size={31} />,
     name: "Enviar áudios gravados",
     description: "Envie áudios como se fossem grava...",
     type: "NodeSendAudiosLive",
-    new: true,
+    new: false,
     premium: true,
   },
   {
-    icon: (
-      <TbHeadphones
-        className="dark:text-[#daa557] text-teal-700 w-8"
-        size={31}
-      />
-    ),
+    icon: <TbHeadphones className="text-[#daa557] w-8" size={31} />,
     name: "Enviar áudios",
     description: "Envie vários áudios",
     type: "NodeSendAudios",
-    new: true,
+    new: false,
   },
   {
-    icon: (
-      <TbTags className="dark:text-green-300 text-green-800 w-8" size={29} />
-    ),
+    icon: <TbTags className="text-green-300 w-8" size={29} />,
     name: "Adicionar etiquetas",
     description: "Adicione várias tags/etiquetas",
     type: "NodeAddTags",
   },
   {
-    icon: <BsRegex className="dark:text-white/70 w-8" size={29} />,
+    icon: <BsRegex className="text-white/70 w-8" size={29} />,
     name: "Extrair da variável",
     description: "Extrai texto de uma variável para outra com regex",
     type: "NodeExtractVariable",
-    new: true,
+    new: false,
     premium: true,
   },
   {
-    icon: (
-      <PiBracketsCurlyBold
-        className="dark:text-green-300 text-green-800 w-8"
-        size={29}
-      />
-    ),
+    icon: <PiBracketsCurlyBold className="text-green-300 w-8" size={29} />,
     name: "Adicionar variáveis",
     description: "Atribua/Sobrescreva várias variáveis",
     type: "NodeAddVariables",
   },
   {
-    icon: <TbTags className="dark:text-red-300 text-red-800 w-8" size={29} />,
+    icon: <TbTags className="text-red-300 w-8" size={29} />,
     name: "Remover etiquetas",
     description: "Remova várias tags/etiquetas",
     type: "NodeRemoveTags",
   },
   {
     icon: (
-      <MdOutlineNotificationsActive
-        className="dark:text-green-500 text-green-600 w-8"
-        size={29}
-      />
+      <MdOutlineNotificationsActive className="text-green-500 w-8" size={29} />
     ),
     name: "Notificar WhatsApp",
     description: "Notifique números de WhatsApp",
     type: "NodeNotifyWA",
-    new: true,
+    new: false,
     premium: true,
   },
   {
     icon: (
       <div className="relative">
-        <PiEarBold
-          className="dark:text-white translate-x-1 text-black/70"
-          size={26.8}
-        />
+        <PiEarBold className="translate-x-1 text-white" size={26.8} />
         <LuMessageCircleHeart
-          className="dark:text-red-300 absolute top-4 left-px text-black/70"
+          className="absolute top-4 left-px text-red-300"
           size={13}
         />
       </div>
@@ -373,54 +306,40 @@ const nodesList: {
     description:
       "Escuta reações de mensagens enviadas pela conexão WA do fluxo.",
     type: "NodeListenReaction",
-    new: true,
+    new: false,
     premium: true,
   },
   {
-    icon: (
-      <PiBracketsCurlyBold
-        className="dark:text-red-300 text-red-800 w-8"
-        size={29}
-      />
-    ),
+    icon: <PiBracketsCurlyBold className="text-red-300 w-8" size={29} />,
     name: "Remover variáveis",
     description: "Remova várias variáveis",
     type: "NodeRemoveVariables",
   },
   {
-    icon: (
-      <RiMoneyDollarCircleLine className="dark:text-white/70 w-8" size={31} />
-    ),
+    icon: <RiMoneyDollarCircleLine className="text-white/70 w-8" size={31} />,
     name: "Gerar cobrança",
     description: "Cria cobrança e fica monitorando os status do pagamento",
     type: "NodeCharge",
-    new: true,
+    new: false,
     premium: true,
   },
   {
-    icon: (
-      <PiFlowArrowBold
-        className="dark:text-neutral-300 text-neutral-800 w-8"
-        size={27}
-      />
-    ),
+    icon: <PiFlowArrowBold className="text-neutral-300 w-8" size={27} />,
     name: "Enviar fluxos",
     description: "Envie para outro fluxo de conversa",
     type: "NodeSendFlow",
   },
   {
-    icon: (
-      <BsStars className="dark:text-teal-600 text-teal-600 w-8" size={31} />
-    ),
+    icon: <BsStars className="text-teal-600 w-8" size={31} />,
     name: "Chamar assistente de IA",
     description: "Chama um assistente de IA",
     type: "NodeAgentAI",
-    new: true,
+    new: false,
     premium: true,
   },
   {
     icon: (
-      <div className="p-px translate-y-0.5 text-sm w-8 font-bold dark:text-yellow-300 text-yellow-600">
+      <div className="p-px translate-y-0.5 text-sm w-8 font-bold text-yellow-300">
         {"if (..)"}
       </div>
     ),
@@ -429,167 +348,114 @@ const nodesList: {
     type: "NodeIF",
   },
   {
-    icon: (
-      <TbNumber123 className="dark:text-white/70 text-black/70 w-8" size={31} />
-    ),
+    icon: <TbNumber123 className="text-white/70 w-8" size={31} />,
     name: "Código randômico",
     description: "Gera código numérico randômico",
     type: "NodeRandomCode",
-    new: true,
+    new: false,
   },
   {
-    icon: (
-      <LuNotepadText
-        className="dark:text-green-400 text-green-700 w-8"
-        size={31}
-      />
-    ),
+    icon: <LuNotepadText className="text-green-400 w-8" size={31} />,
     name: "Criar pedido",
     description: "Cria um novo pedido/ordem",
     type: "NodeCreateOrder",
-    new: true,
+    new: false,
     premium: true,
   },
   {
-    icon: (
-      <LuNotepadText
-        className="dark:text-blue-400 text-blue-700 w-8"
-        size={31}
-      />
-    ),
+    icon: <LuNotepadText className="text-blue-400 w-8" size={31} />,
     name: "Atualizar pedido",
     description: "Atualiza um pedido/ordem",
     type: "NodeUpdateOrder",
-    new: true,
+    new: false,
     premium: true,
   },
   {
-    icon: (
-      <LuCalendarDays
-        className="dark:text-green-400 text-green-700 w-8"
-        size={31}
-      />
-    ),
+    icon: <LuCalendarDays className="text-green-400 w-8" size={31} />,
     name: "Agendar evento",
     description: "Agenda um novo evento",
     type: "NodeCreateAppointment",
-    new: true,
+    new: false,
     premium: true,
   },
   {
-    icon: (
-      <LuCalendarDays
-        className="dark:text-blue-400 text-blue-700 w-8"
-        size={31}
-      />
-    ),
+    icon: <LuCalendarDays className="text-blue-400 w-8" size={31} />,
     name: "Atualizar evento",
     description: "Atualiza um evento",
     type: "NodeUpdateAppointment",
-    new: true,
+    new: false,
     premium: true,
   },
   {
-    icon: (
-      <HiOutlineQueueList
-        className="dark:text-zinc-100 text-zinc-800 w-8"
-        size={31}
-      />
-    ),
+    icon: <HiOutlineQueueList className="text-zinc-100 w-8" size={31} />,
     name: "Fila temporizada",
     description: "Cria uma fila temporizada de antirrepique",
     type: "NodeTimedQueue",
-    new: true,
+    new: false,
   },
   {
-    icon: <CgCalculator className="dark:text-white text-black w-8" size={31} />,
+    icon: <CgCalculator className="text-white w-8" size={31} />,
     name: "Calculadora",
     description: "Faz cálculos matemáticos",
     type: "NodeCalculator",
-    new: true,
+    new: false,
   },
   {
-    icon: (
-      <RiTrelloLine
-        className="dark:text-green-400  text-green-500 w-8"
-        size={31}
-      />
-    ),
+    icon: <RiTrelloLine className="text-green-400 w-8" size={31} />,
     name: "Adicionar card no Trello",
     description: "Adiciona um novo card no Trello",
     type: "NodeAddTrelloCard",
-    new: true,
+    new: false,
     premium: true,
   },
   {
-    icon: (
-      <RiTrelloLine className="dark:text-red-400  text-red-500 w-8" size={31} />
-    ),
+    icon: <RiTrelloLine className="text-red-400 w-8" size={31} />,
     name: "Remover card no Trello",
     description: "Remove um card da lista do Trello",
     type: "NodeRemoveTrelloCard",
-    new: true,
+    new: false,
     premium: true,
   },
   {
-    icon: (
-      <RiTrelloLine
-        className="dark:text-blue-400  text-blue-500 w-8"
-        size={31}
-      />
-    ),
+    icon: <RiTrelloLine className="text-blue-400 w-8" size={31} />,
     name: "Atualizar card no Trello",
     description: "Atualiza card do Trello",
     type: "NodeUpdateTrelloCard",
-    new: true,
+    new: false,
     premium: true,
   },
   {
-    icon: (
-      <RiTrelloLine
-        className="dark:text-yellow-400  text-yellow-500 w-8"
-        size={31}
-      />
-    ),
+    icon: <RiTrelloLine className="text-yellow-400 w-8" size={31} />,
     name: "Mover card no Trello",
     description: "Mova um card do Trello",
     type: "NodeMoveTrelloCard",
-    new: true,
+    new: false,
     premium: true,
   },
   {
-    icon: (
-      <RiTrelloLine className="dark:text-white  text-black w-8" size={31} />
-    ),
+    icon: <RiTrelloLine className="text-white w-8" size={31} />,
     name: "Webhook card do Trello",
     description: "Escuta mudanças de lista do card",
     type: "NodeWebhookTrelloCard",
-    new: true,
+    new: false,
     premium: true,
   },
   {
-    icon: <TbTextSize className="dark:text-red-600 text-red-800" size={31} />,
+    icon: <TbTextSize className="text-red-600" size={31} />,
     name: "Deletar mensagem",
     description: "Deleta mensagem em grupo ou privado",
     type: "NodeDeleteMessage",
-    new: true,
+    new: false,
   },
   {
-    icon: (
-      <FaRandom className="dark:text-purple-400 text-purple-700" size={31} />
-    ),
+    icon: <FaRandom className="text-purple-400" size={31} />,
     name: "Node Distribuidor",
     description: "Distribui aleatoriamente",
     type: "NodeDistribute",
-    new: true,
+    new: false,
   },
   {
-    icon: (
-      <VscDebugStop
-        className="dark:text-zinc-100 text-zinc-800 w-8"
-        size={31}
-      />
-    ),
+    icon: <VscDebugStop className="text-zinc-100 w-8" size={31} />,
     name: "Finaliza fluxo",
     description: "Encerra o fluxo de atendimento",
     type: "NodeFinish",

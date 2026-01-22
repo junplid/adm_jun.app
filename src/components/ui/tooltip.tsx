@@ -1,6 +1,5 @@
 import { Tooltip as ChakraTooltip, Portal } from "@chakra-ui/react";
 import * as React from "react";
-import { useColorModeValue } from "./color-mode";
 
 export interface TooltipProps extends ChakraTooltip.RootProps {
   showArrow?: boolean;
@@ -26,8 +25,6 @@ export const Tooltip = React.forwardRef<HTMLDivElement, TooltipProps>(
       ...rest
     } = props;
 
-    const bg = useColorModeValue("#6e7174", "#b1b3b8");
-
     if (disabled) return children;
 
     return (
@@ -42,7 +39,7 @@ export const Tooltip = React.forwardRef<HTMLDivElement, TooltipProps>(
           <ChakraTooltip.Positioner>
             <ChakraTooltip.Content
               ref={ref}
-              css={{ "--tooltip-bg": bg }}
+              css={{ "--tooltip-bg": "#b1b3b8" }}
               {...contentProps}
             >
               {showArrow && (
@@ -56,5 +53,5 @@ export const Tooltip = React.forwardRef<HTMLDivElement, TooltipProps>(
         </Portal>
       </ChakraTooltip.Root>
     );
-  }
+  },
 );

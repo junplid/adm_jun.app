@@ -868,7 +868,7 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
                       style={{ resize: "none" }}
                       minRows={3}
                       maxRows={6}
-                      className="p-3 py-2.5 rounded-sm w-full border-black/10 dark:border-white/10 border"
+                      className="p-3 py-2.5 rounded-sm w-full border-white/10 border"
                       {...register("personality")}
                     />
                   </Field>
@@ -987,7 +987,7 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
                             sairá pelo canal Node:{" "}
                             <RxLapTimer
                               size={16}
-                              className="dark:text-red-400 text-red-500 -translate-y-0.5"
+                              className="text-red-400 -translate-y-0.5"
                             />
                           </span>
                         </div>
@@ -1061,7 +1061,7 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
                         style={{ resize: "none" }}
                         minRows={2}
                         maxRows={16}
-                        className="p-3 py-2.5 rounded-sm w-full border-black/10 dark:border-white/10 border"
+                        className="p-3 py-2.5 rounded-sm w-full border-white/10 border"
                         {...register("knowledgeBase")}
                       />
                     </Field>
@@ -1139,7 +1139,7 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
                       minRows={8}
                       placeholder={`Quando iniciar a conversa ...`}
                       style={{ resize: "none" }}
-                      className="p-3 py-2.5 rounded-sm w-full border-black/10 dark:border-white/10 border"
+                      className="p-3 py-2.5 rounded-sm w-full border-white/10 border"
                       {...register("instructions")}
                     />
                     <span className="text-white/70">
@@ -1377,7 +1377,7 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
                       style={{ resize: "none" }}
                       minRows={2}
                       maxRows={6}
-                      className="p-3 py-2.5 rounded-sm w-full border-black/10 dark:border-white/10 border"
+                      className="p-3 py-2.5 rounded-sm w-full border-white/10 border"
                       {...register("chatbot.fallback")}
                     />
                   </Field>
@@ -1724,7 +1724,7 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
                     minRows={1}
                     maxRows={6}
                     disabled={loadSend}
-                    className="p-3 py-2.5 rounded-sm w-full border-black/10 dark:border-white/10 border"
+                    className="p-3 py-2.5 rounded-sm w-full border-white/10 border"
                     value={draft}
                     onChange={(e) => setDraft(e.target.value)}
                     onKeyDown={(e) => {
