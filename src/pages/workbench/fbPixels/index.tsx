@@ -3,7 +3,7 @@ import { TableComponent } from "../../../components/Table";
 import { Column } from "../../../components/Table";
 import { ModalCreateFlow } from "./modals/create";
 import { ModalDeleteFbPixel } from "./modals/delete";
-import { Badge, Button } from "@chakra-ui/react";
+import { Button } from "@chakra-ui/react";
 import { MdDeleteOutline, MdEdit } from "react-icons/md";
 import { LuEye } from "react-icons/lu";
 import { IoAdd } from "react-icons/io5";
@@ -11,9 +11,6 @@ import { ModalEditTag } from "./modals/edit";
 import { useDialogModal } from "../../../hooks/dialog.modal";
 import { useGetFbPixels } from "../../../hooks/fbPixel";
 import moment from "moment";
-import { Tooltip } from "@components/ui/tooltip";
-import { FaCrown } from "react-icons/fa";
-import { AuthContext } from "@contexts/auth.context";
 import { LayoutWorkbenchPageContext } from "../contexts";
 
 export interface FbPixelRow {
@@ -25,9 +22,6 @@ export interface FbPixelRow {
 
 export const FbPixelsPage: React.FC = (): JSX.Element => {
   const { ToggleMenu } = useContext(LayoutWorkbenchPageContext);
-  const {
-    account: { isPremium },
-  } = useContext(AuthContext);
   const { data: fbPixels, isFetching, isPending } = useGetFbPixels();
   const { dialog: DialogModal, close, onOpen } = useDialogModal({});
 
@@ -121,7 +115,7 @@ export const FbPixelsPage: React.FC = (): JSX.Element => {
           <div className="flex items-center gap-x-2">
             {ToggleMenu}
             <h1 className="text-lg font-semibold flex items-center gap-x-2">
-              {!isPremium && (
+              {/* {!isPremium && (
                 <Tooltip
                   content="Disponível apenas para usuários Premium."
                   positioning={{ placement: "right" }}
@@ -135,7 +129,7 @@ export const FbPixelsPage: React.FC = (): JSX.Element => {
                     <FaCrown size={20} />
                   </Badge>
                 </Tooltip>
-              )}
+              )} */}
               Pixels do Facebook
             </h1>
             <p className="text-white/60 font-light">
@@ -145,7 +139,7 @@ export const FbPixelsPage: React.FC = (): JSX.Element => {
           </div>
           <ModalCreateFlow
             trigger={
-              <Button disabled={!isPremium} variant="outline" size={"sm"}>
+              <Button variant="outline" size={"sm"}>
                 <IoAdd /> Adicionar
               </Button>
             }

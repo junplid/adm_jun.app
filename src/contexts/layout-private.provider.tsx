@@ -7,10 +7,10 @@ import {
   useMemo,
   useState,
 } from "react";
-import { IoClose, IoHelpCircleOutline, IoLogoWhatsapp } from "react-icons/io5";
+import { IoClose, IoLogoWhatsapp } from "react-icons/io5";
 import { PiPicnicTableBold } from "react-icons/pi";
 // import { GrConnect, GrSend } from "react-icons/gr";
-import { Menu, MenuItem, Sidebar, SubMenu } from "react-pro-sidebar";
+import { Menu, MenuItem, Sidebar } from "react-pro-sidebar";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { InViewComponent } from "@components/InView";
 import { JSX } from "@emotion/react/jsx-runtime";
@@ -20,7 +20,6 @@ import { Tooltip } from "@components/ui/tooltip";
 import { TbDoorExit } from "react-icons/tb";
 import {
   LuBotMessageSquare,
-  LuBrainCircuit,
   LuCalendarDays,
   LuChartNoAxesCombined,
   LuNotepadText,
@@ -33,6 +32,7 @@ import { FiInbox } from "react-icons/fi";
 import { PiPuzzlePieceBold } from "react-icons/pi";
 import { GrConnect } from "react-icons/gr";
 import { LayoutPrivateContext } from "./layout-private.context";
+import { BsStars } from "react-icons/bs";
 // import { CgWebsite } from "react-icons/cg";
 // import { QrCode } from "@components/ui/qr-code";
 
@@ -40,7 +40,7 @@ export const ShadowTopMemoComponent = memo(() => {
   const [showShadowTop, setShowShadowTop] = useState(true);
   const gradient = useColorModeValue(
     "linear-gradient(rgba(255, 255, 255, 0.797) 0%, rgba(214, 214, 214, 0) 90%)",
-    "linear-gradient(#121111 0%, transparent 90%)"
+    "linear-gradient(#121111 0%, transparent 90%)",
   );
 
   return (
@@ -63,7 +63,7 @@ const ShadowBottomMemoComponent = memo(() => {
   const [showShadowBottom, setShowShadowBottom] = useState(true);
   const gradient = useColorModeValue(
     "linear-gradient(rgba(214, 214, 214, 0) 0%,rgba(255, 255, 255, 0.797) 90%)",
-    "linear-gradient(transparent 0%, #121111 90%)"
+    "linear-gradient(transparent 0%, #121111 90%)",
   );
 
   return (
@@ -111,7 +111,7 @@ export function LayoutPrivateProvider(): JSX.Element {
     clientMeta,
   } = useContext(AuthContext);
   const [toggledMenu, setToggledMenu] = useState(false);
-  const [toggledTo, setToggledTo] = useState<null | string>(null);
+  // const [toggledTo, setToggledTo] = useState<null | string>(null);
   const { pathname } = useLocation();
 
   const bgSideBar = useColorModeValue("#ffffff", "#121111");
@@ -125,7 +125,7 @@ export function LayoutPrivateProvider(): JSX.Element {
     () => ({
       ToggleMenu: ToggleMenu({ setToggledMenu, toggledMenu }),
     }),
-    [toggledMenu]
+    [toggledMenu],
   );
 
   // const [showDonate, setShowDonate] = useState(false);
@@ -306,7 +306,7 @@ export function LayoutPrivateProvider(): JSX.Element {
                 Bots de recepção
               </MenuItem>
               <MenuItem
-                icon={<LuBrainCircuit size={20} />}
+                icon={<BsStars size={20} />}
                 component={<Link to={"/auth/agents-ai"} />}
                 active={pathname === "/auth/agents-ai"}
               >
@@ -340,7 +340,7 @@ export function LayoutPrivateProvider(): JSX.Element {
               >
                 Campanhas <Badge colorPalette={"green"}>NEW</Badge>
               </MenuItem> */}
-              <SubMenu
+              {/* <SubMenu
                 className="remove-scaped mb-5"
                 active={pathname.includes("/auth/help")}
                 icon={<IoHelpCircleOutline size={35} />}
@@ -365,19 +365,19 @@ export function LayoutPrivateProvider(): JSX.Element {
                 }}
                 open={toggledTo === "help"}
               >
-                {/* <MenuItem
+               <MenuItem
                   active={pathname === "/auth/help/faq"}
                   component={<Link to={"/auth/help/faq"} />}
                 >
                   F.A.Q.
-                </MenuItem> */}
+                </MenuItem>  
                 <MenuItem component={<Link to={"/terms-of-service"} />}>
                   Termos e serviço
                 </MenuItem>
                 <MenuItem component={<Link to={"/privacy-terms"} />}>
                   Política de privacidade
                 </MenuItem>
-              </SubMenu>
+              </SubMenu> */}
             </Menu>
 
             <div

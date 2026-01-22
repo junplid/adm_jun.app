@@ -196,11 +196,7 @@ export const InboxDepartmentsPage: React.FC = (): JSX.Element => {
           </div>
           <ModalCreateInboxDepartment
             trigger={
-              <Button
-                disabled={clientMeta.isMobileLike}
-                variant="outline"
-                size={{ sm: "sm", base: "xs" }}
-              >
+              <Button variant="outline" size={{ sm: "sm", base: "xs" }}>
                 <IoAdd /> <span className="sm:block hidden">Adicionar</span>
               </Button>
             }

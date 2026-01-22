@@ -1,4 +1,4 @@
-import { Badge, Button } from "@chakra-ui/react";
+import { Button } from "@chakra-ui/react";
 import { JSX, useContext, useEffect, useMemo } from "react";
 import { Column, TableComponent } from "../../components/Table";
 import { ModalCreateCampaign } from "./modals/create";
@@ -19,8 +19,8 @@ import {
   ProgressCircleRoot,
   ProgressCircleValueText,
 } from "@components/ui/progress-circle";
-import { FaCrown } from "react-icons/fa";
-import { Tooltip } from "@components/ui/tooltip";
+// import { FaCrown } from "react-icons/fa";
+// import { Tooltip } from "@components/ui/tooltip";
 import { AuthContext } from "@contexts/auth.context";
 
 export type TranslateType = {
@@ -57,7 +57,7 @@ interface SocketPropsSentPercentage {
 
 export const CampaignsPage: React.FC = (): JSX.Element => {
   const {
-    account: { isPremium },
+    // account: { isPremium },
     clientMeta,
   } = useContext(AuthContext);
   const { data: campaigns, isFetching, isPending } = useGetCampaigns();
@@ -69,9 +69,9 @@ export const CampaignsPage: React.FC = (): JSX.Element => {
       queryClient.setQueryData<any[]>(["campaigns", null], (old) =>
         old
           ? old.map((c) =>
-              c.id === data.id ? { ...c, status: data.status } : c
+              c.id === data.id ? { ...c, status: data.status } : c,
             )
-          : old
+          : old,
       );
     };
 
@@ -86,9 +86,9 @@ export const CampaignsPage: React.FC = (): JSX.Element => {
                     ...c,
                     sentCount: (c.sentCount || 0) + data.increment,
                   }
-                : c
+                : c,
             )
-          : old
+          : old,
       );
     });
   }, [socket]);
@@ -258,7 +258,7 @@ export const CampaignsPage: React.FC = (): JSX.Element => {
       <div className="flex flex-col gap-y-0.5">
         <div className="flex items-center gap-x-5">
           <h1 className="text-lg font-semibold flex items-center gap-x-2">
-            {!isPremium && (
+            {/* {!isPremium && (
               <Tooltip
                 content="Disponível apenas para usuários Premium."
                 positioning={{ placement: "right" }}
@@ -272,13 +272,13 @@ export const CampaignsPage: React.FC = (): JSX.Element => {
                   <FaCrown size={20} />
                 </Badge>
               </Tooltip>
-            )}
+            )} */}
             Campanhas
           </h1>
           <ModalCreateCampaign
             trigger={
               <Button
-                disabled={!isPremium || clientMeta.isMobileLike}
+                disabled={clientMeta.isMobileLike}
                 variant="outline"
                 size={"sm"}
               >

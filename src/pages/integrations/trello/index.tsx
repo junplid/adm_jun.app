@@ -3,15 +3,12 @@ import { Column, TableComponent } from "@components/Table";
 import moment from "moment";
 import { useDialogModal } from "../../../hooks/dialog.modal";
 import { ModalTrello } from "./modals/create";
-import { Badge, Button } from "@chakra-ui/react";
+import { Button } from "@chakra-ui/react";
 import { IoAdd } from "react-icons/io5";
 import { ModalDeleteAgentAI } from "./modals/delete";
 import { MdDeleteOutline, MdEdit } from "react-icons/md";
 import { LuEye } from "react-icons/lu";
 import { ModalEditTrello } from "./modals/edit";
-import { FaCrown } from "react-icons/fa";
-import { Tooltip } from "@components/ui/tooltip";
-import { AuthContext } from "@contexts/auth.context";
 import { LayoutIntegrationsPageContext } from "../contexts";
 import { useGetTrelloIntegrations } from "../../../hooks/trelloIntegration";
 
@@ -24,9 +21,6 @@ export interface PaymentRow {
 
 export const TrelloPage: React.FC = (): JSX.Element => {
   const { ToggleMenu } = useContext(LayoutIntegrationsPageContext);
-  const {
-    account: { isPremium },
-  } = useContext(AuthContext);
   const { dialog: DialogModal, close, onOpen } = useDialogModal({});
   const { data: trello, isFetching, isPending } = useGetTrelloIntegrations();
 
@@ -114,7 +108,7 @@ export const TrelloPage: React.FC = (): JSX.Element => {
           <div className="flex items-center gap-x-2">
             {ToggleMenu}
             <h1 className="text-lg font-semibold flex items-center gap-x-2">
-              {!isPremium && (
+              {/* {!isPremium && (
                 <Tooltip
                   content="Disponível apenas para usuários Premium."
                   positioning={{ placement: "right" }}
@@ -128,7 +122,7 @@ export const TrelloPage: React.FC = (): JSX.Element => {
                     <FaCrown size={20} />
                   </Badge>
                 </Tooltip>
-              )}
+              )} */}
               Trello
             </h1>
             <p className="text-white/60 font-light">
@@ -137,7 +131,7 @@ export const TrelloPage: React.FC = (): JSX.Element => {
           </div>
           <ModalTrello
             trigger={
-              <Button disabled={!isPremium} variant="outline" size={"sm"}>
+              <Button variant="outline" size={"sm"}>
                 <IoAdd /> Adicionar
               </Button>
             }

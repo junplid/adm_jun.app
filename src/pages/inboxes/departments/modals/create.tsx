@@ -101,7 +101,12 @@ export function ModalCreateInboxDepartment({
       unmountOnExit
     >
       <DialogTrigger asChild>{props.trigger}</DialogTrigger>
-      <DialogContent as={"form"} onSubmit={handleSubmit(create)} w={"380px"}>
+      <DialogContent
+        mx={2}
+        as={"form"}
+        onSubmit={handleSubmit(create)}
+        w={"380px"}
+      >
         <DialogHeader flexDirection={"column"} gap={0}>
           <DialogTitle>Criar departamento</DialogTitle>
           <DialogDescription>

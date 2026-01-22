@@ -1,5 +1,12 @@
 import { api } from "./index";
 
+export type TypeServiceTierAgentAI =
+  | "default"
+  | "flex"
+  | "auto"
+  | "scale"
+  | "priority";
+
 export async function getAgentsAI(params: {}): Promise<
   {
     businesses: { id: number; name: string }[];
@@ -37,6 +44,7 @@ export async function createAgentAI(body: {
   instructions?: string;
   timeout?: number;
   debounce?: number;
+  service_tier?: TypeServiceTierAgentAI;
 }): Promise<{
   businesses: { id: number; name: string }[];
   id: number;
@@ -103,7 +111,8 @@ export async function updateAgentAI(
     instructions?: string;
     timeout?: number;
     debounce?: number;
-  }
+    service_tier?: TypeServiceTierAgentAI;
+  },
 ): Promise<{ businesses: { id: number; name: string }[]; createAt: Date }> {
   const { data } = await api.put(`/private/agents-ai/${id}`, body);
   return data.agentAI;

@@ -11,7 +11,7 @@ import {
   MdSignalWifiConnectedNoInternet0,
 } from "react-icons/md";
 import { ModalViewConnectionWA } from "./modals/view";
-import { LuBrainCircuit, LuEye } from "react-icons/lu";
+import { LuEye } from "react-icons/lu";
 import { IoAdd } from "react-icons/io5";
 import { ModalEditConnectionWA } from "./modals/edit";
 import { useDialogModal } from "../../hooks/dialog.modal";
@@ -27,6 +27,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { AiOutlinePoweroff } from "react-icons/ai";
 import { motion } from "framer-motion";
 import { AuthContext } from "@contexts/auth.context";
+import { BsStars } from "react-icons/bs";
 
 export type TypeConnectionWA = "chatbot" | "marketing";
 
@@ -110,7 +111,7 @@ export const ConnectionsWAPage: React.FC = (): JSX.Element => {
               <div className="flex items-center">
                 {row.AgentAI && (
                   <div className="flex items-center gap-x-1 px-1! bg-blue-300/20 text-blue-300">
-                    <LuBrainCircuit />
+                    <BsStars />
                     <span>{row.AgentAI.name}</span>
                   </div>
                 )}
@@ -248,7 +249,7 @@ export const ConnectionsWAPage: React.FC = (): JSX.Element => {
             return oldData;
           });
         }
-      }
+      },
     );
 
     return () => {

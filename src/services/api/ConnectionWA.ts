@@ -101,7 +101,7 @@ export async function getConnectionWA(id: number): Promise<{
       if (value !== null && value !== undefined) acc[key] = value;
       return acc;
     },
-    {}
+    {},
   );
   // @ts-expect-error
   return nextData;
@@ -123,7 +123,7 @@ export async function updateConnectionWA(
     groupsAddPrivacy?: "all" | "contacts" | "contact_blacklist" | null;
     readReceiptsPrivacy?: "all" | "none" | null;
     fileImage?: File | null;
-  }
+  },
 ): Promise<{ business: { id: number; name: string }; fileImage?: string }> {
   const formData = new FormData();
   const { fileImage, ...rest } = body;
@@ -135,7 +135,6 @@ export async function updateConnectionWA(
   if (fileImage) {
     formData.append("fileImage", fileImage);
   }
-
   const { data } = await api.put(`/private/connections-wa/${id}`, formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
@@ -143,11 +142,11 @@ export async function updateConnectionWA(
 }
 
 export async function disconnectConnectionWA(
-  id: number
+  id: number,
 ): Promise<{ status: "close" }> {
   const { data } = await api.put(
     `/private/disconnect-connection-whatsapp/${id}`,
-    undefined
+    undefined,
   );
   return data.connectionWA;
 }

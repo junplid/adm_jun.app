@@ -7,7 +7,7 @@ import { ModalDeleteFlow } from "./modals/delete";
 import { Button } from "@chakra-ui/react";
 import { MdDeleteOutline, MdEdit } from "react-icons/md";
 import { ModalViewFlow } from "./modals/view";
-import { LuBrainCircuit, LuEye } from "react-icons/lu";
+import { LuEye } from "react-icons/lu";
 import { IoAdd } from "react-icons/io5";
 import { ModalEditFlow } from "./modals/edit";
 import { FlowType } from "../../../services/api/Flow";
@@ -16,6 +16,7 @@ import { Link } from "react-router-dom";
 import { useDialogModal } from "../../../hooks/dialog.modal";
 import { LayoutWorkbenchPageContext } from "../contexts";
 import { TbFileDownload, TbFileUpload } from "react-icons/tb";
+import { BsStars } from "react-icons/bs";
 
 export interface FlowRow {
   id: string;
@@ -48,7 +49,7 @@ export const FlowsPage: React.FC = (): JSX.Element => {
               <div className="flex items-center">
                 {row.AgentAI && (
                   <div className="flex items-center gap-x-1 px-1! bg-blue-300/20 text-blue-300">
-                    <LuBrainCircuit />
+                    <BsStars />
                     <span>{row.AgentAI.name}</span>
                   </div>
                 )}

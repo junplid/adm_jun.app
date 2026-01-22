@@ -1,4 +1,12 @@
-import { JSX, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  JSX,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   Badge,
   Button,
@@ -52,6 +60,8 @@ import { useHookFormMask } from "use-mask-input";
 import { FaWhatsapp } from "react-icons/fa";
 import { Tooltip } from "@components/ui/tooltip";
 import { Avatar } from "@components/ui/avatar";
+import { createConnectionWA } from "../../../services/api/ConnectionWA";
+import { AuthContext } from "@contexts/auth.context";
 
 type TypeChatbotInactivity = "seconds" | "minutes" | "hours" | "days";
 
@@ -146,7 +156,7 @@ const FormSchema = z.object({
         workingTimes: z
           .array(z.object({ start: z.string(), end: z.string() }))
           .optional(),
-      })
+      }),
     )
     .optional(),
 
@@ -189,6 +199,9 @@ export function ModalCreateChatbot({
   ...props
 }: IProps): JSX.Element {
   const {
+    account: { businessId },
+  } = useContext(AuthContext);
+  const {
     handleSubmit,
     register,
     control,
@@ -220,20 +233,46 @@ export function ModalCreateChatbot({
     },
   });
 
-  const create = useCallback(async (fields: Fields): Promise<void> => {
-    try {
-      const chatbot = await createChatbot(fields);
-      const { name, ...rest } = fields;
-      reset();
-      props.onCreate?.({ ...chatbot, name, ...rest });
-    } catch (error) {
-      if (error instanceof AxiosError) {
-        console.log("Error-API", error);
-      } else {
-        console.log("Error-Client", error);
+  const create = useCallback(
+    async ({
+      connectionWA,
+      connectionWAId,
+      ...fields
+    }: Fields): Promise<void> => {
+      try {
+        let nextConnectionWAId = null;
+        if (!connectionWAId) {
+          const connection = await createConnectionWA({
+            businessId,
+            ...connectionWA,
+            name: `Connection for ${fields.name}`,
+            type: "chatbot",
+          });
+          nextConnectionWAId = connection.id;
+        } else {
+          nextConnectionWAId = connectionWAId;
+        }
+
+        const chatbot = await createChatbot({
+          ...fields,
+          connectionWAId: nextConnectionWAId,
+        });
+        reset();
+        props.onCreate?.({
+          ...chatbot,
+          name: fields.name,
+          connectionWAId: nextConnectionWAId,
+        });
+      } catch (error) {
+        if (error instanceof AxiosError) {
+          console.log("Error-API", error);
+        } else {
+          console.log("Error-Client", error);
+        }
       }
-    }
-  }, []);
+    },
+    [],
+  );
 
   const operatingDays = watch("operatingDays");
   const fileImage = watch("connectionWA.fileImage");
@@ -413,7 +452,7 @@ export function ModalCreateChatbot({
                             ? {
                                 label:
                                   optionsStatus.find(
-                                    (s) => s.value === field.value
+                                    (s) => s.value === field.value,
                                   )?.label || "",
                                 value: field.value,
                               }
@@ -678,7 +717,7 @@ export function ModalCreateChatbot({
                                 ? {
                                     label:
                                       typeDurationOffLeadOptions.find(
-                                        (dd) => dd.value === field.value
+                                        (dd) => dd.value === field.value,
                                       )?.label ?? "",
                                     value: field.value,
                                   }
@@ -732,8 +771,8 @@ export function ModalCreateChatbot({
                                 setValue(
                                   "operatingDays",
                                   operatingDays.filter(
-                                    (o) => o.dayOfWeek !== day.dayOfWeek
-                                  )
+                                    (o) => o.dayOfWeek !== day.dayOfWeek,
+                                  ),
                                 );
                               }}
                             >
@@ -742,7 +781,7 @@ export function ModalCreateChatbot({
                             <div className="flex items-center gap-2 pl-1.5">
                               <span className="font-medium block">
                                 {optionsOpertaingDays.find(
-                                  (op) => op.value === day.dayOfWeek
+                                  (op) => op.value === day.dayOfWeek,
                                 )?.label || ""}
                               </span>
                               {!day.workingTimes?.length && (
@@ -780,7 +819,7 @@ export function ModalCreateChatbot({
                                     size={"2xs"}
                                     {...registerWithMask(
                                       `operatingDays.${dayIndex}.workingTimes.${timeIndex}.start`,
-                                      "99:99"
+                                      "99:99",
                                     )}
                                   />
                                 </Field>
@@ -800,7 +839,7 @@ export function ModalCreateChatbot({
                                     size={"2xs"}
                                     {...registerWithMask(
                                       `operatingDays.${dayIndex}.workingTimes.${timeIndex}.end`,
-                                      "99:99"
+                                      "99:99",
                                     )}
                                   />
                                 </Field>
@@ -817,11 +856,11 @@ export function ModalCreateChatbot({
                                         if (o.dayOfWeek === day.dayOfWeek) {
                                           o.workingTimes =
                                             o.workingTimes?.filter(
-                                              (__, i) => i !== timeIndex
+                                              (__, i) => i !== timeIndex,
                                             );
                                         }
                                         return o;
-                                      })
+                                      }),
                                     );
                                   }}
                                 >
@@ -865,7 +904,7 @@ export function ModalCreateChatbot({
                                     }
                                   }
                                   return o;
-                                })
+                                }),
                               );
                             }}
                           >
@@ -1099,7 +1138,7 @@ export function ModalCreateChatbot({
                                   ? {
                                       label:
                                         optionsPrivacyValue.find(
-                                          (s) => s.value === field.value
+                                          (s) => s.value === field.value,
                                         )?.label || "",
                                       value: field.value,
                                     }
@@ -1155,7 +1194,7 @@ export function ModalCreateChatbot({
                                   ? {
                                       label:
                                         optionsPrivacyGroupValue.find(
-                                          (s) => s.value === field.value
+                                          (s) => s.value === field.value,
                                         )?.label || "",
                                       value: field.value,
                                     }

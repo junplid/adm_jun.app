@@ -61,7 +61,7 @@ export const FormSignup: React.FC = (): JSX.Element => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [open, setOpen] = useState(false);
-  const [step, setStep] = useState(0);
+  // const [step, setStep] = useState(0);
 
   const { data: av, isPending } = useQuery({
     queryKey: ["public-av"],
@@ -167,10 +167,10 @@ export const FormSignup: React.FC = (): JSX.Element => {
               // @ts-expect-error
               setError(path, { message: text }),
             );
-            const isStep0 = dataError.input.some((s) => {
-              return /(email|password|name|number|cpfCnpj)/.test(s.path);
-            });
-            setStep(Number(!isStep0));
+            // const isStep0 = dataError.input.some((s) => {
+            //   return /(email|password|name|number|cpfCnpj)/.test(s.path);
+            // });
+            // setStep(Number(!isStep0));
           }
         }
       }
@@ -179,10 +179,10 @@ export const FormSignup: React.FC = (): JSX.Element => {
 
   function handleErrors(err: any) {
     if (err.name || err.number || err.email || err.password) {
-      setStep(0);
+      // setStep(0);
       return;
     }
-    setStep(1);
+    // setStep(1);
   }
 
   return (

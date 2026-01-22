@@ -59,7 +59,7 @@ export function LayoutWorkbenchPageProvider(): JSX.Element {
     () => ({
       ToggleMenu: ToggleMenu({ setToggledMenu, toggledMenu }),
     }),
-    [toggledMenu]
+    [toggledMenu],
   );
 
   return (
@@ -157,7 +157,7 @@ export function LayoutWorkbenchPageProvider(): JSX.Element {
                     Etiquetas
                   </MenuItem>
                   {/* <MenuItem
-                    icon={<LuBrainCircuit size={19} />}
+                    icon={<BsStars size={19} />}
                     active={pathname === "/auth/workbench/agents-ai"}
                     component={<Link to={"workbench/agents-ai"} />}
                   >

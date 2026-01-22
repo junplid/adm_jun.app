@@ -111,6 +111,7 @@ export function useCreateAgentAI(props?: {
     instructions?: string;
     timeout?: number;
     debounce?: number;
+    service_tier?: AgentAIService.TypeServiceTierAgentAI;
   }>;
   onSuccess?: (id: number) => Promise<void>;
 }) {
@@ -136,6 +137,7 @@ export function useCreateAgentAI(props?: {
       instructions?: string;
       timeout?: number;
       debounce?: number;
+      service_tier?: AgentAIService.TypeServiceTierAgentAI;
     }) => AgentAIService.createAgentAI({ ...body, businessIds: [businessId] }),
     async onSuccess(data, body) {
       if (props?.onSuccess) await props.onSuccess(data.id);
@@ -162,7 +164,7 @@ export function useCreateAgentAI(props?: {
           if (dataError.input.length) {
             dataError.input.forEach(({ text, path }) =>
               // @ts-expect-error
-              props?.setError?.(path, { message: text })
+              props?.setError?.(path, { message: text }),
             );
           }
         }
@@ -199,6 +201,7 @@ export function useUpdateAgentAI(props?: {
     instructions?: string;
     timeout?: number;
     debounce?: number;
+    service_tier?: AgentAIService.TypeServiceTierAgentAI;
   }>;
   onSuccess?: () => Promise<void>;
 }) {
@@ -231,6 +234,7 @@ export function useUpdateAgentAI(props?: {
         instructions?: string;
         timeout?: number;
         debounce?: number;
+        service_tier?: AgentAIService.TypeServiceTierAgentAI;
       };
     }) =>
       AgentAIService.updateAgentAI(id, {
@@ -254,7 +258,7 @@ export function useUpdateAgentAI(props?: {
                 ...data,
               };
             return b;
-          })
+          }),
         );
       }
       if (queryClient.getQueryData<any>(["agents-ai-options", null])) {
@@ -263,7 +267,7 @@ export function useUpdateAgentAI(props?: {
           old?.map((b: any) => {
             if (b.id === id) b = { ...b, name: body.name || b.name, exitNodes };
             return b;
-          })
+          }),
         );
       }
     },
@@ -276,7 +280,7 @@ export function useUpdateAgentAI(props?: {
           if (dataError.input?.length) {
             dataError.input.forEach(({ text, path }) =>
               // @ts-expect-error
-              props?.setError?.(path, { message: text })
+              props?.setError?.(path, { message: text }),
             );
           }
         }
@@ -296,10 +300,10 @@ export function useDeleteAgentAI(props?: { onSuccess?: () => Promise<void> }) {
       queryClient.removeQueries({ queryKey: ["agent-ai-details", id] });
       queryClient.removeQueries({ queryKey: ["agent-ai", id] });
       queryClient.setQueryData(["agents-ai", null], (old: any) =>
-        old?.filter((b: any) => b.id !== id)
+        old?.filter((b: any) => b.id !== id),
       );
       queryClient.setQueryData(["agents-ai-options", null], (old: any) =>
-        old?.filter((b: any) => b.id !== id)
+        old?.filter((b: any) => b.id !== id),
       );
     },
     onError(error: unknown) {

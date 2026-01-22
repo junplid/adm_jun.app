@@ -11,7 +11,7 @@ import {
   MdSignalWifiConnectedNoInternet0,
 } from "react-icons/md";
 import { ModalViewChatbot } from "./modals/view";
-import { LuBrainCircuit, LuEye } from "react-icons/lu";
+import { LuEye } from "react-icons/lu";
 import { IoAdd } from "react-icons/io5";
 import { ModalEditChatbot } from "./modals/edit";
 import { useDialogModal } from "../../hooks/dialog.modal";
@@ -26,6 +26,7 @@ import { useDisconnectConnectionWA } from "../../hooks/connectionWA";
 import { SocketContext } from "@contexts/socket.context";
 import { queryClient } from "../../main";
 import { motion } from "framer-motion";
+import { BsStars } from "react-icons/bs";
 
 export type TypeConnectionWA = "chatbot" | "marketing";
 
@@ -35,6 +36,7 @@ export interface ChatbotRow {
   id: number;
   status: boolean;
   createAt: Date;
+  connectionWAId?: number;
 }
 
 const MotionIcon = motion.create(MdOutlineSync);
@@ -94,7 +96,7 @@ export const ChatbotsPage: React.FC = (): JSX.Element => {
             return oldData;
           });
         }
-      }
+      },
     );
 
     return () => {
@@ -131,7 +133,7 @@ export const ChatbotsPage: React.FC = (): JSX.Element => {
               <div className="flex items-center gap-x-2">
                 {row.AgentAI && (
                   <div className="flex items-center gap-x-1 px-1! bg-blue-300/20 text-blue-300">
-                    <LuBrainCircuit />
+                    <BsStars />
                     <span>{row.AgentAI.name}</span>
                   </div>
                 )}
@@ -177,13 +179,16 @@ export const ChatbotsPage: React.FC = (): JSX.Element => {
         render(row) {
           return (
             <div className="flex h-full items-center justify-end gap-x-1.5">
-              {row.connStt === "close" && (
+              {row.connectionWAId !== undefined && row.connStt === "close" && (
                 <Button
                   onClick={() =>
                     onOpen({
                       size: "lg",
                       content: (
-                        <ModalConnectConnectionWA close={close} id={row.id} />
+                        <ModalConnectConnectionWA
+                          close={close}
+                          id={row.connectionWAId}
+                        />
                       ),
                     })
                   }
@@ -196,19 +201,20 @@ export const ChatbotsPage: React.FC = (): JSX.Element => {
                   <TbPlugConnected size={30} />
                 </Button>
               )}
-              {(row.connStt === "open" || row.status === "sync") && (
-                <Button
-                  onClick={() => disconnectWhatsapp(row.id)}
-                  size={"sm"}
-                  bg={"transparent"}
-                  disabled={row.status === "sync"}
-                  color={"#d77474"}
-                  _hover={{ bg: "#f5cfcf2b" }}
-                  _icon={{ width: "20px", height: "22px" }}
-                >
-                  <AiOutlinePoweroff size={30} />
-                </Button>
-              )}
+              {row.connectionWAId !== undefined &&
+                (row.connStt === "open" || row.status === "sync") && (
+                  <Button
+                    onClick={() => disconnectWhatsapp(row.connectionWAId)}
+                    size={"sm"}
+                    bg={"transparent"}
+                    disabled={row.status === "sync"}
+                    color={"#d77474"}
+                    _hover={{ bg: "#f5cfcf2b" }}
+                    _icon={{ width: "20px", height: "22px" }}
+                  >
+                    <AiOutlinePoweroff size={30} />
+                  </Button>
+                )}
               <Button
                 onClick={() =>
                   onOpen({

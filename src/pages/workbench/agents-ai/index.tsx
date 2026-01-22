@@ -3,7 +3,7 @@ import { Column, TableComponent } from "@components/Table";
 import moment from "moment";
 import { useDialogModal } from "../../../hooks/dialog.modal";
 import { ModalCreateAgentAI } from "./modals/create";
-import { Badge, Button } from "@chakra-ui/react";
+import { Button } from "@chakra-ui/react";
 import { IoAdd } from "react-icons/io5";
 import { useGetAgentsAI } from "../../../hooks/agentAI";
 import { ModalDeleteAgentAI } from "./modals/delete";
@@ -15,10 +15,10 @@ import {
 } from "react-icons/md";
 import { LuEye } from "react-icons/lu";
 import { ModalEditAgentAI } from "./modals/edit";
-import { FaCrown } from "react-icons/fa";
-import { Tooltip } from "@components/ui/tooltip";
+// import { FaCrown } from "react-icons/fa";
+// import { Tooltip } from "@components/ui/tooltip";
 import { AuthContext } from "@contexts/auth.context";
-import { LayoutWorkbenchPageContext } from "../contexts";
+// import { LayoutWorkbenchPageContext } from "../contexts";
 import { TbPlugConnected } from "react-icons/tb";
 import { AiOutlinePoweroff } from "react-icons/ai";
 import { ModalConnectConnectionWA } from "../../connectionswa/modals/connect";
@@ -34,15 +34,14 @@ export interface AgentsAIRow {
   name: string;
   createAt: Date;
   status: "open" | "close";
+  connectionWAId: number;
 }
 
 const MotionIcon = motion.create(MdOutlineSync);
 
 export const AgentsAIPage: React.FC = (): JSX.Element => {
-  const { ToggleMenu } = useContext(LayoutWorkbenchPageContext);
-  const {
-    account: { isPremium },
-  } = useContext(AuthContext);
+  // const { ToggleMenu } = useContext(LayoutWorkbenchPageContext);
+  const { clientMeta } = useContext(AuthContext);
   const { dialog: DialogModal, close, onOpen } = useDialogModal({});
   const { data: agentsAI, isFetching, isPending } = useGetAgentsAI();
 
@@ -134,7 +133,7 @@ export const AgentsAIPage: React.FC = (): JSX.Element => {
                         <ModalConnectConnectionWA
                           name={`Conectar "${row.name}" ao WhatsApp`}
                           close={close}
-                          id={row.id}
+                          id={row.connectionWAId}
                         />
                       ),
                     })
@@ -150,7 +149,7 @@ export const AgentsAIPage: React.FC = (): JSX.Element => {
               )}
               {(row.status === "open" || row.status === "sync") && (
                 <Button
-                  onClick={() => disconnectWhatsapp(row.id)}
+                  onClick={() => disconnectWhatsapp(row.connectionWAId)}
                   size={"sm"}
                   bg={"transparent"}
                   disabled={row.status === "sync"}
@@ -253,10 +252,10 @@ export const AgentsAIPage: React.FC = (): JSX.Element => {
     <div className="h-full flex-1 gap-y-1 flex flex-col">
       <div className="flex flex-col gap-y-0.5">
         <div className="flex items-center w-full justify-between gap-x-5">
-          <div className="flex items-center gap-x-2">
-            {ToggleMenu}
-            <h1 className="text-lg font-semibold flex items-center gap-x-2">
-              {!isPremium && (
+          <div className="flex flex-col gap-y-0.5">
+            <div className="flex items-center gap-x-2">
+              <h1 className="text-lg font-semibold flex items-center gap-x-2">
+                {/* {!isPremium && (
                 <Tooltip
                   content="Disponível apenas para usuários Premium."
                   positioning={{ placement: "right" }}
@@ -270,30 +269,44 @@ export const AgentsAIPage: React.FC = (): JSX.Element => {
                     <FaCrown size={20} />
                   </Badge>
                 </Tooltip>
-              )}
-              Assistentes
-            </h1>
+              )} */}
+                Assistentes
+              </h1>
+              <ModalCreateAgentAI
+                trigger={
+                  <Button
+                    disabled={clientMeta.isMobileLike}
+                    variant="outline"
+                    size={"sm"}
+                  >
+                    <IoAdd /> Adicionar
+                  </Button>
+                }
+              />
+            </div>
             <p className="text-white/60 font-light">
               Autônomos que usam IA para realizar tarefas e alcançar objetivos.
             </p>
           </div>
-          <ModalCreateAgentAI
-            trigger={
-              <Button disabled={!isPremium} variant="outline" size={"sm"}>
-                <IoAdd /> Adicionar
-              </Button>
-            }
-          />
         </div>
       </div>
-      <div className="flex-1 grid">
-        <TableComponent
-          rows={agentsAI || []}
-          columns={renderColumns}
-          textEmpity="Seus agente IA aparecerão aqui."
-          load={isFetching || isPending}
-        />
-      </div>
+      {clientMeta.isMobileLike ? (
+        <div className="flex items-center justify-center h-full">
+          <span className="text-sm px-2">
+            Disponível apenas para acesso via desktop. Para utilizá-la, acesse o
+            sistema por um computador.
+          </span>
+        </div>
+      ) : (
+        <div className="flex-1 grid">
+          <TableComponent
+            rows={agentsAI || []}
+            columns={renderColumns}
+            textEmpity="Seus agente IA aparecerão aqui."
+            load={isFetching || isPending}
+          />
+        </div>
+      )}
       {DialogModal}
     </div>
   );

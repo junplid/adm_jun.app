@@ -8,8 +8,8 @@ import {
   PopoverTitle,
   PopoverTrigger,
 } from "@components/ui/popover";
-import { JSX, ReactNode, useContext, useMemo, useRef, useState } from "react";
-import { BsChatLeftDots, BsRegex } from "react-icons/bs";
+import { JSX, ReactNode, useMemo, useRef, useState } from "react";
+import { BsChatLeftDots, BsRegex, BsStars } from "react-icons/bs";
 import { IoSearchSharp } from "react-icons/io5";
 import {
   PiBracketsCurlyBold,
@@ -29,14 +29,12 @@ import {
 } from "react-icons/md";
 import { VscDebugStop, VscMic } from "react-icons/vsc";
 import {
-  LuBrainCircuit,
   LuBriefcaseBusiness,
   LuCalendarDays,
   LuMessageCircleHeart,
   LuNotepadText,
 } from "react-icons/lu";
-import { FaCrown, FaRandom } from "react-icons/fa";
-import { AuthContext } from "@contexts/auth.context";
+import { FaRandom } from "react-icons/fa";
 import { GiDirectionSigns } from "react-icons/gi";
 import { RiMoneyDollarCircleLine, RiTrelloLine } from "react-icons/ri";
 import { HiOutlineUserGroup } from "react-icons/hi";
@@ -45,9 +43,6 @@ import { HiOutlineQueueList } from "react-icons/hi2";
 import { CgCalculator } from "react-icons/cg";
 
 export function SearchNodesComponents(): JSX.Element {
-  const {
-    account: { isPremium },
-  } = useContext(AuthContext);
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLInputElement | null>(null);
   const bg = useColorModeValue("#ffffffd8", "#252525d5");
@@ -128,22 +123,23 @@ export function SearchNodesComponents(): JSX.Element {
           <ul>
             {nodeListFilter.map((node) => (
               <li
-                className={`${!isPremium && node.premium ? "" : "dndnode cursor-grab dark:hover:bg-zinc-700/40 hover:bg-zinc-300/50"} flex min-h-13 items-center gap-3.5 select-none p-1.5 rounded-lg px-3`}
+                // className={`${!isPremium && node.premium ? "" : "dndnode cursor-grab dark:hover:bg-zinc-700/40 hover:bg-zinc-300/50"} flex min-h-13 items-center gap-3.5 select-none p-1.5 rounded-lg px-3`}
+                className={`flex min-h-13 items-center gap-3.5 select-none p-1.5 rounded-lg px-3`}
                 onDragStart={(event) => {
-                  if (!isPremium && node.premium) return;
+                  // if (!isPremium && node.premium) return;
                   onDragStart(event, node.type);
                 }}
-                draggable={isPremium ? true : !node.premium}
+                // draggable={isPremium ? true : !node.premium}
                 key={node.type}
               >
                 <div className="relative">
-                  {!isPremium && node.premium && (
+                  {/* {!isPremium && node.premium && (
                     <FaCrown
                       color={"#ffc444"}
                       className="absolute -top-3 -left-3"
                       size={17}
                     />
-                  )}
+                  )} */}
                   {node.icon}
                 </div>
                 <div>
@@ -414,10 +410,7 @@ const nodesList: {
   },
   {
     icon: (
-      <LuBrainCircuit
-        className="dark:text-teal-600 text-teal-600 w-8"
-        size={31}
-      />
+      <BsStars className="dark:text-teal-600 text-teal-600 w-8" size={31} />
     ),
     name: "Chama agente IA",
     description: "Chama um agente de IA",

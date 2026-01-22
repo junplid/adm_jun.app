@@ -1,9 +1,9 @@
 import {
   Button,
   Center,
+  Checkbox,
   HStack,
   IconButton,
-  Image,
   Input,
   NumberInput,
   Text,
@@ -23,10 +23,10 @@ import { AxiosError } from "axios";
 import SelectComponent from "../../../../components/Select";
 import TextareaAutosize from "react-textarea-autosize";
 import { v4 } from "uuid";
-import { IoClose } from "react-icons/io5";
+// import { IoClose } from "react-icons/io5";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, useFieldArray, useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import {
   DialogActionTrigger,
   DialogBody,
@@ -51,15 +51,15 @@ import SelectProviders from "@components/SelectProviders";
 // import SelectBusinesses from "@components/SelectBusinesses";
 import { RxLapTimer } from "react-icons/rx";
 import { Tooltip } from "@components/ui/tooltip";
-import { IoMdImage } from "react-icons/io";
-import {
-  PiFileAudioFill,
-  PiFileFill,
-  PiFilePdfFill,
-  PiFileTextFill,
-  PiFileVideoFill,
-} from "react-icons/pi";
-import { ModalStorageFiles } from "@components/Modals/StorageFiles";
+// import { IoMdImage } from "react-icons/io";
+// import {
+//   PiFileAudioFill,
+//   PiFileFill,
+//   PiFilePdfFill,
+//   PiFileTextFill,
+//   PiFileVideoFill,
+// } from "react-icons/pi";
+// import { ModalStorageFiles } from "@components/Modals/StorageFiles";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { ErrorResponse_I } from "../../../../services/api/ErrorResponse";
@@ -79,6 +79,7 @@ import {
   updateConnectionWA,
 } from "../../../../services/api/ConnectionWA";
 import { getChatbot, updateChatbot } from "../../../../services/api/Chatbot";
+import { RiSendPlane2Line } from "react-icons/ri";
 
 interface Props {
   id: number;
@@ -105,7 +106,7 @@ const FormSchemaChatbot = z.object({
         workingTimes: z
           .array(z.object({ start: z.string(), end: z.string() }))
           .optional(),
-      })
+      }),
     )
     .optional(),
 });
@@ -167,22 +168,16 @@ export const FormSchema = z
       .min(1, { message: "Campo obrigatório" }),
     emojiLevel: z.enum(["none", "low", "medium", "high"]).optional(),
     language: z.string().optional(),
-    personality: z
-      .string()
-      .transform((value) => value.trim() || undefined)
-      .optional(),
+    personality: z.string().optional(),
     model: z
       .string({ message: "Campo obrigatório" })
       .min(1, { message: "Campo obrigatório" }),
     temperature: z.preprocess(
       toNumberOrUndef,
-      z.number().min(0).max(2).optional()
+      z.number().min(0).max(2).optional(),
     ),
 
-    knowledgeBase: z
-      .string()
-      .transform((value) => value.trim() || undefined)
-      .optional(),
+    knowledgeBase: z.string().optional(),
     files: z
       .array(
         z.object({
@@ -190,19 +185,21 @@ export const FormSchema = z
           fileName: z.string().nullish(),
           originalName: z.string(),
           mimetype: z.string().nullish(),
-        })
+        }),
       )
       .optional(),
     instructions: z.string().optional(),
     debounce: z.preprocess(
       toNumberOrUndef,
-      z.number().min(0).max(9).optional()
+      z.number().min(0).max(9).optional(),
     ),
     timeout: z.preprocess(
       toNumberOrUndef,
-      z.number().min(0).max(14400).optional()
+      z.number().min(0).max(14400).optional(),
     ),
-
+    service_tier: z
+      .enum(["default", "flex", "auto", "scale", "priority"])
+      .optional(),
     connectionWA: FormSchemaConnectionWA,
     chatbot: FormSchemaChatbot,
   })
@@ -234,37 +231,103 @@ export const FormSchema = z
 
 export type Fields = z.infer<typeof FormSchema>;
 
-const IconPreviewFile = (p: { mimetype: string }): JSX.Element => {
-  if (/^image\//.test(p.mimetype)) {
-    return <IoMdImage color="#6daebe" size={24} />;
-  }
-  if (/^video\//.test(p.mimetype)) {
-    return <PiFileVideoFill color="#8eb87a" size={24} />;
-  }
-  if (/^audio\//.test(p.mimetype)) {
-    return <PiFileAudioFill color="#d4b663" size={24} />;
-  }
-  if (p.mimetype === "application/pdf") {
-    return <PiFilePdfFill color="#db8c8c" size={24} />;
-  }
-  if (/^text\//.test(p.mimetype)) {
-    return <PiFileTextFill color="#ffffff" size={24} />;
-  }
-  return <PiFileFill color="#808080" size={24} />;
-};
+// const IconPreviewFile = (p: { mimetype: string }): JSX.Element => {
+//   if (/^image\//.test(p.mimetype)) {
+//     return <IoMdImage color="#6daebe" size={24} />;
+//   }
+//   if (/^video\//.test(p.mimetype)) {
+//     return <PiFileVideoFill color="#8eb87a" size={24} />;
+//   }
+//   if (/^audio\//.test(p.mimetype)) {
+//     return <PiFileAudioFill color="#d4b663" size={24} />;
+//   }
+//   if (p.mimetype === "application/pdf") {
+//     return <PiFilePdfFill color="#db8c8c" size={24} />;
+//   }
+//   if (/^text\//.test(p.mimetype)) {
+//     return <PiFileTextFill color="#ffffff" size={24} />;
+//   }
+//   return <PiFileFill color="#808080" size={24} />;
+// };
 
 const optionsModels = [
-  { label: <span>o1</span>, value: "o1" }, // $15.00
-  { label: <span>gpt-4o</span>, value: "gpt-4o" }, // $2.50
-  { label: <span>gpt-4.1</span>, value: "gpt-4.1" }, // $2.00
-  { label: <span>gpt-5</span>, value: "gpt-5" }, // $1.25
-  { label: <span>o4-mini</span>, value: "o4-mini" }, // $1.10
-  { label: <span>o3-mini</span>, value: "o3-mini" }, // $1.10
-  { label: <span>gpt-4.1-mini</span>, value: "gpt-4.1-mini" }, // $0.40
-  { label: <span>gpt-5-mini</span>, value: "gpt-5-mini" }, // $0.25
-  { label: <span>gpt-4o-mini</span>, value: "gpt-4o-mini" }, // $0.15
-  { label: <span>gpt-4.1-nano</span>, value: "gpt-4.1-nano" }, // $0.10
-  { label: <span>gpt-5-nano</span>, value: "gpt-5-nano" }, // $0.05
+  {
+    label: <span>gpt-5.2</span>,
+    value: "gpt-5.2",
+    isFlex: true,
+    searchFile: true,
+    desc: "O modelo mais avançado para trabalho profissional e agentes de longa duração.",
+  },
+  {
+    label: <span>gpt-5.1</span>,
+    value: "gpt-5.1",
+    isFlex: true,
+    searchFile: true,
+    desc: "Altíssimo desempenho; ótimo para trabalhos exigentes.",
+  },
+  {
+    label: <span>gpt-5</span>,
+    value: "gpt-5",
+    isFlex: true,
+    searchFile: true,
+    desc: "Muito capaz; atende necessidades profissionais e negócios.",
+  },
+  {
+    label: <span>gpt-5-mini</span>,
+    value: "gpt-5-mini",
+    isFlex: true,
+    searchFile: true,
+    desc: "Boa qualidade com menor custo; ideal para uso diário.",
+  },
+  {
+    label: <span>gpt-5-nano</span>,
+    value: "gpt-5-nano",
+    isFlex: true,
+    searchFile: true,
+    desc: "Rápido e barato; para tarefas simples e frequentes.",
+  },
+  {
+    label: <span>o3</span>,
+    value: "o3",
+    isFlex: true,
+    searchFile: true,
+    desc: "Equilíbrio entre custo e desempenho; confiável para rotinas.",
+  },
+  {
+    label: <span>o4-mini</span>,
+    value: "o4-mini",
+    isFlex: true,
+    searchFile: true,
+    desc: "Leve e rápido; bom para respostas rápidas.",
+  },
+  {
+    label: <span>gpt-4.1</span>,
+    value: "gpt-4.1",
+    isFlex: false,
+    searchFile: true,
+    desc: "Estável e preciso; ideal para textos longos.",
+  },
+  {
+    label: <span>gpt-4.1-mini</span>,
+    value: "gpt-4.1-mini",
+    isFlex: false,
+    searchFile: true,
+    desc: "Boa qualidade por menos custo; para uso constante.",
+  },
+  {
+    label: <span>gpt-4.1-nano</span>,
+    value: "gpt-4.1-nano",
+    isFlex: false,
+    searchFile: true,
+    desc: "Muito rápido e econômico; para respostas curtas.",
+  },
+  {
+    label: <span>o3-mini</span>,
+    value: "o3-mini",
+    isFlex: false,
+    searchFile: true,
+    desc: "Versão econômica; atende grande volume com custo baixo.",
+  },
 ];
 
 const optionsEmojiLevel = [
@@ -312,6 +375,8 @@ function Content({
   const imgProfileRef = useRef<HTMLInputElement>(null);
   const registerWithMask = useHookFormMask(register);
   const [imgPreview, setImgPreview] = useState<string | null | undefined>(null);
+  const [tokenTest, setTokenTest] = useState<string>("");
+  const [loadSend, setLoadSend] = useState(false);
 
   const { data } = useGetAgentAI(id);
 
@@ -344,7 +409,7 @@ function Content({
               if (value !== null && value !== undefined) acc[key] = value;
               return acc;
             },
-            {}
+            {},
           );
           setImgPreview(fileImage);
           connectionWA = nextData;
@@ -368,19 +433,21 @@ function Content({
     })();
   }, [data, reset]);
 
-  const {
-    fields: fieldFiles,
-    append: appendFiles,
-    remove: removeFiles,
-  } = useFieldArray({
-    control,
-    name: "files",
-  });
+  // const {
+  //   fields: fieldFiles,
+  //   append: appendFiles,
+  //   remove: removeFiles,
+  // } = useFieldArray({
+  //   control,
+  //   name: "files",
+  // });
 
   const providerCredentialId = watch("providerCredentialId");
   const apiKey = watch("apiKey");
   const operatingDays = watch("chatbot.operatingDays");
   const fileImage = watch("connectionWA.fileImage");
+  const service_tier = watch("service_tier");
+  const model = watch("model");
 
   const optionsOpertaingDaysMemo = useMemo(() => {
     if (!operatingDays?.length) return optionsOpertaingDays;
@@ -408,11 +475,11 @@ function Content({
   const edit = useCallback(
     async ({ connectionWA, chatbot, ...fields }: Fields): Promise<void> => {
       try {
-        if (data?.connectionWAId) {
-          await updateConnectionWA(data.connectionWAId, connectionWA);
-        }
         if (data?.chatbotId) {
           await updateChatbot(data.chatbotId, chatbot);
+        }
+        if (data?.connectionWAId) {
+          await updateConnectionWA(data.connectionWAId, connectionWA);
         }
         await updateAgentAI({ id, body: fields });
         reset();
@@ -424,12 +491,29 @@ function Content({
         }
       }
     },
-    [data?.connectionWAId, data?.chatbotId]
+    [data?.connectionWAId, data?.chatbotId],
   );
 
-  const tokenTest = useMemo(() => {
-    return v4();
+  useEffect(() => {
+    setTokenTest(v4());
+    return () => {
+      setTokenTest("");
+    };
   }, []);
+
+  useEffect(() => {
+    if (tokenTest && socket) {
+      socket.on(
+        `test-agent-${tokenTest}`,
+        async (data: { role: "agent" | "system"; content: string }) => {
+          setMessages((prev) => [...prev, { id: v4(), ...data }]);
+        },
+      );
+    }
+    return () => {
+      socket.off(`test-agent-${tokenTest}`);
+    };
+  }, [tokenTest]);
 
   const clearTokenTest = () => {
     if (tokenTest) {
@@ -470,30 +554,20 @@ function Content({
           files,
           debounce,
           nameProvider,
+          chatbot,
+          connectionWA,
           ...restf
         } = fields;
-        const { data } = await api.post("/private/agents-ai/test", {
+        setLoadSend(true);
+        await api.post("/private/agents-ai/test", {
           ...restf,
           files: files?.map((file) => file.id),
           content: draft.trim(),
           tokenTest: tokenTest,
         });
-        for await (const content of data.actions) {
-          setMessages((prev) => [
-            ...prev,
-            { id: v4(), role: "system", content },
-          ]);
-          await new Promise((resolve) => setTimeout(resolve, 220));
-        }
-        await new Promise((resolve) => setTimeout(resolve, 300));
-        for await (const content of data.content) {
-          setMessages((prev) => [
-            ...prev,
-            { id: v4(), role: "agent", content },
-          ]);
-          await new Promise((resolve) => setTimeout(resolve, 220));
-        }
+        setLoadSend(false);
       } catch (error) {
+        setLoadSend(false);
         if (error instanceof AxiosError) {
           if (error.response?.status === 401) logout();
           if (error.response?.status === 400) {
@@ -512,7 +586,7 @@ function Content({
         }
       }
     },
-    [tokenTest, apiKey, providerCredentialId, draft]
+    [tokenTest, apiKey, providerCredentialId, draft],
   );
 
   return (
@@ -683,7 +757,7 @@ function Content({
                             field.value
                               ? {
                                   label: optionsEmojiLevel.find(
-                                    (item) => item.value === field.value
+                                    (item) => item.value === field.value,
                                   )?.label,
                                   value: field.value,
                                 }
@@ -737,41 +811,71 @@ function Content({
                 <div className="w-full h-px my-3 bg-gray-200/10"></div>
 
                 <div className="w-full grid grid-cols-2 gap-x-4 gap-y-2.5">
-                  <Field
-                    errorText={errors.model?.message}
-                    invalid={!!errors.model}
-                    label="Model AI"
-                    helperText="Selecione o modelo de IA que o assistente usará."
-                    required
-                  >
-                    <Controller
-                      name="model"
-                      control={control}
-                      render={({ field }) => (
-                        <SelectComponent
-                          name={field.name}
-                          placeholder="Selecione o modelo"
-                          isMulti={false}
-                          onBlur={field.onBlur}
-                          options={optionsModels}
-                          isClearable={false}
-                          onChange={(e: any) => {
-                            field.onChange(e.value);
-                          }}
-                          value={
-                            field.value
-                              ? {
-                                  label: optionsModels.find(
-                                    (item) => item.value === field.value
-                                  )?.label,
-                                  value: field.value,
-                                }
-                              : null
+                  <div className="space-y-2">
+                    <Field
+                      errorText={errors.model?.message}
+                      invalid={!!errors.model}
+                      label="Model AI"
+                      helperText="Selecione o modelo de IA que o assistente usará."
+                      required
+                    >
+                      <Controller
+                        name="model"
+                        control={control}
+                        render={({ field }) => (
+                          <SelectComponent
+                            name={field.name}
+                            placeholder="Selecione o modelo"
+                            isMulti={false}
+                            onBlur={field.onBlur}
+                            options={optionsModels.map((s) => ({
+                              label: s.label,
+                              value: s.value,
+                            }))}
+                            isClearable={false}
+                            onChange={(e: any) => {
+                              field.onChange(e.value);
+                            }}
+                            value={
+                              field.value
+                                ? {
+                                    label: optionsModels.find(
+                                      (item) => item.value === field.value,
+                                    )?.label,
+                                    value: field.value,
+                                  }
+                                : null
+                            }
+                          />
+                        )}
+                      />
+                    </Field>
+                    {optionsModels.some(
+                      (m) => m.value === model && m.isFlex,
+                    ) && (
+                      <Field helperText="Barato e com maior latência">
+                        <Checkbox.Root
+                          checked={service_tier === "flex"}
+                          onCheckedChange={(e) =>
+                            setValue(
+                              "service_tier",
+                              e.checked ? "flex" : "default",
+                              { shouldDirty: true },
+                            )
                           }
-                        />
-                      )}
-                    />
-                  </Field>
+                        >
+                          <Checkbox.HiddenInput />
+                          <Checkbox.Control />
+                          <Checkbox.Label>
+                            Modo Julius
+                            <span className="text-white/60 font-light text-sm">
+                              (pai do Chris)
+                            </span>
+                          </Checkbox.Label>
+                        </Checkbox.Root>
+                      </Field>
+                    )}
+                  </div>
                   <Field
                     invalid={!!errors.temperature}
                     label="Temperatura"
@@ -790,6 +894,13 @@ function Content({
                       <NumberInput.Input placeholder="0 - 1" />
                     </NumberInput.Root>
                   </Field>
+                </div>
+                {model && (
+                  <p className="bg-green-100/10 p-1 -mt-1.5 w-full">
+                    {optionsModels.find((o) => o.value === model)?.desc}
+                  </p>
+                )}
+                <div className="w-full grid grid-cols-2 gap-x-4 gap-y-2.5">
                   <Field
                     errorText={errors.timeout?.message}
                     invalid={!!errors.timeout}
@@ -865,8 +976,8 @@ function Content({
                     Cérebro / Base de conhecimento
                   </span>
                   <span className="text-center text-white/70 px-3">
-                    Você pode adicionar documentos de texto mais detalhados para
-                    que o assistente use como base de conhecimento.
+                    Você pode adicionar textos mais detalhados para que o
+                    assistente use como base de conhecimento.
                   </span>
                 </div>
 
@@ -886,7 +997,7 @@ function Content({
                       {...register("knowledgeBase")}
                     />
                   </Field>
-                  <div className="grid w-full grid-cols-4 gap-1.5">
+                  {/* <div className="grid w-full grid-cols-4 gap-1.5">
                     {fieldFiles.map((file, index) => (
                       <div
                         key={file.id}
@@ -933,7 +1044,7 @@ function Content({
                     mimetype={["text/", "application/pdf"]}
                   >
                     <Button size={"sm"}>Selecionar os documentos</Button>
-                  </ModalStorageFiles>
+                  </ModalStorageFiles> */}
                 </div>
 
                 <div className="flex flex-col items-center">
@@ -992,8 +1103,8 @@ function Content({
                                 setValue(
                                   "chatbot.operatingDays",
                                   operatingDays.filter(
-                                    (o) => o.dayOfWeek !== day.dayOfWeek
-                                  )
+                                    (o) => o.dayOfWeek !== day.dayOfWeek,
+                                  ),
                                 );
                               }}
                             >
@@ -1002,7 +1113,7 @@ function Content({
                             <div className="flex items-center gap-2 pl-1.5">
                               <span className="font-medium block">
                                 {optionsOpertaingDays.find(
-                                  (op) => op.value === day.dayOfWeek
+                                  (op) => op.value === day.dayOfWeek,
                                 )?.label || ""}
                               </span>
                               {!day.workingTimes?.length && (
@@ -1040,7 +1151,7 @@ function Content({
                                     size={"2xs"}
                                     {...registerWithMask(
                                       `chatbot.operatingDays.${dayIndex}.workingTimes.${timeIndex}.start`,
-                                      "99:99"
+                                      "99:99",
                                     )}
                                   />
                                 </Field>
@@ -1060,7 +1171,7 @@ function Content({
                                     size={"2xs"}
                                     {...registerWithMask(
                                       `chatbot.operatingDays.${dayIndex}.workingTimes.${timeIndex}.end`,
-                                      "99:99"
+                                      "99:99",
                                     )}
                                   />
                                 </Field>
@@ -1077,11 +1188,11 @@ function Content({
                                         if (o.dayOfWeek === day.dayOfWeek) {
                                           o.workingTimes =
                                             o.workingTimes?.filter(
-                                              (__, i) => i !== timeIndex
+                                              (__, i) => i !== timeIndex,
                                             );
                                         }
                                         return o;
-                                      })
+                                      }),
                                     );
                                   }}
                                 >
@@ -1125,7 +1236,7 @@ function Content({
                                     }
                                   }
                                   return o;
-                                })
+                                }),
                               );
                             }}
                           >
@@ -1315,7 +1426,7 @@ function Content({
                               ? {
                                   label:
                                     optionsPrivacyValue.find(
-                                      (s) => s.value === field.value
+                                      (s) => s.value === field.value,
                                     )?.label || "",
                                   value: field.value,
                                 }
@@ -1369,7 +1480,7 @@ function Content({
                               ? {
                                   label:
                                     optionsPrivacyGroupValue.find(
-                                      (s) => s.value === field.value
+                                      (s) => s.value === field.value,
                                     )?.label || "",
                                   value: field.value,
                                 }
@@ -1468,23 +1579,35 @@ function Content({
               />
             </div>
             <div className="flex flex-col">
-              <TextareaAutosize
-                placeholder="Enviar mensagem"
-                style={{ resize: "none" }}
-                minRows={1}
-                maxRows={6}
-                className="p-3 py-2.5 rounded-sm w-full border-black/10 dark:border-white/10 border"
-                value={draft}
-                onChange={(e) => setDraft(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    if (draft.trim()) {
-                      handleSubmit(sendMessage, onError)();
+              <div className="flex items-center gap-x-2">
+                <TextareaAutosize
+                  placeholder="Enviar mensagem"
+                  style={{ resize: "none" }}
+                  minRows={1}
+                  maxRows={6}
+                  className="p-3 py-2.5 rounded-sm w-full border-black/10 dark:border-white/10 border"
+                  value={draft}
+                  disabled={loadSend}
+                  onChange={(e) => setDraft(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      if (draft.trim()) {
+                        handleSubmit(sendMessage, onError)();
+                      }
                     }
-                  }
-                }}
-              />
+                  }}
+                />
+                <IconButton
+                  onClick={() => {
+                    if (draft.trim()) handleSubmit(sendMessage, onError)();
+                  }}
+                  loading={loadSend}
+                  variant={"outline"}
+                >
+                  <RiSendPlane2Line />
+                </IconButton>
+              </div>
               <span className="text-xs text-center text-white/50">
                 Teste seu agente IA.
               </span>

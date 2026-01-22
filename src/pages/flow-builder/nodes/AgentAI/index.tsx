@@ -5,11 +5,11 @@ import useStore from "../../flowStore";
 import { RxLapTimer } from "react-icons/rx";
 import { useColorModeValue } from "@components/ui/color-mode";
 import { CustomHandle } from "../../customs/node";
-import { LuBrainCircuit } from "react-icons/lu";
 import SelectAgentsAI from "@components/SelectAgentsAI";
 import { Field } from "@components/ui/field";
 import AutocompleteTextField from "@components/Autocomplete";
 import { useGetVariablesOptions } from "../../../../hooks/variable";
+import { BsStars } from "react-icons/bs";
 
 type DataNode = {
   prompt?: string;
@@ -103,7 +103,7 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
           onChange={async (target: string) => {
             const listExistNode = pickExistNode(target);
             const itemsDell = data.preview?.property?.filter(
-              (s: string) => !listExistNode.includes(s)
+              (s: string) => !listExistNode.includes(s),
             );
             for await (const item of itemsDell || []) {
               delEdge(item);
@@ -176,7 +176,7 @@ export const NodeAgentAI: React.FC<
               <div className="flex justify-end absolute -top-1 -right-1 opacity-10 group-hover:opacity-100 duration-200">
                 <PatternNode.Actions id={id} />
               </div>
-              <LuBrainCircuit
+              <BsStars
                 className="dark:text-teal-700  text-teal-700"
                 size={31}
               />
@@ -224,7 +224,7 @@ export const NodeAgentAI: React.FC<
         style={{ right: -20, bottom: -3, top: "initial" }}
         isConnectable={true}
         title="Tempo esgotado"
-        className="relative dark:text-red-400 text-red-500 dark:!border-red-400/60 dark:!bg-red-400/15 !border-red-500/70 !bg-red-500/15"
+        className="relative dark:text-red-400 text-red-500 dark:border-red-400/60! dark:bg-red-400/15! border-red-500/70! bg-red-500/15!"
       >
         <RxLapTimer
           size={11}
