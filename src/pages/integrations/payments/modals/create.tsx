@@ -21,6 +21,12 @@ import { Field } from "@components/ui/field";
 import { CloseButton } from "@components/ui/close-button";
 import SelectComponent from "@components/Select";
 import { useCreatePaymentIntegration } from "../../../../hooks/paymentIntegration";
+// import {
+//   FileUploadDropzone,
+//   FileUploadList,
+//   FileUploadRoot,
+// } from "@components/ui/file-upload";
+import TextareaAutosize from "react-textarea-autosize";
 
 interface Props {
   onCreate?(business: PaymentRow): Promise<void>;
@@ -33,25 +39,27 @@ export const FormSchema = z.object({
     .string({ message: "Campo obrigatório." })
     .trim()
     .min(1, { message: "Campo obrigatório." }),
-  access_token: z
-    .string({ message: "Campo obrigatório." })
-    .trim()
-    .min(1, { message: "Campo obrigatório." }),
+  access_token: z.string({ message: "Campo obrigatório." }).optional(),
   status: z.boolean().optional(),
-  provider: z.enum(["mercadopago"]),
+  provider: z.enum(["mercadopago", "itau"]),
+  clientId: z.string({ message: "Campo obrigatório." }).optional(),
+  clientSecret: z.string({ message: "Campo obrigatório." }).optional(),
+  pixKey: z.string({ message: "Campo obrigatório." }).optional(),
+  // certificate: z.instanceof(File).optional(),
+  // certPassword: z.string({ message: "Campo obrigatório." }).optional(),
 });
 
 export type Fields = z.infer<typeof FormSchema>;
 
 const optionsProviders = [
   { label: "Mercado Pago", value: "mercadopago" },
-  { label: "Banco Itaú", value: "itau", isDisabled: true },
-  { label: "Nubank", value: "nubank", isDisabled: true },
-  { label: "PayPal", value: "paypal", isDisabled: true },
-  { label: "PagSeguro", value: "pagseguro", isDisabled: true },
+  { label: "Banco Itaú PJ", value: "itau" },
   { label: "Asaas", value: "asaas", isDisabled: true },
-  { label: "Stripe", value: "stripe", isDisabled: true },
-  { label: "Pagar.me", value: "pagarme", isDisabled: true },
+  // { label: "Nubank", value: "nubank", isDisabled: true },
+  // { label: "PayPal", value: "paypal", isDisabled: true },
+  // { label: "PagSeguro", value: "pagseguro", isDisabled: true },
+  // { label: "Stripe", value: "stripe", isDisabled: true },
+  // { label: "Pagar.me", value: "pagarme", isDisabled: true },
 ];
 
 export const ModalPayment: React.FC<Props> = (props): JSX.Element => {
@@ -62,11 +70,14 @@ export const ModalPayment: React.FC<Props> = (props): JSX.Element => {
     formState: { errors },
     setError,
     reset,
+    watch,
     control,
   } = useForm<Fields>({
     resolver: zodResolver(FormSchema),
     defaultValues: { provider: "mercadopago", status: true },
   });
+
+  const provider = watch("provider");
 
   const { mutateAsync: createPayment, isPending } = useCreatePaymentIntegration(
     {
@@ -116,11 +127,23 @@ export const ModalPayment: React.FC<Props> = (props): JSX.Element => {
           </DialogDescription>
         </DialogHeader>
         <DialogBody mt={"-5px"}>
-          <VStack gap={4}>
+          <VStack gap={2}>
+            <p className="font-light leading-4 text-white/70">
+              Esses dados são fornecidos pelo seu banco. A Junplid.com.br{" "}
+              <strong className="text-white font-semibold">
+                não acessa sua conta bancária
+              </strong>
+              ; ela apenas cria cobranças via Pix e recebe as confirmações de
+              pagamento Pix.{" "}
+              <strong className="font-black tracking-wider text-red-600 bg-yellow-300">
+                Declaramos, ainda, que todos os dados informados abaixo são
+                devidamente criptografados e tratados com segurança.
+              </strong>
+            </p>
             <Field
               errorText={errors.provider?.message}
               invalid={!!errors.provider}
-              label="Provedor de pagamento"
+              label="Instituição financeira"
             >
               <Controller
                 name="provider"
@@ -128,7 +151,7 @@ export const ModalPayment: React.FC<Props> = (props): JSX.Element => {
                 render={({ field }) => (
                   <SelectComponent
                     name={field.name}
-                    placeholder="Selecione um provedor"
+                    placeholder="Selecione o banco"
                     isMulti={false}
                     onBlur={field.onBlur}
                     options={optionsProviders}
@@ -161,18 +184,64 @@ export const ModalPayment: React.FC<Props> = (props): JSX.Element => {
                 placeholder="Digite o nome da integração"
               />
             </Field>
-            <Field
-              errorText={errors.access_token?.message}
-              invalid={!!errors.access_token}
-              label="Token de acesso"
-              helperText="Seu Access Token fica em Configurações/API ou Credenciais do seu provedor (Mercado Pago, Itaú, ...)."
-            >
-              <Input
-                {...register("access_token")}
-                autoComplete="off"
-                placeholder="Digite o token de acesso"
-              />
-            </Field>
+
+            {provider === "mercadopago" && (
+              <Field
+                errorText={errors.access_token?.message}
+                invalid={!!errors.access_token}
+                label="Token de acesso"
+                helperText="Seu Access Token fica em Configurações/API ou Credenciais do seu provedor (Mercado Pago, Itaú, ...)."
+                className="mt-3"
+              >
+                <Input
+                  {...register("access_token")}
+                  autoComplete="off"
+                  placeholder="Digite o token de acesso"
+                />
+              </Field>
+            )}
+            {provider === "itau" && (
+              <>
+                <Field
+                  errorText={errors.clientId?.message}
+                  invalid={!!errors.clientId}
+                  label="Client ID"
+                  className="mt-3"
+                >
+                  <Input
+                    {...register("clientId")}
+                    autoComplete="off"
+                    placeholder="Digite o Client ID"
+                  />
+                </Field>
+                <Field
+                  errorText={errors.clientSecret?.message}
+                  invalid={!!errors.clientSecret}
+                  label="Client Secret"
+                  className="mb-2"
+                >
+                  <Input
+                    {...register("clientSecret")}
+                    autoComplete="off"
+                    placeholder="Digite o Client Secret"
+                  />
+                </Field>
+                <Field
+                  errorText={errors.pixKey?.message}
+                  invalid={!!errors.pixKey}
+                  label="Chave Pix"
+                >
+                  <TextareaAutosize
+                    placeholder="Digite a chave Pix"
+                    style={{ resize: "none" }}
+                    minRows={1}
+                    maxRows={2}
+                    className="p-3 py-2.5 rounded-sm w-full border-white/10 border"
+                    {...register("pixKey")}
+                  />
+                </Field>
+              </>
+            )}
           </VStack>
         </DialogBody>
         <DialogFooter>
@@ -182,7 +251,7 @@ export const ModalPayment: React.FC<Props> = (props): JSX.Element => {
             </Button>
           </DialogActionTrigger>
           <Button type="submit" loading={isPending}>
-            Criar
+            Testar integração e criar
           </Button>
         </DialogFooter>
         <DialogCloseTrigger asChild>

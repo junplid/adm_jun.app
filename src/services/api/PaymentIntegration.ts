@@ -1,11 +1,11 @@
 import { api } from "./index";
 
-export type TypeProviderPayment = "mercadopago";
+export type TypeProviderPayment = "mercadopago" | "itau";
 
 export async function getPaymentIntegrations(params: {}): Promise<
   {
     name: string;
-    provider: "mercadopago";
+    provider: "mercadopago" | "itau";
     status: boolean;
     id: number;
     createAt: Date;
@@ -29,7 +29,7 @@ export async function createPaymentIntegration(body: {
   name: string;
   provider: TypeProviderPayment;
   status?: boolean;
-  access_token: string;
+  access_token?: string;
 }): Promise<{ id: number; createAt: Date }> {
   const { data } = await api.post("/private/integration/payments", body);
   return data.integration;
@@ -62,7 +62,7 @@ export async function updatePaymentIntegration(
     provider?: TypeProviderPayment;
     status?: boolean;
     access_token?: string;
-  }
+  },
 ): Promise<void> {
   await api.put(`/private/integration/payments/${id}`, body);
 }

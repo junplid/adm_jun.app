@@ -77,7 +77,7 @@ export function useGetPaymentIntegrationsOptions(params?: {}) {
     queryFn: async () => {
       try {
         return await PaymentIntegration.getOptionsPaymentIntegrations(
-          params || {}
+          params || {},
         );
       } catch (error) {
         if (error instanceof AxiosError) {
@@ -98,7 +98,7 @@ export function useCreatePaymentIntegration(props?: {
     name: string;
     provider: PaymentIntegration.TypeProviderPayment;
     status?: boolean;
-    access_token: string;
+    access_token?: string;
   }>;
   onSuccess?: (id: number) => Promise<void>;
 }) {
@@ -109,7 +109,7 @@ export function useCreatePaymentIntegration(props?: {
       name: string;
       provider: PaymentIntegration.TypeProviderPayment;
       status?: boolean;
-      access_token: string;
+      access_token?: string;
     }) => PaymentIntegration.createPaymentIntegration(body),
     async onSuccess(data, body) {
       if (props?.onSuccess) await props.onSuccess(data.id);
@@ -128,7 +128,7 @@ export function useCreatePaymentIntegration(props?: {
       ) {
         queryClient.setQueryData(
           ["payment-integrations-options", null],
-          (old: any) => [...(old || []), { id: data.id, name: body.name }]
+          (old: any) => [...(old || []), { id: data.id, name: body.name }],
         );
       }
     },
@@ -141,7 +141,7 @@ export function useCreatePaymentIntegration(props?: {
           if (dataError.input.length) {
             dataError.input.forEach(({ text, path }) =>
               // @ts-expect-error
-              props?.setError?.(path, { message: text })
+              props?.setError?.(path, { message: text }),
             );
           }
         }
@@ -192,7 +192,7 @@ export function useUpdatePaymentIntegration(props?: {
                 status: body.status ?? b.status,
               };
             return b;
-          })
+          }),
         );
       }
       if (
@@ -204,7 +204,7 @@ export function useUpdatePaymentIntegration(props?: {
             old?.map((b: any) => {
               if (b.id === id) b = { ...b, name: body.name || b.name };
               return b;
-            })
+            }),
         );
       }
     },
@@ -217,7 +217,7 @@ export function useUpdatePaymentIntegration(props?: {
           if (dataError.input?.length) {
             dataError.input.forEach(({ text, path }) =>
               // @ts-expect-error
-              props?.setError?.(path, { message: text })
+              props?.setError?.(path, { message: text }),
             );
           }
         }
@@ -240,11 +240,11 @@ export function useDeletePaymentIntegration(props?: {
       });
       queryClient.removeQueries({ queryKey: ["payment-integration", id] });
       queryClient.setQueryData(["payment-integrations", null], (old: any) =>
-        old?.filter((b: any) => b.id !== id)
+        old?.filter((b: any) => b.id !== id),
       );
       queryClient.setQueryData(
         ["payment-integrations-options", null],
-        (old: any) => old?.filter((b: any) => b.id !== id)
+        (old: any) => old?.filter((b: any) => b.id !== id),
       );
     },
     onError(error: unknown) {
