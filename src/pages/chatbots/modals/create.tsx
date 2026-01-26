@@ -72,12 +72,6 @@ interface IProps {
 }
 
 const FormSchemaConnectionWA = z.object({
-  name: z.string().min(1, "Campo obrigatório."),
-  description: z.string().optional(),
-  // businessId: z.number({ message: "Campo obrigatório." }),
-  type: z.enum(["chatbot", "marketing"], {
-    message: "Campo obrigatório.",
-  }),
   profileName: z.string().optional(),
   profileStatus: z.string().optional(),
   lastSeenPrivacy: z
@@ -164,7 +158,7 @@ const FormSchema = z.object({
     .string()
     .optional()
     .transform((v) => v || undefined),
-  connectionWA: FormSchemaConnectionWA,
+  connectionWA: FormSchemaConnectionWA.optional(),
 });
 
 type Fields = z.infer<typeof FormSchema>;
@@ -320,6 +314,8 @@ export function ModalCreateChatbot({
     errors.addToLeadTagsIds,
     errors.operatingDays,
   ]);
+
+  console.log(errors);
 
   return (
     <DialogRoot

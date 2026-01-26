@@ -14,7 +14,7 @@ import { useGetPaymentIntegrations } from "../../../hooks/paymentIntegration";
 
 export interface PaymentRow {
   name: string;
-  provider: "mercadopago";
+  provider: "mercadopago" | "itau";
   status: boolean;
   id: number;
   createAt: Date;
@@ -28,6 +28,10 @@ export const PaymentsPage: React.FC = (): JSX.Element => {
 
   const renderColumns = useMemo(() => {
     const columns: Column[] = [
+      {
+        key: "id",
+        name: "ID",
+      },
       {
         key: "name",
         name: "Nome",

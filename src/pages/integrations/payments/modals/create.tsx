@@ -45,6 +45,7 @@ export const FormSchema = z.object({
   clientId: z.string({ message: "Campo obrigatório." }).optional(),
   clientSecret: z.string({ message: "Campo obrigatório." }).optional(),
   pixKey: z.string({ message: "Campo obrigatório." }).optional(),
+  webhook_secret: z.string({ message: "Campo obrigatório." }).optional(),
   // certificate: z.instanceof(File).optional(),
   // certPassword: z.string({ message: "Campo obrigatório." }).optional(),
 });
@@ -53,8 +54,8 @@ export type Fields = z.infer<typeof FormSchema>;
 
 const optionsProviders = [
   { label: "Mercado Pago", value: "mercadopago" },
-  { label: "Banco Itaú PJ", value: "itau" },
-  { label: "Asaas", value: "asaas", isDisabled: true },
+  // { label: "Banco Itaú PJ", value: "itau" },
+  // { label: "Asaas", value: "asaas", isDisabled: true },
   // { label: "Nubank", value: "nubank", isDisabled: true },
   // { label: "PayPal", value: "paypal", isDisabled: true },
   // { label: "PagSeguro", value: "pagseguro", isDisabled: true },
@@ -128,28 +129,18 @@ export const ModalPayment: React.FC<Props> = (props): JSX.Element => {
         </DialogHeader>
         <DialogBody mt={"-5px"}>
           <VStack gap={2}>
-            <p className="font-light leading-4 text-white/70">
-              Esses dados são fornecidos pelo seu banco. A Junplid.com.br{" "}
-              <strong className="text-white font-semibold">
-                não acessa sua conta bancária
-              </strong>
-              ; ela apenas cria cobranças via Pix e recebe as confirmações de
-              pagamento Pix.{" "}
-              <strong className="font-black tracking-wider text-red-600 bg-yellow-300">
-                Declaramos, ainda, que todos os dados informados abaixo são
-                devidamente criptografados e tratados com segurança.
-              </strong>
-            </p>
             <Field
               errorText={errors.provider?.message}
               invalid={!!errors.provider}
               label="Instituição financeira"
+              disabled
             >
               <Controller
                 name="provider"
                 control={control}
                 render={({ field }) => (
                   <SelectComponent
+                    isDisabled
                     name={field.name}
                     placeholder="Selecione o banco"
                     isMulti={false}
@@ -186,19 +177,32 @@ export const ModalPayment: React.FC<Props> = (props): JSX.Element => {
             </Field>
 
             {provider === "mercadopago" && (
-              <Field
-                errorText={errors.access_token?.message}
-                invalid={!!errors.access_token}
-                label="Token de acesso"
-                helperText="Seu Access Token fica em Configurações/API ou Credenciais do seu provedor (Mercado Pago, Itaú, ...)."
-                className="mt-3"
-              >
-                <Input
-                  {...register("access_token")}
-                  autoComplete="off"
-                  placeholder="Digite o token de acesso"
-                />
-              </Field>
+              <>
+                <Field
+                  errorText={errors.access_token?.message}
+                  invalid={!!errors.access_token}
+                  label="Token de acesso"
+                  className="mt-3"
+                >
+                  <Input
+                    {...register("access_token")}
+                    autoComplete="off"
+                    placeholder="Digite o token de acesso"
+                  />
+                </Field>
+                <Field
+                  errorText={errors.webhook_secret?.message}
+                  invalid={!!errors.webhook_secret}
+                  label="Webhook Secret"
+                  className="mt-3"
+                >
+                  <Input
+                    {...register("webhook_secret")}
+                    autoComplete="off"
+                    placeholder="Digite o Webhook Secret"
+                  />
+                </Field>
+              </>
             )}
             {provider === "itau" && (
               <>

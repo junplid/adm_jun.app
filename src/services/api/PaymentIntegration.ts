@@ -30,6 +30,7 @@ export async function createPaymentIntegration(body: {
   provider: TypeProviderPayment;
   status?: boolean;
   access_token?: string;
+  webhook_secret?: string;
 }): Promise<{ id: number; createAt: Date }> {
   const { data } = await api.post("/private/integration/payments", body);
   return data.integration;
@@ -48,7 +49,7 @@ export async function createPaymentIntegration(body: {
 
 export async function getPaymentIntegration(id: number): Promise<{
   name: string;
-  provider: "mercadopago";
+  provider: "mercadopago" | "itau";
   status: boolean;
 }> {
   const { data } = await api.get(`/private/integration/payments/${id}`);
@@ -59,9 +60,6 @@ export async function updatePaymentIntegration(
   id: number,
   body: {
     name?: string;
-    provider?: TypeProviderPayment;
-    status?: boolean;
-    access_token?: string;
   },
 ): Promise<void> {
   await api.put(`/private/integration/payments/${id}`, body);

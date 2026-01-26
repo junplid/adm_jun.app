@@ -1,10 +1,9 @@
 import { Button, Input, VStack } from "@chakra-ui/react";
 import { JSX, useCallback, useEffect } from "react";
 import { AxiosError } from "axios";
-import SelectComponent from "../../../../components/Select";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import {
   DialogActionTrigger,
   DialogBody,
@@ -32,23 +31,9 @@ export const FormSchema = z.object({
     .string({ message: "Campo obrigatório." })
     .trim()
     .min(1, { message: "Campo obrigatório." }),
-  access_token: z.string().optional(),
-  status: z.boolean().optional(),
-  provider: z.enum(["mercadopago"]),
 });
 
 export type Fields = z.infer<typeof FormSchema>;
-
-const optionsProviders = [
-  { label: "Mercado Pago", value: "mercadopago" },
-  { label: "Banco Itaú", value: "itau", isDisabled: true },
-  { label: "Nubank", value: "nubank", isDisabled: true },
-  { label: "PayPal", value: "paypal", isDisabled: true },
-  { label: "PagSeguro", value: "pagseguro", isDisabled: true },
-  { label: "Asaas", value: "asaas", isDisabled: true },
-  { label: "Stripe", value: "stripe", isDisabled: true },
-  { label: "Pagar.me", value: "pagarme", isDisabled: true },
-];
 
 function Content({
   id,
@@ -64,10 +49,8 @@ function Content({
     setError,
     reset,
     getValues,
-    control,
   } = useForm<Fields>({
     resolver: zodResolver(FormSchema),
-    defaultValues: { status: true, provider: "mercadopago" },
   });
 
   const { data } = useGetPaymentIntegration(id);
@@ -110,39 +93,6 @@ function Content({
       <DialogBody mt={"-5px"}>
         <VStack gap={4}>
           <Field
-            errorText={errors.provider?.message}
-            invalid={!!errors.provider}
-            label="Provedor de pagamento"
-          >
-            <Controller
-              name="provider"
-              control={control}
-              render={({ field }) => (
-                <SelectComponent
-                  name={field.name}
-                  placeholder="Selecione um provedor"
-                  isMulti={false}
-                  onBlur={field.onBlur}
-                  options={optionsProviders}
-                  isClearable={false}
-                  onChange={(e: any) => {
-                    field.onChange(e.value);
-                  }}
-                  value={
-                    field.value
-                      ? {
-                          label: optionsProviders.find(
-                            (item) => item.value === field.value,
-                          )?.label,
-                          value: field.value,
-                        }
-                      : null
-                  }
-                />
-              )}
-            />
-          </Field>
-          <Field
             errorText={errors.name?.message}
             invalid={!!errors.name}
             label="Nome da integração"
@@ -153,18 +103,12 @@ function Content({
               placeholder="Digite o nome da integração"
             />
           </Field>
-          <Field
-            errorText={errors.access_token?.message}
-            invalid={!!errors.access_token}
-            label="Token de acesso"
-            helperText="Seu Access Token fica em Configurações/API ou Credenciais do seu provedor (Mercado Pago, Itaú, ...)."
-          >
-            <Input
-              {...register("access_token")}
-              autoComplete="off"
-              placeholder="Digite o token de acesso"
-            />
-          </Field>
+
+          {/* <p>
+            Uma vez que as credenciais foram criptografadas, elas não ficam
+            acessíveis em texto legível para nenhum usuário, colaborador ou
+            sistema interno.
+          </p> */}
         </VStack>
       </DialogBody>
       <DialogFooter>

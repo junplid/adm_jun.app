@@ -208,8 +208,8 @@ export const FormSchema = z
     service_tier: z
       .enum(["default", "flex", "auto", "scale", "priority"])
       .optional(),
-    connectionWA: FormSchemaConnectionWA,
-    chatbot: FormSchemaChatbot,
+    connectionWA: FormSchemaConnectionWA.optional(),
+    chatbot: FormSchemaChatbot.optional(),
   })
   .superRefine((data, ctx) => {
     const hasId = data.providerCredentialId !== undefined;

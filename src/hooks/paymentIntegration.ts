@@ -99,6 +99,7 @@ export function useCreatePaymentIntegration(props?: {
     provider: PaymentIntegration.TypeProviderPayment;
     status?: boolean;
     access_token?: string;
+    webhook_secret?: string;
   }>;
   onSuccess?: (id: number) => Promise<void>;
 }) {
@@ -110,6 +111,7 @@ export function useCreatePaymentIntegration(props?: {
       provider: PaymentIntegration.TypeProviderPayment;
       status?: boolean;
       access_token?: string;
+      webhook_secret?: string;
     }) => PaymentIntegration.createPaymentIntegration(body),
     async onSuccess(data, body) {
       if (props?.onSuccess) await props.onSuccess(data.id);
@@ -151,29 +153,14 @@ export function useCreatePaymentIntegration(props?: {
 }
 
 export function useUpdatePaymentIntegration(props?: {
-  setError?: UseFormSetError<{
-    name?: string;
-    provider?: PaymentIntegration.TypeProviderPayment;
-    status?: boolean;
-    access_token?: string;
-  }>;
+  setError?: UseFormSetError<{ name?: string }>;
   onSuccess?: () => Promise<void>;
 }) {
   const { logout } = useContext(AuthContext);
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({
-      id,
-      body,
-    }: {
-      id: number;
-      body: {
-        name?: string;
-        provider?: PaymentIntegration.TypeProviderPayment;
-        status?: boolean;
-        access_token?: string;
-      };
-    }) => PaymentIntegration.updatePaymentIntegration(id, body),
+    mutationFn: ({ id, body }: { id: number; body: { name?: string } }) =>
+      PaymentIntegration.updatePaymentIntegration(id, body),
     async onSuccess(_, { id, body }) {
       if (props?.onSuccess) await props.onSuccess();
       queryClient.setQueryData(["payment-integration", id], (old: any) => ({
@@ -188,8 +175,6 @@ export function useUpdatePaymentIntegration(props?: {
               b = {
                 ...b,
                 name: body.name || b.name,
-                provider: body.provider || b.provider,
-                status: body.status ?? b.status,
               };
             return b;
           }),
