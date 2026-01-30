@@ -4,10 +4,8 @@ import { getAccount } from "../services/api/Account";
 import { AxiosError } from "axios";
 import { toaster } from "@components/ui/toaster";
 import { ErrorResponse_I } from "../services/api/ErrorResponse";
-import { api } from "../services/api";
 import { Spinner } from "@chakra-ui/react";
 import { v4 } from "uuid";
-import { get } from "idb-keyval";
 import { Account, IClienteMeta, AuthContext } from "./auth.context";
 
 // const isDesktopDevice = () =>
@@ -59,24 +57,17 @@ export function AuthProvider(props: IProps): JSX.Element {
 
   const navigate = useNavigate();
 
-  const logout = useCallback(() => {
+  const logout = useCallback(async () => {
     navigate("/login", { replace: true });
   }, []);
 
   useEffect(() => {
     (async () => {
       try {
-        const token = await get<string>("auth_token");
-
-        if (token) {
-          const acc = await getAccount(token);
-          setAccount({ ...acc, uuid: v4() });
-          setStatusAPI(true);
-          api.defaults.headers.common["Authorization"] = token;
-          setLoad(true);
-        } else {
-          logout();
-        }
+        const acc = await getAccount();
+        setAccount({ ...acc, uuid: v4() });
+        setStatusAPI(true);
+        setLoad(true);
       } catch (error) {
         setLoad(true);
         if (error instanceof AxiosError) {

@@ -1,6 +1,7 @@
 // import LineChart from "@components/Charts/Line";
 // import RadarCharts from "@components/Charts/Radar";
 import { JSX } from "react";
+import { InstallPWA } from "./InstallPWA";
 
 export function DashboardPage(): JSX.Element {
   return (
@@ -142,6 +143,7 @@ export function DashboardPage(): JSX.Element {
           Em breve, métricas profundas e mais inteligentes.
         </span>
       </div>
+      <InstallPWA />
     </div>
   );
 }

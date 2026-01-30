@@ -1,6 +1,6 @@
 import { api } from "./index";
 
-export async function getAccount(token: string): Promise<{
+export async function getAccount(): Promise<{
   id: number;
   name: string;
   email: string;
@@ -9,9 +9,7 @@ export async function getAccount(token: string): Promise<{
   isPremium: boolean;
   businessId: number;
 }> {
-  const { data } = await api.get("/private/account", {
-    headers: { Authorization: token },
-  });
+  const { data } = await api.get("/private/account");
   return data.account;
 }
 

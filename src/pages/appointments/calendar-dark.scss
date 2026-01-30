@@ -48,7 +48,7 @@
           border-color: transparent;
           color: #979797;
           font-size: 15px;
-        }
+        } 
       }
       .rbc-day-slot {
         .rbc-timeslot-group {
@@ -60,7 +60,7 @@
         }
         &.rbc-today {
           background: transparent;
-        }
+        } 
         .rbc-current-time-indicator {
           height: 4px;
           background-color: #8dc30d;
@@ -81,12 +81,16 @@
         background-color: transparent !important;
         padding: 0px;
         border: none;
-        min-height: 55px;
+        min-height: 35px; 
+        margin-top: 2px;
         p {
           overflow: hidden;
           display: -webkit-box;
           -webkit-box-orient: vertical;
           -webkit-line-clamp: 2;
+        }
+        .rbc-event-label {
+          display: none;
         }
       }
     }

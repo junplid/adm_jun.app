@@ -11,7 +11,6 @@ import { ErrorResponse_I } from "../../services/api/ErrorResponse";
 import { toaster } from "@components/ui/toaster";
 import { queryClient } from "../../main";
 import { registerPushToken } from "../../services/push/registerPush";
-import { set, del } from "idb-keyval";
 
 const FormSchema = z.object({
   email: z.string().min(1, "Esse campo é obrigatório."),
@@ -36,13 +35,11 @@ export const LoginPage: React.FC = (): JSX.Element => {
 
   const login = useCallback(async (fields: any) => {
     try {
-      const { data } = await api.post("/public/login-account", fields);
-      const token = `BEARER ${data.token}`;
-      // setCookies("auth", token, { expires: moment().add(3, "year").toDate() });
-      await set("auth_token", token);
-      api.defaults.headers.common["Authorization"] = token;
-      await registerPushToken();
-      navigate("/auth/dashboard", { replace: true });
+      const { status } = await api.post("/public/login-account", fields);
+      if (status === 200) {
+        await registerPushToken();
+        navigate("/auth/dashboard", { replace: true });
+      }
     } catch (error) {
       if (error instanceof AxiosError) {
         if (error.code === "ERR_NETWORK") {
@@ -73,10 +70,11 @@ export const LoginPage: React.FC = (): JSX.Element => {
   }, []);
 
   useEffect(() => {
+    console.log(document.cookie);
     (async () => {
+      await api.post("/private/logout");
       queryClient.clear();
-      api.defaults.headers.common["Authorization"] = "";
-      await del("auth_token");
+      navigate("/login", { replace: true });
     })();
   }, []);
 

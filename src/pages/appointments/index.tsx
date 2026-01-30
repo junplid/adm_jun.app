@@ -295,7 +295,7 @@ export const AppointmentsPage: React.FC = (): JSX.Element => {
                   <div className="flex flex-wrap mb-2 justify-between">
                     <div className="flex items-center gap-x-2">
                       <button
-                        className="p-4 py-1 cursor-pointer hover:bg-gray-300/20 bg-gray-300/10 text-sm rounded-full"
+                        className="p-4 py-1 max-sm:hidden block cursor-pointer hover:bg-gray-300/20 bg-gray-300/10 text-sm rounded-full"
                         onClick={() => props.onNavigate("TODAY")}
                       >
                         Hoje
@@ -344,7 +344,7 @@ export const AppointmentsPage: React.FC = (): JSX.Element => {
                       </button>
                       <button
                         className={clsx(
-                          "p-4 py-1 cursor-pointer text-sm rounded-full",
+                          "p-4 py-1 cursor-pointer text-sm rounded-full max-[620px]:hidden",
                           props.view === "agenda" ? "bg-gray-300/10" : "",
                         )}
                         onClick={() => props.onView("agenda")}

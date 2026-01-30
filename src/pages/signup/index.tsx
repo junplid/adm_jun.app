@@ -17,6 +17,7 @@ import { ErrorResponse_I } from "../../services/api/ErrorResponse";
 import { useHookFormMask } from "use-mask-input";
 import { useQuery } from "@tanstack/react-query";
 import { set } from "idb-keyval";
+import { registerPushToken } from "../../services/push/registerPush";
 
 // import { CardBrand, loadStripe } from "@stripe/stripe-js";
 // import {
@@ -145,6 +146,7 @@ export const FormSignup: React.FC = (): JSX.Element => {
         affiliate,
       });
       await set("auth_token", `BEARER ${data.token}`);
+      await registerPushToken();
       navigate("/auth/dashboard", { replace: true });
     } catch (error) {
       if (error instanceof AxiosError) {
