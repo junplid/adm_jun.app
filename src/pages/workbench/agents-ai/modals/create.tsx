@@ -68,8 +68,8 @@ import { RxLapTimer } from "react-icons/rx";
 import { Tooltip } from "@components/ui/tooltip";
 import { ErrorResponse_I } from "../../../../services/api/ErrorResponse";
 import { AuthContext } from "@contexts/auth.context";
-import { RiSendPlane2Line } from "react-icons/ri";
-import { FaWhatsapp } from "react-icons/fa";
+import { RiAlarmWarningLine, RiSendPlane2Line } from "react-icons/ri";
+import { FaInstagram, FaWhatsapp } from "react-icons/fa";
 import { Avatar } from "@components/ui/avatar";
 import {
   MdHorizontalRule,
@@ -683,6 +683,7 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
                     py={"27px"}
                   >
                     <FaWhatsapp size={40} />
+                    <FaInstagram size={40} />
                   </TabsTrigger>
                 </TabsList>
               </Center>
@@ -1388,38 +1389,138 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
                   lazyMount
                   unmountOnExit
                   variant={"enclosed"}
-                  defaultValue={"config"}
+                  defaultValue={"whatsapp"}
                 >
                   <Center mb={2}>
                     <TabsList bg="#1c1c1c" rounded="l3" p="1.5">
                       <TabsTrigger
                         _selected={{ bg: "bg.subtle", color: "#fff" }}
                         color={"#757575"}
-                        value="config"
+                        value="whatsapp"
                       >
-                        Configurações do perfil
+                        WhatsApp
                       </TabsTrigger>
                       <TabsTrigger
                         _selected={{ bg: "bg.subtle", color: "#fff" }}
                         color={"#757575"}
-                        value="start_conection"
+                        value="instagram"
                       >
-                        Conectar
+                        Instagram
                       </TabsTrigger>
                     </TabsList>
                   </Center>
-                  <TabsContent value="start_conection">
-                    <div className="flex items-center gap-x-2">
-                      <div className="border p-1 max-w-40 bg-white/2 text-green-100/5">
-                        <img src="/image-btn-connection.png" />
+                  <TabsContent
+                    value="instagram"
+                    className="p-6 rounded-lg border border-slate-100/10"
+                  >
+                    <div className="max-w-2xl mx-auto space-y-3">
+                      <div className="flex items-center gap-4">
+                        <div className="p-3 bg-linear-to-tr from-yellow-400 via-red-500 to-purple-600 rounded-2xl shadow-lg">
+                          <FaInstagram size={40} />
+                        </div>
+                        <div>
+                          <h2 className="text-2xl font-bold text-white">
+                            Conectar DM
+                          </h2>
+                          <p className="text-gray-300 text-sm">
+                            Conecte sua conta para responder clientes
+                            automaticamente via IA ou Chatbot.
+                          </p>
+                        </div>
                       </div>
-                      <p className="font-medium">
-                        Será possível conectar o WhatsApp após criação do
-                        assistente de IA.
-                      </p>
+
+                      <hr className="border-slate-100/10" />
+
+                      <div className="space-y-4">
+                        <h3 className="text-lg font-semibold text-white">
+                          Como funciona?
+                        </h3>
+                        <ul className="space-y-3">
+                          <li className="flex items-start gap-3 text-gray-200 italic">
+                            <span className="shrink-0 w-6 h-6 bg-blue-100 text-black rounded-full flex items-center justify-center text-xs font-bold">
+                              1
+                            </span>
+                            <span>
+                              Sua conta do Instagram deve ser{" "}
+                              <strong>Comercial (Business)</strong> e estar
+                              vinculada a uma Página do Facebook.
+                            </span>
+                          </li>
+                          <li className="flex items-start gap-3 text-gray-200">
+                            <span className="shrink-0 w-6 h-6 bg-blue-100 text-black rounded-full flex items-center justify-center text-xs font-bold">
+                              2
+                            </span>
+                            <span>
+                              Ao clicar no botão abaixo, você autoriza nossa
+                              plataforma a gerenciar suas mensagens.
+                            </span>
+                          </li>
+                          <li className="flex items-start gap-3 text-gray-200">
+                            <span className="shrink-0 w-6 h-6 bg-blue-100 text-black rounded-full flex items-center justify-center text-xs font-bold">
+                              3
+                            </span>
+                            <span>
+                              Seu assistente de IA passará a responder suas DMs
+                              instantaneamente 24 horas por dia.
+                            </span>
+                          </li>
+                        </ul>
+                      </div>
+
+                      <div className="bg-amber-50 border-l-4 border-amber-400 p-3 pr-2 rounded-r-md">
+                        <div className="flex items-center gap-3">
+                          <RiAlarmWarningLine
+                            className="text-amber-600"
+                            size={40}
+                          />
+                          <p className="text-sm text-amber-700 font-medium">
+                            Certifique-se de ativar "Permitir acesso às
+                            mensagens" nas configurações do seu Instagram.
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="pt-4">
+                        <button
+                          // onClick="window.location.href='SUA_URL_OAUTH_AQUI'"
+                          title="Atualmente indisponível."
+                          className="cursor-pointer w-full flex items-center justify-center gap-3 py-4 px-6 bg-blue-600 opacity-30 hover:bg-blue-7000 text-white font-bold rounded-xl"
+                          type="button"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                            className="group-hover:scale-110 transition-transform"
+                          >
+                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                          </svg>
+                          Conectar com Facebook / Instagram
+                        </button>
+                        <p className="mt-2 text-center text-xs text-slate-400">
+                          Ao conectar sua conta, você concorda com nossos{" "}
+                          <a className="text-blue-400 underline">
+                            Termos de Uso
+                          </a>{" "}
+                          e{" "}
+                          <a className="text-blue-400 underline">
+                            Política de Privacidade
+                          </a>
+                          .
+                        </p>
+                        <p className="mt-4 text-center text-xs text-slate-400">
+                          Sua segurança é nossa prioridade. Nunca armazenamos
+                          sua senha pessoal. Todas as credenciais de acesso são
+                          protegidas por criptografia de ponta a ponta,
+                          garantindo a total integridade e privacidade dos seus
+                          dados.
+                        </p>
+                      </div>
                     </div>
                   </TabsContent>
-                  <TabsContent value="config">
+                  <TabsContent value="whatsapp">
                     <VStack gap={4}>
                       <HStack w={"full"} mb={2} gap={3}>
                         <Tooltip content="Atualizar foto de perfil">
@@ -1652,6 +1753,15 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
                           />
                         </Field>
                       </HStack>
+                      <div className="flex items-center gap-x-2">
+                        <div className="border p-1 max-w-20 bg-white/2 text-green-100/5">
+                          <img src="/image-btn-connection.png" />
+                        </div>
+                        <p className="font-medium">
+                          Será possível conectar o WhatsApp após criação do
+                          assistente de IA.
+                        </p>
+                      </div>
                     </VStack>
                   </TabsContent>
                 </TabsRoot>

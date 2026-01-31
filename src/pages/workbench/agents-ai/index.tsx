@@ -270,7 +270,7 @@ export const AgentsAIPage: React.FC = (): JSX.Element => {
                   </Badge>
                 </Tooltip>
               )} */}
-                Assistentes
+                Assistentes de IA
               </h1>
               <ModalCreateAgentAI
                 trigger={
