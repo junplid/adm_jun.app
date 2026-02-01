@@ -402,13 +402,6 @@ export function LayoutPrivateProvider(): JSX.Element {
           </div>
         </Sidebar>
         <main className="w-full h-screen">
-          {clientMeta.isMobile && toggledMenu && (
-            <div
-              onClick={() => setToggledMenu(false)}
-              className="absolute left-0 top-0 w-full h-full duration-1000!"
-              style={{ background: "#1c1818" }}
-            ></div>
-          )}
           <Outlet />
         </main>
         {(clientMeta.isMobileLike || clientMeta.isSmallScreen) && (

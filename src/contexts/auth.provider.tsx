@@ -40,7 +40,7 @@ function getClientMeta(): IClienteMeta {
     isPWA,
     isTouch,
     isSmallScreen,
-    isMobileLike: isTouch && isSmallScreen,
+    isMobileLike: isTouch || isSmallScreen,
   };
 }
 
@@ -64,6 +64,8 @@ export function AuthProvider(props: IProps): JSX.Element {
   useEffect(() => {
     (async () => {
       try {
+        setClientMeta(getClientMeta());
+
         const acc = await getAccount();
         setAccount({ ...acc, uuid: v4() });
         setStatusAPI(true);
@@ -89,9 +91,6 @@ export function AuthProvider(props: IProps): JSX.Element {
         }
       }
     })();
-    const handleResize = () => setClientMeta(getClientMeta());
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   const dataValue = useMemo(
