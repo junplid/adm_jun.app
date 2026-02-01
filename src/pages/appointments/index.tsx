@@ -273,11 +273,21 @@ export const AppointmentsPage: React.FC = (): JSX.Element => {
               header: (props) => {
                 const label = props.label.split(" ");
                 if (label.length > 1) {
-                  const nextLabel = `${label[0]} ${dayName[label[1]]}`;
-                  return <span className="font-normal">{nextLabel}</span>;
+                  return (
+                    <div className="space-x-0.5">
+                      <span className="font-light max-sm:text-xs">
+                        {label[0]}
+                      </span>
+                      <span className="font-semibold max-sm:text-xs">
+                        {dayName[label[1]]}
+                      </span>
+                    </div>
+                  );
                 } else {
                   return (
-                    <span className="font-normal">{dayName[label[0]]}</span>
+                    <span className="font-normal max-sm:text-xs">
+                      {dayName[label[0]]}
+                    </span>
                   );
                 }
               },
@@ -293,31 +303,33 @@ export const AppointmentsPage: React.FC = (): JSX.Element => {
                 }
                 return (
                   <div className="flex flex-wrap mb-2 justify-between">
-                    <div className="flex items-center gap-x-2">
+                    <div className="flex items-center gap-x-1">
                       <button
                         className="p-4 py-1 max-sm:hidden block cursor-pointer hover:bg-gray-300/20 bg-gray-300/10 text-sm rounded-full"
                         onClick={() => props.onNavigate("TODAY")}
                       >
                         Hoje
                       </button>
-                      <button
-                        className="p-1 cursor-pointer"
-                        onClick={() => props.onNavigate("PREV")}
-                      >
-                        <RxCaretLeft size={24} />
-                      </button>
-                      <button
-                        className="p-1 cursor-pointer"
-                        onClick={() => props.onNavigate("NEXT")}
-                      >
-                        <RxCaretRight size={24} />
-                      </button>
-                      <span>{nextLabel}</span>
+                      <div className="space-x-1">
+                        <button
+                          className="p-1 cursor-pointer max-sm:bg-white/4 rounded-lg"
+                          onClick={() => props.onNavigate("PREV")}
+                        >
+                          <RxCaretLeft size={24} />
+                        </button>
+                        <button
+                          className="p-1 cursor-pointer max-sm:bg-white/4 rounded-lg"
+                          onClick={() => props.onNavigate("NEXT")}
+                        >
+                          <RxCaretRight size={24} />
+                        </button>
+                      </div>
+                      <span className="sm:text-base text-xs">{nextLabel}</span>
                     </div>
-                    <div className="flex items-center gap-x-0.5">
+                    <div className="flex items-center">
                       <button
                         className={clsx(
-                          "p-4 py-1 cursor-pointer text-sm rounded-full",
+                          "p-4 py-1 cursor-pointer max-sm:text-xs text-sm rounded-full",
                           props.view === "month" ? "bg-gray-300/10" : "",
                         )}
                         onClick={() => props.onView("month")}
@@ -326,7 +338,7 @@ export const AppointmentsPage: React.FC = (): JSX.Element => {
                       </button>
                       <button
                         className={clsx(
-                          "p-4 py-1 cursor-pointer text-sm rounded-full",
+                          "p-4 py-1 cursor-pointer max-sm:text-xs text-sm rounded-full",
                           props.view === "week" ? "bg-gray-300/10" : "",
                         )}
                         onClick={() => props.onView("week")}
@@ -335,7 +347,7 @@ export const AppointmentsPage: React.FC = (): JSX.Element => {
                       </button>
                       <button
                         className={clsx(
-                          "p-4 py-1 cursor-pointer text-sm rounded-full",
+                          "p-4 py-1 cursor-pointer max-sm:text-xs text-sm rounded-full",
                           props.view === "day" ? "bg-gray-300/10" : "",
                         )}
                         onClick={() => props.onView("day")}
@@ -344,7 +356,7 @@ export const AppointmentsPage: React.FC = (): JSX.Element => {
                       </button>
                       <button
                         className={clsx(
-                          "p-4 py-1 cursor-pointer text-sm rounded-full max-[620px]:hidden",
+                          "p-4 py-1 cursor-pointer max-sm:text-xs text-sm rounded-full max-[620px]:hidden",
                           props.view === "agenda" ? "bg-gray-300/10" : "",
                         )}
                         onClick={() => props.onView("agenda")}

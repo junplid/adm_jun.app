@@ -417,15 +417,17 @@ export function LayoutPrivateProvider(): JSX.Element {
             style={{ boxShadow: "0px -5px 10px #121212" }}
           >
             <Link
-              to={"/auth/dashboard"}
-              className={
-                "mr-4 p-2 px-3 pb-1 flex flex-col items-center gap-y-1 duration-300 rounded-sm bg-[#ee3535]"
-              }
+              to={"/auth/orders"}
+              className={clsx(
+                pathname === "/auth/orders"
+                  ? "bg-neutral-800"
+                  : "bg-transparent",
+                "p-2 px-3 pb-1 flex flex-col items-center gap-y-1 duration-300 rounded-xl",
+              )}
             >
-              <TbDoorExit size={20} />
-              <span className="text-xs">Sair</span>
+              <LuNotepadText size={20} />
+              <span className="text-xs">Pedidos</span>
             </Link>
-
             <Link
               to={"/auth/dashboard"}
               className={clsx(
@@ -437,18 +439,6 @@ export function LayoutPrivateProvider(): JSX.Element {
             >
               <LuChartNoAxesCombined size={20} />
               <span className="text-xs">Home</span>
-            </Link>
-            <Link
-              to={"/auth/orders"}
-              className={clsx(
-                pathname === "/auth/orders"
-                  ? "bg-neutral-800"
-                  : "bg-transparent",
-                "p-2 px-3 pb-1 flex flex-col items-center gap-y-1 duration-300 rounded-xl",
-              )}
-            >
-              <LuNotepadText size={20} />
-              <span className="text-xs">Pedidos</span>
             </Link>
             <Link
               to={"/auth/appointments"}
