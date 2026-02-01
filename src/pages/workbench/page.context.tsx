@@ -67,7 +67,7 @@ export function LayoutWorkbenchPageProvider(): JSX.Element {
             processos.
           </p>
         </div>
-        {clientMeta.isMobileLike ? (
+        {clientMeta.isMobileLike || clientMeta.isSmallScreen ? (
           <div className="flex items-center justify-center h-full">
             <span className="text-sm px-2">
               Disponível apenas para acesso via desktop. Para utilizá-la, acesse

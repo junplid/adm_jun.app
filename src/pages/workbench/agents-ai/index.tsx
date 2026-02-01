@@ -275,7 +275,9 @@ export const AgentsAIPage: React.FC = (): JSX.Element => {
               <ModalCreateAgentAI
                 trigger={
                   <Button
-                    disabled={clientMeta.isMobileLike}
+                    disabled={
+                      clientMeta.isMobileLike || clientMeta.isSmallScreen
+                    }
                     variant="outline"
                     size={"sm"}
                   >
@@ -290,7 +292,7 @@ export const AgentsAIPage: React.FC = (): JSX.Element => {
           </div>
         </div>
       </div>
-      {clientMeta.isMobileLike ? (
+      {clientMeta.isMobileLike || clientMeta.isSmallScreen ? (
         <div className="flex items-center justify-center h-full">
           <span className="text-sm px-2">
             Disponível apenas para acesso via desktop. Para utilizá-la, acesse o

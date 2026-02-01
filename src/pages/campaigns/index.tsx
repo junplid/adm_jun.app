@@ -278,7 +278,7 @@ export const CampaignsPage: React.FC = (): JSX.Element => {
           <ModalCreateCampaign
             trigger={
               <Button
-                disabled={clientMeta.isMobileLike}
+                disabled={clientMeta.isMobileLike || clientMeta.isSmallScreen}
                 variant="outline"
                 size={"sm"}
               >
@@ -292,7 +292,7 @@ export const CampaignsPage: React.FC = (): JSX.Element => {
           eficiente.
         </p>
       </div>
-      {clientMeta.isMobileLike ? (
+      {clientMeta.isMobileLike || clientMeta.isSmallScreen ? (
         <div className="flex items-center justify-center h-full">
           <span className="text-sm px-2">
             Disponível apenas para acesso via desktop. Para utilizá-la, acesse o

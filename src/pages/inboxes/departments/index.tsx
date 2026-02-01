@@ -204,7 +204,7 @@ export const InboxDepartmentsPage: React.FC = (): JSX.Element => {
         </div>
       </div>
       <div className="flex-1 grid">
-        {clientMeta.isMobileLike ? (
+        {clientMeta.isMobileLike || clientMeta.isSmallScreen ? (
           <TableMobileComponent
             totalCount={inboxDepartments?.length || 0}
             renderItem={(index) => {

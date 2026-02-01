@@ -32,6 +32,7 @@ import { PiPuzzlePieceBold } from "react-icons/pi";
 import { GrConnect } from "react-icons/gr";
 import { LayoutPrivateContext } from "./layout-private.context";
 import { BsStars } from "react-icons/bs";
+import clsx from "clsx";
 // import { CgWebsite } from "react-icons/cg";
 // import { QrCode } from "@components/ui/qr-code";
 
@@ -138,7 +139,12 @@ export function LayoutPrivateProvider(): JSX.Element {
       )}
 
       <div
-        className="overx items-start duration-500 h-svh w-full flex"
+        className={clsx(
+          "items-start duration-500 h-svh w-full",
+          clientMeta.isMobileLike || clientMeta.isSmallScreen
+            ? "flex flex-col"
+            : "flex",
+        )}
         style={{ overflowX: "hidden", overflowY: "hidden" }}
       >
         <Sidebar
@@ -151,6 +157,10 @@ export function LayoutPrivateProvider(): JSX.Element {
             boxShadow: toggledMenu ? `4px 0 8px #12111149` : undefined,
             zIndex: 9,
             position: "relative",
+            display:
+              clientMeta.isMobileLike || clientMeta.isSmallScreen
+                ? "none"
+                : "block",
           }}
         >
           <div className="flex h-svh overflow-x-hidden flex-col scroll-hidden overflow-y-scroll scroll-by">
@@ -401,6 +411,71 @@ export function LayoutPrivateProvider(): JSX.Element {
           )}
           <Outlet />
         </main>
+        {(clientMeta.isMobileLike || clientMeta.isSmallScreen) && (
+          <div
+            className="sticky bottom-0 left-0 flex justify-center gap-x-1 bg-neutral-900 w-full px-2 py-2"
+            style={{ boxShadow: "0px -5px 10px #121212" }}
+          >
+            <Link
+              to={"/auth/dashboard"}
+              className={
+                "mr-4 p-2 px-3 pb-1 flex flex-col items-center gap-y-1 duration-300 rounded-sm bg-[#ee3535]"
+              }
+            >
+              <TbDoorExit size={20} />
+              <span className="text-xs">Sair</span>
+            </Link>
+
+            <Link
+              to={"/auth/dashboard"}
+              className={clsx(
+                pathname === "/auth/dashboard"
+                  ? "bg-neutral-800"
+                  : "bg-transparent",
+                "p-2 px-3 pb-1 flex flex-col items-center gap-y-1 duration-300 rounded-xl",
+              )}
+            >
+              <LuChartNoAxesCombined size={20} />
+              <span className="text-xs">Home</span>
+            </Link>
+            <Link
+              to={"/auth/orders"}
+              className={clsx(
+                pathname === "/auth/orders"
+                  ? "bg-neutral-800"
+                  : "bg-transparent",
+                "p-2 px-3 pb-1 flex flex-col items-center gap-y-1 duration-300 rounded-xl",
+              )}
+            >
+              <LuNotepadText size={20} />
+              <span className="text-xs">Pedidos</span>
+            </Link>
+            <Link
+              to={"/auth/appointments"}
+              className={clsx(
+                pathname === "/auth/appointments"
+                  ? "bg-neutral-800"
+                  : "bg-transparent",
+                "p-2 px-3 pb-1 flex flex-col items-center gap-y-1 duration-300 rounded-xl",
+              )}
+            >
+              <LuCalendarDays size={20} />
+              <span className="text-xs">Agenda</span>
+            </Link>
+            <Link
+              to={"/auth/inboxes/departments"}
+              className={clsx(
+                pathname === "/auth/inboxes/departments"
+                  ? "bg-neutral-800"
+                  : "bg-transparent",
+                "p-2 px-3 pb-1 flex flex-col items-center gap-y-1 duration-300 rounded-xl",
+              )}
+            >
+              <FiInbox size={20} />
+              <span className="text-xs">Suporte</span>
+            </Link>
+          </div>
+        )}
       </div>
     </LayoutPrivateContext.Provider>
   );

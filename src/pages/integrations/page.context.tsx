@@ -61,7 +61,7 @@ export function LayoutIntegrationsPageProvider(): JSX.Element {
             Configure e administre integrações com parceiros externos.
           </p>
         </div>
-        {clientMeta.isMobileLike ? (
+        {clientMeta.isMobileLike || clientMeta.isSmallScreen ? (
           <div className="flex items-center justify-center h-full">
             <span className="text-sm px-2">
               Disponível apenas para acesso via desktop. Para utilizá-la, acesse
