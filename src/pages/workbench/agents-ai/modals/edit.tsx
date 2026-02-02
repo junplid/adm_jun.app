@@ -66,7 +66,7 @@ import { ErrorResponse_I } from "../../../../services/api/ErrorResponse";
 import { CloseButton } from "@components/ui/close-button";
 import { useGetAgentAI, useUpdateAgentAI } from "../../../../hooks/agentAI";
 import { useHookFormMask } from "use-mask-input";
-import { FaWhatsapp } from "react-icons/fa";
+import { FaInstagram, FaWhatsapp } from "react-icons/fa";
 import { Avatar } from "@components/ui/avatar";
 import {
   MdHorizontalRule,
@@ -79,7 +79,8 @@ import {
   updateConnectionWA,
 } from "../../../../services/api/ConnectionWA";
 import { getChatbot, updateChatbot } from "../../../../services/api/Chatbot";
-import { RiSendPlane2Line } from "react-icons/ri";
+import { RiAlarmWarningLine, RiSendPlane2Line } from "react-icons/ri";
+import clsx from "clsx";
 
 interface Props {
   id: number;
@@ -350,7 +351,7 @@ function Content({
   id: number;
   onClose: () => void;
 }): JSX.Element {
-  const { logout } = useContext(AuthContext);
+  const { logout, clientMeta } = useContext(AuthContext);
   const { socket } = useContext(SocketContext);
   const [messages, setMessages] = useState<Message[]>([]);
   const [draft, setDraft] = useState("");
@@ -591,8 +592,16 @@ function Content({
 
   return (
     <form onSubmit={handleSubmit(edit, onError)}>
-      <DialogBody mt={"-5px"}>
-        <div className="grid grid-cols-[422px_1fr] gap-x-3 relative">
+      <DialogBody
+        mt={clientMeta.isMobileLike ? "-15px" : "-5px"}
+        px={clientMeta.isMobileLike ? 2 : undefined}
+      >
+        <div
+          className={clsx(
+            !clientMeta.isMobileLike && "grid grid-cols-[422px_1fr] gap-x-3",
+            "relative",
+          )}
+        >
           <TabsRoot
             value={currentTab}
             onValueChange={(s) => setCurrentTab(s.value as any)}
@@ -607,6 +616,7 @@ function Content({
                   color={"#757575"}
                   value="secret-key"
                   py={"27px"}
+                  px={clientMeta.isMobileLike ? "2px" : undefined}
                 >
                   Integração secret key
                 </TabsTrigger>
@@ -615,24 +625,30 @@ function Content({
                   color={"#757575"}
                   value="persona"
                   py={"27px"}
+                  px={clientMeta.isMobileLike ? "7px" : undefined}
                 >
-                  Perfil e aprendizado
+                  {clientMeta.isMobileLike
+                    ? "Perfil e treinam..."
+                    : "Perfil e treinamento"}
                 </TabsTrigger>
                 <TabsTrigger
                   _selected={{ bg: "bg.subtle", color: "#fff" }}
                   color={"#757575"}
                   value="engine"
                   py={"27px"}
+                  px={clientMeta.isMobileLike ? "2px" : undefined}
                 >
-                  Horários de operação
+                  Horários operação
                 </TabsTrigger>
                 <TabsTrigger
                   _selected={{ bg: "bg.subtle", color: "#fff" }}
                   color={"#757575"}
                   value="connection"
                   py={"27px"}
+                  px={clientMeta.isMobileLike ? "12px" : undefined}
                 >
-                  <FaWhatsapp size={40} />
+                  <FaWhatsapp size={clientMeta.isMobileLike ? 30 : 40} />
+                  <FaInstagram size={clientMeta.isMobileLike ? 30 : 40} />
                 </TabsTrigger>
               </TabsList>
             </Center>
@@ -853,7 +869,13 @@ function Content({
                     {optionsModels.some(
                       (m) => m.value === model && m.isFlex,
                     ) && (
-                      <Field helperText="Barato e com maior latência">
+                      <Field
+                        helperText={
+                          clientMeta.isMobileLike
+                            ? "Barato e maior latência"
+                            : "Barato e com maior latência"
+                        }
+                      >
                         <Checkbox.Root
                           checked={service_tier === "flex"}
                           onCheckedChange={(e) =>
@@ -868,9 +890,11 @@ function Content({
                           <Checkbox.Control />
                           <Checkbox.Label>
                             Modo Julius
-                            <span className="text-white/60 font-light text-sm">
-                              (pai do Chris)
-                            </span>
+                            {!clientMeta.isMobileLike && (
+                              <span className="text-white/60 font-light text-sm">
+                                (pai do Chris)
+                              </span>
+                            )}
                           </Checkbox.Label>
                         </Checkbox.Root>
                       </Field>
@@ -879,7 +903,11 @@ function Content({
                   <Field
                     invalid={!!errors.temperature}
                     label="Temperatura"
-                    helperText="Controla a aleatoriedade das respostas do assistente."
+                    helperText={
+                      clientMeta.isMobileLike
+                        ? "Controla a aleatoriedade das respostas."
+                        : "Controla a aleatoriedade das respostas do assistente."
+                    }
                     className="w-full"
                     errorText={errors.temperature?.message}
                   >
@@ -906,23 +934,48 @@ function Content({
                     invalid={!!errors.timeout}
                     label={
                       <div className="flex flex-col -space-y-1">
-                        <span>Tempo esperando resposta</span>
-                        <span className="text-white/60 font-light">
-                          *Funciona apenas em chat real
+                        <span>
+                          {clientMeta.isMobileLike
+                            ? "Segundos esperando"
+                            : "Segundos esperando resposta"}
                         </span>
+
+                        {clientMeta.isMobileLike ? (
+                          <span className="text-white/60 font-light">
+                            resposta
+                          </span>
+                        ) : (
+                          <span className="text-white/60 font-light">
+                            *Funciona apenas em chat real
+                          </span>
+                        )}
                       </div>
                     }
                     helperText={
-                      <div className="flex flex-col gap-1 mt-1">
-                        <span className="">Caso o tempo limite se esgote</span>
-                        <span className="flex items-center gap-x-1">
-                          sairá pelo canal Node:{" "}
+                      clientMeta.isMobileLike ? (
+                        <span className="">
+                          Ao se esgotar sai pelo canal Node:{" "}
                           <RxLapTimer
                             size={16}
-                            className="text-red-400 -translate-y-0.5"
+                            className="text-red-400 -translate-y-0.5 inline"
                           />
+                          .
                         </span>
-                      </div>
+                      ) : (
+                        <div className="flex flex-col gap-1 mt-1">
+                          <span className="">
+                            Caso o tempo limite se esgote
+                          </span>
+                          <span className="flex items-center gap-x-1">
+                            sairá pelo canal Node:{" "}
+                            <RxLapTimer
+                              size={16}
+                              className="text-red-400 -translate-y-0.5"
+                            />
+                            .
+                          </span>
+                        </div>
+                      )
                     }
                   >
                     <NumberInput.Root
@@ -941,10 +994,16 @@ function Content({
                     invalid={!!errors.debounce}
                     label={
                       <div className="flex flex-col -space-y-1">
-                        <span>Debounce</span>
-                        <span className="text-white/60 font-light">
-                          *Funciona apenas em chat real
-                        </span>
+                        <span>Limitar frequência</span>
+                        {clientMeta.isMobileLike ? (
+                          <span className="text-white/60 font-light">
+                            de golpes
+                          </span>
+                        ) : (
+                          <span className="text-white/60 font-light">
+                            *Funciona apenas em chat real
+                          </span>
+                        )}
                       </div>
                     }
                     helperText={
@@ -1066,10 +1125,6 @@ function Content({
                     className="p-3 py-2.5 rounded-sm w-full border-white/10 border"
                     {...register("instructions")}
                   />
-                  <span className="text-white/70">
-                    Digite <strong className="text-green-400">/</strong> para
-                    abrir o menu de ferramentas.
-                  </span>
                 </div>
               </VStack>
             </TabsContent>
@@ -1296,338 +1351,537 @@ function Content({
               </div>
             </TabsContent>
             <TabsContent value="connection">
-              <VStack gap={4}>
-                <HStack w={"full"} mb={2} gap={3}>
-                  <Tooltip content="Atualizar foto de perfil">
+              <TabsRoot
+                lazyMount
+                unmountOnExit
+                variant={"enclosed"}
+                defaultValue={"whatsapp"}
+                mt={-4}
+              >
+                <Center mb={2}>
+                  <TabsList bg="#1c1c1c" rounded="l3" p="1.5">
+                    <TabsTrigger
+                      _selected={{ bg: "bg.subtle", color: "#fff" }}
+                      color={"#757575"}
+                      value="whatsapp"
+                    >
+                      WhatsApp
+                    </TabsTrigger>
+                    <TabsTrigger
+                      _selected={{ bg: "bg.subtle", color: "#fff" }}
+                      color={"#757575"}
+                      value="instagram"
+                    >
+                      Instagram
+                    </TabsTrigger>
+                  </TabsList>
+                </Center>
+                <TabsContent
+                  value="instagram"
+                  className={clsx(
+                    clientMeta.isMobileLike ? "p-4" : "p-6",
+                    "rounded-lg border border-slate-100/10",
+                  )}
+                >
+                  <div className="max-w-2xl mx-auto space-y-3">
                     <div
-                      className="relative cursor-pointer"
-                      onClick={() => imgProfileRef.current?.click()}
+                      className={clsx(
+                        clientMeta.isMobileLike ? "gap-2" : "gap-4",
+                        "flex items-center",
+                      )}
                     >
-                      <input
-                        type="file"
-                        ref={imgProfileRef}
-                        hidden
-                        className="hidden"
-                        accept="image/jpeg, image/png, image/jpg"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file)
-                            setValue("connectionWA.fileImage", file, {
-                              shouldDirty: true,
-                            });
-                        }}
-                      />
-                      <Avatar
-                        size={"2xl"}
-                        width={"90px"}
-                        height={"90px"}
-                        src={imgPreviewUrl}
-                      >
-                        <Center className="absolute -bottom-0.5 right-0.5 w-8 h-8 rounded-full bg-emerald-800">
-                          <MdOutlineModeEdit size={17} />
-                        </Center>
-                      </Avatar>
+                      <div className="p-3 bg-linear-to-tr from-yellow-400 via-red-500 to-purple-600 rounded-2xl shadow-lg">
+                        <FaInstagram size={clientMeta.isMobileLike ? 25 : 40} />
+                      </div>
+                      <div>
+                        <h2
+                          className={clsx(
+                            clientMeta.isMobileLike ? "text-xl" : "text-2xl",
+                            "font-bold text-white",
+                          )}
+                        >
+                          Conectar DM
+                        </h2>
+                        <p className="text-gray-300 text-sm">
+                          Conecte sua conta para responder clientes
+                          automaticamente via Assistente de IA.
+                        </p>
+                      </div>
                     </div>
-                  </Tooltip>
-                  <VStack w={"full"} gap={2}>
-                    <Field
-                      errorText={errors.connectionWA?.profileName?.message}
-                      invalid={!!errors.connectionWA?.profileName}
-                      w={"full"}
-                    >
-                      <Input
-                        w={"full"}
-                        {...register("connectionWA.profileName")}
-                        autoComplete="off"
-                        placeholder="Nome do perfil"
-                      />
-                    </Field>
-                    <Field
-                      errorText={errors.connectionWA?.profileStatus?.message}
-                      invalid={!!errors.connectionWA?.profileStatus}
-                      w={"full"}
-                    >
-                      <Input
-                        w={"full"}
-                        {...register("connectionWA.profileStatus")}
-                        autoComplete="off"
-                        placeholder="Recado"
-                      />
-                    </Field>
-                  </VStack>
-                </HStack>
-                <Text fontWeight={"medium"}>Privacidade</Text>
-                <HStack w={"full"}>
-                  <Field
-                    errorText={errors.connectionWA?.lastSeenPrivacy?.message}
-                    invalid={!!errors.connectionWA?.lastSeenPrivacy}
-                    label="Visto por último"
-                    disabled
-                  >
-                    <Controller
-                      name="connectionWA.lastSeenPrivacy"
-                      control={control}
-                      render={({ field }) => (
-                        <SelectComponent
-                          name={field.name}
-                          isMulti={false}
-                          isDisabled
-                          onBlur={field.onBlur}
-                          placeholder="Ninguém"
-                          onChange={(e: any) => field.onChange(e.value)}
-                          // options={optionsPrivacyValue}
-                        />
-                      )}
-                    />
-                  </Field>
-                  <Field
-                    errorText={errors.connectionWA?.onlinePrivacy?.message}
-                    invalid={!!errors.connectionWA?.onlinePrivacy}
-                    label="Online"
-                    disabled
-                  >
-                    <Controller
-                      name="connectionWA.onlinePrivacy"
-                      control={control}
-                      render={({ field }) => (
-                        <SelectComponent
-                          name={field.name}
-                          isMulti={false}
-                          onBlur={field.onBlur}
-                          isDisabled
-                          placeholder={'Igual ao "visto por último"'}
-                          // options={optionsOnlinePrivacy}
-                          onChange={(e: any) => field.onChange(e.value)}
-                          // value={field.value}
-                        />
-                      )}
-                    />
-                  </Field>
-                </HStack>
-                <HStack w={"full"}>
-                  <Field
-                    errorText={errors.connectionWA?.imgPerfilPrivacy?.message}
-                    invalid={!!errors.connectionWA?.imgPerfilPrivacy}
-                    label="Foto do perfil"
-                  >
-                    <Controller
-                      name="connectionWA.imgPerfilPrivacy"
-                      control={control}
-                      render={({ field }) => (
-                        <SelectComponent
-                          name={field.name}
-                          isMulti={false}
-                          placeholder="Todos"
-                          onBlur={field.onBlur}
-                          options={optionsPrivacyValue}
-                          onChange={(e: any) => field.onChange(e.value)}
-                          value={
-                            field.value
-                              ? {
-                                  label:
-                                    optionsPrivacyValue.find(
-                                      (s) => s.value === field.value,
-                                    )?.label || "",
-                                  value: field.value,
-                                }
-                              : null
-                          }
-                        />
-                      )}
-                    />
-                  </Field>
-                  <Field
-                    errorText={errors.connectionWA?.statusPrivacy?.message}
-                    invalid={!!errors.connectionWA?.statusPrivacy}
-                    label="Status"
-                    disabled
-                  >
-                    <Controller
-                      name="connectionWA.statusPrivacy"
-                      control={control}
-                      render={({ field }) => (
-                        <SelectComponent
-                          name={field.name}
-                          isMulti={false}
-                          isDisabled
-                          onBlur={field.onBlur}
-                          placeholder="Meus contatos"
-                          onChange={(e: any) => field.onChange(e.value)}
-                        />
-                      )}
-                    />
-                  </Field>
-                </HStack>
-                <HStack w={"full"}>
-                  <Field
-                    errorText={errors.connectionWA?.groupsAddPrivacy?.message}
-                    invalid={!!errors.connectionWA?.groupsAddPrivacy}
-                    label="Adicionar aos grupos"
-                  >
-                    <Controller
-                      name="connectionWA.groupsAddPrivacy"
-                      control={control}
-                      render={({ field }) => (
-                        <SelectComponent
-                          name={field.name}
-                          isMulti={false}
-                          onBlur={field.onBlur}
-                          placeholder="Meus contatos"
-                          options={optionsPrivacyGroupValue}
-                          onChange={(e: any) => field.onChange(e.value)}
-                          value={
-                            field.value
-                              ? {
-                                  label:
-                                    optionsPrivacyGroupValue.find(
-                                      (s) => s.value === field.value,
-                                    )?.label || "",
-                                  value: field.value,
-                                }
-                              : null
-                          }
-                        />
-                      )}
-                    />
-                  </Field>
 
-                  <Field
-                    errorText={
-                      errors.connectionWA?.readReceiptsPrivacy?.message
-                    }
-                    invalid={!!errors.connectionWA?.readReceiptsPrivacy}
-                    label="Confirmação de leitura"
-                    disabled
-                  >
-                    <Controller
-                      name="connectionWA.readReceiptsPrivacy"
-                      control={control}
-                      render={({ field }) => (
-                        <SelectComponent
-                          name={field.name}
-                          isMulti={false}
-                          isDisabled
-                          onBlur={field.onBlur}
-                          // options={optionsReadReceiptsValue}
-                          placeholder="Ninguém"
-                          onChange={(e: any) => field.onChange(e.value)}
+                    <hr className="border-slate-100/10" />
+
+                    <div
+                      className={
+                        clientMeta.isMobileLike ? "space-y-2" : "space-y-4"
+                      }
+                    >
+                      <h3 className="text-lg font-semibold text-white">
+                        Como funciona?
+                      </h3>
+                      <ul
+                        className={
+                          clientMeta.isMobileLike ? "space-y-2" : "space-y-3"
+                        }
+                      >
+                        <li className="flex items-start gap-3 text-gray-200 italic">
+                          <span className="shrink-0 w-6 h-6 bg-blue-100 text-black rounded-full flex items-center justify-center text-xs font-bold">
+                            1
+                          </span>
+                          <span>
+                            Sua conta do Instagram deve ser{" "}
+                            <strong>Comercial (Business)</strong> e estar
+                            vinculada a uma Página do Facebook.
+                          </span>
+                        </li>
+                        <li className="flex items-start gap-3 text-gray-200">
+                          <span className="shrink-0 w-6 h-6 bg-blue-100 text-black rounded-full flex items-center justify-center text-xs font-bold">
+                            2
+                          </span>
+                          <span>
+                            Ao clicar no botão abaixo, você autoriza nossa
+                            plataforma a gerenciar suas mensagens.
+                          </span>
+                        </li>
+                        <li className="flex items-start gap-3 text-gray-200">
+                          <span className="shrink-0 w-6 h-6 bg-blue-100 text-black rounded-full flex items-center justify-center text-xs font-bold">
+                            3
+                          </span>
+                          <span>
+                            Seu assistente de IA passará a responder suas DMs
+                            instantaneamente 24 horas por dia.
+                          </span>
+                        </li>
+                      </ul>
+                    </div>
+
+                    <div className="bg-amber-50 border-l-4 border-amber-400 p-3 pr-2 rounded-r-md">
+                      <div className="flex items-center gap-3">
+                        <RiAlarmWarningLine
+                          className="text-amber-600"
+                          size={40}
                         />
-                      )}
-                    />
-                  </Field>
-                </HStack>
-              </VStack>
+                        <p className="text-sm text-amber-700 font-medium">
+                          Certifique-se de ativar "Permitir acesso às mensagens"
+                          nas configurações do seu Instagram.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="pt-4">
+                      <button
+                        // onClick="window.location.href='SUA_URL_OAUTH_AQUI'"
+                        title="Atualmente indisponível."
+                        className={clsx(
+                          clientMeta.isMobileLike ? "gap-1 px-3" : "gap-3 px-6",
+                          "cursor-pointer w-full flex items-center justify-center gap-3 py-4 bg-blue-600 opacity-30 hover:bg-blue-7000 text-white font-bold rounded-xl",
+                        )}
+                        type="button"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="currentColor"
+                          className="group-hover:scale-110 transition-transform"
+                        >
+                          <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                        </svg>
+                        Conectar com Facebook / Instagram
+                      </button>
+                      <p className="mt-2 text-center text-xs text-slate-400">
+                        Ao conectar sua conta, você concorda com nossos{" "}
+                        <a className="text-blue-400 underline">Termos de Uso</a>{" "}
+                        e{" "}
+                        <a className="text-blue-400 underline">
+                          Política de Privacidade
+                        </a>
+                        .
+                      </p>
+                      <p className="mt-4 text-center text-xs text-slate-400">
+                        Sua segurança é nossa prioridade. Nunca armazenamos sua
+                        senha pessoal. Todas as credenciais de acesso são
+                        protegidas por criptografia de ponta a ponta, garantindo
+                        a total integridade e privacidade dos seus dados.
+                      </p>
+                    </div>
+                  </div>
+                </TabsContent>
+                <TabsContent value="whatsapp">
+                  <VStack gap={4}>
+                    <div className="px-5">
+                      <div className="bg-amber-50 border-l-4 border-amber-400 p-3 pr-2 rounded-r-md">
+                        <div className="flex items-center gap-3">
+                          <RiAlarmWarningLine
+                            className="text-amber-600"
+                            size={40}
+                          />
+                          <p className="text-sm text-amber-700 font-medium">
+                            Caso seu WhatsApp já esteja configurado,
+                            desconsidere os campos abaixo.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    <HStack w={"full"} mb={2} gap={3}>
+                      <Tooltip content="Atualizar foto de perfil">
+                        <div
+                          className="relative cursor-pointer"
+                          onClick={() => imgProfileRef.current?.click()}
+                        >
+                          <input
+                            type="file"
+                            ref={imgProfileRef}
+                            hidden
+                            className="hidden"
+                            accept="image/jpeg, image/png, image/jpg"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file)
+                                setValue("connectionWA.fileImage", file, {
+                                  shouldDirty: true,
+                                });
+                            }}
+                          />
+                          <Avatar
+                            size={"2xl"}
+                            width={"90px"}
+                            height={"90px"}
+                            src={imgPreviewUrl}
+                          >
+                            <Center className="absolute -bottom-0.5 right-0.5 w-8 h-8 rounded-full bg-emerald-800">
+                              <MdOutlineModeEdit size={17} />
+                            </Center>
+                          </Avatar>
+                        </div>
+                      </Tooltip>
+                      <VStack w={"full"} gap={2}>
+                        <Field
+                          errorText={errors.connectionWA?.profileName?.message}
+                          invalid={!!errors.connectionWA?.profileName}
+                          w={"full"}
+                        >
+                          <Input
+                            w={"full"}
+                            {...register("connectionWA.profileName")}
+                            autoComplete="off"
+                            placeholder="Nome do perfil"
+                          />
+                        </Field>
+                        <Field
+                          errorText={
+                            errors.connectionWA?.profileStatus?.message
+                          }
+                          invalid={!!errors.connectionWA?.profileStatus}
+                          w={"full"}
+                        >
+                          <Input
+                            w={"full"}
+                            {...register("connectionWA.profileStatus")}
+                            autoComplete="off"
+                            placeholder="Recado"
+                          />
+                        </Field>
+                      </VStack>
+                    </HStack>
+                    <Text fontWeight={"medium"}>Privacidade</Text>
+                    <HStack w={"full"}>
+                      <Field
+                        errorText={
+                          errors.connectionWA?.lastSeenPrivacy?.message
+                        }
+                        invalid={!!errors.connectionWA?.lastSeenPrivacy}
+                        label="Visto por último"
+                        disabled
+                      >
+                        <Controller
+                          name="connectionWA.lastSeenPrivacy"
+                          control={control}
+                          render={({ field }) => (
+                            <SelectComponent
+                              name={field.name}
+                              isMulti={false}
+                              isDisabled
+                              onBlur={field.onBlur}
+                              placeholder="Ninguém"
+                              onChange={(e: any) => field.onChange(e.value)}
+                              // options={optionsPrivacyValue}
+                            />
+                          )}
+                        />
+                      </Field>
+                      <Field
+                        errorText={errors.connectionWA?.onlinePrivacy?.message}
+                        invalid={!!errors.connectionWA?.onlinePrivacy}
+                        label="Online"
+                        disabled
+                      >
+                        <Controller
+                          name="connectionWA.onlinePrivacy"
+                          control={control}
+                          render={({ field }) => (
+                            <SelectComponent
+                              name={field.name}
+                              isMulti={false}
+                              onBlur={field.onBlur}
+                              isDisabled
+                              placeholder={'Igual ao "visto por último"'}
+                              // options={optionsOnlinePrivacy}
+                              onChange={(e: any) => field.onChange(e.value)}
+                              // value={field.value}
+                            />
+                          )}
+                        />
+                      </Field>
+                    </HStack>
+                    <HStack w={"full"}>
+                      <Field
+                        errorText={
+                          errors.connectionWA?.imgPerfilPrivacy?.message
+                        }
+                        invalid={!!errors.connectionWA?.imgPerfilPrivacy}
+                        label="Foto do perfil"
+                      >
+                        <Controller
+                          name="connectionWA.imgPerfilPrivacy"
+                          control={control}
+                          render={({ field }) => (
+                            <SelectComponent
+                              name={field.name}
+                              isMulti={false}
+                              placeholder="Todos"
+                              onBlur={field.onBlur}
+                              options={optionsPrivacyValue}
+                              onChange={(e: any) => field.onChange(e.value)}
+                              value={
+                                field.value
+                                  ? {
+                                      label:
+                                        optionsPrivacyValue.find(
+                                          (s) => s.value === field.value,
+                                        )?.label || "",
+                                      value: field.value,
+                                    }
+                                  : null
+                              }
+                            />
+                          )}
+                        />
+                      </Field>
+                      <Field
+                        errorText={errors.connectionWA?.statusPrivacy?.message}
+                        invalid={!!errors.connectionWA?.statusPrivacy}
+                        label="Status"
+                        disabled
+                      >
+                        <Controller
+                          name="connectionWA.statusPrivacy"
+                          control={control}
+                          render={({ field }) => (
+                            <SelectComponent
+                              name={field.name}
+                              isMulti={false}
+                              isDisabled
+                              onBlur={field.onBlur}
+                              placeholder="Meus contatos"
+                              onChange={(e: any) => field.onChange(e.value)}
+                            />
+                          )}
+                        />
+                      </Field>
+                    </HStack>
+                    <HStack w={"full"}>
+                      <Field
+                        errorText={
+                          errors.connectionWA?.groupsAddPrivacy?.message
+                        }
+                        invalid={!!errors.connectionWA?.groupsAddPrivacy}
+                        label="Adicionar aos grupos"
+                      >
+                        <Controller
+                          name="connectionWA.groupsAddPrivacy"
+                          control={control}
+                          render={({ field }) => (
+                            <SelectComponent
+                              name={field.name}
+                              isMulti={false}
+                              onBlur={field.onBlur}
+                              placeholder="Meus contatos"
+                              options={optionsPrivacyGroupValue}
+                              onChange={(e: any) => field.onChange(e.value)}
+                              value={
+                                field.value
+                                  ? {
+                                      label:
+                                        optionsPrivacyGroupValue.find(
+                                          (s) => s.value === field.value,
+                                        )?.label || "",
+                                      value: field.value,
+                                    }
+                                  : null
+                              }
+                            />
+                          )}
+                        />
+                      </Field>
+
+                      <Field
+                        errorText={
+                          errors.connectionWA?.readReceiptsPrivacy?.message
+                        }
+                        invalid={!!errors.connectionWA?.readReceiptsPrivacy}
+                        label="Confirmação de leitura"
+                        disabled
+                      >
+                        <Controller
+                          name="connectionWA.readReceiptsPrivacy"
+                          control={control}
+                          render={({ field }) => (
+                            <SelectComponent
+                              name={field.name}
+                              isMulti={false}
+                              isDisabled
+                              onBlur={field.onBlur}
+                              // options={optionsReadReceiptsValue}
+                              placeholder="Ninguém"
+                              onChange={(e: any) => field.onChange(e.value)}
+                            />
+                          )}
+                        />
+                      </Field>
+                    </HStack>
+                    <div className="flex items-center gap-x-2">
+                      <div className="border p-1 max-w-20 bg-white/2 text-green-100/5">
+                        <img src="/image-btn-connection.png" />
+                      </div>
+                      <p className="font-medium">
+                        Será possível conectar o WhatsApp {"(Via desktop)"} após
+                        criação do assistente de IA.
+                      </p>
+                    </div>
+                  </VStack>
+                </TabsContent>
+              </TabsRoot>
             </TabsContent>
           </TabsRoot>
-          <div className="h-full flex gap-y-2 flex-col max-h-[calc(100vh-230px)] sticky top-3">
-            {!!messages.length && (
-              <a
-                onClick={() => {
-                  clearTokenTest();
-                  setMessages([]);
-                }}
-                className="text-sm text-white/50 hover:text-white duration-200 cursor-pointer text-center"
-              >
-                Limpar histórico
-              </a>
-            )}
-            <div className="flex flex-col flex-1 bg-zinc-400/5 rounded-md">
-              <Virtuoso
-                ref={virtuosoRef}
-                data={messages}
-                className="scroll-custom-table"
-                followOutput="smooth"
-                itemContent={(_, msg) => {
-                  if (msg.role === "system") {
-                    return (
-                      <div className="px-2 py-1.5 text-sm text-center opacity-20">
-                        <span
-                          className={`inline-block w-full wrap-break-word rounded-md font-semibold whitespace-pre-wrap px-1.5 py-1 bg-yellow-200/20 text-white`}
-                        >
-                          <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                            {msg.content}
-                          </ReactMarkdown>
-                        </span>
-                      </div>
-                    );
-                  }
-                  if (msg.role === "agent") {
-                    return (
-                      <div className="px-2 py-1.5 text-sm text-left">
-                        <span
-                          className={`inline-block max-w-[80%] wrap-break-word rounded-md whitespace-pre-wrap px-1.5 py-1 bg-zinc-700/70 text-white`}
-                        >
-                          <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                            {msg.content}
-                          </ReactMarkdown>
-                        </span>
-                      </div>
-                    );
-                  }
-                  return (
-                    <div className="px-2 py-1.5 text-sm text-right">
-                      <span
-                        className={`inline-block max-w-[80%] wrap-break-word rounded-md whitespace-pre-wrap px-1.5 py-1 bg-teal-700 text-white`}
-                      >
-                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                          {msg.content}
-                        </ReactMarkdown>
-                      </span>
-                    </div>
-                  );
-                }}
-              />
-            </div>
-            <div className="flex flex-col">
-              <div className="flex items-center gap-x-2">
-                <TextareaAutosize
-                  placeholder="Enviar mensagem"
-                  style={{ resize: "none" }}
-                  minRows={1}
-                  maxRows={6}
-                  className="p-3 py-2.5 rounded-sm w-full border-white/10 border"
-                  value={draft}
-                  disabled={loadSend}
-                  onChange={(e) => setDraft(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault();
-                      if (draft.trim()) {
-                        handleSubmit(sendMessage, onError)();
-                      }
+          {!clientMeta.isMobileLike && (
+            <div className="h-full flex gap-y-2 flex-col max-h-[calc(100vh-230px)] sticky top-3">
+              {!!messages.length && (
+                <a
+                  onClick={() => {
+                    clearTokenTest();
+                    setMessages([]);
+                  }}
+                  className="text-sm text-white/50 hover:text-white duration-200 cursor-pointer text-center"
+                >
+                  Limpar histórico
+                </a>
+              )}
+              <div className="flex flex-col flex-1 bg-zinc-400/5 rounded-md">
+                <Virtuoso
+                  ref={virtuosoRef}
+                  data={messages}
+                  className="scroll-custom-table"
+                  followOutput="smooth"
+                  itemContent={(_, msg) => {
+                    if (msg.role === "system") {
+                      return (
+                        <div className="px-2 py-1.5 text-sm text-center opacity-20">
+                          <span
+                            className={`inline-block w-full wrap-break-word rounded-md font-semibold whitespace-pre-wrap px-1.5 py-1 bg-yellow-200/20 text-white`}
+                          >
+                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                              {msg.content}
+                            </ReactMarkdown>
+                          </span>
+                        </div>
+                      );
                     }
+                    if (msg.role === "agent") {
+                      return (
+                        <div className="px-2 py-1.5 text-sm text-left">
+                          <span
+                            className={`inline-block max-w-[80%] wrap-break-word rounded-md whitespace-pre-wrap px-1.5 py-1 bg-zinc-700/70 text-white`}
+                          >
+                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                              {msg.content}
+                            </ReactMarkdown>
+                          </span>
+                        </div>
+                      );
+                    }
+                    return (
+                      <div className="px-2 py-1.5 text-sm text-right">
+                        <span
+                          className={`inline-block max-w-[80%] wrap-break-word rounded-md whitespace-pre-wrap px-1.5 py-1 bg-teal-700 text-white`}
+                        >
+                          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                            {msg.content}
+                          </ReactMarkdown>
+                        </span>
+                      </div>
+                    );
                   }}
                 />
-                <IconButton
-                  onClick={() => {
-                    if (draft.trim()) handleSubmit(sendMessage, onError)();
-                  }}
-                  loading={loadSend}
-                  variant={"outline"}
-                >
-                  <RiSendPlane2Line />
-                </IconButton>
               </div>
-              <span className="text-xs text-center text-white/50">
-                Teste seu agente IA.
-              </span>
-              {errorDraft && (
-                <span className="text-red-500 text-xs text-center">
-                  Error interno ao processar o teste
+              <div className="flex flex-col">
+                <div className="flex items-center gap-x-2">
+                  <TextareaAutosize
+                    placeholder="Enviar mensagem"
+                    style={{ resize: "none" }}
+                    minRows={1}
+                    maxRows={6}
+                    className="p-3 py-2.5 rounded-sm w-full border-white/10 border"
+                    value={draft}
+                    disabled={loadSend}
+                    onChange={(e) => setDraft(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        if (draft.trim()) {
+                          handleSubmit(sendMessage, onError)();
+                        }
+                      }
+                    }}
+                  />
+                  <IconButton
+                    onClick={() => {
+                      if (draft.trim()) handleSubmit(sendMessage, onError)();
+                    }}
+                    loading={loadSend}
+                    variant={"outline"}
+                  >
+                    <RiSendPlane2Line />
+                  </IconButton>
+                </div>
+                <span className="text-xs text-center text-white/50">
+                  Teste seu agente IA.
                 </span>
-              )}
+                {errorDraft && (
+                  <span className="text-red-500 text-xs text-center">
+                    Error interno ao processar o teste
+                  </span>
+                )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </DialogBody>
-      <DialogFooter>
+      <DialogFooter px={clientMeta.isMobileLike ? 2 : undefined}>
         <DialogActionTrigger asChild>
-          <Button type="button" disabled={isPending} variant="outline">
+          <Button
+            size={clientMeta.isMobileLike ? "sm" : undefined}
+            type="button"
+            disabled={isPending}
+            variant="outline"
+          >
             Cancelar
           </Button>
         </DialogActionTrigger>
         {currentTab === "secret-key" && (
           <Button
+            size={clientMeta.isMobileLike ? "sm" : undefined}
             type="button"
             onClick={() => setCurrentTab("persona")}
             colorPalette={"cyan"}
@@ -1639,6 +1893,7 @@ function Content({
         {currentTab === "persona" && (
           <>
             <Button
+              size={clientMeta.isMobileLike ? "sm" : undefined}
               type="button"
               onClick={() => setCurrentTab("secret-key")}
               colorPalette={"cyan"}
@@ -1647,6 +1902,7 @@ function Content({
               Voltar
             </Button>
             <Button
+              size={clientMeta.isMobileLike ? "sm" : undefined}
               type="button"
               onClick={() => setCurrentTab("engine")}
               colorPalette={"cyan"}
@@ -1659,6 +1915,7 @@ function Content({
         {currentTab === "engine" && (
           <>
             <Button
+              size={clientMeta.isMobileLike ? "sm" : undefined}
               type="button"
               onClick={() => setCurrentTab("persona")}
               colorPalette={"cyan"}
@@ -1666,9 +1923,30 @@ function Content({
             >
               Voltar
             </Button>
+            <Button
+              type="button"
+              size={clientMeta.isMobileLike ? "sm" : undefined}
+              onClick={() => setCurrentTab("connection")}
+              colorPalette={"cyan"}
+              disabled={isPending}
+            >
+              Avançar
+            </Button>
           </>
         )}
+        {currentTab === "connection" && (
+          <Button
+            type="button"
+            size={clientMeta.isMobileLike ? "sm" : undefined}
+            onClick={() => setCurrentTab("engine")}
+            colorPalette={"cyan"}
+            disabled={isPending}
+          >
+            Voltar
+          </Button>
+        )}
         <Button
+          size={clientMeta.isMobileLike ? "sm" : undefined}
           type="submit"
           loading={isPending}
           disabled={isPending || isSubmitting || !isDirty}
@@ -1681,8 +1959,14 @@ function Content({
 }
 
 export function ModalEditAgentAI(props: Props): JSX.Element {
+  const { clientMeta } = useContext(AuthContext);
+
   return (
-    <DialogContent w={"760px"} backdrop>
+    <DialogContent
+      mx={2}
+      w={clientMeta.isMobileLike ? undefined : "760px"}
+      backdrop
+    >
       <DialogHeader flexDirection={"column"} gap={0}>
         <DialogTitle>Editar assistente de IA</DialogTitle>
         <DialogDescription>

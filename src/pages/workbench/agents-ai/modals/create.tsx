@@ -81,6 +81,7 @@ import { GrClose } from "react-icons/gr";
 import { createFlow } from "../../../../services/api/Flow";
 import { createConnectionWA } from "../../../../services/api/ConnectionWA";
 import { createChatbot } from "../../../../services/api/Chatbot";
+import clsx from "clsx";
 
 interface Props {
   onCreate?(business: AgentsAIRow): Promise<void>;
@@ -406,6 +407,7 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
   const {
     logout,
     account: { businessId },
+    clientMeta,
   } = useContext(AuthContext);
   const { socket } = useContext(SocketContext);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -630,7 +632,8 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
     >
       <DialogTrigger asChild>{props.trigger}</DialogTrigger>
       <DialogContent
-        w={"760px"}
+        w={clientMeta.isMobileLike ? undefined : "760px"}
+        mx={2}
         backdrop
         as={"form"}
         onSubmit={handleSubmit(create, onError)}
@@ -641,8 +644,16 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
             Autônomos que usam IA para realizar tarefas.
           </DialogDescription>
         </DialogHeader>
-        <DialogBody mt={"-5px"}>
-          <div className="grid grid-cols-[422px_1fr] gap-x-3 relative">
+        <DialogBody
+          mt={clientMeta.isMobileLike ? "-15px" : "-5px"}
+          px={clientMeta.isMobileLike ? 2 : undefined}
+        >
+          <div
+            className={clsx(
+              !clientMeta.isMobileLike && "grid grid-cols-[422px_1fr] gap-x-3",
+              "relative",
+            )}
+          >
             <TabsRoot
               value={currentTab}
               onValueChange={(s) => setCurrentTab(s.value as any)}
@@ -657,6 +668,7 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
                     color={"#757575"}
                     value="secret-key"
                     py={"27px"}
+                    px={clientMeta.isMobileLike ? "2px" : undefined}
                   >
                     Integração secret key
                   </TabsTrigger>
@@ -665,25 +677,30 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
                     color={"#757575"}
                     value="persona"
                     py={"27px"}
+                    px={clientMeta.isMobileLike ? "7px" : undefined}
                   >
-                    Perfil e aprendizado
+                    {clientMeta.isMobileLike
+                      ? "Perfil e treinam..."
+                      : "Perfil e treinamento"}
                   </TabsTrigger>
                   <TabsTrigger
                     _selected={{ bg: "bg.subtle", color: "#fff" }}
                     color={"#757575"}
                     value="engine"
                     py={"27px"}
+                    px={clientMeta.isMobileLike ? "2px" : undefined}
                   >
-                    Horários de operação
+                    Horários operação
                   </TabsTrigger>
                   <TabsTrigger
                     _selected={{ bg: "bg.subtle", color: "#fff" }}
                     color={"#757575"}
                     value="connection"
                     py={"27px"}
+                    px={clientMeta.isMobileLike ? "12px" : undefined}
                   >
-                    <FaWhatsapp size={40} />
-                    <FaInstagram size={40} />
+                    <FaWhatsapp size={clientMeta.isMobileLike ? 30 : 40} />
+                    <FaInstagram size={clientMeta.isMobileLike ? 30 : 40} />
                   </TabsTrigger>
                 </TabsList>
               </Center>
@@ -919,7 +936,13 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
                       {optionsModels.some(
                         (m) => m.value === model && m.isFlex,
                       ) && (
-                        <Field helperText="Barato e com maior latência">
+                        <Field
+                          helperText={
+                            clientMeta.isMobileLike
+                              ? "Barato e maior latência"
+                              : "Barato e com maior latência"
+                          }
+                        >
                           <Checkbox.Root
                             checked={service_tier === "flex"}
                             onCheckedChange={(e) =>
@@ -933,9 +956,11 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
                             <Checkbox.Control />
                             <Checkbox.Label>
                               Modo Julius
-                              <span className="text-white/60 font-light text-sm">
-                                (pai do Chris)
-                              </span>
+                              {!clientMeta.isMobileLike && (
+                                <span className="text-white/60 font-light text-sm">
+                                  (pai do Chris)
+                                </span>
+                              )}
                             </Checkbox.Label>
                           </Checkbox.Root>
                         </Field>
@@ -945,7 +970,11 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
                     <Field
                       invalid={!!errors.temperature}
                       label="Temperatura"
-                      helperText="Controla a aleatoriedade das respostas do assistente."
+                      helperText={
+                        clientMeta.isMobileLike
+                          ? "Controla a aleatoriedade das respostas."
+                          : "Controla a aleatoriedade das respostas do assistente."
+                      }
                       className="w-full"
                       errorText={errors.temperature?.message}
                     >
@@ -973,25 +1002,48 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
                       invalid={!!errors.timeout}
                       label={
                         <div className="flex flex-col -space-y-1">
-                          <span>Tempo esperando resposta</span>
-                          <span className="text-white/60 font-light">
-                            *Funciona apenas em chat real
+                          <span>
+                            {clientMeta.isMobileLike
+                              ? "Segundos esperando"
+                              : "Segundos esperando resposta"}
                           </span>
+
+                          {clientMeta.isMobileLike ? (
+                            <span className="text-white/60 font-light">
+                              resposta
+                            </span>
+                          ) : (
+                            <span className="text-white/60 font-light">
+                              *Funciona apenas em chat real
+                            </span>
+                          )}
                         </div>
                       }
                       helperText={
-                        <div className="flex flex-col gap-1 mt-1">
+                        clientMeta.isMobileLike ? (
                           <span className="">
-                            Caso o tempo limite se esgote
-                          </span>
-                          <span className="flex items-center gap-x-1">
-                            sairá pelo canal Node:{" "}
+                            Ao se esgotar sai pelo canal Node:{" "}
                             <RxLapTimer
                               size={16}
-                              className="text-red-400 -translate-y-0.5"
+                              className="text-red-400 -translate-y-0.5 inline"
                             />
+                            .
                           </span>
-                        </div>
+                        ) : (
+                          <div className="flex flex-col gap-1 mt-1">
+                            <span className="">
+                              Caso o tempo limite se esgote
+                            </span>
+                            <span className="flex items-center gap-x-1">
+                              sairá pelo canal Node:{" "}
+                              <RxLapTimer
+                                size={16}
+                                className="text-red-400 -translate-y-0.5"
+                              />
+                              .
+                            </span>
+                          </div>
+                        )
                       }
                     >
                       <NumberInput.Root
@@ -1010,10 +1062,16 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
                       invalid={!!errors.debounce}
                       label={
                         <div className="flex flex-col -space-y-1">
-                          <span>Debounce</span>
-                          <span className="text-white/60 font-light">
-                            *Funciona apenas em chat real
-                          </span>
+                          <span>Limitar frequência</span>
+                          {clientMeta.isMobileLike ? (
+                            <span className="text-white/60 font-light">
+                              de golpes
+                            </span>
+                          ) : (
+                            <span className="text-white/60 font-light">
+                              *Funciona apenas em chat real
+                            </span>
+                          )}
                         </div>
                       }
                       helperText={
@@ -1143,10 +1201,6 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
                       className="p-3 py-2.5 rounded-sm w-full border-white/10 border"
                       {...register("instructions")}
                     />
-                    <span className="text-white/70">
-                      Digite <strong className="text-green-400">/</strong> para
-                      abrir o menu de ferramentas.
-                    </span>
                   </div>
                 </VStack>
               </TabsContent>
@@ -1390,6 +1444,7 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
                   unmountOnExit
                   variant={"enclosed"}
                   defaultValue={"whatsapp"}
+                  mt={-4}
                 >
                   <Center mb={2}>
                     <TabsList bg="#1c1c1c" rounded="l3" p="1.5">
@@ -1411,31 +1466,54 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
                   </Center>
                   <TabsContent
                     value="instagram"
-                    className="p-6 rounded-lg border border-slate-100/10"
+                    className={clsx(
+                      clientMeta.isMobileLike ? "p-4" : "p-6",
+                      "rounded-lg border border-slate-100/10",
+                    )}
                   >
                     <div className="max-w-2xl mx-auto space-y-3">
-                      <div className="flex items-center gap-4">
+                      <div
+                        className={clsx(
+                          clientMeta.isMobileLike ? "gap-2" : "gap-4",
+                          "flex items-center",
+                        )}
+                      >
                         <div className="p-3 bg-linear-to-tr from-yellow-400 via-red-500 to-purple-600 rounded-2xl shadow-lg">
-                          <FaInstagram size={40} />
+                          <FaInstagram
+                            size={clientMeta.isMobileLike ? 25 : 40}
+                          />
                         </div>
                         <div>
-                          <h2 className="text-2xl font-bold text-white">
+                          <h2
+                            className={clsx(
+                              clientMeta.isMobileLike ? "text-xl" : "text-2xl",
+                              "font-bold text-white",
+                            )}
+                          >
                             Conectar DM
                           </h2>
                           <p className="text-gray-300 text-sm">
                             Conecte sua conta para responder clientes
-                            automaticamente via IA ou Chatbot.
+                            automaticamente via Assistente de IA.
                           </p>
                         </div>
                       </div>
 
                       <hr className="border-slate-100/10" />
 
-                      <div className="space-y-4">
+                      <div
+                        className={
+                          clientMeta.isMobileLike ? "space-y-2" : "space-y-4"
+                        }
+                      >
                         <h3 className="text-lg font-semibold text-white">
                           Como funciona?
                         </h3>
-                        <ul className="space-y-3">
+                        <ul
+                          className={
+                            clientMeta.isMobileLike ? "space-y-2" : "space-y-3"
+                          }
+                        >
                           <li className="flex items-start gap-3 text-gray-200 italic">
                             <span className="shrink-0 w-6 h-6 bg-blue-100 text-black rounded-full flex items-center justify-center text-xs font-bold">
                               1
@@ -1484,7 +1562,12 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
                         <button
                           // onClick="window.location.href='SUA_URL_OAUTH_AQUI'"
                           title="Atualmente indisponível."
-                          className="cursor-pointer w-full flex items-center justify-center gap-3 py-4 px-6 bg-blue-600 opacity-30 hover:bg-blue-7000 text-white font-bold rounded-xl"
+                          className={clsx(
+                            clientMeta.isMobileLike
+                              ? "gap-1 px-3"
+                              : "gap-3 px-6",
+                            "cursor-pointer w-full flex items-center justify-center gap-3 py-4 bg-blue-600 opacity-30 hover:bg-blue-7000 text-white font-bold rounded-xl",
+                          )}
                           type="button"
                         >
                           <svg
@@ -1522,6 +1605,20 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
                   </TabsContent>
                   <TabsContent value="whatsapp">
                     <VStack gap={4}>
+                      <div className="px-5">
+                        <div className="bg-amber-50 border-l-4 border-amber-400 p-3 pr-2 rounded-r-md">
+                          <div className="flex items-center gap-3">
+                            <RiAlarmWarningLine
+                              className="text-amber-600"
+                              size={40}
+                            />
+                            <p className="text-sm text-amber-700 font-medium">
+                              Caso seu WhatsApp já esteja configurado,
+                              desconsidere os campos abaixo.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
                       <HStack w={"full"} mb={2} gap={3}>
                         <Tooltip content="Atualizar foto de perfil">
                           <div
@@ -1758,8 +1855,8 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
                           <img src="/image-btn-connection.png" />
                         </div>
                         <p className="font-medium">
-                          Será possível conectar o WhatsApp após criação do
-                          assistente de IA.
+                          Será possível conectar o WhatsApp {"(Via desktop)"}{" "}
+                          após criação do assistente de IA.
                         </p>
                       </div>
                     </VStack>
@@ -1767,116 +1864,124 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
                 </TabsRoot>
               </TabsContent>
             </TabsRoot>
-            <div className="h-full flex gap-y-2 flex-col max-h-[calc(100vh-230px)] sticky top-3">
-              {!!messages.length && (
-                <a
-                  onClick={() => {
-                    clearTokenTest();
-                    setMessages([]);
-                  }}
-                  className="text-sm text-white/50 hover:text-white duration-200 cursor-pointer text-center"
-                >
-                  Limpar histórico
-                </a>
-              )}
-              <div className="flex flex-col flex-1 bg-zinc-400/5 rounded-md">
-                <Virtuoso
-                  ref={virtuosoRef}
-                  data={messages}
-                  className="scroll-custom-table"
-                  followOutput="smooth"
-                  itemContent={(_, msg) => {
-                    if (msg.role === "system") {
-                      return (
-                        <div className="px-2 py-1.5 text-sm text-center opacity-20">
-                          <span
-                            className={`inline-block w-full wrap-break-word rounded-md font-semibold whitespace-pre-wrap px-1.5 py-1 bg-yellow-200/20 text-white`}
-                          >
-                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                              {msg.content}
-                            </ReactMarkdown>
-                          </span>
-                        </div>
-                      );
-                    }
-                    if (msg.role === "agent") {
-                      return (
-                        <div className="px-2 py-1.5 text-sm text-left">
-                          <span
-                            className={`inline-block max-w-[80%] wrap-break-word rounded-md whitespace-pre-wrap px-1.5 py-1 bg-zinc-700/70 text-white`}
-                          >
-                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                              {msg.content}
-                            </ReactMarkdown>
-                          </span>
-                        </div>
-                      );
-                    }
-                    return (
-                      <div className="px-2 py-1.5 text-sm text-right">
-                        <span
-                          className={`inline-block max-w-[80%] wrap-break-word rounded-md whitespace-pre-wrap px-1.5 py-1 bg-teal-700 text-white`}
-                        >
-                          <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                            {msg.content}
-                          </ReactMarkdown>
-                        </span>
-                      </div>
-                    );
-                  }}
-                />
-              </div>
-              <div className="flex flex-col">
-                <div className="flex items-center gap-x-2">
-                  <TextareaAutosize
-                    placeholder="Enviar mensagem"
-                    style={{ resize: "none" }}
-                    minRows={1}
-                    maxRows={6}
-                    disabled={loadSend}
-                    className="p-3 py-2.5 rounded-sm w-full border-white/10 border"
-                    value={draft}
-                    onChange={(e) => setDraft(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && !e.shiftKey) {
-                        e.preventDefault();
-                        if (draft.trim()) {
-                          handleSubmit(sendMessage, onError)();
-                        }
+            {!clientMeta.isMobileLike && (
+              <div className="h-full flex gap-y-2 flex-col max-h-[calc(100vh-230px)] sticky top-3">
+                {!!messages.length && (
+                  <a
+                    onClick={() => {
+                      clearTokenTest();
+                      setMessages([]);
+                    }}
+                    className="text-sm text-white/50 hover:text-white duration-200 cursor-pointer text-center"
+                  >
+                    Limpar histórico
+                  </a>
+                )}
+                <div className="flex flex-col flex-1 bg-zinc-400/5 rounded-md">
+                  <Virtuoso
+                    ref={virtuosoRef}
+                    data={messages}
+                    className="scroll-custom-table"
+                    followOutput="smooth"
+                    itemContent={(_, msg) => {
+                      if (msg.role === "system") {
+                        return (
+                          <div className="px-2 py-1.5 text-sm text-center opacity-20">
+                            <span
+                              className={`inline-block w-full wrap-break-word rounded-md font-semibold whitespace-pre-wrap px-1.5 py-1 bg-yellow-200/20 text-white`}
+                            >
+                              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                {msg.content}
+                              </ReactMarkdown>
+                            </span>
+                          </div>
+                        );
                       }
+                      if (msg.role === "agent") {
+                        return (
+                          <div className="px-2 py-1.5 text-sm text-left">
+                            <span
+                              className={`inline-block max-w-[80%] wrap-break-word rounded-md whitespace-pre-wrap px-1.5 py-1 bg-zinc-700/70 text-white`}
+                            >
+                              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                {msg.content}
+                              </ReactMarkdown>
+                            </span>
+                          </div>
+                        );
+                      }
+                      return (
+                        <div className="px-2 py-1.5 text-sm text-right">
+                          <span
+                            className={`inline-block max-w-[80%] wrap-break-word rounded-md whitespace-pre-wrap px-1.5 py-1 bg-teal-700 text-white`}
+                          >
+                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                              {msg.content}
+                            </ReactMarkdown>
+                          </span>
+                        </div>
+                      );
                     }}
                   />
-                  <IconButton
-                    onClick={() => {
-                      if (draft.trim()) handleSubmit(sendMessage, onError)();
-                    }}
-                    loading={loadSend}
-                    variant={"outline"}
-                  >
-                    <RiSendPlane2Line />
-                  </IconButton>
                 </div>
-                <span className="text-xs text-center text-white/50">
-                  Teste seu assistente.
-                </span>
-                {errorDraft && (
-                  <span className="text-red-500 text-xs text-center">
-                    Error interno ao processar o teste
+                <div className="flex flex-col">
+                  <div className="flex items-center gap-x-2">
+                    <TextareaAutosize
+                      placeholder="Enviar mensagem"
+                      style={{ resize: "none" }}
+                      minRows={1}
+                      maxRows={6}
+                      disabled={loadSend}
+                      className="p-3 py-2.5 rounded-sm w-full border-white/10 border"
+                      value={draft}
+                      onChange={(e) => setDraft(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && !e.shiftKey) {
+                          e.preventDefault();
+                          if (draft.trim()) {
+                            handleSubmit(sendMessage, onError)();
+                          }
+                        }
+                      }}
+                    />
+                    <IconButton
+                      onClick={() => {
+                        if (draft.trim()) handleSubmit(sendMessage, onError)();
+                      }}
+                      loading={loadSend}
+                      variant={"outline"}
+                    >
+                      <RiSendPlane2Line />
+                    </IconButton>
+                  </div>
+                  <span className="text-xs text-center text-white/50">
+                    Teste seu assistente.
                   </span>
-                )}
+                  {errorDraft && (
+                    <span className="text-red-500 text-xs text-center">
+                      Error interno ao processar o teste
+                    </span>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </DialogBody>
-        <DialogFooter>
+        <DialogFooter px={clientMeta.isMobileLike ? 2 : undefined}>
           <DialogActionTrigger asChild>
-            <Button type="button" disabled={isPending} variant="outline">
+            <Button
+              type="button"
+              size={clientMeta.isMobileLike ? "sm" : undefined}
+              disabled={isPending}
+              variant="outline"
+            >
               Cancelar
             </Button>
           </DialogActionTrigger>
           {currentTab === "secret-key" && (
             <Button
               type="button"
+              size={clientMeta.isMobileLike ? "sm" : undefined}
               onClick={() => setCurrentTab("persona")}
               colorPalette={"cyan"}
               disabled={isPending}
@@ -1888,6 +1993,7 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
             <>
               <Button
                 type="button"
+                size={clientMeta.isMobileLike ? "sm" : undefined}
                 onClick={() => setCurrentTab("secret-key")}
                 colorPalette={"cyan"}
                 disabled={isPending}
@@ -1896,6 +2002,7 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
               </Button>
               <Button
                 type="button"
+                size={clientMeta.isMobileLike ? "sm" : undefined}
                 onClick={() => setCurrentTab("engine")}
                 colorPalette={"cyan"}
                 disabled={isPending}
@@ -1908,15 +2015,40 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
             <>
               <Button
                 type="button"
+                size={clientMeta.isMobileLike ? "sm" : undefined}
                 onClick={() => setCurrentTab("persona")}
                 colorPalette={"cyan"}
                 disabled={isPending}
               >
                 Voltar
               </Button>
+              <Button
+                type="button"
+                size={clientMeta.isMobileLike ? "sm" : undefined}
+                onClick={() => setCurrentTab("connection")}
+                colorPalette={"cyan"}
+                disabled={isPending}
+              >
+                Avançar
+              </Button>
             </>
           )}
-          <Button type="submit" loading={isPending}>
+          {currentTab === "connection" && (
+            <Button
+              type="button"
+              size={clientMeta.isMobileLike ? "sm" : undefined}
+              onClick={() => setCurrentTab("engine")}
+              colorPalette={"cyan"}
+              disabled={isPending}
+            >
+              Voltar
+            </Button>
+          )}
+          <Button
+            size={clientMeta.isMobileLike ? "sm" : undefined}
+            type="submit"
+            loading={isPending}
+          >
             Criar
           </Button>
         </DialogFooter>

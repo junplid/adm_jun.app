@@ -413,7 +413,7 @@ export function LayoutPrivateProvider(): JSX.Element {
               to={"/auth/orders"}
               className={clsx(
                 pathname === "/auth/orders"
-                  ? "bg-neutral-800"
+                  ? "bg-neutral-800 shadow-lg shadow-black/20"
                   : "bg-transparent",
                 "p-2 px-3 pb-1 flex flex-col items-center gap-y-1 duration-300 rounded-xl",
               )}
@@ -425,7 +425,7 @@ export function LayoutPrivateProvider(): JSX.Element {
               to={"/auth/dashboard"}
               className={clsx(
                 pathname === "/auth/dashboard"
-                  ? "bg-neutral-800"
+                  ? "bg-neutral-800 shadow-lg shadow-black/20"
                   : "bg-transparent",
                 "p-2 px-3 pb-1 flex flex-col items-center gap-y-1 duration-300 rounded-xl",
               )}
@@ -434,10 +434,22 @@ export function LayoutPrivateProvider(): JSX.Element {
               <span className="text-xs">Home</span>
             </Link>
             <Link
+              to={"/auth/agents-ai"}
+              className={clsx(
+                pathname === "/auth/agents-ai"
+                  ? "bg-neutral-800 shadow-lg shadow-black/20"
+                  : "bg-transparent",
+                "p-2 px-3 pb-1 flex flex-col items-center gap-y-1 duration-300 rounded-xl",
+              )}
+            >
+              <BsStars size={20} />
+              <span className="text-xs">Assis...</span>
+            </Link>
+            <Link
               to={"/auth/appointments"}
               className={clsx(
                 pathname === "/auth/appointments"
-                  ? "bg-neutral-800"
+                  ? "bg-neutral-800 shadow-lg shadow-black/20"
                   : "bg-transparent",
                 "p-2 px-3 pb-1 flex flex-col items-center gap-y-1 duration-300 rounded-xl",
               )}
@@ -449,7 +461,7 @@ export function LayoutPrivateProvider(): JSX.Element {
               to={"/auth/inboxes/departments"}
               className={clsx(
                 pathname === "/auth/inboxes/departments"
-                  ? "bg-neutral-800"
+                  ? "bg-neutral-800 shadow-lg shadow-black/20"
                   : "bg-transparent",
                 "p-2 px-3 pb-1 flex flex-col items-center gap-y-1 duration-300 rounded-xl",
               )}

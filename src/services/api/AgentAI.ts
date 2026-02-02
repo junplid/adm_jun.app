@@ -13,7 +13,8 @@ export async function getAgentsAI(params: {}): Promise<
     id: number;
     name: string;
     createAt: Date;
-    status: "open" | "close";
+    connectionWAId: number | null;
+    status: "open" | "close" | "sync";
   }[]
 > {
   const { data } = await api.get("/private/agents-ai", { params });
