@@ -520,8 +520,22 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
     return optionsOpertaingDays.filter((s) => !selectedDays.includes(s.value));
   }, [operatingDays?.length]);
 
+  const modal_id = useMemo(() => {
+    if (open) {
+      return v4();
+    } else {
+      return undefined;
+    }
+  }, [open]);
+
   useEffect(() => {
-    if (open) setTokenTest(v4());
+    if (open) {
+      setTokenTest(v4());
+      // const modalId = v4();
+      // const urlParams = new URLSearchParams(window.location.search);
+      // const fbSuccess = urlParams.get('fb_success');
+      // const state = urlParams.get('state');
+    }
     if (!open) setTokenTest("");
     return () => {
       setTokenTest("");
@@ -1561,12 +1575,20 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
                       <div className="pt-4">
                         <button
                           // onClick="window.location.href='SUA_URL_OAUTH_AQUI'"
+                          onClick={() => {
+                            window.open(
+                              api.getUri() +
+                                "/public/meta/auth/instagram/callback?modal_id=1234",
+                              "FB_LOGIN",
+                              "width=600,height=700",
+                            );
+                          }}
                           title="Atualmente indisponível."
                           className={clsx(
                             clientMeta.isMobileLike
                               ? "gap-1 px-3"
                               : "gap-3 px-6",
-                            "cursor-pointer w-full flex items-center justify-center gap-3 py-4 bg-blue-600 opacity-30 hover:bg-blue-7000 text-white font-bold rounded-xl",
+                            "cursor-pointer w-full flex items-center justify-center gap-3 py-4 bg-blue-600 hover:bg-blue-7000 text-white font-bold rounded-xl",
                           )}
                           type="button"
                         >
