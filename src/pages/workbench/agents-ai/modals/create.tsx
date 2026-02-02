@@ -520,13 +520,13 @@ export const ModalCreateAgentAI: React.FC<Props> = (props): JSX.Element => {
     return optionsOpertaingDays.filter((s) => !selectedDays.includes(s.value));
   }, [operatingDays?.length]);
 
-  const modal_id = useMemo(() => {
-    if (open) {
-      return v4();
-    } else {
-      return undefined;
-    }
-  }, [open]);
+  // const modal_id = useMemo(() => {
+  //   if (open) {
+  //     return v4();
+  //   } else {
+  //     return undefined;
+  //   }
+  // }, [open]);
 
   useEffect(() => {
     if (open) {
