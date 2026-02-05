@@ -42,6 +42,7 @@ import {
 import { BiTimeFive } from "react-icons/bi";
 import { ModalChatPlayer } from "../inboxes/departments/modals/Player/modalChat";
 import autoAnimate from "@formkit/auto-animate";
+import { FloatChannelComponent } from "@components/FloatChannel";
 
 export interface Order {
   id: number;
@@ -54,7 +55,10 @@ export interface Order {
   delivery_address: string | null;
   payment_method: string | null;
   actionChannels: string[];
+
+  channel: "baileys" | "instagram";
   contact?: string;
+
   status: TypeStatusOrder;
   priority: TypePriorityOrder | null;
   data: string | null;
@@ -62,7 +66,7 @@ export interface Order {
   sequence: number;
   isDragDisabled: boolean;
   ticket: {
-    connection: { s: boolean; id: number; name: string };
+    connection: { s: boolean; name: string; channel: "baileys" | "instagram" };
     id: number;
     // lastMessage: "bot" | "contact" | "user" | "system";
     departmentName: string;
@@ -104,7 +108,7 @@ export const OrdersPage: React.FC = (): JSX.Element => {
   const { socket, onSetFocused } = useContext(SocketContext);
   const { dialog: DialogModal, close, onOpen } = useDialogModal({});
   const [orders, setOrders] = useState<{ [x: string]: Order[] }>(
-    {} as { [x: string]: Order[] }
+    {} as { [x: string]: Order[] },
   );
 
   const { logout, account } = useContext(AuthContext);
@@ -245,7 +249,7 @@ export const OrdersPage: React.FC = (): JSX.Element => {
               stateClone[props.status].map((order) => {
                 if (order.id === props.orderId) {
                   const nextTk = order.ticket.filter(
-                    (s) => s.id !== props.ticketId
+                    (s) => s.id !== props.ticketId,
                   );
                   order.ticket = nextTk;
                 }
@@ -254,7 +258,7 @@ export const OrdersPage: React.FC = (): JSX.Element => {
               return stateClone;
             });
           }
-        }
+        },
       );
 
       socket.on(
@@ -281,7 +285,7 @@ export const OrdersPage: React.FC = (): JSX.Element => {
               return stateClone;
             });
           }
-        }
+        },
       );
 
       socket.on(
@@ -308,7 +312,7 @@ export const OrdersPage: React.FC = (): JSX.Element => {
               return stateClone;
             });
           }
-        }
+        },
       );
 
       socket.on(
@@ -318,7 +322,11 @@ export const OrdersPage: React.FC = (): JSX.Element => {
           status: TypeStatusOrder;
           orderId: number;
           ticket: {
-            connection: { s: boolean; id: number; name: string };
+            connection: {
+              name: string;
+              channel: "baileys" | "instagram";
+              s: boolean;
+            };
             id: number;
             lastMessage: "bot" | "contact" | "user" | "system";
             departmentName: string;
@@ -338,7 +346,7 @@ export const OrdersPage: React.FC = (): JSX.Element => {
               return stateClone;
             });
           }
-        }
+        },
       );
 
       socket.on(
@@ -368,7 +376,7 @@ export const OrdersPage: React.FC = (): JSX.Element => {
             // setLoadOrders(stt => stt.filter(s => s !== props.orderId));
             // }, 400);
           }
-        }
+        },
       );
 
       socket.on(
@@ -402,12 +410,18 @@ export const OrdersPage: React.FC = (): JSX.Element => {
             // setLoadOrders(stt => stt.filter(s => s !== props.orderId));
             // }, 400);
           }
-        }
+        },
       );
     }
 
     return () => {
       socket.off("order:new");
+      socket.off("order:update-status");
+      socket.off("order:update-rank");
+      socket.off("order:ticket:new");
+      socket.off("order:ticket:remove");
+      socket.off("order:ticket:return");
+      socket.off("order:ticket:open");
     };
   }, [socket]);
 
@@ -479,8 +493,6 @@ const Column: FC<ColumnProps> = ({
   onOpenDialog,
   onCloseDialog,
 }) => {
-  // const [searchValue, setSearchValue] = useState("");
-
   return (
     <Grid
       h={"100%"}
@@ -602,7 +614,7 @@ export const Taks: FC<
         throw error;
       }
     },
-    [actionsLoad]
+    [actionsLoad],
   );
 
   return (
@@ -633,6 +645,7 @@ export const Taks: FC<
             gap={1}
             pb={2}
           >
+            <FloatChannelComponent channel={props.channel} />
             <div className="px-2 pt-2 flex w-full mb-0 items-center gap-x-1 justify-between">
               <span className="text-white/35 text-sm">#{props.n_order}</span>
 
@@ -677,64 +690,16 @@ export const Taks: FC<
 
             <div ref={parent} className="flex px-1 flex-col w-full gap-y-1">
               {props.ticket.map((tk) => (
-                <div
+                <TicketCard
+                  businessId={props.businessId}
+                  id={id}
+                  n_order={props.n_order}
+                  name={props.name}
+                  tk={tk}
                   key={tk.id}
-                  style={{
-                    background:
-                      tk.status === "OPEN"
-                        ? "linear-gradient(143deg,rgba(88, 172, 245, 0.04) 0%, rgba(52, 126, 191, 0.12) 100%)"
-                        : "linear-gradient(143deg,rgba(235, 203, 175, 0.07) 0%, rgba(219, 155, 99, 0.09) 100%)",
-                  }}
-                  className="cursor-pointer p-2 pr-2.5 rounded-md flex items-center justify-between w-full gap-x-1.5"
-                  onClick={() =>
-                    props.onOpenDialog({
-                      size: "xl",
-                      content: (
-                        <ModalChatPlayer
-                          orderId={id}
-                          close={props.onCloseDialog}
-                          data={{
-                            businessId: props.businessId,
-                            id: tk.id,
-                            name: `#${props.n_order} / ${props.name}`,
-                          }}
-                        />
-                      ),
-                    })
-                  }
-                >
-                  <div className="flex flex-col -space-y-0.5">
-                    <div className="flex gap-x-1 items-center">
-                      <LuBriefcaseBusiness size={12} />
-                      <span className="font-medium text-xs line-clamp-1">
-                        {tk.departmentName}
-                      </span>
-                    </div>
-                    <div className="flex gap-x-1 text-xs items-center">
-                      {tk.connection.s ? (
-                        <ImConnection color={"#7bf1a8e2"} size={12} />
-                      ) : (
-                        <MdSignalWifiConnectedNoInternet0
-                          color={"#f17b7b"}
-                          size={12}
-                        />
-                      )}
-                      <span className="text-[#7bf1a892]">
-                        {tk.connection.name}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex relative">
-                    {/* {tk.lastMessage === "contact" && (
-                        <div className="absolute -top-0.5 -right-0.5 w-1.5 rounded-full h-1.5 bg-[#22b512]" />
-                      )} */}
-                    {tk.status === "OPEN" ? (
-                      <MdSupportAgent size={20} color="#58ACF5" />
-                    ) : (
-                      <BiTimeFive size={20} color="#EDA058" />
-                    )}
-                  </div>
-                </div>
+                  onCloseDialog={props.onCloseDialog}
+                  onOpenDialog={props.onOpenDialog}
+                />
               ))}
             </div>
 
@@ -763,6 +728,84 @@ export const Taks: FC<
     </Draggable>
   );
 };
+
+function TicketCard({
+  tk,
+  id,
+  ...props
+}: {
+  tk: Order["ticket"][0];
+  onOpenDialog: (props: {
+    content: ReactNode;
+    size?: "sm" | "md" | "lg" | "xl";
+  }) => void;
+  onCloseDialog: () => void;
+  businessId: number;
+  n_order: string;
+  name: string | null;
+  id: number;
+}) {
+  return (
+    <div
+      key={tk.id}
+      style={{
+        background:
+          tk.status === "OPEN"
+            ? "linear-gradient(143deg,rgba(88, 172, 245, 0.04) 0%, rgba(52, 126, 191, 0.12) 100%)"
+            : "linear-gradient(143deg,rgba(235, 203, 175, 0.07) 0%, rgba(219, 155, 99, 0.09) 100%)",
+      }}
+      className="relative cursor-pointer p-2 pr-2.5 rounded-md flex items-center justify-between w-full gap-x-1.5"
+      onClick={() =>
+        props.onOpenDialog({
+          size: "xl",
+          content: (
+            <ModalChatPlayer
+              orderId={id}
+              close={props.onCloseDialog}
+              data={{
+                businessId: props.businessId,
+                id: tk.id,
+                name: `#${props.n_order} / ${props.name}`,
+              }}
+            />
+          ),
+        })
+      }
+    >
+      <FloatChannelComponent
+        channel={tk.connection.channel}
+        placement="bottom-end"
+      />
+
+      <div className="flex flex-col -space-y-0.5">
+        <div className="flex gap-x-1 items-center">
+          <LuBriefcaseBusiness size={12} />
+          <span className="font-medium text-xs line-clamp-1">
+            {tk.departmentName}
+          </span>
+        </div>
+        <div className="flex gap-x-1 text-xs items-center">
+          {tk.connection.s ? (
+            <ImConnection color={"#7bf1a8e2"} size={12} />
+          ) : (
+            <MdSignalWifiConnectedNoInternet0 color={"#f17b7b"} size={12} />
+          )}
+          <span className="text-[#7bf1a892]">{tk.connection.name}</span>
+        </div>
+      </div>
+      <div className="flex relative">
+        {/* {tk.lastMessage === "contact" && (
+                        <div className="absolute -top-0.5 -right-0.5 w-1.5 rounded-full h-1.5 bg-[#22b512]" />
+                      )} */}
+        {tk.status === "OPEN" ? (
+          <MdSupportAgent size={20} color="#58ACF5" />
+        ) : (
+          <BiTimeFive size={20} color="#EDA058" />
+        )}
+      </div>
+    </div>
+  );
+}
 
 // function OrderItem(props: OrderRow): JSX.Element {
 //   const [actionsLoad, setActionsLoad] = useState<string[]>([]);
