@@ -64,6 +64,11 @@ import { InViewComponent } from "@components/InView";
 import { InView } from "react-intersection-observer";
 import { BiTimeFive } from "react-icons/bi";
 import { SocketContext } from "@contexts/socket.context";
+import { FloatChannelComponent } from "@components/FloatChannel";
+import { v4 } from "uuid";
+import { IoCheckmarkSharp } from "react-icons/io5";
+import { MessageContentType } from "./provider.context";
+import { MdReportGmailerrorred } from "react-icons/md";
 
 const background = {
   system: "#5c3600cd",
@@ -72,21 +77,12 @@ const background = {
   bot: "#30573c",
 };
 
-type MessageType = {
-  type: "text";
-  text: string;
-  id: number;
-  createAt: Date;
-};
+type TypeStatusMessage = "SENT" | "DELIVERED";
 
 interface PropsSocketMessage {
+  content: MessageContentType;
   ticketId: number;
   by: "contact" | "user" | "system";
-  content: MessageType;
-  notifyMsc?: boolean;
-  departmentId: number;
-  userId?: number; // caso seja enviado para um usuário.
-  lastInteractionDate: Date;
 }
 
 interface FileSelected {
@@ -117,13 +113,12 @@ const IconPreviewFile = (p: { mimetype: string }): JSX.Element => {
 };
 
 export const ChatPlayer: FC = () => {
-  const { onSetFocused } = useContext(SocketContext);
+  const { socket } = useContext(SocketContext);
   const {
     pick,
     currentTicket,
     setDataTicket,
     dataTicket,
-    socket,
     loadResolved,
     setLoadReturn,
     setLoadResolved,
@@ -132,7 +127,6 @@ export const ChatPlayer: FC = () => {
   } = useContext(PlayerContext);
   const { logout } = useContext(AuthContext);
   const virtuosoRef = useRef<VirtuosoHandle>(null);
-  const [loadMsg, setLoadMsg] = useState(false);
   const [text, setText] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [openEmojis, setOpenEmojis] = useState(false);
@@ -140,7 +134,7 @@ export const ChatPlayer: FC = () => {
   const caretRef = useRef<{ start: number; end: number }>({ start: 0, end: 0 });
   const [filesSelected, setFilesSelected] = useState<FileSelected[]>([]);
   const [errorTags, setErrorTags] = useState<string | undefined>(undefined);
-
+  const [codesLoad, setCodesLoad] = useState<string[]>([]);
   const { data: tags } = useGetTagsOptions();
   const { mutateAsync: createTag, status: statusCreateTag } = useCreateTag({});
   const { mutateAsync: addTag } = useAddTagOnContactWA({
@@ -149,6 +143,7 @@ export const ChatPlayer: FC = () => {
   const { mutateAsync: rmTag } = useDeleteTagOnContactWA({
     setError: (_, error) => setErrorTags(error.message),
   });
+  const [containerError, setContainerError] = useState<string | null>(null);
 
   const suggestions = useMemo(() => {
     return tags
@@ -290,18 +285,17 @@ export const ChatPlayer: FC = () => {
 
   useEffect(() => {
     if (currentTicket) {
-      socket.emit("join-ticket", { id: currentTicket });
       socket.on("message", (data: PropsSocketMessage) => {
         if (data.by === "user") {
           requestAnimationFrame(() => {
             textareaRef.current?.focus();
           });
           textareaRef.current?.focus();
-          setLoadMsg(false);
           setText("");
         }
         setDataTicket((prev) => {
-          if (!prev) return null;
+          if (!prev || prev.id !== data.ticketId) return prev;
+
           return {
             ...prev,
             messages: [
@@ -311,19 +305,30 @@ export const ChatPlayer: FC = () => {
           };
         });
       });
+      socket.on("message_eco", (data: { id: number }) => {
+        setDataTicket((prev) => {
+          if (!prev) return null;
+          return {
+            ...prev,
+            messages: prev.messages.map((m) => {
+              if (m.content.id === data.id) m.content.status = "DELIVERED";
+              return m;
+            }),
+          };
+        });
+      });
     } else {
       setIsToEnd(false);
     }
 
     return () => {
-      socket.emit("join-ticket", { id: null });
       socket.off("message");
       setDataTicket(null);
       setText("");
-      setLoadMsg(false);
       setOpenEmojis(false);
+      setCodesLoad([]);
     };
-  }, [currentTicket, socket]);
+  }, [currentTicket]);
 
   const sendMessage = async (message: string) => {
     if (
@@ -333,7 +338,6 @@ export const ChatPlayer: FC = () => {
     ) {
       return;
     }
-    setLoadMsg(true);
     setOpenEmojis(false);
     try {
       let type: "text" | "image" | "audio" | "file" = "text";
@@ -353,21 +357,125 @@ export const ChatPlayer: FC = () => {
       const files = filesSelected.map((file) => ({
         id: file.id,
         type: file.type,
+        fileName: file.fileName,
+        code_uuid: v4(),
       }));
       if (dataTicket.status === "NEW") await pick(dataTicket.id);
-      await sendTicketMessage(currentTicket, {
-        text: message.trim(),
-        files,
-        type,
+      requestAnimationFrame(() => {
+        textareaRef.current?.focus();
       });
+      textareaRef.current?.focus();
       setText("");
-      setFilesSelected([]);
+      const code_uuidTEXT = v4();
+      if (type === "text") {
+        setCodesLoad((codes) => [...codes, code_uuidTEXT]);
+        setDataTicket((prev) => {
+          if (!prev) return null;
+          return {
+            ...prev,
+            messages: [
+              ...prev.messages,
+              {
+                by: "user",
+                content: {
+                  code_uuid: code_uuidTEXT,
+                  type: "text",
+                  text,
+                },
+              },
+            ],
+          };
+        });
+      } else {
+        const mm = files.map((f) => {
+          let types: "text" | "image" | "audio" | "file" = "file";
+
+          if (filesSelected.every((file) => file.type === "image/video")) {
+            types = "image";
+          }
+          if (filesSelected.every((file) => file.type === "audio")) {
+            types = "audio";
+          }
+
+          return {
+            by: "user" as "contact" | "user" | "system",
+            content: {
+              code_uuid: f.code_uuid,
+              type: types,
+              fileName: f.fileName,
+            } as MessageContentType,
+          };
+        });
+        setDataTicket((prev) => {
+          if (!prev) return null;
+          return {
+            ...prev,
+            messages: [...prev.messages, ...mm],
+          };
+        });
+        setFilesSelected([]);
+      }
+
+      let newMessage: any = {};
+      if (type === "text") {
+        newMessage = await sendTicketMessage(currentTicket, {
+          text: message.trim(),
+          type,
+          sockId_ignore: socket.id!,
+          code_uuid: code_uuidTEXT,
+        });
+      } else {
+        newMessage = await sendTicketMessage(currentTicket, {
+          text: message.trim(),
+          files,
+          type,
+          sockId_ignore: socket.id!,
+        });
+      }
+
+      if (type === "text") {
+        setCodesLoad((codes) =>
+          codes.filter((c) => c !== newMessage[0].code_uuid),
+        );
+        setDataTicket((prev) => {
+          if (!prev) return null;
+          return {
+            ...prev,
+            messages: prev.messages.map((m) => {
+              if (m.content.code_uuid === newMessage[0].code_uuid) {
+                m.content = { ...m.content, ...newMessage[0], status: "SENT" };
+              }
+              return m;
+            }),
+          };
+        });
+      } else {
+        setDataTicket((prev) => {
+          if (!prev) return null;
+          return {
+            ...prev,
+            messages: prev.messages.map((m) => {
+              const isM = newMessage.find(
+                (s: any) => s.code_uuid === m.content.code_uuid,
+              );
+              if (isM) {
+                setCodesLoad((codes) =>
+                  codes.filter((c) => c !== m.content.code_uuid),
+                );
+                m.content = { ...m.content, ...isM, status: "SENT" };
+              }
+              return m;
+            }),
+          };
+        });
+      }
     } catch (error) {
       if (error instanceof AxiosError) {
         if (error.response?.status === 401) logout();
         if (error.response?.status === 400) {
           const dataError = error.response?.data as ErrorResponse_I;
           if (dataError.toast.length) dataError.toast.forEach(toaster.create);
+          if (dataError.container) setContainerError(dataError.container);
         }
       }
     }
@@ -424,17 +532,6 @@ export const ChatPlayer: FC = () => {
     return false;
   }, [dataTicket?.status, text, filesSelected]);
 
-  useEffect(() => {
-    if (currentTicket) {
-      onSetFocused(`modal-player-chat-${currentTicket}`);
-    } else {
-      onSetFocused(null);
-    }
-    return () => {
-      onSetFocused(null);
-    };
-  }, [currentTicket]);
-
   if (!currentTicket) {
     return (
       <div className="h-full grid place-items-center">
@@ -468,7 +565,18 @@ export const ChatPlayer: FC = () => {
       <div className="w-full flex flex-col gap-y-1">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-x-2">
-            <Avatar size={"sm"} bg={"#555555"} width={"40px"} height={"40px"} />
+            <div className="relative">
+              <Avatar
+                size={"sm"}
+                width={"40px"}
+                bg={"#555555"}
+                height={"40px"}
+              />
+              <FloatChannelComponent
+                channel={dataTicket.connection.channel}
+                offset={[1, 1]}
+              />
+            </div>
             <div className="flex flex-col">
               <span className="font-medium">{dataTicket.contact.name}</span>
               <span className="text-xs sm:text-sm text-white/60">
@@ -597,13 +705,24 @@ export const ChatPlayer: FC = () => {
             increaseViewportBy={{ bottom: 300, top: 200 }}
             style={{ opacity: isToEnd ? 1 : 0 }}
             itemContent={(_, msg) => {
+              let is = false;
+              if (dataTicket.messages[_ - 1] !== undefined) {
+                is = msg.by === dataTicket.messages[_ - 1].by;
+              }
+
               if (msg.content.type === "text") {
                 return (
                   <TextBubbleComponent
                     message={msg.content.text}
                     createAt={moment(msg.content.createAt)}
-                    isArrow={msg.by === "contact"}
                     sentBy={msg.by}
+                    isArrow={!is}
+                    load={
+                      !!msg.content.code_uuid &&
+                      codesLoad.includes(msg.content.code_uuid)
+                    }
+                    status={msg.content.status}
+                    error={msg.content.error}
                   />
                 );
               }
@@ -614,6 +733,13 @@ export const ChatPlayer: FC = () => {
                     fileName={msg.content.fileName}
                     sentBy={msg.by}
                     caption={msg.content.caption}
+                    load={
+                      !!msg.content.code_uuid &&
+                      codesLoad.includes(msg.content.code_uuid)
+                    }
+                    isArrow={!is}
+                    status={msg.content.status}
+                    error={msg.content.error}
                   />
                 );
               }
@@ -623,7 +749,13 @@ export const ChatPlayer: FC = () => {
                     createAt={moment(msg.content.createAt)}
                     fileName={msg.content.fileName}
                     sentBy={msg.by}
-                    isArrow={msg.by === "contact"}
+                    isArrow={!is}
+                    load={
+                      !!msg.content.code_uuid &&
+                      codesLoad.includes(msg.content.code_uuid)
+                    }
+                    status={msg.content.status}
+                    error={msg.content.error}
                   />
                 );
               }
@@ -635,19 +767,16 @@ export const ChatPlayer: FC = () => {
                     caption={msg.content.caption}
                     sentBy={msg.by}
                     fileNameOriginal={msg.content.fileNameOriginal}
+                    load={
+                      !!msg.content.code_uuid &&
+                      codesLoad.includes(msg.content.code_uuid)
+                    }
+                    isArrow={!is}
+                    status={msg.content.status}
+                    error={msg.content.error}
                   />
                 );
               }
-
-              return (
-                <FileBubbleComponent
-                  fileName={`file-${msg}.txt`}
-                  caption={`Caption do arquivo ${msg}`}
-                  // isArrow={msg === 1 ? true : false}
-                  createAt={moment("2023-10-01T12:00:00Z")}
-                  sentBy="contact"
-                />
-              );
             }}
           />
           {!!filesSelected.length && (
@@ -708,6 +837,12 @@ export const ChatPlayer: FC = () => {
         </div>
       </Box>
       <div className="flex flex-col gap-y-0.5 w-full">
+        {containerError && (
+          <div className="flex items-center mx-auto text-red-400 gap-x-1">
+            <MdReportGmailerrorred size={18} />
+            <span className="text-xs font-medium">{containerError}</span>
+          </div>
+        )}
         <form
           className="flex gap-x-2 relative"
           onSubmit={async (event) => {
@@ -779,7 +914,6 @@ export const ChatPlayer: FC = () => {
             autoFocus
             className="p-3 py-2.5 rounded-sm w-full outline-none border-white/10 border"
             disabled={
-              loadMsg ||
               dataTicket.status === "RESOLVED" ||
               dataTicket.status === "DELETED"
             }
@@ -795,12 +929,7 @@ export const ChatPlayer: FC = () => {
             onClick={rememberCaret}
             onSelect={rememberCaret}
           />
-          <IconButton
-            type="submit"
-            variant="subtle"
-            disabled={isDisabledSend}
-            loading={loadMsg}
-          >
+          <IconButton type="submit" variant="subtle" disabled={isDisabledSend}>
             <RiSendPlane2Line />
           </IconButton>
         </form>
@@ -897,7 +1026,18 @@ const TextBubbleComponent: FC<{
   createAt: Moment;
   isArrow?: boolean;
   sentBy: "contact" | "user" | "system" | "bot";
-}> = ({ message, createAt, sentBy, isArrow }): JSX.Element => {
+  load: boolean;
+  status?: TypeStatusMessage;
+  error?: string;
+}> = ({
+  message,
+  createAt,
+  sentBy,
+  isArrow,
+  load,
+  status,
+  error,
+}): JSX.Element => {
   const time = useMemo(() => {
     if (Math.abs(moment(createAt).diff(moment(), "day")) > 0) {
       return moment(createAt).format("DD/MM/YYYY HH:mm");
@@ -906,63 +1046,78 @@ const TextBubbleComponent: FC<{
   }, [createAt]);
 
   return (
-    <div
-      className={`fade-in w-full flex ${
-        sentBy === "contact" ? "justify-start" : "justify-end"
-      }`}
-      style={{ paddingTop: isArrow ? 15 : 3 }}
-    >
-      {sentBy === "contact" && isArrow && (
-        <div
-          style={{
-            width: 0,
-            height: 0,
-            borderTop: "0px solid transparent",
-            borderBottom: "8px solid transparent",
-            borderRight: `6px solid ${background[sentBy]}`,
-          }}
-        />
-      )}
+    <div className="w-full flex flex-col">
       <div
-        className="shadow-md shadow-black/25 max-w-1/2"
-        style={{
-          background: background[sentBy],
-          padding: "4px 8px",
-          ...(sentBy === "contact"
-            ? {
-                borderRadius: `${isArrow ? "0px" : "5px"} 5px 5px`,
-                marginLeft: !isArrow ? 6 : 0,
-              }
-            : {
-                borderRadius: `5px ${isArrow ? "0px" : "5px"} 5px 5px`,
-                marginRight: !isArrow ? 6 : 0,
-              }),
-        }}
+        className={`fade-in w-full flex ${
+          sentBy === "contact" ? "justify-start" : "justify-end"
+        }`}
+        style={{ paddingTop: isArrow ? 15 : 3 }}
       >
-        <div className="flex flex-col">
-          {sentBy === "system" && (
-            <i className="text-xs font-semibold mb-1">
-              Mensagem automática do sistema
-            </i>
-          )}
-          <p>{parse(format(message))}</p>
-          <small
-            className={`pl-5 mt-1 text-white/70 leading-none block text-xs text-end`}
-          >
-            {time}
-          </small>
-        </div>
-      </div>
-      {sentBy !== "contact" && isArrow && (
+        {sentBy === "contact" && isArrow && (
+          <div
+            style={{
+              width: 0,
+              height: 0,
+              borderTop: "0px solid transparent",
+              borderBottom: "8px solid transparent",
+              borderRight: `6px solid ${background[sentBy]}`,
+            }}
+          />
+        )}
         <div
+          className="shadow-md shadow-black/25 max-w-1/2"
           style={{
-            width: 0,
-            height: 0,
-            borderTop: "0px solid transparent",
-            borderBottom: "8px solid transparent",
-            borderLeft: `6px solid ${background[sentBy]}`,
+            background: background[sentBy],
+            padding: "4px 8px",
+            ...(sentBy === "contact"
+              ? {
+                  borderRadius: `${isArrow ? "0px" : "5px"} 5px 5px`,
+                  marginLeft: !isArrow ? 6 : 0,
+                }
+              : {
+                  borderRadius: `5px ${isArrow ? "0px" : "5px"} 5px 5px`,
+                  marginRight: !isArrow ? 6 : 0,
+                }),
           }}
-        />
+        >
+          <div className="flex flex-col">
+            {sentBy === "system" && (
+              <i className="text-xs font-semibold mb-1">
+                Mensagem automática do sistema
+              </i>
+            )}
+            <p>{parse(format(message))}</p>
+            <small
+              className={`pl-5 mt-1 text-white/70 leading-none block text-xs text-end`}
+            >
+              {time}
+            </small>
+          </div>
+        </div>
+        {sentBy !== "contact" && isArrow && (
+          <div
+            style={{
+              width: 0,
+              height: 0,
+              borderTop: "0px solid transparent",
+              borderBottom: "8px solid transparent",
+              borderLeft: `6px solid ${background[sentBy]}`,
+            }}
+          />
+        )}
+      </div>
+      {sentBy === "user" && (
+        <div className="w-full flex justify-end">
+          {error && (
+            <span className="text-red-400 text-xs font-medium">{error}</span>
+          )}
+          {load && (
+            <div className="w-4">
+              <Spinner size={"xs"} />
+            </div>
+          )}
+          {status === "SENT" && <IoCheckmarkSharp />}
+        </div>
       )}
     </div>
   );
@@ -974,7 +1129,17 @@ const ImageBubbleComponent: FC<{
   isArrow?: boolean;
   caption?: string;
   sentBy: "contact" | "user" | "system" | "bot";
-}> = ({ fileName, createAt, isArrow, sentBy, caption }): JSX.Element => {
+  load: boolean;
+  status?: TypeStatusMessage;
+  error?: string;
+}> = ({
+  fileName,
+  createAt,
+  isArrow,
+  sentBy,
+  caption,
+  ...rest
+}): JSX.Element => {
   const time = useMemo(() => {
     if (Math.abs(moment(createAt).diff(moment(), "day")) > 0) {
       return moment(createAt).format("DD/MM/YYYY HH:mm");
@@ -983,74 +1148,91 @@ const ImageBubbleComponent: FC<{
   }, [createAt]);
 
   return (
-    <div
-      className={`fade-in w-full flex ${
-        sentBy === "contact" ? "justify-start" : "justify-end"
-      }`}
-      style={{ paddingTop: isArrow ? 15 : 3 }}
-    >
-      {sentBy === "contact" && isArrow && (
-        <div
-          style={{
-            width: 0,
-            height: 0,
-            borderTop: "0px solid transparent",
-            borderBottom: "8px solid transparent",
-            borderRight: `6px solid ${background[sentBy]}`,
-          }}
-        />
-      )}
+    <div className="w-full flex flex-col">
       <div
-        className="shadow-md shadow-black/25 max-w-1/2"
-        style={{
-          background: background[sentBy],
-          padding: "4px 4px 4px",
-          ...(sentBy === "contact"
-            ? {
-                borderRadius: `${isArrow ? "0px" : "6px"} 6px 6px`,
-                marginLeft: !isArrow ? 6 : 0,
-              }
-            : {
-                borderRadius: `6px ${isArrow ? "0px" : "6px"} 6px 6px`,
-                marginRight: !isArrow ? 6 : 0,
-              }),
-        }}
+        className={`fade-in w-full flex ${
+          sentBy === "contact" ? "justify-start" : "justify-end"
+        }`}
+        style={{ paddingTop: isArrow ? 15 : 3 }}
       >
-        <div className="flex flex-col">
-          {sentBy === "system" && (
-            <i className="text-xs font-semibold mb-1">
-              Mensagem automática do sistema
-            </i>
-          )}
-          <Image
-            fetchPriority="low"
-            loading="lazy"
-            className="max-w-72.5 rounded-md"
-            src={`${api.getUri()}/public/storage/${fileName}`}
-            alt="Imagem"
+        {sentBy === "contact" && isArrow && (
+          <div
+            style={{
+              width: 0,
+              height: 0,
+              borderTop: "0px solid transparent",
+              borderBottom: "8px solid transparent",
+              borderRight: `6px solid ${background[sentBy]}`,
+            }}
           />
-          <div className="pt-1">
-            {caption && (
-              <p className="text-xs px-1 pb-1">{parse(format(caption))}</p>
+        )}
+        <div
+          className="shadow-md shadow-black/25 max-w-1/2"
+          style={{
+            background: background[sentBy],
+            padding: "4px 4px 4px",
+            ...(sentBy === "contact"
+              ? {
+                  borderRadius: `${isArrow ? "0px" : "6px"} 6px 6px`,
+                  marginLeft: !isArrow ? 6 : 0,
+                }
+              : {
+                  borderRadius: `6px ${isArrow ? "0px" : "6px"} 6px 6px`,
+                  marginRight: !isArrow ? 6 : 0,
+                }),
+          }}
+        >
+          <div className="flex flex-col">
+            {sentBy === "system" && (
+              <i className="text-xs font-semibold mb-1">
+                Mensagem automática do sistema
+              </i>
             )}
-            <small
-              className={`pl-5 pr-1 text-white/70 leading-none block text-xs text-end`}
-            >
-              {time}
-            </small>
+            <Image
+              fetchPriority="low"
+              loading="lazy"
+              className="max-w-72.5 rounded-md"
+              src={`${api.getUri()}/public/storage/${fileName}`}
+              alt="Imagem"
+            />
+            <div className="pt-1">
+              {caption && (
+                <p className="text-xs px-1 pb-1">{parse(format(caption))}</p>
+              )}
+              <small
+                className={`pl-5 pr-1 text-white/70 leading-none block text-xs text-end`}
+              >
+                {time}
+              </small>
+            </div>
           </div>
         </div>
+        {sentBy !== "contact" && isArrow && (
+          <div
+            style={{
+              width: 0,
+              height: 0,
+              borderTop: "0px solid transparent",
+              borderBottom: "8px solid transparent",
+              borderLeft: `6px solid ${background[sentBy]}`,
+            }}
+          />
+        )}
       </div>
-      {sentBy !== "contact" && isArrow && (
-        <div
-          style={{
-            width: 0,
-            height: 0,
-            borderTop: "0px solid transparent",
-            borderBottom: "8px solid transparent",
-            borderLeft: `6px solid ${background[sentBy]}`,
-          }}
-        />
+      {sentBy === "user" && (
+        <div className="w-full flex justify-end">
+          {rest.error && (
+            <span className="text-red-400 text-xs font-medium">
+              {rest.error}
+            </span>
+          )}
+          {rest.load && (
+            <div className="w-4">
+              <Spinner size={"xs"} />
+            </div>
+          )}
+          {rest.status === "SENT" && <IoCheckmarkSharp />}
+        </div>
       )}
     </div>
   );
@@ -1062,7 +1244,10 @@ const AudioBubbleComponent: FC<{
   isArrow?: boolean;
   ptt?: boolean;
   sentBy: "contact" | "user" | "system";
-}> = ({ fileName, createAt, sentBy, isArrow }): JSX.Element => {
+  load: boolean;
+  status?: TypeStatusMessage;
+  error?: string;
+}> = ({ fileName, createAt, sentBy, isArrow, ...rest }): JSX.Element => {
   const time = useMemo(() => {
     if (Math.abs(moment(createAt).diff(moment(), "day")) > 0) {
       return moment(createAt).format("DD/MM/YYYY HH:mm");
@@ -1071,29 +1256,46 @@ const AudioBubbleComponent: FC<{
   }, [createAt]);
 
   return (
-    <div
-      className={`fade-in w-full flex ${
-        sentBy === "contact" ? "justify-start" : "justify-end"
-      }`}
-      style={{ paddingTop: isArrow ? 15 : 5 }}
-    >
-      <div className="max-w-72 w-full">
-        <div className="flex flex-col w-full">
-          {sentBy === "system" && (
-            <i className="text-xs font-semibold mb-1">
-              Mensagem automática do sistema
-            </i>
-          )}
-          <AudioSpeekPlayerWA
-            src={api.getUri() + "/public/storage/" + fileName}
-          />
-          <small
-            className={`pl-5 mt-1 text-white/70 leading-none block text-xs text-end`}
-          >
-            {time}
-          </small>
+    <div className="w-full flex flex-col">
+      <div
+        className={`fade-in w-full flex ${
+          sentBy === "contact" ? "justify-start" : "justify-end"
+        }`}
+        style={{ paddingTop: isArrow ? 15 : 5 }}
+      >
+        <div className="max-w-72 w-full">
+          <div className="flex flex-col w-full">
+            {sentBy === "system" && (
+              <i className="text-xs font-semibold mb-1">
+                Mensagem automática do sistema
+              </i>
+            )}
+            <AudioSpeekPlayerWA
+              src={api.getUri() + "/public/storage/" + fileName}
+            />
+            <small
+              className={`pl-5 mt-1 text-white/70 leading-none block text-xs text-end`}
+            >
+              {time}
+            </small>
+          </div>
         </div>
       </div>
+      {sentBy === "user" && (
+        <div className="w-full flex justify-end">
+          {rest.error && (
+            <span className="text-red-400 text-xs font-medium">
+              {rest.error}
+            </span>
+          )}
+          {rest.load && (
+            <div className="w-4">
+              <Spinner size={"xs"} />
+            </div>
+          )}
+          {rest.status === "SENT" && <IoCheckmarkSharp />}
+        </div>
+      )}
     </div>
   );
 };
@@ -1105,6 +1307,9 @@ const FileBubbleComponent: FC<{
   isArrow?: boolean;
   fileNameOriginal?: string;
   sentBy: "contact" | "user" | "system";
+  load: boolean;
+  status?: TypeStatusMessage;
+  error?: string;
 }> = ({
   fileName,
   caption,
@@ -1112,6 +1317,7 @@ const FileBubbleComponent: FC<{
   fileNameOriginal,
   sentBy,
   isArrow,
+  ...rest
 }): JSX.Element => {
   const { download, error, isInProgress } = useDownloader();
 
@@ -1139,87 +1345,104 @@ const FileBubbleComponent: FC<{
   }, [createAt]);
 
   return (
-    <div
-      className={`fade-in w-full flex ${
-        sentBy === "contact" ? "justify-start" : "justify-end"
-      }`}
-      style={{ paddingTop: isArrow ? 15 : 3 }}
-    >
-      {sentBy === "contact" && isArrow && (
-        <div
-          style={{
-            width: 0,
-            height: 0,
-            borderTop: "0px solid transparent",
-            borderBottom: "8px solid transparent",
-            borderRight: `6px solid ${background[sentBy]}`,
-          }}
-        />
-      )}
+    <div className="w-full flex flex-col">
       <div
-        className="shadow-md shadow-black/25 max-w-1/2"
-        style={{
-          background: background[sentBy],
-          padding: "4px 4px",
-          ...(sentBy === "contact"
-            ? {
-                borderRadius: `${isArrow ? "0px" : "5px"} 5px 5px`,
-                marginLeft: !isArrow ? 6 : 0,
-              }
-            : {
-                borderRadius: `5px ${isArrow ? "0px" : "5px"} 5px 5px`,
-                marginRight: !isArrow ? 6 : 0,
-              }),
-        }}
+        className={`fade-in w-full flex ${
+          sentBy === "contact" ? "justify-start" : "justify-end"
+        }`}
+        style={{ paddingTop: isArrow ? 15 : 3 }}
       >
-        <div className="flex flex-col min-w-52">
-          {sentBy === "system" && (
-            <i className="text-xs font-semibold mb-1">
-              Mensagem automática do sistema
-            </i>
-          )}
-          <button
-            onClick={() =>
-              !isInProgress &&
-              download(
-                `${api.getUri()}/public/storage/${fileName}`,
-                fileNameOriginal || fileName,
-              )
-            }
-            title="Baixar arquivo"
-            className="bg-white/5 hover:bg-white/10 cursor-pointer duration-200 rounded-sm p-2 flex items-center gap-2"
-          >
-            <p className="line-clamp-2 text-xs text-start w-full">
-              {fileNameOriginal || fileName}
-            </p>
-            {isInProgress ? (
-              <Spinner />
-            ) : (
-              <a className="p-1">
-                <RiDownload2Line size={20} />
-              </a>
-            )}
-          </button>
-          {caption && (
-            <p className="p-1 pb-0 text-xs">{parse(format(caption))}</p>
-          )}
-          <small
-            className={`pl-5 px-1 leading-none text-white/70 mt-1 block text-xs text-end`}
-          >
-            {time}
-          </small>
-        </div>
-      </div>
-      {sentBy !== "contact" && isArrow && (
+        {sentBy === "contact" && isArrow && (
+          <div
+            style={{
+              width: 0,
+              height: 0,
+              borderTop: "0px solid transparent",
+              borderBottom: "8px solid transparent",
+              borderRight: `6px solid ${background[sentBy]}`,
+            }}
+          />
+        )}
         <div
+          className="shadow-md shadow-black/25 max-w-1/2"
           style={{
-            width: 0,
-            height: 0,
-            borderTop: "0px solid transparent",
-            borderBottom: "8px solid transparent",
-            borderLeft: `6px solid ${background[sentBy]}`,
+            background: background[sentBy],
+            padding: "4px 4px",
+            ...(sentBy === "contact"
+              ? {
+                  borderRadius: `${isArrow ? "0px" : "5px"} 5px 5px`,
+                  marginLeft: !isArrow ? 6 : 0,
+                }
+              : {
+                  borderRadius: `5px ${isArrow ? "0px" : "5px"} 5px 5px`,
+                  marginRight: !isArrow ? 6 : 0,
+                }),
           }}
-        />
+        >
+          <div className="flex flex-col min-w-52">
+            {sentBy === "system" && (
+              <i className="text-xs font-semibold mb-1">
+                Mensagem automática do sistema
+              </i>
+            )}
+            <button
+              onClick={() =>
+                !isInProgress &&
+                download(
+                  `${api.getUri()}/public/storage/${fileName}`,
+                  fileNameOriginal || fileName,
+                )
+              }
+              title="Baixar arquivo"
+              className="bg-white/5 hover:bg-white/10 cursor-pointer duration-200 rounded-sm p-2 flex items-center gap-2"
+            >
+              <p className="line-clamp-2 text-xs text-start w-full">
+                {fileNameOriginal || fileName}
+              </p>
+              {isInProgress ? (
+                <Spinner />
+              ) : (
+                <a className="p-1">
+                  <RiDownload2Line size={20} />
+                </a>
+              )}
+            </button>
+            {caption && (
+              <p className="p-1 pb-0 text-xs">{parse(format(caption))}</p>
+            )}
+            <small
+              className={`pl-5 px-1 leading-none text-white/70 mt-1 block text-xs text-end`}
+            >
+              {time}
+            </small>
+          </div>
+        </div>
+        {sentBy !== "contact" && isArrow && (
+          <div
+            style={{
+              width: 0,
+              height: 0,
+              borderTop: "0px solid transparent",
+              borderBottom: "8px solid transparent",
+              borderLeft: `6px solid ${background[sentBy]}`,
+            }}
+          />
+        )}
+      </div>
+      {sentBy === "user" && (
+        <div className="w-full flex justify-end">
+          {rest.error && (
+            <span className="text-red-400 text-xs font-medium">
+              {rest.error}
+            </span>
+          )}
+          {rest.load && (
+            <div className="w-4">
+              <Spinner size={"xs"} />
+            </div>
+          )}
+          {rest.status === "SENT" && <IoCheckmarkSharp />}
+        </div>
       )}
     </div>
   );

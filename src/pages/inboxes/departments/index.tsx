@@ -1,4 +1,4 @@
-import { JSX, useContext, useMemo } from "react";
+import { JSX, useContext, useEffect, useMemo } from "react";
 import { Button } from "@chakra-ui/react";
 import { IoAdd } from "react-icons/io5";
 import { useDialogModal } from "../../../hooks/dialog.modal";
@@ -16,16 +16,27 @@ import { ModalCreateInboxDepartment } from "./modals/create";
 import { ModalEditInboxDepartment } from "./modals/edit";
 import { ModalPlayerInboxDepartment } from "./modals/Player";
 import { AuthContext } from "@contexts/auth.context";
+import { useRoomWebSocket } from "../../../hooks/roomWebSocket";
+import { SocketContext } from "@contexts/socket.context";
+import { queryClient } from "../../../main";
 
 export interface inboxDepartmentRow {
   tickets_open: number;
+  tickets_new: number;
   business: { id: number; name: string };
   id: number;
   name: string;
   createAt: Date;
 }
 
+interface MathTicketTokenArgs {
+  n: number;
+  departmentId: number;
+}
+
 export const InboxDepartmentsPage: React.FC = (): JSX.Element => {
+  const { socket } = useContext(SocketContext);
+  useRoomWebSocket("departments", undefined);
   const { clientMeta } = useContext(AuthContext);
   const { ToggleMenu } = useContext(LayoutInboxesPageContext);
   const {
@@ -122,7 +133,6 @@ export const InboxDepartmentsPage: React.FC = (): JSX.Element => {
                         data={{
                           id: row.id,
                           name: row.name,
-                          businessId: row.business.id,
                         }}
                       />
                     ),
@@ -179,6 +189,43 @@ export const InboxDepartmentsPage: React.FC = (): JSX.Element => {
       },
     ];
     return columns;
+  }, []);
+
+  useEffect(() => {
+    socket.on("math_open_ticket_count", (data: MathTicketTokenArgs) => {
+      if (queryClient.getQueryData<any>(["inbox-departments", null])) {
+        queryClient.setQueryData(["inbox-departments", null], (old: any) => {
+          if (!old) return old;
+          return old.map((s: any) => {
+            if (s.id !== data.departmentId) return s;
+            return {
+              ...s,
+              tickets_open: s.tickets_open + data.n,
+            };
+          });
+        });
+      }
+    });
+
+    socket.on("math_new_ticket_count", (data: MathTicketTokenArgs) => {
+      if (queryClient.getQueryData<any>(["inbox-departments", null])) {
+        queryClient.setQueryData(["inbox-departments", null], (old: any) => {
+          if (!old) return old;
+          return old.map((s: any) => {
+            if (s.id !== data.departmentId) return s;
+            return {
+              ...s,
+              tickets_new: s.tickets_new + data.n,
+            };
+          });
+        });
+      }
+    });
+
+    return () => {
+      socket.off("math_open_ticket_count");
+      socket.off("math_new_ticket_count");
+    };
   }, []);
 
   return (
@@ -264,7 +311,6 @@ export const InboxDepartmentsPage: React.FC = (): JSX.Element => {
                                 data={{
                                   id: row.id,
                                   name: row.name,
-                                  businessId: row.business.id,
                                 }}
                               />
                             ),

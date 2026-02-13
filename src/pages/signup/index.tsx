@@ -16,7 +16,6 @@ import { toaster } from "@components/ui/toaster";
 import { ErrorResponse_I } from "../../services/api/ErrorResponse";
 import { useHookFormMask } from "use-mask-input";
 import { useQuery } from "@tanstack/react-query";
-import { set } from "idb-keyval";
 import { registerPushToken } from "../../services/push/registerPush";
 
 // import { CardBrand, loadStripe } from "@stripe/stripe-js";
@@ -137,7 +136,7 @@ export const FormSignup: React.FC = (): JSX.Element => {
       //   return;
       // }
       const affiliate = searchParams.get("affiliate") || undefined;
-      const { data } = await api.post("/public/register/account", {
+      const { data, status } = await api.post("/public/register/account", {
         name: fields.name,
         email: fields.email,
         number: fields.number,
@@ -145,9 +144,13 @@ export const FormSignup: React.FC = (): JSX.Element => {
         // paymentMethodId: paymentMethod.id,
         affiliate,
       });
-      await set("auth_token", `BEARER ${data.token}`);
-      await registerPushToken();
-      navigate("/auth/dashboard", { replace: true });
+      if (status === 200) {
+        if (data.csrfToken) {
+          api.defaults.headers.common["X-XSRF-TOKEN"] = data.csrfToken;
+        }
+        await registerPushToken();
+        navigate("/auth/dashboard", { replace: true });
+      }
     } catch (error) {
       if (error instanceof AxiosError) {
         if (error.code === "ERR_NETWORK") {
@@ -294,6 +297,17 @@ export const FormSignup: React.FC = (): JSX.Element => {
               </Button>
             </div>
 
+            <p className="mt-2 text-center text-xs text-slate-400">
+              Ao criar sua conta, você concorda com nossos{" "}
+              <a className="text-blue-400 underline" href="/terms-of-use">
+                Termos de Uso
+              </a>{" "}
+              e{" "}
+              <a className="text-blue-400 underline" href="/privacy-policy">
+                Política de Privacidade
+              </a>
+              .
+            </p>
             {/* <StepsRoot
               step={step}
               onStepChange={(e) => setStep(e.step)}

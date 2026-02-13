@@ -276,13 +276,19 @@ export const AgentsAIPage: React.FC = (): JSX.Element => {
               )} */}
                 Assistentes de IA
               </h1>
-              <ModalCreateAgentAI
-                trigger={
-                  <Button variant="outline" size={"sm"}>
-                    <IoAdd /> Adicionar
-                  </Button>
-                }
-              />
+
+              <Button
+                onClick={() => {
+                  onOpen({
+                    size: "xl",
+                    content: <ModalCreateAgentAI close={close} />,
+                  });
+                }}
+                variant="outline"
+                size={"sm"}
+              >
+                <IoAdd /> Adicionar
+              </Button>
             </div>
             <p className="text-white/60 font-light">
               Autônomos que usam IA para realizar tarefas e alcançar objetivos.

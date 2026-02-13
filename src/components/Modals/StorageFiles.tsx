@@ -30,8 +30,8 @@ interface PropsModalEdit {
       id: number;
       originalName: string;
       mimetype: string | null;
-      fileName?: string | null;
-    }[]
+      fileName: string;
+    }[],
   ) => void;
   mimetype?: ("image/" | "video/" | "audio/" | "application/pdf" | "text/")[];
   isMult?: boolean;
@@ -58,7 +58,7 @@ const IconPreviewFile = (p: { mimetype: string }): JSX.Element => {
 };
 
 function Content(
-  p: Omit<PropsModalEdit, "children"> & { close: () => void }
+  p: Omit<PropsModalEdit, "children"> & { close: () => void },
 ): JSX.Element {
   const { data, isFetching, isPending } = useGetStorageFilesOptions();
   const [selecteds, setSelecteds] = useState<number[]>([]);
@@ -67,7 +67,7 @@ function Content(
     if (!data?.length) return [];
     if (!p.mimetype?.length) return data;
     return data.filter((file) =>
-      p.mimetype!.some((s) => file.mimetype?.startsWith(s))
+      p.mimetype!.some((s) => file.mimetype?.startsWith(s)),
     );
   }, [data]);
 
@@ -113,7 +113,7 @@ function Content(
                       onClick={() => {
                         if (selected) {
                           setSelecteds((prev) =>
-                            prev.filter((id) => id !== file.id)
+                            prev.filter((id) => id !== file.id),
                           );
                         } else {
                           if (p.isMult) {

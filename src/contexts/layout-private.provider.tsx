@@ -406,7 +406,7 @@ export function LayoutPrivateProvider(): JSX.Element {
         </main>
         {(clientMeta.isMobileLike || clientMeta.isSmallScreen) && (
           <div
-            className="sticky bottom-0 left-0 flex justify-center gap-x-1 bg-neutral-900 w-full px-2 py-2"
+            className="sticky bottom-0 z-[999] left-0 flex justify-center gap-x-1 bg-neutral-900 w-full px-2 py-2"
             style={{ boxShadow: "0px -5px 10px #121212" }}
           >
             <Link

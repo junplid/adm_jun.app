@@ -151,6 +151,7 @@ function Content({
                 <SelectInboxUsers
                   name={field.name}
                   isMulti
+                  isDisabled
                   onBlur={field.onBlur}
                   onChange={(e: any) => {
                     field.onChange(e.map((item: any) => item.value));
@@ -170,6 +171,7 @@ function Content({
                   variant="subtle"
                   w="full"
                   mx={0}
+                  disabled
                   checked={value ?? false}
                   onCheckedChange={() => {
                     field.onChange(!value);
@@ -193,6 +195,7 @@ function Content({
                   variant="subtle"
                   w="full"
                   mx={0}
+                  disabled
                   checked={value ?? false}
                   onCheckedChange={() => {
                     field.onChange(!value);

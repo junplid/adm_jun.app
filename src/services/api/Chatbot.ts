@@ -8,6 +8,7 @@ export async function createChatbot(body: {
   status?: boolean;
   description?: string;
   addLeadToAudiencesIds?: number[];
+  connectionIgId?: number;
   addToLeadTagsIds?: number[];
   timeToRestart?: {
     value: number;
@@ -140,7 +141,7 @@ export async function updateChatbot(
     trigger?: string;
     flowBId?: string;
     destLink?: string;
-  }
+  },
 ): Promise<{
   business: { id: number; name: string };
   status: boolean;

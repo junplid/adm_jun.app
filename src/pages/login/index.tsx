@@ -35,8 +35,11 @@ export const LoginPage: React.FC = (): JSX.Element => {
 
   const login = useCallback(async (fields: any) => {
     try {
-      const { status } = await api.post("/public/login-account", fields);
+      const { status, data } = await api.post("/public/login-account", fields);
       if (status === 200) {
+        if (data.csrfToken) {
+          api.defaults.headers.common["X-XSRF-TOKEN"] = data.csrfToken;
+        }
         await registerPushToken();
         navigate("/auth/dashboard", { replace: true });
       }
@@ -70,7 +73,6 @@ export const LoginPage: React.FC = (): JSX.Element => {
   }, []);
 
   useEffect(() => {
-    console.log(document.cookie);
     (async () => {
       await api.post("/private/logout");
       queryClient.clear();

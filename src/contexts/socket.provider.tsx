@@ -10,7 +10,6 @@ import {
 import { Manager } from "socket.io-client";
 import { AuthContext } from "./auth.context";
 import { toaster } from "@components/ui/toaster";
-import { queryClient } from "../main";
 import { useLocation, useNavigate } from "react-router-dom";
 import { LuNotepadText } from "react-icons/lu";
 import { SocketContext } from "./socket.context";
@@ -25,14 +24,6 @@ interface PropsProviderSocketContext_I {
 }
 
 type TStateSocket = "loading" | "disconnected" | "connected";
-interface PropsInbox {
-  accountId: number;
-  departmentId: number;
-  departmentName: string;
-  status: "NEW" | "OPEN" | "RETURN" | "RESOLVED";
-  notifyMsc: boolean;
-  id: number;
-}
 
 interface PropsNotifyOrder {
   accountId: number;
@@ -52,10 +43,20 @@ interface INotification {
   url_redirect?: string;
 }
 
+interface RoomArgsMap {
+  account: undefined;
+  orders: undefined;
+  ticket: { id: number };
+  departments: undefined;
+  player_department: { id: number };
+  dashboard: undefined;
+}
+type RoomPrefix = keyof RoomArgsMap;
+
 export const SocketProvider = ({
   children,
 }: PropsProviderSocketContext_I): JSX.Element => {
-  const [departmentOpenId, setdepartmentOpenId] = useState<number | null>(null);
+  const [_, setdepartmentOpenId] = useState<number | null>(null);
   const { account, clientMeta } = useContext(AuthContext);
   const [_stateSocket, setStateSocket] = useState<TStateSocket>("loading");
   const path = useLocation();
@@ -82,6 +83,10 @@ export const SocketProvider = ({
     },
     [socket],
   );
+
+  const joinRoom = <T extends RoomPrefix>(room: T, args: RoomArgsMap[T]) => {
+    socket.emit(`join_${room}`, args);
+  };
 
   useEffect(() => {
     socket.on("connect_error", () => setStateSocket("disconnected"));
@@ -159,65 +164,6 @@ export const SocketProvider = ({
 
   useEffect(() => {
     if (socket) {
-      socket.on("inbox", (data: PropsInbox) => {
-        if (data.accountId === account.id) {
-          if (queryClient.getQueryData<any>(["inbox-departments", null])) {
-            queryClient.setQueryData(
-              ["inbox-departments", null],
-              (old: any) => {
-                if (!old) return old;
-                return old.map((s: any) => {
-                  if (s.id !== data.departmentId) return s;
-
-                  let tickets_new = s.tickets_new;
-                  let tickets_open = s.tickets_open;
-
-                  if (data.status === "NEW") tickets_new += 1;
-                  if (data.status === "OPEN") {
-                    if (s.tickets_new > 0) tickets_new -= 1;
-                    tickets_open += 1;
-                  }
-                  if (data.status === "RETURN") {
-                    tickets_new += 1;
-                    if (s.tickets_open > 0) tickets_open -= 1;
-                  }
-                  if (data.status === "RESOLVED") {
-                    tickets_open -= 1;
-                  }
-
-                  return {
-                    ...s,
-                    tickets_new,
-                    tickets_open,
-                  };
-                });
-              },
-            );
-          }
-          if (departmentOpenId === data.departmentId) return;
-          // modificação aqui
-          // if (data.notifyToast && data.status === "NEW") {
-          //   toaster.create({
-          //     title: data.departmentName,
-          //     ...(data.status === "NEW" && {
-          //       description: `Novo ticket em: ${data.departmentName}`,
-          //     }),
-          //     type: data.status === "NEW" ? "info" : "info",
-          //     closable: false,
-          //     duration: 1000 * 60 * 100,
-          //   });
-          // }
-        }
-      });
-    }
-
-    return () => {
-      socket.off("inbox");
-    };
-  }, [socket, departmentOpenId]);
-
-  useEffect(() => {
-    if (socket) {
       socket.on("notify-order", (data: PropsNotifyOrder) => {
         if (data.accountId === account.id) {
           if (path.pathname !== "/auth/orders") {
@@ -247,7 +193,7 @@ export const SocketProvider = ({
   }, [socket, path.pathname]);
 
   const dataValue = useMemo(() => {
-    return { socket: socket, setdepartmentOpenId, ns, onSetFocused };
+    return { socket: socket, setdepartmentOpenId, ns, onSetFocused, joinRoom };
   }, [socket]);
 
   return (

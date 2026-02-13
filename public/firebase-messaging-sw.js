@@ -11,21 +11,49 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
-messaging.onBackgroundMessage(payload => {
-  const { title, body, url } = payload.data;
+messaging.onBackgroundMessage(async payload => {
+  const allClients = await self.clients.matchAll({
+    type: "window",
+    includeUncontrolled: true,
+  });
+
+ const isOnSamePage = allClients.some(client =>
+    client.url.includes(url) &&
+    client.visibilityState === "visible"
+  );
+
+  if (isOnSamePage) {
+    // Usuário já está exatamente nessa página
+    return;
+  }
+
+
+  const { title, body, url, tag } = payload.data;
 
   self.registration.showNotification(title, {
     body,
     data: { url },
+    tag,
+    renotify: false
   });
 });
 
-self.addEventListener('notificationclick', event => {
+self.addEventListener('notificationclick', async event => {
   event.notification.close();
 
-  const url = event.notification.data?.url || '/';
+  const targetUrl = event.notification.data?.url || "/";
+ 
+  const allClients = await self.clients.matchAll({
+    type: "window",
+    includeUncontrolled: true,
+  });
 
-  event.waitUntil(
-    self.clients.openWindow(url)
-  );
+  for (const client of allClients) {
+    if (client.url.includes(targetUrl)) {
+      await client.focus();
+      return;
+    }
+  }
+
+  await self.clients.openWindow(targetUrl); 
 });

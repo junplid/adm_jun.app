@@ -19,9 +19,9 @@ interface Props {
       id: number;
       originalName: string;
       mimetype: string | null;
-      fileName?: string | null;
+      fileName: string;
       type: "image/video" | "audio" | "document";
-    }[]
+    }[],
   ) => void;
 }
 

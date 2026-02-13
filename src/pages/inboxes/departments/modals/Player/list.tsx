@@ -3,6 +3,7 @@ import { FC, useContext, useMemo, useRef } from "react";
 import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
 import { PlayerContext } from "./context";
 import moment from "moment";
+import { FloatChannelComponent } from "@components/FloatChannel";
 
 const themes: {
   [x: string]: { indicator: string; txt: string; container: string };
@@ -73,6 +74,7 @@ interface PropsItem {
   count_unread: number;
   lastMessage: string | null;
   clickCard?: () => void;
+  connection: { s: boolean; name: string; channel: "baileys" | "instagram" };
 }
 
 const diasDaSemana: { [x: number]: string } = {
@@ -110,7 +112,13 @@ function Item(p: PropsItem) {
       }}
     >
       <div className="flex items-center gap-x-2">
-        <Avatar size={"sm"} width={"40px"} bg={"#555555"} height={"40px"} />
+        <div className="relative">
+          <Avatar size={"sm"} width={"40px"} bg={"#555555"} height={"40px"} />
+          <FloatChannelComponent
+            channel={p.connection.channel}
+            offset={[1, 1]}
+          />
+        </div>
         <div className="flex flex-col w-full">
           <div className="flex items-center justify-between">
             <span className="font-medium">{p.name}</span>

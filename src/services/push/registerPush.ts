@@ -16,8 +16,20 @@ export async function registerPushToken() {
 
   if (!token) return;
 
+  const ua = navigator.userAgent.toLowerCase();
+
+  const platform = /android/.test(ua)
+    ? "android"
+    : /iphone|ipad|ipod/.test(ua)
+      ? "ios"
+      : "desktop";
+
+  const isPWA =
+    window.matchMedia("(display-mode: standalone)").matches ||
+    (window.navigator as any).standalone === true;
+
   await api.post("/private/push-token", {
     token,
-    platform: "web",
+    plataform: isPWA ? "pwa" : platform,
   });
 }

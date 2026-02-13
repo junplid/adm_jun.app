@@ -14,8 +14,8 @@ import { HiMenu } from "react-icons/hi";
 import { TbTags } from "react-icons/tb";
 import { LayoutWorkbenchPageContext } from "./contexts";
 import { PiBracketsCurlyBold } from "react-icons/pi";
-import { Badge } from "@chakra-ui/react";
-import { MdInsights } from "react-icons/md";
+// import { Badge } from "@chakra-ui/react";
+// import { MdInsights } from "react-icons/md";
 import { GoWorkflow } from "react-icons/go";
 import { GrStorage } from "react-icons/gr";
 import { AuthContext } from "@contexts/auth.context";
@@ -157,13 +157,13 @@ export function LayoutWorkbenchPageProvider(): JSX.Element {
                   >
                     Storage
                   </MenuItem>
-                  <MenuItem
+                  {/* <MenuItem
                     icon={<MdInsights size={20} />}
                     active={pathname === "/auth/workbench/fb-pixels"}
                     component={<Link to={"workbench/fb-pixels"} />}
                   >
                     Pixel Facebook <Badge colorPalette={"green"}>NEW</Badge>
-                  </MenuItem>
+                  </MenuItem> */}
                   <MenuItem
                     icon={<GoWorkflow size={20} />}
                     active={pathname === "/auth/workbench/flows"}

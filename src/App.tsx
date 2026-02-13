@@ -8,15 +8,14 @@ import { ReactFlowProvider } from "@xyflow/react";
 import { LoginPage } from "./pages/login";
 import { SignupPage } from "./pages/signup";
 import { AuthProvider } from "@contexts/auth.provider";
-// import { BusinessesPage } from "./pages/businesses";
 import { FlowsPage } from "./pages/workbench/flows";
 import { VariablesPage } from "./pages/workbench/variables";
 import { DialogProvider } from "@contexts/dialog.provider";
 import { ConnectionsWAPage } from "./pages/connectionswa";
 import { SocketProvider } from "@contexts/socket.provider";
 import { ChatbotsPage } from "./pages/chatbots";
-import { TermsOfServicePage } from "./pages/terms-of-service";
-import { PrivacyPolicyPage } from "./pages/privacy-terms";
+import { TermsOfUsePage } from "./pages/terms-of-use";
+import { PrivacyPolicyPage } from "./pages/privacy-policy";
 import { CampaignsPage } from "./pages/campaigns";
 import { StoragePage } from "./pages/workbench/storage";
 import { AgentsAIPage } from "./pages/workbench/agents-ai";
@@ -28,46 +27,11 @@ import { LayoutWorkbenchPageProvider } from "./pages/workbench/page.context";
 import { TagsPage } from "./pages/workbench/tags";
 import { LayoutIntegrationsPageProvider } from "./pages/integrations/page.context";
 import { PaymentsPage } from "./pages/integrations/payments";
-import { OrdersPage } from "./pages/orders";
 import { TrelloPage } from "./pages/integrations/trello";
 import { LayoutSitesPageProvider } from "./pages/menus-online/page.context";
 import { MenuOnlinePage } from "./pages/menus-online/menu";
 import { AppointmentsPage } from "./pages/appointments";
-
-// import { NodeMessage } from "./flow-lib/nodes/Message";
-// import { NodeReply } from "./flow-lib/nodes/Reply";
-// import { NodeAction } from "./flow-lib/nodes/Action";
-// import { NodeAttendantAIService } from "./flow-lib/nodes/AttendantAi";
-// import { NodeCheckPoint } from "./flow-lib/nodes/CheckPoint";
-// import { NodeDistributeFlow } from "./flow-lib/nodes/DistributeFlow";
-// import { NodeEmailSending } from "./flow-lib/nodes/EmailSending";
-// import { NodeFacebookConversions } from "./flow-lib/nodes/FacebookConversions";
-// import { NodeInsertLeaderInAudience } from "./flow-lib/nodes/InsertLeaderInAudience";
-// import { NodeInterruption } from "./flow-lib/nodes/Interruption";
-// import { NodeInterruptionLinkTrackingPixel } from "./flow-lib/nodes/InterruptionLinkTrackingPixel";
-// import { NodeLinkTranckingPixel } from "./flow-lib/nodes/LinkTrackingPixel";
-// import { NodeLogicalCondition } from "./flow-lib/nodes/LogicalCondition";
-// import { NodeMathematicalOperators } from "./flow-lib/nodes/MathematicalOperators";
-// import { NodeMenu } from "./flow-lib/nodes/Menu";
-// import { NodeNewCardTrello } from "./flow-lib/nodes/NewCardTrello";
-// import { NodeNotifyNumber } from "./flow-lib/nodes/NotifyNumber";
-// import { NodeRemark } from "./flow-lib/nodes/Remark";
-// import { NodeSendAudio } from "./flow-lib/nodes/SendAudio";
-// import { NodeSendContact } from "./flow-lib/nodes/SendContact";
-// import { NodeSendFile } from "./flow-lib/nodes/SendFile";
-// import { NodeSendHumanService } from "./flow-lib/nodes/SendHumanService";
-// import { NodeSendImage } from "./flow-lib/nodes/SendImage";
-// import { NodeSendLink } from "./flow-lib/nodes/SendLink";
-// import { NodeSendLocationGPS } from "./flow-lib/nodes/SendLocationGPS";
-// import { NodeSendPdf } from "./flow-lib/nodes/SendPdf";
-// import { NodeSendVideo } from "./flow-lib/nodes/SendVideo";
-// import { NodeSwitch } from "./flow-lib/nodes/Switch";
-// import { NodeTime } from "./flow-lib/nodes/Time";
-// import { NodeValidation } from "./flow-lib/nodes/Validation";
-// import { NodeWebform } from "./flow-lib/nodes/Webform";
-// import { NodeWebhook } from "./flow-lib/nodes/Webhook";
-// import { CustomEdge } from "./flow-lib/Edges/CustomEdge";
-// import ToolBarFlowComponent from "./components/ToolbarFlow";
+import { OrdersPage } from "./pages/orders";
 
 export default function App() {
   return (
@@ -194,30 +158,8 @@ export default function App() {
           />
         </Route>
 
-        {/* <Route
-                  path="subscribe-plan"
-                  caseSensitive
-                  element={<SubscribePlanPage />}
-                />
-                <Route
-                  path="subscribe-extra-package/:id"
-                  caseSensitive
-                  element={<SubscribeExtraPackagesPage />}
-                /> */}
-
-        {/* <Route element={<LogoutLayout />}>
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/signup" element={<SignUpPage2 />} />
-              </Route> */}
-        {/* <Route
-                path="/recover-password/:tk"
-                element={<RecoverPasswordPage />}
-              /> */}
-
-        {/* <Route path="/checkout/:pl" element={<CheckoutPage />} /> */}
-
-        <Route path="/terms-of-service" element={<TermsOfServicePage />} />
-        <Route path="/privacy-terms" element={<PrivacyPolicyPage />} />
+        <Route path="/terms-of-use" element={<TermsOfUsePage />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
 

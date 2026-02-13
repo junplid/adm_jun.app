@@ -11,7 +11,6 @@ import { LuBriefcaseBusiness } from "react-icons/lu";
 import { ChatPlayer } from "./chat";
 import { ListPlayer } from "./list";
 import { PlayerContext } from "./context";
-import { SocketContext } from "@contexts/socket.context";
 import { countDepartmentTicket } from "../../../../../services/api/InboxDepartment";
 import { AxiosError } from "axios";
 import { AuthContext } from "@contexts/auth.context";
@@ -21,9 +20,10 @@ import { PlayerProvider } from "./provider.context";
 import { BiTimeFive } from "react-icons/bi";
 import { MdSupportAgent } from "react-icons/md";
 import { AiOutlineCheckCircle } from "react-icons/ai";
+import { useRoomWebSocket } from "../../../../../hooks/roomWebSocket";
 
 interface PropsModalPlayer {
-  data: { id: number; name: string; businessId: number };
+  data: { id: number; name: string };
   close: () => void;
 }
 
@@ -45,18 +45,9 @@ export const PlayerInboxDepartment: React.FC<PropsModalPlayer> = ({
   ...props
 }): JSX.Element => {
   const { logout } = useContext(AuthContext);
-  const { setdepartmentOpenId } = useContext(SocketContext);
   const { filter, setFilter, countNew, setCountNew } =
     useContext(PlayerContext);
-
   const [focusIn, setFocusIn] = useState<"chat" | "list">("list");
-
-  useEffect(() => {
-    setdepartmentOpenId(props.data.id || null);
-    return () => {
-      setdepartmentOpenId(null);
-    };
-  }, []);
 
   useEffect(() => {
     (async () => {
@@ -295,14 +286,7 @@ export const PlayerInboxDepartment: React.FC<PropsModalPlayer> = ({
 };
 
 export const ModalPlayerInboxDepartment: FC<PropsModalPlayer> = (p) => {
-  const { onSetFocused } = useContext(SocketContext);
-
-  useEffect(() => {
-    onSetFocused(`modal-department-${p.data.id}`);
-    return () => {
-      onSetFocused(null);
-    };
-  }, []);
+  useRoomWebSocket("player_department", { id: p.data.id });
 
   return (
     <DialogContent
@@ -311,7 +295,7 @@ export const ModalPlayerInboxDepartment: FC<PropsModalPlayer> = (p) => {
       m={{ md: "20px", base: "7px" }}
       className="sm:h-[calc(100vh-50px)] h-[calc(100svh-20px)]"
     >
-      <PlayerProvider businessId={p.data.businessId}>
+      <PlayerProvider>
         <PlayerInboxDepartment {...p} />
       </PlayerProvider>
       <div className="md:hidden block">

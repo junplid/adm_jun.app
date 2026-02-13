@@ -15,9 +15,19 @@ export interface AppointmentDetails {
   business: { id: number; name: string };
   contactName: string | undefined;
   reminders: { sent: number; failed: number };
-  connectionWA: { s: boolean; id: number; name: string } | null;
+  connection?: {
+    id: number;
+    name: string;
+    channel: "baileys" | "instagram";
+    s: boolean;
+  };
   ticket: {
-    connection: { s: boolean; id: number; name: string };
+    connection: {
+      s: boolean;
+      id: number;
+      name: string;
+      channel: "baileys" | "instagram";
+    };
     id: number;
     departmentName: string;
     status: TypeStatusTicket;
@@ -39,7 +49,7 @@ export async function updateAppointment(
     title?: string;
     desc?: string;
     startAt?: Date;
-  }
+  },
 ): Promise<void> {
   await api.put(`/private/appointments/${id}`, undefined, {
     params: body,
@@ -48,7 +58,7 @@ export async function updateAppointment(
 
 export async function runActionAppointment(
   id: number,
-  action: string
+  action: string,
 ): Promise<void> {
   await api.post(`/private/appointment/action/${id}/${action}`);
 }
@@ -63,6 +73,7 @@ export async function getAppointments(params?: {
     title: string;
     desc: string | null;
     startAt: Date;
+    channel: "instagram" | "baileys";
   }[];
 }> {
   const { data } = await api.get("/private/appointments", { params });

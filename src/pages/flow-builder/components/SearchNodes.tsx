@@ -22,7 +22,7 @@ import { TypesNodes } from "..";
 import removeAccents from "remove-accents";
 import { LiaHourglassHalfSolid, LiaListSolid } from "react-icons/lia";
 import {
-  MdInsights,
+  // MdInsights,
   MdOutlineImage,
   MdOutlineNotificationsActive,
 } from "react-icons/md";
@@ -186,14 +186,14 @@ const nodesList: {
     description: "Pausa o fluxo por um tempo",
     type: "NodeTimer",
   },
-  {
-    icon: <MdInsights className="text-blue-600 w-8" size={27} />,
-    name: "Rastrear pixel de conversão",
-    description: "Rastreia evento do Facebook Pixel",
-    type: "NodeFbPixel",
-    new: false,
-    premium: true,
-  },
+  // {
+  //   icon: <MdInsights className="text-blue-600 w-8" size={27} />,
+  //   name: "Rastrear pixel de conversão",
+  //   description: "Rastreia evento do Facebook Pixel",
+  //   type: "NodeFbPixel",
+  //   new: false,
+  //   premium: true,
+  // },
   {
     icon: <LiaListSolid className="text-purple-400 w-8" size={31} />,
     name: "Menu",

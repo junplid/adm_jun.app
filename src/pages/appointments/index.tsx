@@ -15,6 +15,7 @@ import { RxCaretLeft, RxCaretRight } from "react-icons/rx";
 import { usePopoverComponent } from "../../hooks/popover";
 import { PopoverViewAppointment } from "./modals/view";
 import { getAppointments } from "../../services/api/Appointments";
+import { FaInstagram, FaWhatsapp } from "react-icons/fa";
 
 moment.updateLocale("pt-br", {
   longDateFormat: {
@@ -34,6 +35,7 @@ export interface Appointment {
   title: string;
   desc: string | null;
   startAt: Date;
+  channel: "instagram" | "baileys";
 }
 
 const messages = {
@@ -107,6 +109,7 @@ interface IAppointmentEvent {
   color: string;
   title: string;
   desc?: string;
+  channel: "instagram" | "baileys";
   closePopover: () => void;
   openPopover(props: {
     content: React.ReactNode;
@@ -132,11 +135,21 @@ const AppointmentEvent = ({
 
   return (
     <div
-      className="rounded-sm w-full h-full px-1"
+      className="rounded-sm w-full h-full px-1 relative"
       style={{ background: event.color }}
       ref={ref}
       onClick={handleClick}
     >
+      {event.channel === "baileys" && (
+        <div className="absolute -top-1 -left-1 bg-teal-600">
+          <FaWhatsapp className="text-white" />
+        </div>
+      )}
+      {event.channel === "instagram" && (
+        <div className="absolute -top-1 -left-1 bg-pink-500">
+          <FaInstagram className="text-white" />
+        </div>
+      )}
       <p className="font-medium text-xs">{event.title}</p>
       {event.desc && (
         <span className="line-clamp-1 text-white/80 truncate text-wrap text-xs">
@@ -369,6 +382,7 @@ export const AppointmentsPage: React.FC = (): JSX.Element => {
               },
               event: ({ event }) => (
                 <AppointmentEvent
+                  channel={event.channel}
                   color={event.color}
                   id={event.id}
                   title={event.title}
@@ -380,6 +394,7 @@ export const AppointmentsPage: React.FC = (): JSX.Element => {
               week: {
                 event: ({ event }) => (
                   <AppointmentEvent
+                    channel={event.channel}
                     color={event.color}
                     id={event.id}
                     title={event.title}
@@ -391,6 +406,7 @@ export const AppointmentsPage: React.FC = (): JSX.Element => {
               month: {
                 event: ({ event }) => (
                   <AppointmentEvent
+                    channel={event.channel}
                     color={event.color}
                     id={event.id}
                     title={event.title}

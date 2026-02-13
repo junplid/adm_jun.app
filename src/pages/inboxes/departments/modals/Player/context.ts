@@ -1,11 +1,9 @@
 import { Dispatch, SetStateAction, createContext } from "react";
-import { Socket } from "socket.io-client";
 import { PropsDataList, Ticket, TypeFilter } from "./provider.context";
 
 interface PropsPlayerContext_I {
   filter: TypeFilter;
   setFilter: (value: TypeFilter) => void;
-  socket: Socket;
   setCountNew: Dispatch<SetStateAction<number>>;
   countNew: number;
   list: PropsDataList[];

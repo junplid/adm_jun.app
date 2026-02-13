@@ -31,7 +31,6 @@ const translateFilter: Record<
 
 interface PropsProviderPlayerContext_I {
   children: JSX.Element;
-  businessId: number;
 }
 
 export type TypeFilter =
@@ -45,6 +44,7 @@ export interface PropsDataList {
   status: "NEW" | "OPEN" | "RESOLVED" | "DELETED" | "RETURN";
   name: string;
   id: number;
+  by: "contact" | "user" | "system";
   forceOpen?: boolean;
   departmentId: number;
   notifyMsc?: boolean;
@@ -52,25 +52,23 @@ export interface PropsDataList {
   lastInteractionDate: Date;
   count_unread: number;
   lastMessage: string | null;
+  connection: { s: boolean; name: string; channel: "baileys" | "instagram" };
 }
 
-export type MessageType =
+type TypeStatusMessage = "SENT" | "DELIVERED";
+
+export type MessageContentType = (
   | {
       type: "text";
       text: string;
-      id: number;
-      createAt: Date;
     }
   | {
       type: "image" | "video";
-      id: number;
-      createAt: Date;
       fileName: string;
       caption?: string;
     }
   | {
       type: "audio";
-      createAt: Date;
       fileName: string;
       ptt?: boolean;
     }
@@ -78,9 +76,15 @@ export type MessageType =
       type: "file";
       fileNameOriginal?: string;
       fileName: string;
-      createAt: Date;
       caption?: string;
-    };
+    }
+) & {
+  createAt?: Date;
+  id?: number;
+  code_uuid?: string;
+  status?: TypeStatusMessage;
+  error?: string;
+};
 
 export interface Ticket {
   id: number;
@@ -91,38 +95,38 @@ export interface Ticket {
   contact: {
     name: string;
     completeNumber: string;
-
     tags: { id: number; name: string }[];
   };
+  connection: {
+    s: boolean;
+    name: string;
+    channel: "baileys" | "instagram";
+    id: number;
+  };
   messages: {
-    content: MessageType;
+    content: MessageContentType;
     by: "contact" | "user" | "system";
   }[];
 }
 
-interface PropsSocketMessage {
+interface PropsSocketMessageTicketList {
   ticketId: number;
   by: "contact" | "user" | "system";
-  content: MessageType;
-  notifyMsc?: boolean;
-  departmentId: number;
-  userId?: number; // caso seja enviado para um usuário.
-  lastInteractionDate: Date;
-  read: boolean;
+  type: MessageContentType["type"];
+  status: TypeStatusMessage;
+  createAt: Date;
+  text?: string;
 }
 
-export const PlayerProvider = ({
-  children,
-  businessId,
-}: PropsProviderPlayerContext_I) => {
-  const { logout, account } = useContext(AuthContext);
-  const { socket, ns } = useContext(SocketContext);
+export const PlayerProvider = ({ children }: PropsProviderPlayerContext_I) => {
+  const { logout } = useContext(AuthContext);
+  const { socket, joinRoom } = useContext(SocketContext);
   const [filter, setFilter] = useState<TypeFilter>("Aguardando");
   const [countNew, setCountNew] = useState(0);
   const [list, setList] = useState<PropsDataList[]>([]);
   const [loadReturn, setLoadReturn] = useState<number | null>(null);
   const [loadResolved, setLoadResolved] = useState<number | null>(null);
-  const [loadData, setLoadData] = useState(false);
+  const [loadData, setLoadData] = useState(true);
   const [currentTicket, setCurrentTicket] = useState<number | null>(null);
   const [dataTicket, setDataTicket] = useState<Ticket | null>(null);
 
@@ -141,13 +145,6 @@ export const PlayerProvider = ({
     }
   }, []);
 
-  const socketNS = useMemo(() => {
-    return ns(`/business-${businessId}/inbox`, {
-      auth: { accountId: account.id },
-      timeout: 3000,
-    });
-  }, [socket]);
-
   useEffect(() => {
     if (!currentTicket) {
       setDataTicket(null);
@@ -158,6 +155,7 @@ export const PlayerProvider = ({
       try {
         setLoadData(true);
         const ticket = await getTicket(currentTicket);
+        joinRoom("ticket", { id: currentTicket });
         setList((prev) => {
           return prev.filter((item) => {
             if (item.id === ticket.id) item.count_unread = 0;
@@ -197,157 +195,148 @@ export const PlayerProvider = ({
   }, [filter]);
 
   useEffect(() => {
-    socketNS.on("list", (data: PropsDataList) => {
-      if (data.status === "RETURN") {
-        setCountNew((prev) => prev + 1);
-        setLoadReturn((s) => (s === data.id ? null : s));
-        setCurrentTicket((s) => {
-          if (s === data.id) {
-            setLoadData(true);
-            return null;
-          }
-          return s;
-        });
-        setDataTicket((t) => {
-          if (!t) return t;
-          if (t.id === data.id) return null;
-          return t;
-        });
-        setFilter((fil) => {
-          if (fil === "Aguardando") {
-            setList((prev) => {
-              const exists = prev.find((item) => item.id === data.id);
-              if (exists) return prev;
-              return [data, ...prev];
-            });
-          }
-          if (fil === "Atendendo") {
-            setCurrentTicket((s) => {
-              if (s === data.id) {
-                setLoadData(true);
-                return null;
-              }
-              return s;
-            });
-            setList((prev) => prev.filter((item) => item.id !== data.id));
-          }
-          if (fil === "Resolvidos") {
-            setList((prev) => prev.filter((item) => item.id !== data.id));
-          }
-          return fil;
-        });
-      }
-      if (data.status === "RESOLVED") {
-        setLoadResolved((s) => (s === data.id ? null : s));
-        setCurrentTicket((s) => {
-          if (s === data.id) {
-            setLoadData(true);
-            return null;
-          }
-          return s;
-        });
-        setDataTicket((t) => {
-          if (!t) return t;
-          if (t.id === data.id) return null;
-          return t;
-        });
-        setFilter((fil) => {
-          if (fil === "Aguardando") {
-            setList((prev) => prev.filter((item) => item.id !== data.id));
-          }
-          if (fil === "Atendendo") {
-            setList((prev) => prev.filter((item) => item.id !== data.id));
-          }
-          if (fil === "Resolvidos") {
-            setList((prev) => {
-              const exists = prev.find((item) => item.id === data.id);
-              if (exists) return prev;
-              return [data, ...prev];
-            });
-          }
-          return fil;
-        });
-      }
-      if (data.status === "NEW") {
-        setCountNew((prev) => prev + 1);
-        setFilter((fil) => {
-          if (fil === "Aguardando") {
-            setList((prev) => {
-              const exists = prev.find((item) => item.id === data.id);
-              if (exists) return prev;
-              return [data, ...prev];
-            });
-          }
-          return fil;
-        });
-      }
-      if (data.status === "OPEN") {
-        setCountNew((prev) => (prev > 0 ? prev - 1 : 0));
-        setCurrentTicket((s) => {
-          if (s === data.id) {
-            setDataTicket((t) => {
-              if (!t) return t;
-              t.status = "OPEN";
-              return t;
-            });
-          }
-          return s;
-        });
-        setFilter((fil) => {
-          if (fil === "Aguardando") {
-            setList((prev) => prev.filter((item) => item.id !== data.id));
-          }
-          if (fil === "Atendendo") {
-            setList((prev) => {
-              const exists = prev.find((item) => item.id === data.id);
-              if (exists) return prev;
-              return [data, ...prev];
-            });
-          }
-          if (filter === "Resolvidos") {
-            setList((prev) => prev.filter((item) => item.id !== data.id));
-          }
-          return fil;
-        });
-      }
-    });
-
-    socketNS.on("message-list", (data: PropsSocketMessage) => {
+    socket.on("return_ticket_list", (data: PropsDataList) => {
+      setCountNew((prev) => prev + 1);
+      setLoadReturn((s) => (s === data.id ? null : s));
       setCurrentTicket((s) => {
-        if (data.ticketId !== s) {
-          if (data.notifyMsc) {
-            // enviar notificação para o usuário
-          }
+        if (s === data.id) {
+          setLoadData(true);
+          socket.emit(`leave_ticket`, { id: data.id });
+          return null;
         }
-        setList((prev) => {
-          return prev.map((item) => {
-            if (item.id === data.ticketId) {
-              item.lastInteractionDate = data.lastInteractionDate;
-              item.lastMessage =
-                data.content.type === "text"
-                  ? data.content.text
-                  : "🎤📷 Arquivo de midia";
-              item.count_unread += 1;
-              item.count_unread = data.read ? 0 : 1;
-            }
-            return item;
-          });
-        });
         return s;
+      });
+      setDataTicket((t) => {
+        if (!t) return t;
+        if (t.id === data.id) return null;
+        return t;
+      });
+      setFilter((fil) => {
+        if (fil === "Aguardando") {
+          setList((prev) => {
+            const exists = prev.find((item) => item.id === data.id);
+            if (exists) return prev;
+            return [data, ...prev];
+          });
+        }
+        if (fil === "Atendendo") {
+          setCurrentTicket((s) => {
+            if (s === data.id) {
+              setLoadData(true);
+              socket.emit(`leave_ticket`, { id: data.id });
+              return null;
+            }
+            return s;
+          });
+          setList((prev) => prev.filter((item) => item.id !== data.id));
+        }
+        if (fil === "Resolvidos") {
+          setList((prev) => prev.filter((item) => item.id !== data.id));
+        }
+        return fil;
+      });
+    });
+    socket.on("resolve_ticket_list", (data: PropsDataList) => {
+      setLoadResolved((s) => (s === data.id ? null : s));
+      setCurrentTicket((s) => {
+        if (s === data.id) {
+          setLoadData(true);
+          socket.emit(`leave_ticket`, { id: data.id });
+          return null;
+        }
+        return s;
+      });
+      setDataTicket((t) => {
+        if (!t) return t;
+        if (t.id === data.id) return null;
+        return t;
+      });
+      setFilter((fil) => {
+        if (fil === "Aguardando") {
+          setList((prev) => prev.filter((item) => item.id !== data.id));
+        }
+        if (fil === "Atendendo") {
+          setList((prev) => prev.filter((item) => item.id !== data.id));
+        }
+        if (fil === "Resolvidos") {
+          setList((prev) => {
+            const exists = prev.find((item) => item.id === data.id);
+            if (exists) return prev;
+            return [data, ...prev];
+          });
+        }
+        return fil;
+      });
+    });
+    socket.on("new_ticket_list", (data: PropsDataList) => {
+      setCountNew((prev) => prev + 1);
+      setFilter((fil) => {
+        if (fil === "Aguardando") {
+          setList((prev) => {
+            const exists = prev.find((item) => item.id === data.id);
+            if (exists) return prev;
+            return [data, ...prev];
+          });
+        }
+        return fil;
+      });
+    });
+    socket.on("open_ticket_list", (data: PropsDataList) => {
+      setCountNew((prev) => (prev > 0 ? prev - 1 : 0));
+      setCurrentTicket((s) => {
+        if (s === data.id) {
+          setDataTicket((t) => {
+            if (!t) return t;
+            t.status = "OPEN";
+            return t;
+          });
+        }
+        return s;
+      });
+      setFilter((fil) => {
+        if (fil === "Aguardando") {
+          setList((prev) => prev.filter((item) => item.id !== data.id));
+        }
+        if (fil === "Atendendo") {
+          setList((prev) => {
+            const exists = prev.find((item) => item.id === data.id);
+            if (exists) return prev;
+            return [data, ...prev];
+          });
+        }
+        if (filter === "Resolvidos") {
+          setList((prev) => prev.filter((item) => item.id !== data.id));
+        }
+        return fil;
+      });
+    });
+    socket.on("message_ticket_list", (data: PropsSocketMessageTicketList) => {
+      setList((prev) => {
+        return prev.map((item) => {
+          if (item.id === data.ticketId) {
+            item.lastInteractionDate = data.createAt;
+            item.lastMessage =
+              data.type === "text" ? data.text! : "🎤📷 Arquivo(s) de mídia";
+            item.by = data.by;
+          }
+          return item;
+        });
       });
     });
 
     return () => {
-      socketNS.off("list");
-      socketNS.off("message");
+      socket.off("return_ticket_list");
+      socket.off("resolve_ticket_list");
+      socket.off("new_ticket_list");
+      socket.off("open_ticket_list");
+      socket.off("message_ticket_list");
     };
-  }, [socketNS]);
+  }, []);
 
   const dataValue = useMemo(() => {
     return {
       filter,
       currentTicket,
-      socket: socketNS,
       countNew,
       list,
       loadReturn,
@@ -365,7 +354,6 @@ export const PlayerProvider = ({
     };
   }, [
     filter,
-    socketNS,
     list,
     loadData,
     countNew,

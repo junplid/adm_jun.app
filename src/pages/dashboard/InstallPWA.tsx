@@ -31,11 +31,18 @@ export function InstallPWA() {
   if (!visible) return null;
 
   return (
-    <button
-      onClick={handleInstall}
-      className="mt-4 w-full rounded-xl bg-white px-4 py-2 text-sm font-semibold text-black transition hover:bg-white/90"
-    >
-      Instalar aplicativo
-    </button>
+    <div className="mt-10 w-full rounded-2xl bg-white/5 p-4 backdrop-blur-sm">
+      <p className="text-sm text-white/80 leading-relaxed">
+        Receba notificações instantâneas de agendamentos, pedidos e chamados de
+        suporte.
+      </p>
+
+      <button
+        onClick={handleInstall}
+        className="mt-4 w-full rounded-xl bg-white px-4 py-2 text-sm font-semibold text-black transition hover:bg-white/90 active:scale-[0.98]"
+      >
+        Instalar agora
+      </button>
+    </div>
   );
 }

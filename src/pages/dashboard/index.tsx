@@ -1,54 +1,161 @@
-// import LineChart from "@components/Charts/Line";
-// import RadarCharts from "@components/Charts/Radar";
-import { JSX } from "react";
+import { JSX, useContext, useEffect, useState } from "react";
 import { InstallPWA } from "./InstallPWA";
+import LineCharts from "@components/Charts/Line";
+import { SocketContext } from "@contexts/socket.context";
+import { useRoomWebSocket } from "../../hooks/roomWebSocket";
+import { getServicesToday } from "../../services/api/Dashboard";
+import { AxiosError } from "axios";
+import { ErrorResponse_I } from "../../services/api/ErrorResponse";
+import { toaster } from "@components/ui/toaster";
+import { AuthContext } from "@contexts/auth.context";
+import { Skeleton } from "@chakra-ui/react";
+import { useFiveMinuteClock } from "../../hooks/preciseFiveMinuteListener";
 
 export function DashboardPage(): JSX.Element {
+  const { logout } = useContext(AuthContext);
+  const [load, setLoad] = useState(true);
+  const [servicesToday, setServicesToday] = useState<
+    Record<string, number | null>
+  >({});
+  const [currentValue, setCurrentValue] = useState<number>(0);
+
+  const { socket } = useContext(SocketContext);
+  useRoomWebSocket("dashboard", undefined);
+
+  useFiveMinuteClock((hour) => {
+    console.log(hour);
+    setServicesToday((services) => {
+      if (services[hour] === null) {
+        const keys = Object.keys(services);
+        const index = keys.findIndex((s) => s === hour);
+        if (index < 0) {
+          return { ...services };
+        } else {
+          const prevIndex = Math.max(0, index - 1);
+          const valuePrev = services[keys[prevIndex]];
+          services[hour] = valuePrev || 0;
+          setCurrentValue(valuePrev || 0);
+        }
+      } else {
+        services[hour] = services[hour] || 0;
+        setCurrentValue(services[hour] || 0);
+      }
+      return { ...services };
+    });
+  });
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const services = await getServicesToday();
+        const lastIndex = Object.values(services).findIndex((s) => s === null);
+        if (lastIndex >= 0) {
+          setCurrentValue(Object.values(services)[lastIndex - 1] || 0);
+        }
+
+        setServicesToday(services);
+        setTimeout(() => setLoad(false), 200);
+      } catch (error) {
+        setLoad(false);
+        if (error instanceof AxiosError) {
+          if (error.response?.status === 401) logout();
+          if (error.response?.status === 400) {
+            const dataError = error.response?.data as ErrorResponse_I;
+            if (dataError.toast.length) dataError.toast.forEach(toaster.create);
+          }
+        }
+        throw error;
+      }
+      socket.on(
+        "dashboard_services",
+        (data: { delta: number; hour: string }) => {
+          setServicesToday((services) => {
+            if (services[data.hour] === null) {
+              const keys = Object.keys(services);
+              const index = keys.findIndex((s) => s === data.hour);
+              if (index < 0) {
+                return { ...services };
+              } else {
+                const prevIndex = Math.max(0, index - 1);
+                const valuePrev = services[keys[prevIndex]];
+                const nextValue = (valuePrev || 0) + data.delta;
+                services[data.hour] = nextValue;
+                setCurrentValue(nextValue);
+              }
+            } else {
+              const nextValue = (services[data.hour] || 0) + data.delta;
+              services[data.hour] = nextValue;
+              setCurrentValue(nextValue);
+            }
+            return { ...services };
+          });
+        },
+      );
+    })();
+
+    return () => {
+      socket.off("dashboard_services");
+    };
+  }, []);
+
   return (
-    <div>
-      {/* <div className="pointer-events-none select-none opacity-40 grid grid-cols-[repeat(auto-fill,minmax(230px,1fr))] gap-2.5">
-        <div className="flex flex-col bg-[#2e2b2b85] overflow-hidden rounded-xl shadow-lg shadow-black/30">
-          <div className="flex items-center justify-between p-3 pb-0 gap-2">
-            <div className="">
-              <h1 className="text-xs text-white/70 font-medium">
-                Novos contatos
-              </h1>
-              <span className="font-medium text-3xl">2.070</span>
+    <div className="sm:p-0 p-2">
+      <Skeleton
+        height="200px"
+        className="rounded-xl!"
+        loading={load}
+        css={{
+          "--start-color": "#474545",
+          "--end-color": "#36333385",
+        }}
+      >
+        <div className="flex flex-col justify-between bg-[#2e2b2b85]! overflow-hidden rounded-xl shadow-md">
+          <div className="flex w-full items-start justify-between gap-x-1 pt-3 px-3 pb-3">
+            <div className="flex items-center justify-between pb-0 gap-2">
+              <div className="flex items-center gap-x-2">
+                <h1 className="text-sm text-white/90 font-medium">
+                  Atendimentos simultâneos
+                </h1>
+                <span
+                  style={{
+                    opacity: currentValue ? 1 : 0.4,
+                  }}
+                  className="bg-white/60 font-medium px-3 rounded-xl text-xs text-black block"
+                >
+                  {currentValue}
+                </span>
+              </div>
+              {/* <div className="flex items-center">
+              <span className="font-semibold text-xl">13</span>
+              <span className="text-[#84df5a] text-sm">+90%</span>
+            </div> */}
             </div>
-            <span className="text-[#addb98] font-bold text-xl">+893.11%</span>
+            {/* <div className="flex items-center gap-1 text-gray-100">
+            <BsCalendarWeek />
+            <button className="flex bg-gray-100 border p-0.5 px-2 rounded-sm">
+              <span className="text-[11px] text-black/70">20/01 - 27/01</span>
+            </button>
+          </div> */}
           </div>
+
           <div
             style={{
-              height: "125px",
-              width: "calc(100% + 10px)",
-              transform: "translateX(-5px) translateY(-6px)",
+              width: "calc(100%)",
+              height: 160,
             }}
+            className="p-0.5 pt-0"
           >
-            <LineChart
+            <LineCharts
               data={{
-                labels: [
-                  "07/05/2023",
-                  "08/05/2023",
-                  "09/05/2023",
-                  "10/05/2023",
-                  "11/05/2023",
-                  "12/05/2023",
-                  "13/05/2023",
-                  "14/05/2023",
-                  "15/05/2023",
-                  "16/05/2023",
-                  "17/05/2023",
-                  "18/05/2023",
-                ],
+                labels: Object.keys(servicesToday),
                 datasets: [
                   {
                     label: "",
-                    data: [
-                      43, 14, 29, 32, 123, 177, 147, 217, 327, 307, 227, 427,
-                    ],
+                    data: Object.values(servicesToday),
                     borderColor: "rgba(255, 255, 255, 0.514)",
+                    borderWidth: 2,
                     fill: true,
-                    tension: 0.2,
+                    tension: 0.4,
                     backgroundColor: (context) => {
                       const chart = context.chart;
                       const { ctx, chartArea } = chart;
@@ -57,14 +164,24 @@ export function DashboardPage(): JSX.Element {
                         0,
                         chartArea.bottom,
                         0,
-                        chartArea.top
+                        chartArea.top,
                       );
-                      gradient.addColorStop(1, "rgba(255, 255, 255, 0.219)");
+                      gradient.addColorStop(1, "rgba(255, 255, 255, 0.4)");
                       gradient.addColorStop(0, "rgba(255, 255, 255, 0)");
 
                       return gradient;
                     },
-                    pointRadius: 5,
+                    pointRadius: (ctx) => {
+                      const index = ctx.dataIndex;
+                      const lastIndex = ctx.dataset.data.findIndex(
+                        (s) => s === null,
+                      );
+                      if (lastIndex < 0) {
+                        return index === 23 ? 3 : 0;
+                      } else {
+                        return index === lastIndex - 1 ? 3 : 0;
+                      }
+                    },
                   },
                 ],
               }}
@@ -73,71 +190,44 @@ export function DashboardPage(): JSX.Element {
                 plugins: {
                   legend: { display: false },
                   title: { display: false },
+                  tooltip: {},
                 },
                 scales: {
                   y: {
-                    display: false,
+                    display: true,
                     beginAtZero: false,
                     grace: 0,
-                    ticks: { display: false },
-                    grid: { display: false },
+                    suggestedMax: 8,
+                    ticks: { display: true, font: { size: 8 } },
+                    grid: { display: true, color: "rgba(255, 255, 255, 0.04)" },
                   },
                   x: {
-                    grid: { display: false },
-                    ticks: { display: false, color: "#ccc" },
-                    display: false,
-                  },
-                },
-              }}
-            />
-          </div>
-        </div>
-        <div className="flex flex-col gap-y-2 bg-[#2e2b2b85] overflow-hidden rounded-xl shadow-lg shadow-black/30">
-          <div className="flex items-center justify-between p-3 pb-0 gap-2">
-            <h1 className="text-xs text-white/70 font-medium">
-              Top 4 Etiquetas
-            </h1>
-          </div>
-          <div>
-            <RadarCharts
-              data={{
-                labels: ["COMPRADOR", "VENDEDOR", "CLIENTE", "FORNECEDOR"],
-                datasets: [
-                  {
-                    data: [59, 40, 18, 20],
-                    fill: true,
-                    backgroundColor: "rgba(224, 221, 221, 0.438)",
-                    pointRadius: 4,
-                    borderColor: "rgba(255, 255, 255, 0.514)",
-                    tension: 0.4,
-                    borderWidth: 2,
-                    pointBorderWidth: 1,
-                    borderJoinStyle: "round",
-                  },
-                ],
-              }}
-              options={{
-                plugins: {
-                  legend: { display: false },
-                  title: { display: false },
-                },
-                scales: {
-                  r: {
-                    pointLabels: {
-                      color: "#c5c5c5",
-                      font: { weight: "bold", size: 9 },
-                    },
-                    ticks: { display: false },
-                    grid: { color: "rgba(255, 255, 255, 0.247)", lineWidth: 1 },
-                  },
-                },
-              }}
-            />
-          </div>
-        </div>
-      </div> */}
+                    grid: { display: true, color: "rgba(255, 255, 255, 0.04)" },
+                    ticks: {
+                      display: true,
+                      font: { size: 7 },
+                      maxRotation: 0,
+                      callback(tickValue) {
+                        const label = this.getLabelForValue(
+                          tickValue as number,
+                        );
+                        if (label.endsWith(":00")) {
+                          return label.replace(":00", "h");
+                        }
 
-      <div className="mt-20 flex flex-col text-sm text-center text-white/70">
+                        return label;
+                      },
+                    },
+                    display: true,
+                  },
+                },
+              }}
+            />
+          </div>
+        </div>
+      </Skeleton>
+
+      <div className="mt-10 flex flex-col text-sm text-center text-white/70">
         <span>Estamos construindo algo melhor.</span>
         <span className="text-white text-base">
           Em breve, métricas profundas e mais inteligentes.

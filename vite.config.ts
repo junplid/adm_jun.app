@@ -8,9 +8,6 @@ import { VitePWA } from "vite-plugin-pwa";
 
 // https://vite.dev/config/
 export default defineConfig({
-  // server: {
-  //   allowedHosts: ["60b526a0eaff.ngrok-free.app"],
-  // },
   plugins: [
     react(),
     tsconfigPaths(),
@@ -41,9 +38,9 @@ export default defineConfig({
     }),
     VitePWA({
       injectRegister: false,
-      devOptions: {
-        enabled: true,
-      },
+      // devOptions: {
+      //   enabled: true,
+      // },
       workbox: {
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MB
       },

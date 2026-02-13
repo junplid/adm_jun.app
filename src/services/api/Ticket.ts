@@ -8,74 +8,90 @@ export async function pickTicket(id: number, orderId?: number): Promise<void> {
 
 export async function returnTicket(
   id: number,
-  orderId?: number
+  orderId?: number,
 ): Promise<void> {
   await api.post(`/private/tickets/${id}/return`, { orderId });
 }
 
 export async function resolveTicket(
   id: number,
-  orderId?: number
+  orderId?: number,
 ): Promise<void> {
   await api.post(`/private/tickets/${id}/resolve`, { orderId });
 }
 
 export async function sendTicketMessage(
   id: number,
-  props:
-    | { type: "text"; text: string }
+  props: (
+    | { type: "text"; text: string; code_uuid: string }
     | {
         type: "audio";
         ptt?: boolean;
-        files: { id: number; type: "audio" | "image/video" | "document" }[];
+        files: {
+          id: number;
+          type: "audio" | "image/video" | "document";
+          code_uuid: string;
+        }[];
       }
     | {
         type: "image";
         text?: string;
-        files: { id: number; type: "audio" | "image/video" | "document" }[];
+        files: {
+          id: number;
+          type: "audio" | "image/video" | "document";
+          code_uuid: string;
+        }[];
       }
     | {
         type: "file";
         text?: string;
-        files: { id: number; type: "audio" | "image/video" | "document" }[];
+        files: {
+          id: number;
+          type: "audio" | "image/video" | "document";
+          code_uuid: string;
+        }[];
       }
-): Promise<void> {
-  await api.post(`/private/tickets/${id}/message`, props);
+  ) & { sockId_ignore: string },
+): Promise<
+  { id?: number; error?: string; createAt?: Date; code_uuid: string }[]
+> {
+  const { data } = await api.post(`/private/tickets/${id}/message`, props);
+  return data.msg;
 }
 
-export async function updateBusiness(
-  id: number,
-  body: {
-    name?: string;
-    description?: string | null;
-  }
-): Promise<{
-  updateAt: Date;
-}> {
-  const { data } = await api.put(`/private/businesses/${id}`, undefined, {
-    params: body,
-  });
-  return data.business;
-}
+// export async function updateBusiness(
+//   id: number,
+//   body: {
+//     name?: string;
+//     description?: string | null;
+//   }
+// ): Promise<{
+//   updateAt: Date;
+// }> {
+//   const { data } = await api.put(`/private/businesses/${id}`, undefined, {
+//     params: body,
+//   });
+//   return data.business;
+// }
 
-export async function getBusinessDetails(id: number): Promise<{
-  name: string;
-  updateAt: Date;
-  createAt: Date;
-  id: number;
-  description: string | null;
-}> {
-  const { data } = await api.get(`/private/businesses/${id}/details`);
-  return data.business;
-}
+// export async function getBusinessDetails(id: number): Promise<{
+//   name: string;
+//   updateAt: Date;
+//   createAt: Date;
+//   id: number;
+//   description: string | null;
+// }> {
+//   const { data } = await api.get(`/private/businesses/${id}/details`);
+//   return data.business;
+// }
 
-export async function getBusiness(id: number): Promise<{
-  name: string;
-  description: string | null;
-}> {
-  const { data } = await api.get(`/private/businesses/${id}`);
-  return data.business;
-}
+// export async function getBusiness(id: number): Promise<{
+//   name: string;
+//   description: string | null;
+// }> {
+//   const { data } = await api.get(`/private/businesses/${id}`);
+//   return data.business;
+// }
 
 export async function getTickets(params?: {
   status?: TypeStatusTicket;
@@ -90,6 +106,8 @@ export async function getTickets(params?: {
     lastInteractionDate: Date;
     count_unread: number;
     lastMessage: string | null;
+    by: "contact" | "user" | "system";
+    connection: { s: boolean; name: string; channel: "baileys" | "instagram" };
   }[]
 > {
   const { data } = await api.get("/private/tickets", { params });
@@ -108,6 +126,12 @@ export async function getTicket(id: number): Promise<{
   businessId: number;
   inboxUserId: number | null;
   status: TypeStatusTicket;
+  connection: {
+    s: boolean;
+    name: string;
+    channel: "baileys" | "instagram";
+    id: number;
+  };
   contact: {
     name: string;
     completeNumber: string;
@@ -136,19 +160,19 @@ export async function getTicket(id: number): Promise<{
   return data.ticket;
 }
 
-export async function getOptionsBusinesses({
-  filterIds,
-  ...params
-}: {
-  name?: string;
-  filterIds?: number[];
-}): Promise<{ name: string; id: number }[]> {
-  const { data } = await api.get("/private/businesses/options", {
-    params: { ...params, filterIds: filterIds?.join("-") },
-  });
-  return data.businesses;
-}
+// export async function getOptionsBusinesses({
+//   filterIds,
+//   ...params
+// }: {
+//   name?: string;
+//   filterIds?: number[];
+// }): Promise<{ name: string; id: number }[]> {
+//   const { data } = await api.get("/private/businesses/options", {
+//     params: { ...params, filterIds: filterIds?.join("-") },
+//   });
+//   return data.businesses;
+// }
 
-export async function deleteBusiness(id: number): Promise<void> {
-  await api.delete(`/private/business/${id}`);
-}
+// export async function deleteBusiness(id: number): Promise<void> {
+//   await api.delete(`/private/business/${id}`);
+// }
