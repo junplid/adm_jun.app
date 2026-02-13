@@ -30,6 +30,6 @@ export async function registerPushToken() {
 
   await api.post("/private/push-token", {
     token,
-    plataform: isPWA ? "pwa" : platform,
+    platform: isPWA ? "pwa" : platform,
   });
 }
