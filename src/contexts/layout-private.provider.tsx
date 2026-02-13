@@ -7,7 +7,7 @@ import {
   useMemo,
   useState,
 } from "react";
-import { IoClose, IoLogoWhatsapp } from "react-icons/io5";
+import { IoClose } from "react-icons/io5";
 import { PiPicnicTableBold } from "react-icons/pi";
 // import { GrConnect, GrSend } from "react-icons/gr";
 import { Menu, MenuItem, Sidebar } from "react-pro-sidebar";
@@ -372,19 +372,6 @@ export function LayoutPrivateProvider(): JSX.Element {
               style={{ background: "#121111" }}
               className="sticky bottom-0 gap-2 z-50 pb-3 pt-3 flex flex-wrap w-full items-center justify-center p-1 px-2"
             >
-              <Tooltip
-                showArrow
-                positioning={{ placement: toggledMenu ? "top" : "right" }}
-                content="Suporte Whatsapp"
-              >
-                <a
-                  href="https://web.whatsapp.com/send?phone=5517981912525&text=Olá, preciso de ajuda"
-                  target="_blank"
-                  className="flex text-white border border-white/25 justify-center cursor-pointer items-center bg-[#70af64] hover:bg-[#388f3f] duration-300 p-2 rounded-sm"
-                >
-                  <IoLogoWhatsapp size={18} />
-                </a>
-              </Tooltip>
               <Tooltip
                 showArrow
                 positioning={{ placement: toggledMenu ? "top" : "right" }}
