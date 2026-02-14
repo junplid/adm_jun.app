@@ -50,6 +50,7 @@ interface RoomArgsMap {
   departments: undefined;
   player_department: { id: number };
   dashboard: undefined;
+  connections: undefined;
 }
 type RoomPrefix = keyof RoomArgsMap;
 

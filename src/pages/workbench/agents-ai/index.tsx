@@ -428,14 +428,14 @@ export const AgentsAIPage: React.FC = (): JSX.Element => {
                 </div>
               );
             }}
-            textEmpity="Seus departamentos aparecerão aqui."
+            textEmpity="Seus assistentes de IA aparecerão aqui."
             load={isFetching || isPending}
           />
         ) : (
           <TableComponent
             rows={agentsAI || []}
             columns={renderColumns}
-            textEmpity="Seus agente IA aparecerão aqui."
+            textEmpity="Seus assistentes de IA aparecerão aqui."
             load={isFetching || isPending}
           />
         )}
