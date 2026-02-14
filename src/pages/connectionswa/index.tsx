@@ -28,6 +28,7 @@ import { AiOutlinePoweroff } from "react-icons/ai";
 import { motion } from "framer-motion";
 import { AuthContext } from "@contexts/auth.context";
 import { BsStars } from "react-icons/bs";
+import { useRoomWebSocket } from "../../hooks/roomWebSocket";
 
 export type TypeConnectionWA = "chatbot" | "marketing";
 
@@ -50,6 +51,7 @@ const MotionIcon = motion.create(MdOutlineSync);
 // };
 
 export const ConnectionsWAPage: React.FC = (): JSX.Element => {
+  useRoomWebSocket("connections", undefined);
   const { clientMeta } = useContext(AuthContext);
   const queryClient = useQueryClient();
   const { data: connectionsWA, isFetching, isPending } = useGetConnectionsWA();
@@ -220,7 +222,7 @@ export const ConnectionsWAPage: React.FC = (): JSX.Element => {
 
   useEffect(() => {
     socket.on(
-      "status-connection",
+      "status_connection",
       (data: {
         connectionId: number;
         connection?:
@@ -253,7 +255,7 @@ export const ConnectionsWAPage: React.FC = (): JSX.Element => {
     );
 
     return () => {
-      socket.off("status-connection");
+      socket.off("status_connection");
     };
   }, []);
 

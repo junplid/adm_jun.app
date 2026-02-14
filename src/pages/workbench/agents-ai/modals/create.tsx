@@ -3,6 +3,7 @@ import {
   Button,
   Center,
   Checkbox,
+  Float,
   HStack,
   IconButton,
   Input,
@@ -94,6 +95,7 @@ import {
   createConnectionIg,
   deleteConnectionIg,
 } from "../../../../services/api/ConnectionIg";
+import { AiFillAudio } from "react-icons/ai";
 
 interface Props {
   onCreate?(business: AgentsAIRow): Promise<void>;
@@ -223,6 +225,7 @@ export const FormSchema = z
     connectionWA: FormSchemaConnectionWA.optional(),
     ig_id: z.string().optional(),
     chatbot: FormSchemaChatbot.optional(),
+    modelTranscription: z.string().nullish(),
   })
   .superRefine((data, ctx) => {
     const hasId = data.providerCredentialId !== undefined;
@@ -399,6 +402,17 @@ const optionsModels = [
     isFlex: false,
     searchFile: true,
     desc: "Versão econômica; atende grande volume com custo baixo.",
+  },
+];
+
+const optionsModelsTrans = [
+  {
+    label: <span>gpt-4o-transcribe</span>,
+    value: "gpt-4o-transcribe",
+  },
+  {
+    label: <span>gpt-4o-mini-transcribe</span>,
+    value: "gpt-4o-mini-transcribe",
   },
 ];
 
@@ -1036,6 +1050,54 @@ function Content(props: { onClose: () => void }) {
                     {optionsModels.find((o) => o.value === model)?.desc}
                   </p>
                 )}
+                <Field
+                  errorText={errors.modelTranscription?.message}
+                  invalid={!!errors.modelTranscription}
+                  helperText="Selecione o modelo que transcreve fala para texto."
+                  className="relative mt-1"
+                >
+                  <Controller
+                    name="modelTranscription"
+                    control={control}
+                    render={({ field }) => (
+                      <SelectComponent
+                        name={field.name}
+                        placeholder="Selecione"
+                        isMulti={false}
+                        onBlur={field.onBlur}
+                        options={optionsModelsTrans.map((s) => ({
+                          label: s.label,
+                          value: s.value,
+                        }))}
+                        isClearable={!!field.value}
+                        onChange={(e: any) => {
+                          field.onChange(e?.value || null);
+                        }}
+                        value={
+                          field.value
+                            ? {
+                                label: optionsModelsTrans.find(
+                                  (item) => item.value === field.value,
+                                )?.label,
+                                value: field.value,
+                              }
+                            : {
+                                label: (
+                                  <span className="flex gap-x-1 items-center">
+                                    Não habilitado a compreender áudios{" "}
+                                    <AiFillAudio className="text-green-400" />
+                                  </span>
+                                ),
+                                value: field.value,
+                              }
+                        }
+                      />
+                    )}
+                  />
+                  <Float offsetX={6} offsetY={-1}>
+                    <Badge colorPalette={"green"}>NEW</Badge>
+                  </Float>
+                </Field>
                 <div className="w-full grid grid-cols-2 gap-x-4 gap-y-2.5">
                   <Field
                     errorText={errors.timeout?.message}
