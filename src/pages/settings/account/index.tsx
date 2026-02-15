@@ -19,12 +19,12 @@ export const SettingsAccountPage: React.FC = (): JSX.Element => {
       </div>
       <div className="flex-1 grid">
         {clientMeta.isMobileLike || clientMeta.isSmallScreen ? (
-          <div>Mobile</div>
+          <div>
+            <SectionChangePassword />
+          </div>
         ) : (
           <div>
             <SectionChangePassword />
-            <section>Informações de contato</section>
-            <section>Encerrar a Sua Conta</section>
           </div>
         )}
       </div>
