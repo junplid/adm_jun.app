@@ -51,10 +51,7 @@ export function LayoutSettingsPageProvider(): JSX.Element {
             </h1>
           </div>
         </div>
-        <div
-          style={{ maxHeight: "calc(100vh - 180px)" }}
-          className="flex flex-1 items-start gap-x-2"
-        >
+        <div className="flex flex-1 items-start gap-x-2">
           <Sidebar
             collapsed={!toggledMenu}
             backgroundColor={""}

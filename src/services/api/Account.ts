@@ -24,3 +24,7 @@ export async function updateAccount(body?: {
 }): Promise<void> {
   await api.put("/private/account", body);
 }
+
+export async function closeAccount(body: { password: string }): Promise<void> {
+  await api.post("/private/close-account", body);
+}

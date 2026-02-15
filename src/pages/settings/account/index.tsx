@@ -1,10 +1,9 @@
 import { JSX, useContext } from "react";
 import { LayoutSettingsPageContext } from "../contexts";
-import { AuthContext } from "@contexts/auth.context";
 import { SectionChangePassword } from "./sections/change-password";
+import { SectionCloseAccount } from "./sections/close-account";
 
 export const SettingsAccountPage: React.FC = (): JSX.Element => {
-  const { clientMeta } = useContext(AuthContext);
   const { ToggleMenu } = useContext(LayoutSettingsPageContext);
 
   return (
@@ -17,16 +16,10 @@ export const SettingsAccountPage: React.FC = (): JSX.Element => {
           </div>
         </div>
       </div>
-      <div className="flex-1 grid">
-        {clientMeta.isMobileLike || clientMeta.isSmallScreen ? (
-          <div>
-            <SectionChangePassword />
-          </div>
-        ) : (
-          <div>
-            <SectionChangePassword />
-          </div>
-        )}
+      <div className="pl-0.5 grid pr-2 gap-y-5 overflow-y-auto h-[calc(100vh-140px)] pb-4 sm:h-[calc(100vh-175px)] md:h-[calc(100vh-150px)]">
+        <SectionChangePassword />
+        <div className="bg-white/10 w-full h-px"></div>
+        <SectionCloseAccount />
       </div>
     </div>
   );
