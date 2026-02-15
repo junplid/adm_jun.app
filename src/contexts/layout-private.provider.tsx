@@ -33,6 +33,7 @@ import { GrConnect } from "react-icons/gr";
 import { LayoutPrivateContext } from "./layout-private.context";
 import { BsStars } from "react-icons/bs";
 import clsx from "clsx";
+import { IoMdSettings } from "react-icons/io";
 // import { CgWebsite } from "react-icons/cg";
 // import { QrCode } from "@components/ui/qr-code";
 
@@ -320,6 +321,13 @@ export function LayoutPrivateProvider(): JSX.Element {
                 active={pathname.includes("integrations")}
               >
                 Integrações
+              </MenuItem>
+              <MenuItem
+                icon={<IoMdSettings size={22} />}
+                component={<Link to={"/auth/settings/account"} />}
+                active={pathname.includes("settings")}
+              >
+                Configurações
               </MenuItem>
               {/* <MenuItem
                 icon={<GrSend size={20} />}

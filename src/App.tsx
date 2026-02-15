@@ -32,6 +32,8 @@ import { LayoutSitesPageProvider } from "./pages/menus-online/page.context";
 import { MenuOnlinePage } from "./pages/menus-online/menu";
 import { AppointmentsPage } from "./pages/appointments";
 import { OrdersPage } from "./pages/orders";
+import { LayoutSettingsPageProvider } from "./pages/settings/page.context";
+import { SettingsAccountPage } from "./pages/settings/account";
 
 export default function App() {
   return (
@@ -80,6 +82,13 @@ export default function App() {
                 path="inboxes/departments"
                 caseSensitive
                 element={<InboxDepartmentsPage />}
+              />
+            </Route>
+            <Route caseSensitive element={<LayoutSettingsPageProvider />}>
+              <Route
+                path="settings/account"
+                caseSensitive
+                element={<SettingsAccountPage />}
               />
             </Route>
             <Route caseSensitive element={<LayoutWorkbenchPageProvider />}>
