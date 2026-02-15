@@ -81,6 +81,7 @@ import {
   optionsPrivacyGroupValue,
   optionsPrivacyValue,
 } from "./data";
+import SelectConnectionsWA from "@components/SelectConnectionsWA";
 
 interface Props {
   id: number;
@@ -180,6 +181,7 @@ export const FormSchema = z
     connectionWA: FormSchemaConnectionWA,
     chatbot: FormSchemaChatbot,
     modelTranscription: z.string().nullish(),
+    connectionWAId: z.number().nullish(),
   })
   .superRefine((data, ctx) => {
     const hasId = data.providerCredentialId !== undefined;
@@ -529,6 +531,7 @@ function Content({
                       <SelectProviders
                         name={field.name}
                         isMulti={false}
+                        isSearchable={false}
                         onBlur={field.onBlur}
                         onChange={(e: any) => field.onChange(e.value)}
                         value={field.value}
@@ -591,6 +594,7 @@ function Content({
                           name={field.name}
                           placeholder="None, Low, Medium..."
                           isMulti={false}
+                          isSearchable={false}
                           onBlur={field.onBlur}
                           options={optionsEmojiLevel}
                           isClearable={false}
@@ -628,6 +632,7 @@ function Content({
                           placeholder="PT-BR"
                           isMulti={false}
                           isDisabled
+                          isSearchable={false}
                           onBlur={field.onBlur}
                           options={[]}
                           isClearable={false}
@@ -669,6 +674,7 @@ function Content({
                         render={({ field }) => (
                           <SelectComponent
                             name={field.name}
+                            isSearchable={false}
                             placeholder="Selecione o modelo"
                             isMulti={false}
                             onBlur={field.onBlur}
@@ -768,6 +774,7 @@ function Content({
                     render={({ field }) => (
                       <SelectComponent
                         name={field.name}
+                        isSearchable={false}
                         placeholder="Selecione"
                         isMulti={false}
                         onBlur={field.onBlur}
@@ -1186,6 +1193,7 @@ function Content({
                       isMulti={false}
                       onBlur={() => {}}
                       name={field.name}
+                      isSearchable={false}
                       isDisabled={field.disabled}
                       ref={field.ref}
                       placeholder="Selecione os dias de funcionamento"
@@ -1390,6 +1398,30 @@ function Content({
                 </TabsContent>
                 <TabsContent value="whatsapp">
                   <VStack gap={4}>
+                    <Field
+                      errorText={errors.connectionWAId?.message}
+                      invalid={!!errors.connectionWAId}
+                      label="Selecionar conexão existente"
+                    >
+                      <Controller
+                        name="connectionWAId"
+                        control={control}
+                        render={({ field }) => (
+                          <SelectConnectionsWA
+                            name={field.name}
+                            isSearchable={false}
+                            isClearable={true}
+                            isMulti={false}
+                            onBlur={field.onBlur}
+                            onChange={(e: any) =>
+                              field.onChange(e?.value || null)
+                            }
+                            value={field.value}
+                          />
+                        )}
+                      />
+                    </Field>
+                    <span className="font-semibold">OU</span>
                     <div className="px-5">
                       <div className="bg-amber-50 border-l-4 border-amber-400 p-3 pr-2 rounded-r-md">
                         <div className="flex items-center gap-3">
@@ -1481,6 +1513,7 @@ function Content({
                           render={({ field }) => (
                             <SelectComponent
                               name={field.name}
+                              isSearchable={false}
                               isMulti={false}
                               isDisabled
                               onBlur={field.onBlur}
@@ -1503,6 +1536,7 @@ function Content({
                           render={({ field }) => (
                             <SelectComponent
                               name={field.name}
+                              isSearchable={false}
                               isMulti={false}
                               onBlur={field.onBlur}
                               isDisabled
@@ -1530,6 +1564,7 @@ function Content({
                             <SelectComponent
                               name={field.name}
                               isMulti={false}
+                              isSearchable={false}
                               placeholder="Todos"
                               onBlur={field.onBlur}
                               options={optionsPrivacyValue}
@@ -1562,6 +1597,7 @@ function Content({
                             <SelectComponent
                               name={field.name}
                               isMulti={false}
+                              isSearchable={false}
                               isDisabled
                               onBlur={field.onBlur}
                               placeholder="Meus contatos"
@@ -1586,6 +1622,7 @@ function Content({
                             <SelectComponent
                               name={field.name}
                               isMulti={false}
+                              isSearchable={false}
                               onBlur={field.onBlur}
                               placeholder="Meus contatos"
                               options={optionsPrivacyGroupValue}
@@ -1621,6 +1658,7 @@ function Content({
                             <SelectComponent
                               name={field.name}
                               isMulti={false}
+                              isSearchable={false}
                               isDisabled
                               onBlur={field.onBlur}
                               // options={optionsReadReceiptsValue}

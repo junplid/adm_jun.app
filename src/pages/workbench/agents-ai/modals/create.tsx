@@ -94,6 +94,7 @@ import {
   optionsPrivacyGroupValue,
   optionsPrivacyValue,
 } from "./data";
+import SelectConnectionsWA from "@components/SelectConnectionsWA";
 
 interface Props {
   onCreate?(business: AgentsAIRow): Promise<void>;
@@ -196,6 +197,7 @@ export const FormSchema = z
     ig_id: z.string().optional(),
     chatbot: FormSchemaChatbot.optional(),
     modelTranscription: z.string().nullish(),
+    connectionWAId: z.number().nullish(),
   })
   .superRefine((data, ctx) => {
     const hasId = data.providerCredentialId !== undefined;
@@ -297,6 +299,7 @@ function Content(props: { onClose: () => void }) {
       instructions,
       chatbot,
       ig_id,
+      connectionWAId,
       ...fields
     }: Fields): Promise<void> => {
       let state: any = {};
@@ -314,14 +317,16 @@ function Content(props: { onClose: () => void }) {
           agentId: agentAI.id,
         });
         state.flowId = flow.id;
-        const connection = await createConnectionWA({
-          businessId,
-          ...connectionWA,
-          name: `Connection for ${fields.name}`,
-          type: "chatbot",
-          agentId: agentAI.id,
-        });
-        state.connectionWAId = connection.id;
+        if (!connectionWAId) {
+          const connection = await createConnectionWA({
+            businessId,
+            ...connectionWA,
+            name: `Connection for ${fields.name}`,
+            type: "chatbot",
+            agentId: agentAI.id,
+          });
+          state.connectionWAId = connection.id;
+        }
         if (ig_id) {
           const { id } = await createConnectionIg({
             ig_id,
@@ -335,7 +340,7 @@ function Content(props: { onClose: () => void }) {
           businessId,
           flowId: flow.id,
           name: `Bot for ${fields.name}`,
-          connectionWAId: connection.id,
+          connectionWAId: connectionWAId || state.connectionIgId,
           connectionIgId: state.connectionIgId || undefined,
           ...chatbot,
           status: true,
@@ -555,6 +560,7 @@ function Content(props: { onClose: () => void }) {
                       <SelectProviders
                         name={field.name}
                         isMulti={false}
+                        isSearchable={false}
                         onBlur={field.onBlur}
                         onChange={(e: any) => field.onChange(e.value)}
                         value={field.value}
@@ -632,6 +638,7 @@ function Content(props: { onClose: () => void }) {
                           name={field.name}
                           placeholder="None, Low, Medium..."
                           isMulti={false}
+                          isSearchable={false}
                           onBlur={field.onBlur}
                           options={optionsEmojiLevel}
                           isClearable={false}
@@ -668,6 +675,7 @@ function Content(props: { onClose: () => void }) {
                           name={field.name}
                           placeholder="PT-BR"
                           isMulti={false}
+                          isSearchable={false}
                           isDisabled
                           onBlur={field.onBlur}
                           options={[]}
@@ -710,6 +718,7 @@ function Content(props: { onClose: () => void }) {
                         render={({ field }) => (
                           <SelectComponent
                             name={field.name}
+                            isSearchable={false}
                             placeholder="Selecione o modelo"
                             isMulti={false}
                             onBlur={field.onBlur}
@@ -812,6 +821,7 @@ function Content(props: { onClose: () => void }) {
                         name={field.name}
                         placeholder="Selecione"
                         isMulti={false}
+                        isSearchable={false}
                         onBlur={field.onBlur}
                         options={optionsModelsTrans.map((s) => ({
                           label: s.label,
@@ -1234,6 +1244,7 @@ function Content(props: { onClose: () => void }) {
                   render={({ field }) => (
                     <SelectComponent
                       isMulti={false}
+                      isSearchable={false}
                       onBlur={() => {}}
                       name={field.name}
                       isDisabled={field.disabled}
@@ -1544,6 +1555,30 @@ function Content(props: { onClose: () => void }) {
                 </TabsContent>
                 <TabsContent value="whatsapp">
                   <VStack gap={4}>
+                    <Field
+                      errorText={errors.connectionWAId?.message}
+                      invalid={!!errors.connectionWAId}
+                      label="Selecionar conexão existente"
+                    >
+                      <Controller
+                        name="connectionWAId"
+                        control={control}
+                        render={({ field }) => (
+                          <SelectConnectionsWA
+                            name={field.name}
+                            isSearchable={false}
+                            isClearable={true}
+                            isMulti={false}
+                            onBlur={field.onBlur}
+                            onChange={(e: any) =>
+                              field.onChange(e?.value || null)
+                            }
+                            value={field.value}
+                          />
+                        )}
+                      />
+                    </Field>
+                    <span className="font-semibold">OU</span>
                     <div className="px-5">
                       <div className="bg-amber-50 border-l-4 border-amber-400 p-3 pr-2 rounded-r-md">
                         <div className="flex items-center gap-3">
@@ -1635,6 +1670,7 @@ function Content(props: { onClose: () => void }) {
                               name={field.name}
                               isMulti={false}
                               isDisabled
+                              isSearchable={false}
                               onBlur={field.onBlur}
                               placeholder="Ninguém"
                               onChange={(e: any) => field.onChange(e.value)}
@@ -1657,6 +1693,7 @@ function Content(props: { onClose: () => void }) {
                               name={field.name}
                               isMulti={false}
                               onBlur={field.onBlur}
+                              isSearchable={false}
                               isDisabled
                               placeholder={'Igual ao "visto por último"'}
                               // options={optionsOnlinePrivacy}
@@ -1684,6 +1721,7 @@ function Content(props: { onClose: () => void }) {
                               isMulti={false}
                               placeholder="Todos"
                               onBlur={field.onBlur}
+                              isSearchable={false}
                               options={optionsPrivacyValue}
                               onChange={(e: any) => field.onChange(e.value)}
                               value={
@@ -1714,6 +1752,7 @@ function Content(props: { onClose: () => void }) {
                             <SelectComponent
                               name={field.name}
                               isMulti={false}
+                              isSearchable={false}
                               isDisabled
                               onBlur={field.onBlur}
                               placeholder="Meus contatos"
@@ -1738,6 +1777,7 @@ function Content(props: { onClose: () => void }) {
                             <SelectComponent
                               name={field.name}
                               isMulti={false}
+                              isSearchable={false}
                               onBlur={field.onBlur}
                               placeholder="Meus contatos"
                               options={optionsPrivacyGroupValue}
@@ -1773,6 +1813,7 @@ function Content(props: { onClose: () => void }) {
                             <SelectComponent
                               name={field.name}
                               isMulti={false}
+                              isSearchable={false}
                               isDisabled
                               onBlur={field.onBlur}
                               // options={optionsReadReceiptsValue}
