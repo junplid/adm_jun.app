@@ -128,7 +128,7 @@ export const SectionChangePassword = (): JSX.Element => {
     reset,
   } = useForm<Fields>({
     resolver: zodResolver(FormSchema),
-    mode: "onBlur",
+    mode: "onSubmit",
   });
   const [success, setSuccess] = useState(false);
 
