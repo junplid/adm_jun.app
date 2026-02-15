@@ -25,7 +25,6 @@ import { AxiosError } from "axios";
 import SelectComponent from "../../../../components/Select";
 import TextareaAutosize from "react-textarea-autosize";
 import { v4 } from "uuid";
-// import { IoClose } from "react-icons/io5";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
@@ -50,18 +49,8 @@ import {
 } from "@components/ui/tabs";
 import { Field } from "@components/ui/field";
 import SelectProviders from "@components/SelectProviders";
-// import SelectBusinesses from "@components/SelectBusinesses";
 import { RxLapTimer } from "react-icons/rx";
 import { Tooltip } from "@components/ui/tooltip";
-// import { IoMdImage } from "react-icons/io";
-// import {
-//   PiFileAudioFill,
-//   PiFileFill,
-//   PiFilePdfFill,
-//   PiFileTextFill,
-//   PiFileVideoFill,
-// } from "react-icons/pi";
-// import { ModalStorageFiles } from "@components/Modals/StorageFiles";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { ErrorResponse_I } from "../../../../services/api/ErrorResponse";
@@ -84,6 +73,14 @@ import { getChatbot, updateChatbot } from "../../../../services/api/Chatbot";
 import { RiAlarmWarningLine, RiSendPlane2Line } from "react-icons/ri";
 import clsx from "clsx";
 import { AiFillAudio } from "react-icons/ai";
+import {
+  optionsEmojiLevel,
+  optionsModels,
+  optionsModelsTrans,
+  optionsOpertaingDays,
+  optionsPrivacyGroupValue,
+  optionsPrivacyValue,
+} from "./data";
 
 interface Props {
   id: number;
@@ -115,16 +112,6 @@ const FormSchemaChatbot = z.object({
     .optional(),
 });
 
-const optionsOpertaingDays = [
-  { label: "Domingo", value: 0 },
-  { label: "Segunda-feira", value: 1 },
-  { label: "Terça-feira", value: 2 },
-  { label: "Quarta-feira", value: 3 },
-  { label: "Quinta-feira", value: 4 },
-  { label: "Sexta-feira", value: 5 },
-  { label: "Sábado", value: 6 },
-];
-
 const FormSchemaConnectionWA = z.object({
   profileName: z.string().optional(),
   profileStatus: z.string().optional(),
@@ -142,20 +129,6 @@ const FormSchemaConnectionWA = z.object({
   readReceiptsPrivacy: z.enum(["all", "none"]).optional(),
   fileImage: z.instanceof(File).optional(),
 });
-
-const optionsPrivacyValue = [
-  { label: "Todos", value: "all" },
-  { label: "Meus contatos", value: "contacts" },
-  // { label: "Todos", value: "contact_blacklist" },
-  { label: "Ninguém", value: "none" },
-];
-
-const optionsPrivacyGroupValue = [
-  { label: "Todos", value: "all" },
-  { label: "Meus contatos", value: "contacts" },
-  // { label: "Todos", value: "contact_blacklist" },
-  // { label: "Ninguém", value: "none" },
-];
 
 export const FormSchema = z
   .object({
@@ -235,123 +208,6 @@ export const FormSchema = z
   });
 
 export type Fields = z.infer<typeof FormSchema>;
-
-// const IconPreviewFile = (p: { mimetype: string }): JSX.Element => {
-//   if (/^image\//.test(p.mimetype)) {
-//     return <IoMdImage color="#6daebe" size={24} />;
-//   }
-//   if (/^video\//.test(p.mimetype)) {
-//     return <PiFileVideoFill color="#8eb87a" size={24} />;
-//   }
-//   if (/^audio\//.test(p.mimetype)) {
-//     return <PiFileAudioFill color="#d4b663" size={24} />;
-//   }
-//   if (p.mimetype === "application/pdf") {
-//     return <PiFilePdfFill color="#db8c8c" size={24} />;
-//   }
-//   if (/^text\//.test(p.mimetype)) {
-//     return <PiFileTextFill color="#ffffff" size={24} />;
-//   }
-//   return <PiFileFill color="#808080" size={24} />;
-// };
-
-const optionsModels = [
-  {
-    label: <span>gpt-5.2</span>,
-    value: "gpt-5.2",
-    isFlex: true,
-    searchFile: true,
-    desc: "O modelo mais avançado para trabalho profissional e agentes de longa duração.",
-  },
-  {
-    label: <span>gpt-5.1</span>,
-    value: "gpt-5.1",
-    isFlex: true,
-    searchFile: true,
-    desc: "Altíssimo desempenho; ótimo para trabalhos exigentes.",
-  },
-  {
-    label: <span>gpt-5</span>,
-    value: "gpt-5",
-    isFlex: true,
-    searchFile: true,
-    desc: "Muito capaz; atende necessidades profissionais e negócios.",
-  },
-  {
-    label: <span>gpt-5-mini</span>,
-    value: "gpt-5-mini",
-    isFlex: true,
-    searchFile: true,
-    desc: "Boa qualidade com menor custo; ideal para uso diário.",
-  },
-  {
-    label: <span>gpt-5-nano</span>,
-    value: "gpt-5-nano",
-    isFlex: true,
-    searchFile: true,
-    desc: "Rápido e barato; para tarefas simples e frequentes.",
-  },
-  {
-    label: <span>o3</span>,
-    value: "o3",
-    isFlex: true,
-    searchFile: true,
-    desc: "Equilíbrio entre custo e desempenho; confiável para rotinas.",
-  },
-  {
-    label: <span>o4-mini</span>,
-    value: "o4-mini",
-    isFlex: true,
-    searchFile: true,
-    desc: "Leve e rápido; bom para respostas rápidas.",
-  },
-  {
-    label: <span>gpt-4.1</span>,
-    value: "gpt-4.1",
-    isFlex: false,
-    searchFile: true,
-    desc: "Estável e preciso; ideal para textos longos.",
-  },
-  {
-    label: <span>gpt-4.1-mini</span>,
-    value: "gpt-4.1-mini",
-    isFlex: false,
-    searchFile: true,
-    desc: "Boa qualidade por menos custo; para uso constante.",
-  },
-  {
-    label: <span>gpt-4.1-nano</span>,
-    value: "gpt-4.1-nano",
-    isFlex: false,
-    searchFile: true,
-    desc: "Muito rápido e econômico; para respostas curtas.",
-  },
-  {
-    label: <span>o3-mini</span>,
-    value: "o3-mini",
-    isFlex: false,
-    searchFile: true,
-    desc: "Versão econômica; atende grande volume com custo baixo.",
-  },
-];
-
-const optionsModelsTrans = [
-  {
-    label: <span>gpt-4o-transcribe</span>,
-    value: "gpt-4o-transcribe",
-  },
-  {
-    label: <span>gpt-4o-mini-transcribe</span>,
-    value: "gpt-4o-mini-transcribe",
-  },
-];
-
-const optionsEmojiLevel = [
-  { label: "None", value: "none" },
-  { label: "Low", value: "low" },
-  { label: "Medium", value: "medium" },
-  { label: "High", value: "high" },
-];
 
 type Message = {
   id: string;
@@ -448,15 +304,6 @@ function Content({
       }
     })();
   }, [data, reset]);
-
-  // const {
-  //   fields: fieldFiles,
-  //   append: appendFiles,
-  //   remove: removeFiles,
-  // } = useFieldArray({
-  //   control,
-  //   name: "files",
-  // });
 
   const providerCredentialId = watch("providerCredentialId");
   const apiKey = watch("apiKey");
@@ -716,40 +563,6 @@ function Content({
             </TabsContent>
             <TabsContent value="persona" mt={-3}>
               <VStack gap={4}>
-                {/* <Field
-                  invalid={!!errors.businessIds}
-                  label="Anexe projetos"
-                  className="w-full"
-                  errorText={errors.businessIds?.message}
-                  required
-                >
-                  <Controller
-                    name="businessIds"
-                    control={control}
-                    render={({ field }) => (
-                      <SelectBusinesses
-                        name={field.name}
-                        isMulti
-                        onBlur={field.onBlur}
-                        onChange={(e: any) => {
-                          field.onChange(e.map((item: any) => item.value));
-                        }}
-                        setError={({ name, message }) => {
-                          if (name === "name") {
-                            setError("businessIds", { message });
-                          }
-                        }}
-                        onCreate={(business) => {
-                          setValue("businessIds", [
-                            ...(getValues("businessIds") || []),
-                            business.id,
-                          ]);
-                        }}
-                        value={field.value}
-                      />
-                    )}
-                  />
-                </Field> */}
                 <Field
                   errorText={errors.name?.message}
                   invalid={!!errors.name}

@@ -43,17 +43,7 @@ import {
   TabsTrigger,
 } from "@components/ui/tabs";
 import { Field } from "@components/ui/field";
-// import {
-//   PiFileAudioFill,
-//   PiFileFill,
-//   PiFilePdfFill,
-//   PiFileTextFill,
-//   PiFileVideoFill,
-// } from "react-icons/pi";
-// import { IoClose } from "react-icons/io5";
-// import { ModalStorageFiles } from "@components/Modals/StorageFiles";
 import { CloseButton } from "@components/ui/close-button";
-// import { IoMdImage } from "react-icons/io";
 import { api } from "../../../../services/api";
 import SelectComponent from "@components/Select";
 import { useCreateAgentAI, useDeleteAgentAI } from "../../../../hooks/agentAI";
@@ -96,6 +86,14 @@ import {
   deleteConnectionIg,
 } from "../../../../services/api/ConnectionIg";
 import { AiFillAudio } from "react-icons/ai";
+import {
+  optionsEmojiLevel,
+  optionsModels,
+  optionsModelsTrans,
+  optionsOpertaingDays,
+  optionsPrivacyGroupValue,
+  optionsPrivacyValue,
+} from "./data";
 
 interface Props {
   onCreate?(business: AgentsAIRow): Promise<void>;
@@ -127,16 +125,6 @@ const FormSchemaChatbot = z.object({
     .optional(),
 });
 
-const optionsOpertaingDays = [
-  { label: "Domingo", value: 0 },
-  { label: "Segunda-feira", value: 1 },
-  { label: "Terça-feira", value: 2 },
-  { label: "Quarta-feira", value: 3 },
-  { label: "Quinta-feira", value: 4 },
-  { label: "Sexta-feira", value: 5 },
-  { label: "Sábado", value: 6 },
-];
-
 const FormSchemaConnectionWA = z.object({
   profileName: z.string().optional(),
   profileStatus: z.string().optional(),
@@ -155,29 +143,11 @@ const FormSchemaConnectionWA = z.object({
   fileImage: z.instanceof(File).optional(),
 });
 
-const optionsPrivacyValue = [
-  { label: "Todos", value: "all" },
-  { label: "Meus contatos", value: "contacts" },
-  // { label: "Todos", value: "contact_blacklist" },
-  { label: "Ninguém", value: "none" },
-];
-
-const optionsPrivacyGroupValue = [
-  { label: "Todos", value: "all" },
-  { label: "Meus contatos", value: "contacts" },
-  // { label: "Todos", value: "contact_blacklist" },
-  // { label: "Ninguém", value: "none" },
-];
-
 export const FormSchema = z
   .object({
     providerCredentialId: z.number().optional(),
     apiKey: z.string().optional(),
     nameProvider: z.string().optional(),
-
-    // businessIds: z
-    //   .array(z.number(), { message: "Campo obrigatório." })
-    //   .min(1, { message: "Campo obrigatório." }),
     name: z
       .string({ message: "Campo obrigatório." })
       .trim()
@@ -255,174 +225,6 @@ export const FormSchema = z
 
 export type Fields = z.infer<typeof FormSchema>;
 
-// const IconPreviewFile = (p: { mimetype: string }): JSX.Element => {
-//   if (/^image\//.test(p.mimetype)) {
-//     return <IoMdImage color="#6daebe" size={24} />;
-//   }
-//   if (/^video\//.test(p.mimetype)) {
-//     return <PiFileVideoFill color="#8eb87a" size={24} />;
-//   }
-//   if (/^audio\//.test(p.mimetype)) {
-//     return <PiFileAudioFill color="#d4b663" size={24} />;
-//   }
-//   if (p.mimetype === "application/pdf") {
-//     return <PiFilePdfFill color="#db8c8c" size={24} />;
-//   }
-//   if (/^text\//.test(p.mimetype)) {
-//     return <PiFileTextFill color="#ffffff" size={24} />;
-//   }
-//   return <PiFileFill color="#808080" size={24} />;
-// };
-
-// const itemsSend: {
-//   value: "files" | "images" | "videos" | "audios_live" | "audios";
-//   desc: string;
-//   icon: React.ReactNode;
-//   disabled?: boolean;
-// }[] = [
-//   {
-//     value: "files",
-//     desc: "Enviar documentos",
-//     icon: <PiFile className="dark:text-[#999999] text-teal-700" size={27} />,
-//   },
-//   {
-//     value: "images",
-//     desc: "Enviar imagens",
-//     icon: <MdOutlineImage className="dark:text-[#6daebe]" size={27} />,
-//   },
-//   {
-//     value: "videos",
-//     desc: "Enviar vídeos",
-//     icon: <PiFileVideoFill className="dark:text-[#8eb87a]" size={27} />,
-//   },
-//   {
-//     value: "audios_live",
-//     desc: "Enviar áudios",
-//     icon: <VscMic className="dark:text-[#0dacd4] text-teal-700" size={27} />,
-//     disabled: true,
-//   },
-//   {
-//     value: "audios",
-//     desc: "Enviar áudios",
-//     icon: (
-//       <TbHeadphones className="dark:text-[#daa557] text-teal-700" size={27} />
-//     ),
-//     disabled: true,
-//   },
-// ];
-
-// todos flex
-// gpt-5.2      call searchFile
-// gpt-5.1      call searchFile
-// gpt-5        call searchFile
-// gpt-5-mini   call testar.
-// gpt-5-nano   call testar.
-// o3           call testar.
-// o4-mini      call testar.
-
-// gpt-4.1      call searchFile
-// gpt-4.1-mini call searchFile
-// gpt-4.1-nano call searchFile
-// o3-mini      call não
-
-const optionsModels = [
-  {
-    label: <span>gpt-5.2</span>,
-    value: "gpt-5.2",
-    isFlex: true,
-    searchFile: true,
-    desc: "O modelo mais avançado para trabalho profissional e agentes de longa duração.",
-  },
-  {
-    label: <span>gpt-5.1</span>,
-    value: "gpt-5.1",
-    isFlex: true,
-    searchFile: true,
-    desc: "Altíssimo desempenho; ótimo para trabalhos exigentes.",
-  },
-  {
-    label: <span>gpt-5</span>,
-    value: "gpt-5",
-    isFlex: true,
-    searchFile: true,
-    desc: "Muito capaz; atende necessidades profissionais e negócios.",
-  },
-  {
-    label: <span>gpt-5-mini</span>,
-    value: "gpt-5-mini",
-    isFlex: true,
-    searchFile: true,
-    desc: "Boa qualidade com menor custo; ideal para uso diário.",
-  },
-  {
-    label: <span>gpt-5-nano</span>,
-    value: "gpt-5-nano",
-    isFlex: true,
-    searchFile: true,
-    desc: "Rápido e barato; para tarefas simples e frequentes.",
-  },
-  {
-    label: <span>o3</span>,
-    value: "o3",
-    isFlex: true,
-    searchFile: true,
-    desc: "Equilíbrio entre custo e desempenho; confiável para rotinas.",
-  },
-  {
-    label: <span>o4-mini</span>,
-    value: "o4-mini",
-    isFlex: true,
-    searchFile: true,
-    desc: "Leve e rápido; bom para respostas rápidas.",
-  },
-  {
-    label: <span>gpt-4.1</span>,
-    value: "gpt-4.1",
-    isFlex: false,
-    searchFile: true,
-    desc: "Estável e preciso; ideal para textos longos.",
-  },
-  {
-    label: <span>gpt-4.1-mini</span>,
-    value: "gpt-4.1-mini",
-    isFlex: false,
-    searchFile: true,
-    desc: "Boa qualidade por menos custo; para uso constante.",
-  },
-  {
-    label: <span>gpt-4.1-nano</span>,
-    value: "gpt-4.1-nano",
-    isFlex: false,
-    searchFile: true,
-    desc: "Muito rápido e econômico; para respostas curtas.",
-  },
-  {
-    label: <span>o3-mini</span>,
-    value: "o3-mini",
-    isFlex: false,
-    searchFile: true,
-    desc: "Versão econômica; atende grande volume com custo baixo.",
-  },
-];
-
-const optionsModelsTrans = [
-  {
-    label: <span>gpt-4o-transcribe</span>,
-    value: "gpt-4o-transcribe",
-  },
-  {
-    label: <span>gpt-4o-mini-transcribe</span>,
-    value: "gpt-4o-mini-transcribe",
-  },
-];
-
-const optionsEmojiLevel = [
-  { label: "None", value: "none" },
-  { label: "Low", value: "low" },
-  { label: "Medium", value: "medium" },
-  { label: "High", value: "high" },
-];
-
 type Message = {
   id: string;
   role: "user" | "agent" | "system";
@@ -473,15 +275,6 @@ function Content(props: { onClose: () => void }) {
   const virtuosoRef = useRef<VirtuosoHandle>(null);
   const imgProfileRef = useRef<HTMLInputElement>(null);
   const registerWithMask = useHookFormMask(register);
-
-  // const {
-  //   fields: fieldFiles,
-  //   append: appendFiles,
-  //   remove: removeFiles,
-  // } = useFieldArray({
-  //   control,
-  //   name: "files",
-  // });
 
   const { mutateAsync: createAgentAI, isPending } = useCreateAgentAI({
     setError,
@@ -551,15 +344,8 @@ function Content(props: { onClose: () => void }) {
         state.chatbotId = cb.id;
         props.onClose();
         reset();
-        // props.onCreate?.({
-        //   ...agentAI,
-        //   name: fields.name,
-        //   status: "close",
-        //   connectionWAId: connection.id,
-        // });
       } catch (error) {
         if (error instanceof AxiosError) {
-          // deletar as entidades
           if (state.agentId) await deleteAgentAI(state.agentId);
           if (state.flowId) await deleteFlow(state.flowId);
           if (state.connectionWAId)
@@ -592,10 +378,6 @@ function Content(props: { onClose: () => void }) {
 
   useEffect(() => {
     setTokenTest(v4());
-    // const modalId = v4();
-    // const urlParams = new URLSearchParams(window.location.search);
-    // const fbSuccess = urlParams.get('fb_success');
-    // const state = urlParams.get('state');
     socket.emit("join_modal:create_agentai", modal_id);
     socket.on("receber_accounts", (accounts: AccountIg[]) => {
       if (accounts.length === 1) setValue("ig_id", accounts[0].ig_id);
@@ -818,40 +600,6 @@ function Content(props: { onClose: () => void }) {
             </TabsContent>
             <TabsContent value="persona" mt={-3}>
               <VStack gap={4}>
-                {/* <Field
-                    invalid={!!errors.businessIds}
-                    label="Anexe projetos"
-                    className="w-full"
-                    errorText={errors.businessIds?.message}
-                    required
-                  >
-                    <Controller
-                      name="businessIds"
-                      control={control}
-                      render={({ field }) => (
-                        <SelectBusinesses
-                          name={field.name}
-                          isMulti
-                          onBlur={field.onBlur}
-                          onChange={(e: any) => {
-                            field.onChange(e.map((item: any) => item.value));
-                          }}
-                          setError={({ name, message }) => {
-                            if (name === "name") {
-                              setError("businessIds", { message });
-                            }
-                          }}
-                          onCreate={(business) => {
-                            setValue("businessIds", [
-                              ...(getValues("businessIds") || []),
-                              business.id,
-                            ]);
-                          }}
-                          value={field.value}
-                        />
-                      )}
-                    />
-                  </Field> */}
                 <Field
                   errorText={errors.name?.message}
                   invalid={!!errors.name}
