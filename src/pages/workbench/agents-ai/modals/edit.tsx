@@ -81,7 +81,6 @@ import {
   optionsPrivacyGroupValue,
   optionsPrivacyValue,
 } from "./data";
-import SelectConnectionsWA from "@components/SelectConnectionsWA";
 
 interface Props {
   id: number;
@@ -181,7 +180,6 @@ export const FormSchema = z
     connectionWA: FormSchemaConnectionWA,
     chatbot: FormSchemaChatbot,
     modelTranscription: z.string().nullish(),
-    connectionWAId: z.number().nullish(),
   })
   .superRefine((data, ctx) => {
     const hasId = data.providerCredentialId !== undefined;
@@ -1398,44 +1396,6 @@ function Content({
                 </TabsContent>
                 <TabsContent value="whatsapp">
                   <VStack gap={4}>
-                    <Field
-                      errorText={errors.connectionWAId?.message}
-                      invalid={!!errors.connectionWAId}
-                      label="Selecionar conexão existente"
-                    >
-                      <Controller
-                        name="connectionWAId"
-                        control={control}
-                        render={({ field }) => (
-                          <SelectConnectionsWA
-                            name={field.name}
-                            isSearchable={false}
-                            isClearable={true}
-                            isMulti={false}
-                            onBlur={field.onBlur}
-                            onChange={(e: any) =>
-                              field.onChange(e?.value || null)
-                            }
-                            value={field.value}
-                          />
-                        )}
-                      />
-                    </Field>
-                    <span className="font-semibold">OU</span>
-                    <div className="px-5">
-                      <div className="bg-amber-50 border-l-4 border-amber-400 p-3 pr-2 rounded-r-md">
-                        <div className="flex items-center gap-3">
-                          <RiAlarmWarningLine
-                            className="text-amber-600"
-                            size={40}
-                          />
-                          <p className="text-sm text-amber-700 font-medium">
-                            Caso seu WhatsApp já esteja configurado,
-                            desconsidere os campos abaixo.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
                     <HStack w={"full"} mb={2} gap={3}>
                       <Tooltip content="Atualizar foto de perfil">
                         <div
