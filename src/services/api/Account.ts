@@ -16,8 +16,11 @@ export async function getAccount(): Promise<{
 export async function updateAccount(body?: {
   onboarded?: boolean;
   currentPassword?: string;
-  nextPassword?: string;
+  newPassword?: string;
+  repeatNewPassword?: string;
   name?: string;
+  email?: string;
+  number?: string;
 }): Promise<void> {
   await api.put("/private/account", body);
 }

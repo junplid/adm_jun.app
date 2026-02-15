@@ -1,4 +1,4 @@
-export interface ErrorResponse_I {
+export interface ErrorResponse_I<PathInput = string> {
   toast: {
     title: string;
     duration?: number;
@@ -14,7 +14,7 @@ export interface ErrorResponse_I {
   }[];
   container?: string;
   input: {
-    path: string;
+    path: PathInput;
     text: string;
   }[];
   statusCode: number;

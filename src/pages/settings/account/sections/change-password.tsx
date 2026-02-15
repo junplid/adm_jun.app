@@ -1,11 +1,16 @@
-import { JSX, useState } from "react";
+import { JSX, useContext, useState } from "react";
 import { Control, Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Field } from "@components/ui/field";
-import { Button, IconButton, InputGroup } from "@chakra-ui/react";
+import { Button, IconButton, InputGroup, Presence } from "@chakra-ui/react";
 import { Input } from "@chakra-ui/react";
 import { FiEye, FiEyeOff } from "react-icons/fi";
+import { AxiosError } from "axios";
+import { AuthContext } from "@contexts/auth.context";
+import { ErrorResponse_I } from "../../../../services/api/ErrorResponse";
+import { toaster } from "@components/ui/toaster";
+import { updateAccount } from "../../../../services/api/Account";
 
 const ControllerPassword = (props: {
   control: Control<any>;
@@ -31,6 +36,7 @@ const ControllerPassword = (props: {
             <InputGroup
               endElement={
                 <IconButton
+                  type="button"
                   aria-label={show ? "Ocultar senha" : "Mostrar senha"}
                   variant="ghost"
                   size={"xs"}
@@ -113,24 +119,53 @@ const FormSchema = z
 type Fields = z.infer<typeof FormSchema>;
 
 export const SectionChangePassword = (): JSX.Element => {
+  const { logout } = useContext(AuthContext);
   const {
     handleSubmit,
     control,
-    formState: { isValid },
+    formState: { isValid, isSubmitting },
+    setError,
+    reset,
   } = useForm<Fields>({
     resolver: zodResolver(FormSchema),
     mode: "onBlur",
   });
+  const [success, setSuccess] = useState(false);
+
+  const change = async (fields: Fields) => {
+    try {
+      await updateAccount({
+        newPassword: fields.new_password,
+        currentPassword: fields.current,
+        repeatNewPassword: fields.repeat_new_password,
+      });
+      reset({});
+      setSuccess(true);
+      setTimeout(() => setSuccess(false), 7000);
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        if (error.response?.status === 401) logout();
+        if (error.response?.status === 400) {
+          const dataError = error.response?.data as ErrorResponse_I<
+            keyof Fields
+          >;
+          if (dataError.toast.length) dataError.toast.forEach(toaster.create);
+          if (dataError.input.length) {
+            dataError.input.forEach(({ text, path }) => {
+              setError(path, { message: text });
+            });
+          }
+        }
+      }
+    }
+  };
 
   return (
     <section className="max-w-md space-y-3">
       <h3 className="text-lg font-bold">Mudar senha</h3>
 
       <form
-        onSubmit={handleSubmit(
-          () => undefined,
-          () => undefined,
-        )}
+        onSubmit={handleSubmit(change)}
         className="flex flex-col items-baseline gap-y-3"
       >
         <input
@@ -156,15 +191,30 @@ export const SectionChangePassword = (): JSX.Element => {
           name="repeat_new_password"
         />
 
-        <Button
-          type="submit"
-          disabled={!isValid}
-          size={"sm"}
-          px={6}
-          variant={"outline"}
-        >
-          Salvar
-        </Button>
+        <div className="flex items-center gap-x-2">
+          <Button
+            type="submit"
+            disabled={!isValid}
+            size={"sm"}
+            px={6}
+            loading={isSubmitting}
+            variant={"outline"}
+          >
+            Salvar
+          </Button>
+          <Presence
+            animationName={{
+              _open: "slide-from-top, fade-in",
+              _closed: "slide-to-top, fade-out",
+            }}
+            animationDuration="moderate"
+            present={success}
+          >
+            <span className="text-green-400 text-sm font-semibold">
+              Senha alterada!
+            </span>
+          </Presence>
+        </div>
       </form>
     </section>
   );
