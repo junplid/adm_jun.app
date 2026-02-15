@@ -133,10 +133,10 @@ export const SectionCloseAccount = (): JSX.Element => {
     <section className="max-w-xl space-y-1">
       <h3 className="text-lg font-bold">Deletar a conta</h3>
       <p className="text-sm text-white/70">
-        Gostaria de encerrar a sua conta na Junplid.com.br? Ficamos
-        profundamente tristes em ver você partir! Por favor, considere a opção
-        de entrar em contato com o nosso Suporte e nos diga como podemos
-        melhorar a sua experiência em nossa plataforma.
+        Gostaria de encerrar a sua conta na Junplid? Ficamos profundamente
+        tristes em ver você partir! Por favor, considere a opção de entrar em
+        contato com o nosso Suporte e nos diga como podemos melhorar a sua
+        experiência em nossa plataforma.
       </p>
       <form
         onSubmit={handleSubmit(closeaccount)}
