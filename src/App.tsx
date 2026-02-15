@@ -34,6 +34,7 @@ import { AppointmentsPage } from "./pages/appointments";
 import { OrdersPage } from "./pages/orders";
 import { LayoutSettingsPageProvider } from "./pages/settings/page.context";
 import { SettingsAccountPage } from "./pages/settings/account";
+import FarewellPage from "./pages/farewell";
 
 export default function App() {
   return (
@@ -171,6 +172,7 @@ export default function App() {
         <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
+        <Route path="/farewell" element={<FarewellPage />} />
 
         <Route
           path="*"
