@@ -114,7 +114,7 @@ export function DashboardPage(): JSX.Element {
             <div className="flex items-center justify-between pb-0 gap-2">
               <div className="flex items-center gap-x-2">
                 <h1 className="text-sm text-white/90 font-medium">
-                  Atendimentos simultâneos
+                  Atendimentos em andamento
                 </h1>
                 <span
                   style={{
@@ -198,6 +198,7 @@ export function DashboardPage(): JSX.Element {
                     beginAtZero: false,
                     grace: 0,
                     suggestedMax: 8,
+                    suggestedMin: 0,
                     ticks: { display: true, font: { size: 8 } },
                     grid: { display: true, color: "rgba(255, 255, 255, 0.04)" },
                   },
