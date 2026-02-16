@@ -62,11 +62,6 @@ export function BottomSheetComponent(props: { children: ReactNode }) {
       if (first) {
         dragStartRef.current = y.get();
       }
-      //   if (!last) {
-      //     const base = currentlyOpen ? 0 : RANGE;
-      //     api.start({ y: clamp(base + my, 0, RANGE), immediate: true });
-      //     return;
-      //   }
 
       if (!last) {
         const base = currentlyOpen ? 0 : RANGE;
@@ -121,10 +116,6 @@ export function BottomSheetComponent(props: { children: ReactNode }) {
     <>
       <animated.div
         style={{
-          backgroundColor: y.to(
-            [0, RANGE],
-            ["rgba(0,0,0,0.15)", "rgba(0,0,0,0)"],
-          ),
           pointerEvents: isOpen ? "auto" : "none",
         }}
         className="fixed inset-0 z-50"

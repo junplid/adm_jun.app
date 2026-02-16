@@ -420,11 +420,9 @@ export function LayoutPrivateProvider(): JSX.Element {
             <div className="grid select-none! grid-cols-[repeat(auto-fit,84px)] auto-rows-[55px] justify-center gap-1 gap-y-4 bg-[#1a1c1c] w-full px-2">
               <a
                 onPointerDown={(e) => {
-                  alert("/auth/orders DOWN");
-                  e.stopPropagation();
+                  e.preventDefault();
                 }}
                 onClick={(e) => {
-                  alert("/auth/orders");
                   e.preventDefault();
                   if (pathname !== "/auth/orders") {
                     navigate("/auth/orders", {
@@ -447,11 +445,9 @@ export function LayoutPrivateProvider(): JSX.Element {
               </a>
               <a
                 onPointerDown={(e) => {
-                  alert("/auth/dashboard DOWN");
-                  e.stopPropagation();
+                  e.preventDefault();
                 }}
                 onClick={(e) => {
-                  alert("/auth/dashboard");
                   e.preventDefault();
                   if (pathname !== "/auth/dashboard") {
                     navigate("/auth/dashboard", {
@@ -474,11 +470,9 @@ export function LayoutPrivateProvider(): JSX.Element {
               </a>
               <a
                 onPointerDown={(e) => {
-                  alert("/auth/agents-ai DOWN");
-                  e.stopPropagation();
+                  e.preventDefault();
                 }}
                 onClick={(e) => {
-                  alert("/auth/agents-ai");
                   e.preventDefault();
                   if (pathname !== "/auth/agents-ai") {
                     navigate("/auth/agents-ai", {
@@ -501,11 +495,9 @@ export function LayoutPrivateProvider(): JSX.Element {
               </a>
               <a
                 onPointerDown={(e) => {
-                  alert("/auth/appointments DOWN");
-                  e.stopPropagation();
+                  e.preventDefault();
                 }}
                 onClick={(e) => {
-                  alert("/auth/appointments");
                   e.preventDefault();
                   if (pathname !== "/auth/appointments") {
                     navigate("/auth/appointments", {
@@ -528,11 +520,9 @@ export function LayoutPrivateProvider(): JSX.Element {
               </a>
               <a
                 onPointerDown={(e) => {
-                  alert("/auth/inboxes/departments DOWN");
-                  e.stopPropagation();
+                  e.preventDefault();
                 }}
                 onClick={(e) => {
-                  alert("/auth/inboxes/departments");
                   e.preventDefault();
                   if (pathname !== "/auth/inboxes/departments") {
                     navigate("/auth/inboxes/departments", {
@@ -555,11 +545,9 @@ export function LayoutPrivateProvider(): JSX.Element {
               </a>
               <a
                 onPointerDown={(e) => {
-                  alert("/auth/settings/account DOWN");
-                  e.stopPropagation();
+                  e.preventDefault();
                 }}
                 onClick={(e) => {
-                  alert("/auth/settings/account");
                   e.preventDefault();
                   if (pathname !== "/auth/settings/account") {
                     navigate("/auth/settings/account", {
