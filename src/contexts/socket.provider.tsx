@@ -10,7 +10,7 @@ import {
 import { Manager } from "socket.io-client";
 import { AuthContext } from "./auth.context";
 import { toaster } from "@components/ui/toaster";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { LuNotepadText } from "react-icons/lu";
 import { SocketContext } from "./socket.context";
 import { useDialogModal } from "../hooks/dialog.modal";
@@ -63,6 +63,7 @@ export const SocketProvider = ({
   const path = useLocation();
   const navigate = useNavigate();
   const audioOrderRef = useRef<HTMLAudioElement | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const manager = useMemo(() => {
     return new Manager(import.meta.env.VITE_API.split("/v1")[0], {
@@ -137,31 +138,33 @@ export const SocketProvider = ({
 
   useEffect(() => {
     (async () => {
-      if (!location.search) return;
+      const openTicket = searchParams.get("open_ticket");
+      if (!openTicket) return;
 
-      const params = Object.fromEntries(
-        new URLSearchParams(location.search).entries(),
-      );
+      const ticketId = Number(openTicket);
 
-      if (params.open_ticket) {
-        const ticketId = Number(params.open_ticket);
-        onOpen({
-          size: "xl",
-          content: (
-            <ModalChatPlayer
-              close={close}
-              data={{
-                businessId: Number(params.bId),
-                id: ticketId,
-                name: `${params.name}`,
-              }}
-            />
-          ),
-        });
-      }
-      navigate(location.pathname, { replace: true });
+      onOpen({
+        size: "xl",
+        content: (
+          <ModalChatPlayer
+            close={close}
+            data={{
+              businessId: Number(searchParams.get("bId")),
+              id: ticketId,
+              name: searchParams.get("name") ?? "",
+            }}
+          />
+        ),
+      });
+
+      const next = new URLSearchParams(searchParams);
+      next.delete("open_ticket");
+      next.delete("bId");
+      next.delete("name");
+
+      setSearchParams(next, { replace: true });
     })();
-  }, [location.search]);
+  }, [searchParams]);
 
   useEffect(() => {
     if (socket) {
