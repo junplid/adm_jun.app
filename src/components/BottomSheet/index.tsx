@@ -5,7 +5,7 @@ import { useEffect, useRef, useCallback, ReactNode } from "react";
 import clsx from "clsx";
 
 const MIN = 75;
-const MAX = 158;
+const MAX = 388;
 const RANGE = MAX - MIN;
 
 function clamp(value: number, min: number, max: number) {
@@ -72,11 +72,21 @@ export function BottomSheetComponent(props: {
     api.start({
       y: isOpen ? 0 : RANGE,
       config: {
-        tension: 200,
-        friction: 50,
-        precision: 1,
-        restVelocity: 100,
+        // Tensão menor e atrito maior criam o efeito "pesado" do Maps
+        tension: 180,
+        friction: 35,
+
+        // O pulo do gato: clamp impede QUALQUER ultrapassagem do limite (overshoot)
+        // Isso é o que faz parecer que ele "encaixa" magneticamente
         clamp: true,
+
+        // Precisão de 1px: se chegou perto, já considera no lugar
+        precision: 1,
+
+        // RestVelocity alto (100+) faz a animação "morrer" assim que desacelera,
+        // liberando o botão para o clique instantaneamente.
+        restVelocity: 150,
+        duration: 200,
       },
     });
   }, [isOpen, api]);
@@ -118,17 +128,20 @@ export function BottomSheetComponent(props: {
         let targetY = base + my;
 
         if (targetY < 0) {
-          targetY = targetY * 0.7;
+          // 0.05 torna o elástico pesado (resistência de 95%)
+          // Math.max(..., -20) garante que ele nunca suba mais que 20px além do topo
+          targetY = Math.max(targetY * 0.05, -20);
         }
 
         if (targetY > RANGE) {
-          targetY = RANGE + (targetY - RANGE) * 0.7;
+          // Mesma coisa para o fundo: resistência alta e limite de 20px
+          targetY = RANGE + Math.min((targetY - RANGE) * 0.05, 20);
         }
 
         return api.start({ y: targetY, immediate: true });
       }
 
-      const THRESHOLD = 20;
+      const THRESHOLD = 120;
       const midpoint = RANGE / 2;
       const finalPos = clamp((currentlyOpen ? 0 : RANGE) + my, 0, RANGE);
       const fastUp = vy > 0.5 && dy < 0;
@@ -147,14 +160,16 @@ export function BottomSheetComponent(props: {
         closeSheet();
         return;
       }
+
       return api.start({
         y: currentlyOpen ? 0 : RANGE,
         config: {
-          tension: 200,
-          friction: 50,
+          tension: 180, // Igual ao useEffect
+          friction: 35, // Igual ao useEffect
+          clamp: true, // Garante que ao "bater" no 0 ele pare na hora
           precision: 1,
-          restVelocity: 100,
-          clamp: true,
+          restVelocity: 150,
+          duration: 200,
         },
       });
     },

@@ -417,8 +417,11 @@ export function LayoutPrivateProvider(): JSX.Element {
         </main>
         {(clientMeta.isMobileLike || clientMeta.isSmallScreen) && (
           <BottomSheetComponent>
-            {(api) => (
-              <div className="grid select-none! grid-cols-[repeat(auto-fit,84px)] auto-rows-[55px] justify-center gap-1 gap-y-4 bg-[#1a1c1c] w-full px-2">
+            {() => (
+              <div
+                key={pathname}
+                className="grid select-none! grid-cols-[repeat(auto-fit,84px)] auto-rows-[55px] justify-center gap-1 gap-y-4 bg-[#1a1c1c] w-full px-2"
+              >
                 <a
                   style={{ touchAction: "manipulation" }}
                   onClick={() => {
