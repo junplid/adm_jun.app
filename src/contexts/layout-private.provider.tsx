@@ -421,6 +421,7 @@ export function LayoutPrivateProvider(): JSX.Element {
               <a
                 onPointerDown={(e) => e.stopPropagation()}
                 onClick={(e) => {
+                  alert("/auth/orders");
                   e.preventDefault();
                   if (pathname !== "/auth/orders") {
                     navigate("/auth/orders", {
@@ -444,6 +445,7 @@ export function LayoutPrivateProvider(): JSX.Element {
               <a
                 onPointerDown={(e) => e.stopPropagation()}
                 onClick={(e) => {
+                  alert("/auth/dashboard");
                   e.preventDefault();
                   if (pathname !== "/auth/dashboard") {
                     navigate("/auth/dashboard", {
@@ -467,6 +469,7 @@ export function LayoutPrivateProvider(): JSX.Element {
               <a
                 onPointerDown={(e) => e.stopPropagation()}
                 onClick={(e) => {
+                  alert("/auth/agents-ai");
                   e.preventDefault();
                   if (pathname !== "/auth/agents-ai") {
                     navigate("/auth/agents-ai", {
@@ -490,6 +493,7 @@ export function LayoutPrivateProvider(): JSX.Element {
               <a
                 onPointerDown={(e) => e.stopPropagation()}
                 onClick={(e) => {
+                  alert("/auth/appointments");
                   e.preventDefault();
                   if (pathname !== "/auth/appointments") {
                     navigate("/auth/appointments", {
@@ -513,6 +517,7 @@ export function LayoutPrivateProvider(): JSX.Element {
               <a
                 onPointerDown={(e) => e.stopPropagation()}
                 onClick={(e) => {
+                  alert("/auth/inboxes/departments");
                   e.preventDefault();
                   if (pathname !== "/auth/inboxes/departments") {
                     navigate("/auth/inboxes/departments", {
@@ -536,6 +541,7 @@ export function LayoutPrivateProvider(): JSX.Element {
               <a
                 onPointerDown={(e) => e.stopPropagation()}
                 onClick={(e) => {
+                  alert("/auth/settings/account");
                   e.preventDefault();
                   if (pathname !== "/auth/settings/account") {
                     navigate("/auth/settings/account", {
