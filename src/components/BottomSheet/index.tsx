@@ -83,6 +83,10 @@ export function BottomSheetComponent(props: {
       }
 
       if (!last) {
+        setTimeout(() => {
+          document.body.style.pointerEvents = "auto";
+        }, 0);
+
         const base = currentlyOpen ? 0 : RANGE;
         let targetY = base + my;
 
@@ -157,6 +161,9 @@ export function BottomSheetComponent(props: {
           boxShadow: "0 -1px 0px 0 rgba(255,255,255,0.123)",
           paddingBottom: 500,
           marginBottom: -500,
+          WebkitUserSelect: "none",
+          WebkitTouchCallout: "none",
+          WebkitTapHighlightColor: "transparent",
         }}
         className="touch-none! select-none! fixed bottom-0 z-99 left-0 right-0 bg-[#1a1c1c] rounded-t-3xl"
       >

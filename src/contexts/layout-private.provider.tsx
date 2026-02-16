@@ -431,9 +431,9 @@ export function LayoutPrivateProvider(): JSX.Element {
                   }}
                   className={clsx(
                     pathname === "/auth/orders"
-                      ? "bg-neutral-800 select-none! shadow-sm shadow-black/20"
+                      ? "bg-neutral-800 shadow-sm shadow-black/20"
                       : "bg-transparent",
-                    "w-full h-full justify-center flex flex-col items-center gap-y-1 rounded-xl",
+                    "w-full h-full select-none! justify-center flex flex-col items-center gap-y-1 rounded-xl",
                   )}
                 >
                   <LuNotepadText size={18} />
@@ -503,7 +503,7 @@ export function LayoutPrivateProvider(): JSX.Element {
                   )}
                 >
                   <LuCalendarDays size={18} />
-                  <span className="text-xs select-none w-full text-center font-medium px-2 truncate">
+                  <span className="text-xs select-none! w-full text-center font-medium px-2 truncate">
                     Agenda
                   </span>
                 </a>
@@ -525,7 +525,7 @@ export function LayoutPrivateProvider(): JSX.Element {
                   )}
                 >
                   <FiInbox size={18} />
-                  <span className="text-xs select-none w-full text-center font-medium px-2 truncate">
+                  <span className="text-xs select-none! w-full text-center font-medium px-2 truncate">
                     Suporte
                   </span>
                 </a>
