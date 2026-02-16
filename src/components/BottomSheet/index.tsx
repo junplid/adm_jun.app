@@ -73,6 +73,10 @@ export function BottomSheetComponent(props: {
       y: isOpen ? 0 : RANGE,
       config: { tension: 600, friction: 35, precision: 1, restVelocity: 10 },
     });
+    api.start({
+      y: isOpen ? 0 : RANGE,
+      config: { tension: 600, friction: 35, precision: 1, restVelocity: 10 },
+    });
   }, [isOpen, api]);
 
   const openSheet = useCallback(() => {
