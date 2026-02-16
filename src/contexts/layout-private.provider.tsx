@@ -5,20 +5,24 @@ import {
   SetStateAction,
   useContext,
   useMemo,
-  useRef,
   useState,
 } from "react";
 import { IoClose } from "react-icons/io5";
 import { PiPicnicTableBold } from "react-icons/pi";
 // import { GrConnect, GrSend } from "react-icons/gr";
 import { Menu, MenuItem, Sidebar } from "react-pro-sidebar";
-import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import {
+  Link,
+  Outlet,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
 import { InViewComponent } from "@components/InView";
 import { JSX } from "@emotion/react/jsx-runtime";
 import { HiMenu } from "react-icons/hi";
 import { Tooltip } from "@components/ui/tooltip";
 import { TbDoorExit } from "react-icons/tb";
-import "react-spring-bottom-sheet/dist/style.css";
 import {
   LuBotMessageSquare,
   LuCalendarDays,
@@ -36,7 +40,7 @@ import { LayoutPrivateContext } from "./layout-private.context";
 import { BsStars } from "react-icons/bs";
 import clsx from "clsx";
 import { IoMdSettings } from "react-icons/io";
-import { BottomSheet, BottomSheetRef } from "react-spring-bottom-sheet";
+import { BottomSheetComponent } from "@components/BottomSheet";
 // import { CgWebsite } from "react-icons/cg";
 // import { QrCode } from "@components/ui/qr-code";
 
@@ -109,6 +113,7 @@ export function LayoutPrivateProvider(): JSX.Element {
   const [toggledMenu, setToggledMenu] = useState(false);
   // const [toggledTo, setToggledTo] = useState<null | string>(null);
   const { pathname } = useLocation();
+  const [searchParams] = useSearchParams();
 
   const dataValue = useMemo(
     () => ({
@@ -117,7 +122,6 @@ export function LayoutPrivateProvider(): JSX.Element {
     [toggledMenu],
   );
   const navigate = useNavigate();
-  const sheetRef = useRef<BottomSheetRef>(null);
 
   // const [showDonate, setShowDonate] = useState(false);
   // useEffect(() => {
@@ -402,59 +406,47 @@ export function LayoutPrivateProvider(): JSX.Element {
           </div>
         </Sidebar>
         <main
-          onClick={() => {
-            if (sheetRef.current?.height !== 75) {
-              sheetRef.current?.snapTo(1, { velocity: 10 });
-            }
-          }}
+          // onClick={() => {
+          //   if (sheetRef.current?.height !== 75) {
+          //     sheetRef.current?.snapTo(1, { velocity: 10 });
+          //   }
+          // }}
           className="w-full h-screen"
         >
           <Outlet />
         </main>
         {(clientMeta.isMobileLike || clientMeta.isSmallScreen) && (
-          <BottomSheet
-            open={true}
-            snapPoints={() => [75, 158]}
-            defaultSnap={({ snapPoints }) => snapPoints[0]}
-            expandOnContentDrag={true}
-            blocking={false}
-            ref={sheetRef}
-            className="z-99! relative"
-          >
-            <div className="grid grid-cols-[repeat(auto-fit,84px)] auto-rows-[55px] justify-center gap-1 gap-y-4 bg-[#1a1c1c] w-full px-2">
+          <BottomSheetComponent>
+            <div className="grid select-none! grid-cols-[repeat(auto-fit,84px)] auto-rows-[55px] justify-center gap-1 gap-y-4 bg-[#1a1c1c] w-full px-2">
               <a
                 onClick={(e) => {
                   e.preventDefault();
-                  navigate("/auth/orders");
-                  if (
-                    pathname !== "/auth/orders" &&
-                    sheetRef.current?.height !== 75
-                  ) {
-                    sheetRef.current?.snapTo(1, { velocity: 10 });
+                  if (pathname !== "/auth/orders") {
+                    navigate("/auth/orders", {
+                      replace: searchParams.get("bs") === "true",
+                    });
                   }
                 }}
                 draggable={false}
                 className={clsx(
                   pathname === "/auth/orders"
-                    ? "bg-neutral-800 shadow-sm shadow-black/20"
+                    ? "bg-neutral-800 select-none! shadow-sm shadow-black/20"
                     : "bg-transparent",
                   "w-full active:scale-95 transition-transform duration-100 h-full justify-center flex flex-col items-center gap-y-1 rounded-xl",
                 )}
               >
                 <LuNotepadText size={18} />
-                <span className="text-xs w-full text-center font-medium px-2 truncate">
+                <span className="text-xs select-none w-full text-center font-medium px-2 truncate">
                   Pedidos
                 </span>
               </a>
               <a
                 onClick={(e) => {
                   e.preventDefault();
-                  navigate("/auth/dashboard");
-                  if (
-                    pathname !== "/auth/dashboard" &&
-                    sheetRef.current?.height !== 75
-                  ) {
-                    sheetRef.current?.snapTo(1, { velocity: 10 });
+                  if (pathname !== "/auth/dashboard") {
+                    navigate("/auth/dashboard", {
+                      replace: searchParams.get("bs") === "true",
+                    });
                   }
                 }}
                 draggable={false}
@@ -462,23 +454,21 @@ export function LayoutPrivateProvider(): JSX.Element {
                   pathname === "/auth/dashboard"
                     ? "bg-neutral-800 shadow-sm shadow-black/20"
                     : "bg-transparent",
-                  "w-full active:scale-95 transition-transform duration-100 h-full justify-center flex flex-col items-center gap-y-1 rounded-xl",
+                  "w-full active:scale-95 select-none! transition-transform duration-100 h-full justify-center flex flex-col items-center gap-y-1 rounded-xl",
                 )}
               >
                 <LuChartNoAxesCombined size={18} />
-                <span className="text-xs w-full text-center font-medium px-2 truncate">
+                <span className="text-xs select-none w-full text-center font-medium px-2 truncate">
                   Home
                 </span>
               </a>
               <a
                 onClick={(e) => {
                   e.preventDefault();
-                  navigate("/auth/agents-ai");
-                  if (
-                    pathname !== "/auth/agents-ai" &&
-                    sheetRef.current?.height !== 75
-                  ) {
-                    sheetRef.current?.snapTo(1, { velocity: 10 });
+                  if (pathname !== "/auth/agents-ai") {
+                    navigate("/auth/agents-ai", {
+                      replace: searchParams.get("bs") === "true",
+                    });
                   }
                 }}
                 draggable={false}
@@ -486,23 +476,21 @@ export function LayoutPrivateProvider(): JSX.Element {
                   pathname === "/auth/agents-ai"
                     ? "bg-neutral-800 shadow-sm shadow-black/20"
                     : "bg-transparent",
-                  "w-full active:scale-95 transition-transform duration-100 h-full justify-center flex flex-col items-center gap-y-1 rounded-xl",
+                  "w-full active:scale-95 select-none! transition-transform duration-100 h-full justify-center flex flex-col items-center gap-y-1 rounded-xl",
                 )}
               >
                 <BsStars size={18} />
-                <span className="text-xs w-full text-center px-2 font-medium truncate">
+                <span className="text-xs select-none w-full text-center px-2 font-medium truncate">
                   Assistente de IA
                 </span>
               </a>
               <a
                 onClick={(e) => {
                   e.preventDefault();
-                  navigate("/auth/appointments");
-                  if (
-                    pathname !== "/auth/appointments" &&
-                    sheetRef.current?.height !== 75
-                  ) {
-                    sheetRef.current?.snapTo(1, { velocity: 10 });
+                  if (pathname !== "/auth/appointments") {
+                    navigate("/auth/appointments", {
+                      replace: searchParams.get("bs") === "true",
+                    });
                   }
                 }}
                 draggable={false}
@@ -510,23 +498,21 @@ export function LayoutPrivateProvider(): JSX.Element {
                   pathname === "/auth/appointments"
                     ? "bg-neutral-800 shadow-sm shadow-black/20"
                     : "bg-transparent",
-                  "w-full active:scale-95 transition-transform duration-100 h-full justify-center flex flex-col items-center gap-y-1 rounded-xl",
+                  "w-full active:scale-95 select-none! transition-transform duration-100 h-full justify-center flex flex-col items-center gap-y-1 rounded-xl",
                 )}
               >
                 <LuCalendarDays size={18} />
-                <span className="text-xs w-full text-center font-medium px-2 truncate">
+                <span className="text-xs select-none w-full text-center font-medium px-2 truncate">
                   Agenda
                 </span>
               </a>
               <a
                 onClick={(e) => {
                   e.preventDefault();
-                  navigate("/auth/inboxes/departments");
-                  if (
-                    pathname !== "/auth/inboxes/departments" &&
-                    sheetRef.current?.height !== 75
-                  ) {
-                    sheetRef.current?.snapTo(1, { velocity: 10 });
+                  if (pathname !== "/auth/inboxes/departments") {
+                    navigate("/auth/inboxes/departments", {
+                      replace: searchParams.get("bs") === "true",
+                    });
                   }
                 }}
                 draggable={false}
@@ -534,23 +520,21 @@ export function LayoutPrivateProvider(): JSX.Element {
                   pathname === "/auth/inboxes/departments"
                     ? "bg-neutral-800 shadow-sm shadow-black/20"
                     : "bg-transparent",
-                  "w-full active:scale-95 transition-transform duration-100 h-full justify-center flex flex-col items-center gap-y-1 rounded-xl",
+                  "w-full active:scale-95 select-none! transition-transform duration-100 h-full justify-center flex flex-col items-center gap-y-1 rounded-xl",
                 )}
               >
                 <FiInbox size={18} />
-                <span className="text-xs w-full text-center font-medium px-2 truncate">
+                <span className="text-xs select-none w-full text-center font-medium px-2 truncate">
                   Suporte
                 </span>
               </a>
               <a
                 onClick={(e) => {
                   e.preventDefault();
-                  navigate("/auth/settings/account");
-                  if (
-                    pathname !== "/auth/settings/account" &&
-                    sheetRef.current?.height !== 75
-                  ) {
-                    sheetRef.current?.snapTo(1, { velocity: 10 });
+                  if (pathname !== "/auth/settings/account") {
+                    navigate("/auth/settings/account", {
+                      replace: searchParams.get("bs") === "true",
+                    });
                   }
                 }}
                 draggable={false}
@@ -558,16 +542,16 @@ export function LayoutPrivateProvider(): JSX.Element {
                   pathname === "/auth/settings/account"
                     ? "bg-neutral-800 shadow-sm shadow-black/20"
                     : "bg-transparent",
-                  "w-full active:scale-95 transition-transform duration-100 h-full justify-center flex flex-col items-center gap-y-1 rounded-xl",
+                  "w-full active:scale-95 select-none transition-transform duration-100 h-full justify-center flex flex-col items-center gap-y-1 rounded-xl",
                 )}
               >
                 <IoMdSettings size={18} />
-                <span className="text-xs w-full text-center font-medium px-2 truncate">
+                <span className="text-xs w-full select-none! text-center font-medium px-2 truncate">
                   Configurações
                 </span>
               </a>
             </div>
-          </BottomSheet>
+          </BottomSheetComponent>
         )}
       </div>
     </LayoutPrivateContext.Provider>
