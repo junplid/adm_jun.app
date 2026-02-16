@@ -6,6 +6,7 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  --rsbs-bg: #1a1c1c;
 }
 
 @custom-variant dark (&:where(.dark, .dark *));
@@ -149,4 +150,25 @@ body {
     opacity: 1;
     transform: none;
   }
+}
+
+ 
+ 
+[data-rsbs-header] {
+  padding: 6px !important; 
+}
+[data-rsbs-overlay] {
+  background-color: #1a1c1c !important; 
+}
+[data-rsbs-header]:before { 
+  background-color: #4f4e4e !important;
+  top: calc(4.5px + env(safe-area-inset-top)) !important;
+}
+
+[data-rsbs-scroll] {
+  overflow: hidden !important; 
+}
+
+[data-rsbs-is-blocking="false"] [data-rsbs-overlay] {
+  box-shadow: 0 -10px 20px 0 rgba(0, 0, 0, 0.227), 0 -1px 0px rgba(255, 255, 255, 0.123) !important;
 }

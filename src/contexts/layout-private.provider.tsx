@@ -5,18 +5,20 @@ import {
   SetStateAction,
   useContext,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { IoClose } from "react-icons/io5";
 import { PiPicnicTableBold } from "react-icons/pi";
 // import { GrConnect, GrSend } from "react-icons/gr";
 import { Menu, MenuItem, Sidebar } from "react-pro-sidebar";
-import { Link, Outlet, useLocation } from "react-router-dom";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { InViewComponent } from "@components/InView";
 import { JSX } from "@emotion/react/jsx-runtime";
 import { HiMenu } from "react-icons/hi";
 import { Tooltip } from "@components/ui/tooltip";
 import { TbDoorExit } from "react-icons/tb";
+import "react-spring-bottom-sheet/dist/style.css";
 import {
   LuBotMessageSquare,
   LuCalendarDays,
@@ -34,6 +36,7 @@ import { LayoutPrivateContext } from "./layout-private.context";
 import { BsStars } from "react-icons/bs";
 import clsx from "clsx";
 import { IoMdSettings } from "react-icons/io";
+import { BottomSheet, BottomSheetRef } from "react-spring-bottom-sheet";
 // import { CgWebsite } from "react-icons/cg";
 // import { QrCode } from "@components/ui/qr-code";
 
@@ -113,6 +116,8 @@ export function LayoutPrivateProvider(): JSX.Element {
     }),
     [toggledMenu],
   );
+  const navigate = useNavigate();
+  const sheetRef = useRef<BottomSheetRef>(null);
 
   // const [showDonate, setShowDonate] = useState(false);
   // useEffect(() => {
@@ -396,75 +401,173 @@ export function LayoutPrivateProvider(): JSX.Element {
             <ShadowBottomMemoComponent />
           </div>
         </Sidebar>
-        <main className="w-full h-screen">
+        <main
+          onClick={() => {
+            if (sheetRef.current?.height !== 75) {
+              sheetRef.current?.snapTo(1, { velocity: 10 });
+            }
+          }}
+          className="w-full h-screen"
+        >
           <Outlet />
         </main>
         {(clientMeta.isMobileLike || clientMeta.isSmallScreen) && (
-          <div
-            className="sticky bottom-0 z-[999] left-0 flex justify-center gap-x-1 bg-neutral-900 w-full px-2 py-2"
-            style={{ boxShadow: "0px -5px 10px #121212" }}
+          <BottomSheet
+            open={true}
+            snapPoints={() => [75, 158]}
+            defaultSnap={({ snapPoints }) => snapPoints[0]}
+            expandOnContentDrag={true}
+            blocking={false}
+            ref={sheetRef}
+            className="z-99! relative"
           >
-            <Link
-              to={"/auth/orders"}
-              className={clsx(
-                pathname === "/auth/orders"
-                  ? "bg-neutral-800 shadow-lg shadow-black/20"
-                  : "bg-transparent",
-                "p-2 px-3 pb-1 flex flex-col items-center gap-y-1 duration-300 rounded-xl",
-              )}
-            >
-              <LuNotepadText size={20} />
-              <span className="text-xs">Pedidos</span>
-            </Link>
-            <Link
-              to={"/auth/dashboard"}
-              className={clsx(
-                pathname === "/auth/dashboard"
-                  ? "bg-neutral-800 shadow-lg shadow-black/20"
-                  : "bg-transparent",
-                "p-2 px-3 pb-1 flex flex-col items-center gap-y-1 duration-300 rounded-xl",
-              )}
-            >
-              <LuChartNoAxesCombined size={20} />
-              <span className="text-xs">Home</span>
-            </Link>
-            <Link
-              to={"/auth/agents-ai"}
-              className={clsx(
-                pathname === "/auth/agents-ai"
-                  ? "bg-neutral-800 shadow-lg shadow-black/20"
-                  : "bg-transparent",
-                "p-2 px-3 pb-1 flex flex-col items-center gap-y-1 duration-300 rounded-xl",
-              )}
-            >
-              <BsStars size={20} />
-              <span className="text-xs">Assis...</span>
-            </Link>
-            <Link
-              to={"/auth/appointments"}
-              className={clsx(
-                pathname === "/auth/appointments"
-                  ? "bg-neutral-800 shadow-lg shadow-black/20"
-                  : "bg-transparent",
-                "p-2 px-3 pb-1 flex flex-col items-center gap-y-1 duration-300 rounded-xl",
-              )}
-            >
-              <LuCalendarDays size={20} />
-              <span className="text-xs">Agenda</span>
-            </Link>
-            <Link
-              to={"/auth/inboxes/departments"}
-              className={clsx(
-                pathname === "/auth/inboxes/departments"
-                  ? "bg-neutral-800 shadow-lg shadow-black/20"
-                  : "bg-transparent",
-                "p-2 px-3 pb-1 flex flex-col items-center gap-y-1 duration-300 rounded-xl",
-              )}
-            >
-              <FiInbox size={20} />
-              <span className="text-xs">Suporte</span>
-            </Link>
-          </div>
+            <div className="grid grid-cols-[repeat(auto-fit,84px)] auto-rows-[55px] justify-center gap-1 gap-y-4 bg-[#1a1c1c] w-full px-2">
+              <a
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate("/auth/orders");
+                  if (
+                    pathname !== "/auth/orders" &&
+                    sheetRef.current?.height !== 75
+                  ) {
+                    sheetRef.current?.snapTo(1, { velocity: 10 });
+                  }
+                }}
+                draggable={false}
+                className={clsx(
+                  pathname === "/auth/orders"
+                    ? "bg-neutral-800 shadow-sm shadow-black/20"
+                    : "bg-transparent",
+                  "w-full active:scale-95 transition-transform duration-100 h-full justify-center flex flex-col items-center gap-y-1 rounded-xl",
+                )}
+              >
+                <LuNotepadText size={18} />
+                <span className="text-xs w-full text-center font-medium px-2 truncate">
+                  Pedidos
+                </span>
+              </a>
+              <a
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate("/auth/dashboard");
+                  if (
+                    pathname !== "/auth/dashboard" &&
+                    sheetRef.current?.height !== 75
+                  ) {
+                    sheetRef.current?.snapTo(1, { velocity: 10 });
+                  }
+                }}
+                draggable={false}
+                className={clsx(
+                  pathname === "/auth/dashboard"
+                    ? "bg-neutral-800 shadow-sm shadow-black/20"
+                    : "bg-transparent",
+                  "w-full active:scale-95 transition-transform duration-100 h-full justify-center flex flex-col items-center gap-y-1 rounded-xl",
+                )}
+              >
+                <LuChartNoAxesCombined size={18} />
+                <span className="text-xs w-full text-center font-medium px-2 truncate">
+                  Home
+                </span>
+              </a>
+              <a
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate("/auth/agents-ai");
+                  if (
+                    pathname !== "/auth/agents-ai" &&
+                    sheetRef.current?.height !== 75
+                  ) {
+                    sheetRef.current?.snapTo(1, { velocity: 10 });
+                  }
+                }}
+                draggable={false}
+                className={clsx(
+                  pathname === "/auth/agents-ai"
+                    ? "bg-neutral-800 shadow-sm shadow-black/20"
+                    : "bg-transparent",
+                  "w-full active:scale-95 transition-transform duration-100 h-full justify-center flex flex-col items-center gap-y-1 rounded-xl",
+                )}
+              >
+                <BsStars size={18} />
+                <span className="text-xs w-full text-center px-2 font-medium truncate">
+                  Assistente de IA
+                </span>
+              </a>
+              <a
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate("/auth/appointments");
+                  if (
+                    pathname !== "/auth/appointments" &&
+                    sheetRef.current?.height !== 75
+                  ) {
+                    sheetRef.current?.snapTo(1, { velocity: 10 });
+                  }
+                }}
+                draggable={false}
+                className={clsx(
+                  pathname === "/auth/appointments"
+                    ? "bg-neutral-800 shadow-sm shadow-black/20"
+                    : "bg-transparent",
+                  "w-full active:scale-95 transition-transform duration-100 h-full justify-center flex flex-col items-center gap-y-1 rounded-xl",
+                )}
+              >
+                <LuCalendarDays size={18} />
+                <span className="text-xs w-full text-center font-medium px-2 truncate">
+                  Agenda
+                </span>
+              </a>
+              <a
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate("/auth/inboxes/departments");
+                  if (
+                    pathname !== "/auth/inboxes/departments" &&
+                    sheetRef.current?.height !== 75
+                  ) {
+                    sheetRef.current?.snapTo(1, { velocity: 10 });
+                  }
+                }}
+                draggable={false}
+                className={clsx(
+                  pathname === "/auth/inboxes/departments"
+                    ? "bg-neutral-800 shadow-sm shadow-black/20"
+                    : "bg-transparent",
+                  "w-full active:scale-95 transition-transform duration-100 h-full justify-center flex flex-col items-center gap-y-1 rounded-xl",
+                )}
+              >
+                <FiInbox size={18} />
+                <span className="text-xs w-full text-center font-medium px-2 truncate">
+                  Suporte
+                </span>
+              </a>
+              <a
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate("/auth/settings/account");
+                  if (
+                    pathname !== "/auth/settings/account" &&
+                    sheetRef.current?.height !== 75
+                  ) {
+                    sheetRef.current?.snapTo(1, { velocity: 10 });
+                  }
+                }}
+                draggable={false}
+                className={clsx(
+                  pathname === "/auth/settings/account"
+                    ? "bg-neutral-800 shadow-sm shadow-black/20"
+                    : "bg-transparent",
+                  "w-full active:scale-95 transition-transform duration-100 h-full justify-center flex flex-col items-center gap-y-1 rounded-xl",
+                )}
+              >
+                <IoMdSettings size={18} />
+                <span className="text-xs w-full text-center font-medium px-2 truncate">
+                  Configurações
+                </span>
+              </a>
+            </div>
+          </BottomSheet>
         )}
       </div>
     </LayoutPrivateContext.Provider>

@@ -16,7 +16,7 @@ export const SettingsAccountPage: React.FC = (): JSX.Element => {
           </div>
         </div>
       </div>
-      <div className="pl-0.5 grid pr-2 gap-y-5 overflow-y-auto h-[calc(100vh-140px)] pb-4 sm:h-[calc(100vh-175px)] md:h-[calc(100vh-150px)]">
+      <div className="pl-0.5 grid pr-2 gap-y-5 overflow-y-auto h-[calc(100vh-140px)] pb-7 sm:h-[calc(100vh-175px)] md:h-[calc(100vh-150px)]">
         <SectionChangePassword />
         <div className="bg-white/10 w-full h-px"></div>
         <SectionCloseAccount />

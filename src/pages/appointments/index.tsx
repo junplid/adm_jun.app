@@ -15,7 +15,6 @@ import { RxCaretLeft, RxCaretRight } from "react-icons/rx";
 import { usePopoverComponent } from "../../hooks/popover";
 import { PopoverViewAppointment } from "./modals/view";
 import { getAppointments } from "../../services/api/Appointments";
-import { FaInstagram, FaWhatsapp } from "react-icons/fa";
 
 moment.updateLocale("pt-br", {
   longDateFormat: {
@@ -140,16 +139,6 @@ const AppointmentEvent = ({
       ref={ref}
       onClick={handleClick}
     >
-      {event.channel === "baileys" && (
-        <div className="absolute -top-1 -left-1 bg-teal-600">
-          <FaWhatsapp className="text-white" />
-        </div>
-      )}
-      {event.channel === "instagram" && (
-        <div className="absolute -top-1 -left-1 bg-pink-500">
-          <FaInstagram className="text-white" />
-        </div>
-      )}
       <p className="font-medium text-xs">{event.title}</p>
       {event.desc && (
         <span className="line-clamp-1 text-white/80 truncate text-wrap text-xs">
