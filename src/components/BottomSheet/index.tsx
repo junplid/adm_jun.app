@@ -33,13 +33,38 @@ export function BottomSheetComponent(props: {
   });
 
   useEffect(() => {
+    const handleTouch = (e: TouchEvent) => {
+      // 1. Bloqueia zoom (mais de 1 dedo)
+      if (e.touches.length > 1) {
+        e.preventDefault();
+      }
+
+      // 2. Bloqueia o reload/pull-to-refresh (se o menu estiver aberto)
+      if (isOpen) {
+        // O preventDefault aqui mata o comportamento nativo de puxar a página
+        // Mas cuidado: isso pode travar o scroll se o conteúdo for longo.
+        // Como você está usando useDrag, ele já cuida do movimento.
+        e.preventDefault();
+      }
+    };
+
+    // Bloqueia o gesto de zoom específico do Safari/iOS
+    const handleGesture = (e: Event) => {
+      e.preventDefault();
+    };
+
     if (isOpen) {
-      document.body.style.overscrollBehaviorY = "none";
-    } else {
-      document.body.style.overscrollBehaviorY = "auto";
+      window.addEventListener("touchmove", handleTouch, { passive: false });
+      window.addEventListener("gesturestart", handleGesture);
+      window.addEventListener("gesturechange", handleGesture);
+      window.addEventListener("gestureend", handleGesture);
     }
+
     return () => {
-      document.body.style.overscrollBehaviorY = "auto";
+      window.removeEventListener("touchmove", handleTouch);
+      window.removeEventListener("gesturestart", handleGesture);
+      window.removeEventListener("gesturechange", handleGesture);
+      window.removeEventListener("gestureend", handleGesture);
     };
   }, [isOpen]);
 
