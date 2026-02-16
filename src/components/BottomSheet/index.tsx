@@ -40,7 +40,7 @@ export function BottomSheetComponent(props: { children: ReactNode }) {
   useEffect(() => {
     api.start({
       y: isOpen ? 0 : RANGE,
-      config: { tension: 600, friction: 35, precision: 0.1 },
+      config: { tension: 600, friction: 35, precision: 1, restVelocity: 1 },
     });
   }, [isOpen, api]);
 
@@ -65,13 +65,15 @@ export function BottomSheetComponent(props: { children: ReactNode }) {
       canceled,
     }) => {
       const currentlyOpen = isOpenRef.current;
+      if (first) {
+        api.stop();
+        dragStartRef.current = y.get();
+      }
+
       if (tap) return;
       if (canceled) {
         api.start({ y: isOpenRef.current ? 0 : RANGE });
         return;
-      }
-      if (first) {
-        dragStartRef.current = y.get();
       }
 
       if (!last) {
@@ -112,7 +114,7 @@ export function BottomSheetComponent(props: { children: ReactNode }) {
 
       api.start({
         y: currentlyOpen ? 0 : RANGE,
-        config: { tension: 600, friction: 35, precision: 0.1 },
+        config: { tension: 600, friction: 35, precision: 1, restVelocity: 1 },
       });
     },
     {
@@ -134,6 +136,7 @@ export function BottomSheetComponent(props: { children: ReactNode }) {
         }}
         className="fixed inset-0 z-50"
         onClick={(e) => {
+          api.stop();
           e.stopPropagation();
           closeSheet();
         }}
