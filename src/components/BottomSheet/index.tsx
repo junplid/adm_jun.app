@@ -141,7 +141,7 @@ export function BottomSheetComponent(props: {
         return api.start({ y: targetY, immediate: true });
       }
 
-      const THRESHOLD = 120;
+      const THRESHOLD = 5;
       const midpoint = RANGE / 2;
       const finalPos = clamp((currentlyOpen ? 0 : RANGE) + my, 0, RANGE);
       const fastUp = vy > 0.5 && dy < 0;
