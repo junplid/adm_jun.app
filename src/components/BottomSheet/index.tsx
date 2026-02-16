@@ -123,7 +123,6 @@ export function BottomSheetComponent(props: { children: ReactNode }) {
       filterTaps: true,
       delay: 0,
       touchAction: "none",
-      preventScrollAxis: "y",
     },
   );
 
