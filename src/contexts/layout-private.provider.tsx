@@ -421,26 +421,12 @@ export function LayoutPrivateProvider(): JSX.Element {
               <div className="grid select-none! grid-cols-[repeat(auto-fit,84px)] auto-rows-[55px] justify-center gap-1 gap-y-4 bg-[#1a1c1c] w-full px-2">
                 <a
                   style={{ touchAction: "manipulation" }}
-                  onPointerDown={() => {
-                    if (clientMeta.isMobileLike || clientMeta.isSmallScreen) {
-                      api.stop();
-                      if (pathname !== "/auth/teste1") {
-                        navigate("/auth/teste1", {
-                          replace: searchParams.get("bs") === "true",
-                        });
-                      }
-                    }
-                  }}
                   onClick={() => {
-                    if (
-                      !(clientMeta.isMobileLike || clientMeta.isSmallScreen)
-                    ) {
-                      api.stop();
-                      if (pathname !== "/auth/teste1") {
-                        navigate("/auth/teste1", {
-                          replace: searchParams.get("bs") === "true",
-                        });
-                      }
+                    api.stop();
+                    if (pathname !== "/auth/teste1") {
+                      navigate("/auth/teste1", {
+                        replace: searchParams.get("bs") === "true",
+                      });
                     }
                   }}
                   className={clsx(
@@ -456,26 +442,12 @@ export function LayoutPrivateProvider(): JSX.Element {
                   </span>
                 </a>
                 <a
-                  onPointerDown={() => {
-                    if (clientMeta.isMobileLike || clientMeta.isSmallScreen) {
-                      api.stop();
-                      if (pathname !== "/auth/teste2") {
-                        navigate("/auth/teste2", {
-                          replace: searchParams.get("bs") === "true",
-                        });
-                      }
-                    }
-                  }}
                   onClick={() => {
-                    if (
-                      !(clientMeta.isMobileLike || clientMeta.isSmallScreen)
-                    ) {
-                      api.stop();
-                      if (pathname !== "/auth/teste2") {
-                        navigate("/auth/teste2", {
-                          replace: searchParams.get("bs") === "true",
-                        });
-                      }
+                    api.stop();
+                    if (pathname !== "/auth/teste2") {
+                      navigate("/auth/teste2", {
+                        replace: searchParams.get("bs") === "true",
+                      });
                     }
                   }}
                   style={{ touchAction: "manipulation" }}
@@ -492,26 +464,12 @@ export function LayoutPrivateProvider(): JSX.Element {
                   </span>
                 </a>
                 <a
-                  onPointerDown={() => {
-                    if (clientMeta.isMobileLike || clientMeta.isSmallScreen) {
-                      api.stop();
-                      if (pathname !== "/auth/teste3") {
-                        navigate("/auth/teste3", {
-                          replace: searchParams.get("bs") === "true",
-                        });
-                      }
-                    }
-                  }}
                   onClick={() => {
-                    if (
-                      !(clientMeta.isMobileLike || clientMeta.isSmallScreen)
-                    ) {
-                      api.stop();
-                      if (pathname !== "/auth/teste3") {
-                        navigate("/auth/teste3", {
-                          replace: searchParams.get("bs") === "true",
-                        });
-                      }
+                    api.stop();
+                    if (pathname !== "/auth/teste3") {
+                      navigate("/auth/teste3", {
+                        replace: searchParams.get("bs") === "true",
+                      });
                     }
                   }}
                   style={{ touchAction: "manipulation" }}
@@ -528,26 +486,12 @@ export function LayoutPrivateProvider(): JSX.Element {
                   </span>
                 </a>
                 <a
-                  onPointerDown={() => {
-                    if (clientMeta.isMobileLike || clientMeta.isSmallScreen) {
-                      api.stop();
-                      if (pathname !== "/auth/appointments") {
-                        navigate("/auth/appointments", {
-                          replace: searchParams.get("bs") === "true",
-                        });
-                      }
-                    }
-                  }}
                   onClick={() => {
-                    if (
-                      !(clientMeta.isMobileLike || clientMeta.isSmallScreen)
-                    ) {
-                      api.stop();
-                      if (pathname !== "/auth/appointments") {
-                        navigate("/auth/appointments", {
-                          replace: searchParams.get("bs") === "true",
-                        });
-                      }
+                    api.stop();
+                    if (pathname !== "/auth/appointments") {
+                      navigate("/auth/appointments", {
+                        replace: searchParams.get("bs") === "true",
+                      });
                     }
                   }}
                   style={{ touchAction: "manipulation" }}
@@ -564,26 +508,12 @@ export function LayoutPrivateProvider(): JSX.Element {
                   </span>
                 </a>
                 <a
-                  onPointerDown={() => {
-                    if (clientMeta.isMobileLike || clientMeta.isSmallScreen) {
-                      api.stop();
-                      if (pathname !== "/auth/inboxes/departments") {
-                        navigate("/auth/inboxes/departments", {
-                          replace: searchParams.get("bs") === "true",
-                        });
-                      }
-                    }
-                  }}
                   onClick={() => {
-                    if (
-                      !(clientMeta.isMobileLike || clientMeta.isSmallScreen)
-                    ) {
-                      api.stop();
-                      if (pathname !== "/auth/inboxes/departments") {
-                        navigate("/auth/inboxes/departments", {
-                          replace: searchParams.get("bs") === "true",
-                        });
-                      }
+                    api.stop();
+                    if (pathname !== "/auth/inboxes/departments") {
+                      navigate("/auth/inboxes/departments", {
+                        replace: searchParams.get("bs") === "true",
+                      });
                     }
                   }}
                   style={{ touchAction: "manipulation" }}
@@ -600,26 +530,12 @@ export function LayoutPrivateProvider(): JSX.Element {
                   </span>
                 </a>
                 <a
-                  onPointerDown={() => {
-                    if (clientMeta.isMobileLike || clientMeta.isSmallScreen) {
-                      api.stop();
-                      if (pathname !== "/auth/inboxes/departments") {
-                        navigate("/auth/inboxes/departments", {
-                          replace: searchParams.get("bs") === "true",
-                        });
-                      }
-                    }
-                  }}
                   onClick={() => {
-                    if (
-                      !(clientMeta.isMobileLike || clientMeta.isSmallScreen)
-                    ) {
-                      api.stop();
-                      if (pathname !== "/auth/settings/account") {
-                        navigate("/auth/settings/account", {
-                          replace: searchParams.get("bs") === "true",
-                        });
-                      }
+                    api.stop();
+                    if (pathname !== "/auth/settings/account") {
+                      navigate("/auth/settings/account", {
+                        replace: searchParams.get("bs") === "true",
+                      });
                     }
                   }}
                   style={{ touchAction: "manipulation" }}

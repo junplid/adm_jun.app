@@ -20,7 +20,7 @@ export function BottomSheetComponent(props: {
   ) => ReactNode;
 }) {
   const [searchParams, setSearchParams] = useSearchParams();
-  const dragStartRef = useRef(0);
+  //   const dragStartRef = useRef(0);
   const isOpen = searchParams.get("bs") === "true";
 
   const isOpenRef = useRef(isOpen);
@@ -98,7 +98,6 @@ export function BottomSheetComponent(props: {
       const currentlyOpen = isOpenRef.current;
       if (first) {
         return api.stop();
-        dragStartRef.current = y.get();
       }
 
       if (tap) {
@@ -109,10 +108,6 @@ export function BottomSheetComponent(props: {
       }
 
       if (!last) {
-        setTimeout(() => {
-          document.body.style.pointerEvents = "auto";
-        }, 0);
-
         const base = currentlyOpen ? 0 : RANGE;
         let targetY = base + my;
 
@@ -146,8 +141,11 @@ export function BottomSheetComponent(props: {
         closeSheet();
         return;
       }
-
       api.start({
+        y: currentlyOpen ? 0 : RANGE,
+        config: { tension: 600, friction: 35, precision: 1, restVelocity: 10 },
+      });
+      return api.start({
         y: currentlyOpen ? 0 : RANGE,
         config: { tension: 600, friction: 35, precision: 1, restVelocity: 10 },
       });
