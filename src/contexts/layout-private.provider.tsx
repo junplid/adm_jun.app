@@ -422,7 +422,6 @@ export function LayoutPrivateProvider(): JSX.Element {
                 <a
                   style={{ touchAction: "manipulation" }}
                   onClick={() => {
-                    api.stop();
                     if (pathname !== "/auth/teste1") {
                       navigate("/auth/teste1", {
                         replace: searchParams.get("bs") === "true",
@@ -443,7 +442,6 @@ export function LayoutPrivateProvider(): JSX.Element {
                 </a>
                 <a
                   onClick={() => {
-                    api.stop();
                     if (pathname !== "/auth/teste2") {
                       navigate("/auth/teste2", {
                         replace: searchParams.get("bs") === "true",
@@ -465,7 +463,6 @@ export function LayoutPrivateProvider(): JSX.Element {
                 </a>
                 <a
                   onClick={() => {
-                    api.stop();
                     if (pathname !== "/auth/teste3") {
                       navigate("/auth/teste3", {
                         replace: searchParams.get("bs") === "true",
@@ -487,7 +484,6 @@ export function LayoutPrivateProvider(): JSX.Element {
                 </a>
                 <a
                   onClick={() => {
-                    api.stop();
                     if (pathname !== "/auth/appointments") {
                       navigate("/auth/appointments", {
                         replace: searchParams.get("bs") === "true",
@@ -509,7 +505,6 @@ export function LayoutPrivateProvider(): JSX.Element {
                 </a>
                 <a
                   onClick={() => {
-                    api.stop();
                     if (pathname !== "/auth/inboxes/departments") {
                       navigate("/auth/inboxes/departments", {
                         replace: searchParams.get("bs") === "true",
@@ -531,7 +526,6 @@ export function LayoutPrivateProvider(): JSX.Element {
                 </a>
                 <a
                   onClick={() => {
-                    api.stop();
                     if (pathname !== "/auth/settings/account") {
                       navigate("/auth/settings/account", {
                         replace: searchParams.get("bs") === "true",
