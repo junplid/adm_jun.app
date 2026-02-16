@@ -29,7 +29,7 @@ export function BottomSheetComponent(props: { children: ReactNode }) {
   useEffect(() => {
     api.start({
       y: isOpen ? 0 : RANGE,
-      config: { tension: 900, friction: 35 },
+      config: { tension: 600, friction: 35, precision: 0.1 },
     });
   }, [isOpen, api]);
 
@@ -54,8 +54,9 @@ export function BottomSheetComponent(props: { children: ReactNode }) {
       canceled,
     }) => {
       const currentlyOpen = isOpenRef.current;
-
-      if (tap || canceled) {
+      if (tap) return;
+      if (canceled) {
+        api.start({ y: isOpenRef.current ? 0 : RANGE });
         return;
       }
       if (first) {
@@ -83,7 +84,7 @@ export function BottomSheetComponent(props: { children: ReactNode }) {
         return;
       }
 
-      const THRESHOLD = 10;
+      const THRESHOLD = 20;
       const midpoint = RANGE / 2;
       const finalPos = clamp((currentlyOpen ? 0 : RANGE) + my, 0, RANGE);
       const fastUp = vy > 0.5 && dy < 0;
@@ -105,7 +106,7 @@ export function BottomSheetComponent(props: { children: ReactNode }) {
 
       api.start({
         y: currentlyOpen ? 0 : RANGE,
-        config: { tension: 900, friction: 35 },
+        config: { tension: 600, friction: 35, precision: 0.1 },
       });
     },
     {
@@ -132,7 +133,8 @@ export function BottomSheetComponent(props: { children: ReactNode }) {
       <animated.div
         {...bind()}
         style={{
-          transform: y.to((v) => `translateY(${v}px)`),
+          transform: y.to((v) => `translate3d(0, ${v}px, 0)`),
+          willChange: "transform",
           touchAction: "none",
           boxShadow: "0 -1px 0px 0 rgba(255,255,255,0.123)",
           paddingBottom: 500,
