@@ -419,6 +419,7 @@ export function LayoutPrivateProvider(): JSX.Element {
           <BottomSheetComponent>
             <div className="grid select-none! grid-cols-[repeat(auto-fit,84px)] auto-rows-[55px] justify-center gap-1 gap-y-4 bg-[#1a1c1c] w-full px-2">
               <a
+                onPointerDown={(e) => e.stopPropagation()}
                 onClick={(e) => {
                   e.preventDefault();
                   if (pathname !== "/auth/orders") {
@@ -432,7 +433,7 @@ export function LayoutPrivateProvider(): JSX.Element {
                   pathname === "/auth/orders"
                     ? "bg-neutral-800 select-none! shadow-sm shadow-black/20"
                     : "bg-transparent",
-                  "w-full active:scale-95 transition-transform duration-100 h-full justify-center flex flex-col items-center gap-y-1 rounded-xl",
+                  "w-full h-full justify-center flex flex-col items-center gap-y-1 rounded-xl",
                 )}
               >
                 <LuNotepadText size={18} />
@@ -441,6 +442,7 @@ export function LayoutPrivateProvider(): JSX.Element {
                 </span>
               </a>
               <a
+                onPointerDown={(e) => e.stopPropagation()}
                 onClick={(e) => {
                   e.preventDefault();
                   if (pathname !== "/auth/dashboard") {
@@ -454,7 +456,7 @@ export function LayoutPrivateProvider(): JSX.Element {
                   pathname === "/auth/dashboard"
                     ? "bg-neutral-800 shadow-sm shadow-black/20"
                     : "bg-transparent",
-                  "w-full active:scale-95 select-none! transition-transform duration-100 h-full justify-center flex flex-col items-center gap-y-1 rounded-xl",
+                  "w-full select-none! h-full justify-center flex flex-col items-center gap-y-1 rounded-xl",
                 )}
               >
                 <LuChartNoAxesCombined size={18} />
@@ -463,6 +465,7 @@ export function LayoutPrivateProvider(): JSX.Element {
                 </span>
               </a>
               <a
+                onPointerDown={(e) => e.stopPropagation()}
                 onClick={(e) => {
                   e.preventDefault();
                   if (pathname !== "/auth/agents-ai") {
@@ -476,7 +479,7 @@ export function LayoutPrivateProvider(): JSX.Element {
                   pathname === "/auth/agents-ai"
                     ? "bg-neutral-800 shadow-sm shadow-black/20"
                     : "bg-transparent",
-                  "w-full active:scale-95 select-none! transition-transform duration-100 h-full justify-center flex flex-col items-center gap-y-1 rounded-xl",
+                  "w-full select-none! h-full justify-center flex flex-col items-center gap-y-1 rounded-xl",
                 )}
               >
                 <BsStars size={18} />
@@ -485,6 +488,7 @@ export function LayoutPrivateProvider(): JSX.Element {
                 </span>
               </a>
               <a
+                onPointerDown={(e) => e.stopPropagation()}
                 onClick={(e) => {
                   e.preventDefault();
                   if (pathname !== "/auth/appointments") {
@@ -498,7 +502,7 @@ export function LayoutPrivateProvider(): JSX.Element {
                   pathname === "/auth/appointments"
                     ? "bg-neutral-800 shadow-sm shadow-black/20"
                     : "bg-transparent",
-                  "w-full active:scale-95 select-none! transition-transform duration-100 h-full justify-center flex flex-col items-center gap-y-1 rounded-xl",
+                  "w-full select-none! h-full justify-center flex flex-col items-center gap-y-1 rounded-xl",
                 )}
               >
                 <LuCalendarDays size={18} />
@@ -507,6 +511,7 @@ export function LayoutPrivateProvider(): JSX.Element {
                 </span>
               </a>
               <a
+                onPointerDown={(e) => e.stopPropagation()}
                 onClick={(e) => {
                   e.preventDefault();
                   if (pathname !== "/auth/inboxes/departments") {
@@ -520,7 +525,7 @@ export function LayoutPrivateProvider(): JSX.Element {
                   pathname === "/auth/inboxes/departments"
                     ? "bg-neutral-800 shadow-sm shadow-black/20"
                     : "bg-transparent",
-                  "w-full active:scale-95 select-none! transition-transform duration-100 h-full justify-center flex flex-col items-center gap-y-1 rounded-xl",
+                  "w-full select-none! h-full justify-center flex flex-col items-center gap-y-1 rounded-xl",
                 )}
               >
                 <FiInbox size={18} />
@@ -529,6 +534,7 @@ export function LayoutPrivateProvider(): JSX.Element {
                 </span>
               </a>
               <a
+                onPointerDown={(e) => e.stopPropagation()}
                 onClick={(e) => {
                   e.preventDefault();
                   if (pathname !== "/auth/settings/account") {
@@ -542,7 +548,7 @@ export function LayoutPrivateProvider(): JSX.Element {
                   pathname === "/auth/settings/account"
                     ? "bg-neutral-800 shadow-sm shadow-black/20"
                     : "bg-transparent",
-                  "w-full active:scale-95 select-none transition-transform duration-100 h-full justify-center flex flex-col items-center gap-y-1 rounded-xl",
+                  "w-full select-none h-full justify-center flex flex-col items-center gap-y-1 rounded-xl",
                 )}
               >
                 <IoMdSettings size={18} />
