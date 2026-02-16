@@ -103,36 +103,32 @@ export function BottomSheetComponent(props: {
     }) => {
       const currentlyOpen = isOpenRef.current;
       if (first) {
-        return api.stop();
+        return;
       }
-
       if (tap) {
-        return api.stop();
+        return;
       }
       if (canceled) {
+        alert("CANCELED");
         return api.start({ y: isOpenRef.current ? 0 : RANGE });
       }
 
       if (!last) {
         const base = currentlyOpen ? 0 : RANGE;
-        // Aplicamos a resistência aqui: o movimento real do dedo (my)
-        // é reduzido para 1/3 da velocidade normal.
-        let targetY = base + my / 3;
+        let targetY = base + my;
 
         if (targetY < 0) {
-          // Elástico no topo (puxando para cima além do limite)
-          targetY = targetY * 0.2;
+          targetY = targetY * 0.7;
         }
 
         if (targetY > RANGE) {
-          // Elástico no fundo (puxando para baixo além do limite)
-          targetY = RANGE + (targetY - RANGE) * 0.2;
+          targetY = RANGE + (targetY - RANGE) * 0.7;
         }
 
         return api.start({ y: targetY, immediate: true });
       }
 
-      const THRESHOLD = 5;
+      const THRESHOLD = 20;
       const midpoint = RANGE / 2;
       const finalPos = clamp((currentlyOpen ? 0 : RANGE) + my, 0, RANGE);
       const fastUp = vy > 0.5 && dy < 0;
