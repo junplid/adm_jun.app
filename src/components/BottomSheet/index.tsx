@@ -71,13 +71,10 @@ export function BottomSheetComponent(props: { children: ReactNode }) {
         const base = currentlyOpen ? 0 : RANGE;
         let targetY = base + my;
 
-        // EFEITO ESTICAR: Se puxar para cima além do limite (y < 0)
         if (targetY < 0) {
-          // O número 0.3 controla o quanto ele estica (menor = mais duro)
           targetY = targetY * 0.3;
         }
 
-        // Se puxar para baixo além do limite (y > RANGE)
         if (targetY > RANGE) {
           targetY = RANGE + (targetY - RANGE) * 0.3;
         }
@@ -121,15 +118,12 @@ export function BottomSheetComponent(props: { children: ReactNode }) {
   return (
     <>
       <animated.div
-        {...bind()}
         style={{
           backgroundColor: y.to(
             [0, RANGE],
             ["rgba(0,0,0,0.15)", "rgba(0,0,0,0)"],
           ),
-          backdropFilter: y.to([0, RANGE], ["blur(2px)", "blur(0px)"]),
-          WebkitBackdropFilter: y.to([0, RANGE], ["blur(2px)", "blur(0px)"]),
-          pointerEvents: y.to((v) => (v < RANGE - 10 ? "auto" : "none")),
+          pointerEvents: isOpen ? "auto" : "none",
         }}
         className="fixed inset-0 z-50"
         onClick={closeSheet}
@@ -140,13 +134,7 @@ export function BottomSheetComponent(props: { children: ReactNode }) {
         style={{
           transform: y.to((v) => `translateY(${v}px)`),
           touchAction: "none",
-          boxShadow: y.to(
-            [0, RANGE],
-            [
-              "0 -10px 20px 0 rgba(0,0,0,0.227), 0 -1px 0px 0 rgba(255,255,255,0.123)",
-              "0 -4px 8px 0 rgba(0,0,0,0.15), 0 0px 0px 0 rgba(255,255,255,0)",
-            ],
-          ),
+          boxShadow: "0 -1px 0px 0 rgba(255,255,255,0.123)",
           paddingBottom: 500,
           marginBottom: -500,
         }}
