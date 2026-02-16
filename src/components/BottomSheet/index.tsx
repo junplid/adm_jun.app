@@ -33,12 +33,20 @@ export function BottomSheetComponent(props: {
   });
 
   useEffect(() => {
+    if (isOpen) {
+      document.body.style.overscrollBehaviorY = "none";
+    } else {
+      document.body.style.overscrollBehaviorY = "auto";
+    }
+    return () => {
+      document.body.style.overscrollBehaviorY = "auto";
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
     api.start({
       y: isOpen ? 0 : RANGE,
-      config: {
-        precision: 20,
-        restVelocity: 20,
-      },
+      config: { tension: 600, friction: 35, precision: 1, restVelocity: 10 },
     });
   }, [isOpen, api]);
 
@@ -64,14 +72,15 @@ export function BottomSheetComponent(props: {
     }) => {
       const currentlyOpen = isOpenRef.current;
       if (first) {
-        api.stop();
+        return api.stop();
         dragStartRef.current = y.get();
       }
 
-      if (tap) return;
+      if (tap) {
+        return api.stop();
+      }
       if (canceled) {
-        api.start({ y: isOpenRef.current ? 0 : RANGE });
-        return;
+        return api.start({ y: isOpenRef.current ? 0 : RANGE });
       }
 
       if (!last) {
@@ -80,18 +89,17 @@ export function BottomSheetComponent(props: {
         }, 0);
 
         const base = currentlyOpen ? 0 : RANGE;
-        // let targetY = base + my;
+        let targetY = base + my;
 
-        // if (targetY < 0) {
-        //   targetY = targetY * 0.1;
-        // }
+        if (targetY < 0) {
+          targetY = targetY * 0.1;
+        }
 
-        // if (targetY > RANGE) {
-        //   targetY = RANGE + (targetY - RANGE) * 0.1;
-        // }
+        if (targetY > RANGE) {
+          targetY = RANGE + (targetY - RANGE) * 0.1;
+        }
 
-        api.start({ y: clamp(base + my, 0, RANGE), immediate: true });
-        return;
+        return api.start({ y: targetY, immediate: true });
       }
 
       const THRESHOLD = 20;
@@ -116,10 +124,7 @@ export function BottomSheetComponent(props: {
 
       api.start({
         y: currentlyOpen ? 0 : RANGE,
-        config: {
-          precision: 20,
-          restVelocity: 20,
-        },
+        config: { tension: 600, friction: 35, precision: 1, restVelocity: 10 },
       });
     },
     {
@@ -128,7 +133,6 @@ export function BottomSheetComponent(props: {
       filterTaps: true,
       delay: 0,
       touchAction: "none",
-      tapsThreshold: 10,
     },
   );
 
