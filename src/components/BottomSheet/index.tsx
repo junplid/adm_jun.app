@@ -1,4 +1,4 @@
-import { useSpring, animated } from "@react-spring/web";
+import { useSpring, animated, SpringRef } from "@react-spring/web";
 import { useDrag } from "@use-gesture/react";
 import { useSearchParams } from "react-router-dom";
 import { useEffect, useRef, useCallback, ReactNode } from "react";
@@ -12,7 +12,13 @@ function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
 }
 
-export function BottomSheetComponent(props: { children: ReactNode }) {
+export function BottomSheetComponent(props: {
+  children: (
+    api: SpringRef<{
+      y: number;
+    }>,
+  ) => ReactNode;
+}) {
   const [searchParams, setSearchParams] = useSearchParams();
   const dragStartRef = useRef(0);
   const isOpen = searchParams.get("bs") === "true";
@@ -40,7 +46,7 @@ export function BottomSheetComponent(props: { children: ReactNode }) {
   useEffect(() => {
     api.start({
       y: isOpen ? 0 : RANGE,
-      config: { tension: 600, friction: 35, precision: 1, restVelocity: 1 },
+      config: { tension: 600, friction: 35, precision: 1, restVelocity: 10 },
     });
   }, [isOpen, api]);
 
@@ -114,12 +120,12 @@ export function BottomSheetComponent(props: { children: ReactNode }) {
 
       api.start({
         y: currentlyOpen ? 0 : RANGE,
-        config: { tension: 600, friction: 35, precision: 1, restVelocity: 1 },
+        config: { tension: 600, friction: 35, precision: 1, restVelocity: 10 },
       });
     },
     {
       axis: "y",
-      pointer: { touch: true },
+      pointer: { touch: true, capture: false },
       filterTaps: true,
       delay: 0,
       touchAction: "none",
@@ -161,7 +167,7 @@ export function BottomSheetComponent(props: { children: ReactNode }) {
               "w-13 h-1 rounded-full mx-auto my-1.5 mb-1",
             )}
           />
-          {props.children}
+          {props.children(api)}
         </div>
       </animated.div>
     </>

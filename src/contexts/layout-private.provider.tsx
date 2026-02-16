@@ -417,158 +417,142 @@ export function LayoutPrivateProvider(): JSX.Element {
         </main>
         {(clientMeta.isMobileLike || clientMeta.isSmallScreen) && (
           <BottomSheetComponent>
-            <div className="grid select-none! grid-cols-[repeat(auto-fit,84px)] auto-rows-[55px] justify-center gap-1 gap-y-4 bg-[#1a1c1c] w-full px-2">
-              <a
-                onPointerDown={(e) => {
-                  e.preventDefault();
-                }}
-                style={{ touchAction: "manipulation" }}
-                onClick={(e) => {
-                  e.preventDefault();
-                  if (pathname !== "/auth/orders") {
-                    navigate("/auth/orders", {
-                      replace: searchParams.get("bs") === "true",
-                    });
-                  }
-                }}
-                className={clsx(
-                  pathname === "/auth/orders"
-                    ? "bg-neutral-800 select-none! shadow-sm shadow-black/20"
-                    : "bg-transparent",
-                  "w-full h-full justify-center flex flex-col items-center gap-y-1 rounded-xl",
-                )}
-              >
-                <LuNotepadText size={18} />
-                <span className="text-xs select-none w-full text-center font-medium px-2 truncate">
-                  Pedidos
-                </span>
-              </a>
-              <a
-                onPointerDown={(e) => {
-                  e.preventDefault();
-                }}
-                onClick={(e) => {
-                  e.preventDefault();
-                  if (pathname !== "/auth/dashboard") {
-                    navigate("/auth/dashboard", {
-                      replace: searchParams.get("bs") === "true",
-                    });
-                  }
-                }}
-                style={{ touchAction: "manipulation" }}
-                className={clsx(
-                  pathname === "/auth/dashboard"
-                    ? "bg-neutral-800 shadow-sm shadow-black/20"
-                    : "bg-transparent",
-                  "w-full select-none! h-full justify-center flex flex-col items-center gap-y-1 rounded-xl",
-                )}
-              >
-                <LuChartNoAxesCombined size={18} />
-                <span className="text-xs select-none w-full text-center font-medium px-2 truncate">
-                  Home
-                </span>
-              </a>
-              <a
-                onPointerDown={(e) => {
-                  e.preventDefault();
-                }}
-                onClick={(e) => {
-                  e.preventDefault();
-                  if (pathname !== "/auth/agents-ai") {
-                    navigate("/auth/agents-ai", {
-                      replace: searchParams.get("bs") === "true",
-                    });
-                  }
-                }}
-                style={{ touchAction: "manipulation" }}
-                className={clsx(
-                  pathname === "/auth/agents-ai"
-                    ? "bg-neutral-800 shadow-sm shadow-black/20"
-                    : "bg-transparent",
-                  "w-full select-none! h-full justify-center flex flex-col items-center gap-y-1 rounded-xl",
-                )}
-              >
-                <BsStars size={18} />
-                <span className="text-xs select-none w-full text-center px-2 font-medium truncate">
-                  Assistente de IA
-                </span>
-              </a>
-              <a
-                onPointerDown={(e) => {
-                  e.preventDefault();
-                }}
-                onClick={(e) => {
-                  e.preventDefault();
-                  if (pathname !== "/auth/appointments") {
-                    navigate("/auth/appointments", {
-                      replace: searchParams.get("bs") === "true",
-                    });
-                  }
-                }}
-                style={{ touchAction: "manipulation" }}
-                className={clsx(
-                  pathname === "/auth/appointments"
-                    ? "bg-neutral-800 shadow-sm shadow-black/20"
-                    : "bg-transparent",
-                  "w-full select-none! h-full justify-center flex flex-col items-center gap-y-1 rounded-xl",
-                )}
-              >
-                <LuCalendarDays size={18} />
-                <span className="text-xs select-none w-full text-center font-medium px-2 truncate">
-                  Agenda
-                </span>
-              </a>
-              <a
-                onPointerDown={(e) => {
-                  e.preventDefault();
-                }}
-                onClick={(e) => {
-                  e.preventDefault();
-                  if (pathname !== "/auth/inboxes/departments") {
-                    navigate("/auth/inboxes/departments", {
-                      replace: searchParams.get("bs") === "true",
-                    });
-                  }
-                }}
-                style={{ touchAction: "manipulation" }}
-                className={clsx(
-                  pathname === "/auth/inboxes/departments"
-                    ? "bg-neutral-800 shadow-sm shadow-black/20"
-                    : "bg-transparent",
-                  "w-full select-none! h-full justify-center flex flex-col items-center gap-y-1 rounded-xl",
-                )}
-              >
-                <FiInbox size={18} />
-                <span className="text-xs select-none w-full text-center font-medium px-2 truncate">
-                  Suporte
-                </span>
-              </a>
-              <a
-                onPointerDown={(e) => {
-                  e.preventDefault();
-                }}
-                onClick={(e) => {
-                  e.preventDefault();
-                  if (pathname !== "/auth/settings/account") {
-                    navigate("/auth/settings/account", {
-                      replace: searchParams.get("bs") === "true",
-                    });
-                  }
-                }}
-                style={{ touchAction: "manipulation" }}
-                className={clsx(
-                  pathname === "/auth/settings/account"
-                    ? "bg-neutral-800 shadow-sm shadow-black/20"
-                    : "bg-transparent",
-                  "w-full select-none h-full justify-center flex flex-col items-center gap-y-1 rounded-xl",
-                )}
-              >
-                <IoMdSettings size={18} />
-                <span className="text-xs w-full select-none! text-center font-medium px-2 truncate">
-                  Configurações
-                </span>
-              </a>
-            </div>
+            {(api) => (
+              <div className="grid select-none! grid-cols-[repeat(auto-fit,84px)] auto-rows-[55px] justify-center gap-1 gap-y-4 bg-[#1a1c1c] w-full px-2">
+                <a
+                  style={{ touchAction: "manipulation" }}
+                  onClick={() => {
+                    api.stop();
+                    if (pathname !== "/auth/orders") {
+                      navigate("/auth/orders", {
+                        replace: searchParams.get("bs") === "true",
+                      });
+                    }
+                  }}
+                  className={clsx(
+                    pathname === "/auth/orders"
+                      ? "bg-neutral-800 select-none! shadow-sm shadow-black/20"
+                      : "bg-transparent",
+                    "w-full h-full justify-center flex flex-col items-center gap-y-1 rounded-xl",
+                  )}
+                >
+                  <LuNotepadText size={18} />
+                  <span className="text-xs select-none w-full text-center font-medium px-2 truncate">
+                    Pedidos
+                  </span>
+                </a>
+                <a
+                  onClick={() => {
+                    api.stop();
+                    if (pathname !== "/auth/dashboard") {
+                      navigate("/auth/dashboard", {
+                        replace: searchParams.get("bs") === "true",
+                      });
+                    }
+                  }}
+                  style={{ touchAction: "manipulation" }}
+                  className={clsx(
+                    pathname === "/auth/dashboard"
+                      ? "bg-neutral-800 shadow-sm shadow-black/20"
+                      : "bg-transparent",
+                    "w-full select-none! h-full justify-center flex flex-col items-center gap-y-1 rounded-xl",
+                  )}
+                >
+                  <LuChartNoAxesCombined size={18} />
+                  <span className="text-xs select-none w-full text-center font-medium px-2 truncate">
+                    Home
+                  </span>
+                </a>
+                <a
+                  onClick={() => {
+                    api.stop();
+                    if (pathname !== "/auth/agents-ai") {
+                      navigate("/auth/agents-ai", {
+                        replace: searchParams.get("bs") === "true",
+                      });
+                    }
+                  }}
+                  style={{ touchAction: "manipulation" }}
+                  className={clsx(
+                    pathname === "/auth/agents-ai"
+                      ? "bg-neutral-800 shadow-sm shadow-black/20"
+                      : "bg-transparent",
+                    "w-full select-none! h-full justify-center flex flex-col items-center gap-y-1 rounded-xl",
+                  )}
+                >
+                  <BsStars size={18} />
+                  <span className="text-xs select-none w-full text-center px-2 font-medium truncate">
+                    Assistente de IA
+                  </span>
+                </a>
+                <a
+                  onClick={() => {
+                    api.stop();
+                    if (pathname !== "/auth/appointments") {
+                      navigate("/auth/appointments", {
+                        replace: searchParams.get("bs") === "true",
+                      });
+                    }
+                  }}
+                  style={{ touchAction: "manipulation" }}
+                  className={clsx(
+                    pathname === "/auth/appointments"
+                      ? "bg-neutral-800 shadow-sm shadow-black/20"
+                      : "bg-transparent",
+                    "w-full select-none! h-full justify-center flex flex-col items-center gap-y-1 rounded-xl",
+                  )}
+                >
+                  <LuCalendarDays size={18} />
+                  <span className="text-xs select-none w-full text-center font-medium px-2 truncate">
+                    Agenda
+                  </span>
+                </a>
+                <a
+                  onClick={() => {
+                    api.stop();
+                    if (pathname !== "/auth/inboxes/departments") {
+                      navigate("/auth/inboxes/departments", {
+                        replace: searchParams.get("bs") === "true",
+                      });
+                    }
+                  }}
+                  style={{ touchAction: "manipulation" }}
+                  className={clsx(
+                    pathname === "/auth/inboxes/departments"
+                      ? "bg-neutral-800 shadow-sm shadow-black/20"
+                      : "bg-transparent",
+                    "w-full select-none! h-full justify-center flex flex-col items-center gap-y-1 rounded-xl",
+                  )}
+                >
+                  <FiInbox size={18} />
+                  <span className="text-xs select-none w-full text-center font-medium px-2 truncate">
+                    Suporte
+                  </span>
+                </a>
+                <a
+                  onClick={() => {
+                    api.stop();
+                    if (pathname !== "/auth/settings/account") {
+                      navigate("/auth/settings/account", {
+                        replace: searchParams.get("bs") === "true",
+                      });
+                    }
+                  }}
+                  style={{ touchAction: "manipulation" }}
+                  className={clsx(
+                    pathname === "/auth/settings/account"
+                      ? "bg-neutral-800 shadow-sm shadow-black/20"
+                      : "bg-transparent",
+                    "w-full select-none h-full justify-center flex flex-col items-center gap-y-1 rounded-xl",
+                  )}
+                >
+                  <IoMdSettings size={18} />
+                  <span className="text-xs w-full select-none! text-center font-medium px-2 truncate">
+                    Configurações
+                  </span>
+                </a>
+              </div>
+            )}
           </BottomSheetComponent>
         )}
       </div>
