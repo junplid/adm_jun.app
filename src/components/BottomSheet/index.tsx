@@ -27,6 +27,17 @@ export function BottomSheetComponent(props: { children: ReactNode }) {
   });
 
   useEffect(() => {
+    if (isOpen) {
+      document.body.style.overscrollBehaviorY = "none";
+    } else {
+      document.body.style.overscrollBehaviorY = "auto";
+    }
+    return () => {
+      document.body.style.overscrollBehaviorY = "auto";
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
     api.start({
       y: isOpen ? 0 : RANGE,
       config: { tension: 600, friction: 35, precision: 0.1 },
@@ -109,12 +120,15 @@ export function BottomSheetComponent(props: { children: ReactNode }) {
       pointer: { touch: true },
       filterTaps: true,
       delay: 0,
+      touchAction: "none",
+      preventScrollAxis: "y",
     },
   );
 
   return (
     <>
       <animated.div
+        {...bind()}
         style={{
           pointerEvents: isOpen ? "auto" : "none",
         }}

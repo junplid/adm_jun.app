@@ -422,6 +422,7 @@ export function LayoutPrivateProvider(): JSX.Element {
                 onPointerDown={(e) => {
                   e.preventDefault();
                 }}
+                style={{ touchAction: "manipulation" }}
                 onClick={(e) => {
                   e.preventDefault();
                   if (pathname !== "/auth/orders") {
@@ -430,7 +431,6 @@ export function LayoutPrivateProvider(): JSX.Element {
                     });
                   }
                 }}
-                draggable={false}
                 className={clsx(
                   pathname === "/auth/orders"
                     ? "bg-neutral-800 select-none! shadow-sm shadow-black/20"
@@ -455,7 +455,7 @@ export function LayoutPrivateProvider(): JSX.Element {
                     });
                   }
                 }}
-                draggable={false}
+                style={{ touchAction: "manipulation" }}
                 className={clsx(
                   pathname === "/auth/dashboard"
                     ? "bg-neutral-800 shadow-sm shadow-black/20"
@@ -480,7 +480,7 @@ export function LayoutPrivateProvider(): JSX.Element {
                     });
                   }
                 }}
-                draggable={false}
+                style={{ touchAction: "manipulation" }}
                 className={clsx(
                   pathname === "/auth/agents-ai"
                     ? "bg-neutral-800 shadow-sm shadow-black/20"
@@ -505,7 +505,7 @@ export function LayoutPrivateProvider(): JSX.Element {
                     });
                   }
                 }}
-                draggable={false}
+                style={{ touchAction: "manipulation" }}
                 className={clsx(
                   pathname === "/auth/appointments"
                     ? "bg-neutral-800 shadow-sm shadow-black/20"
@@ -530,7 +530,7 @@ export function LayoutPrivateProvider(): JSX.Element {
                     });
                   }
                 }}
-                draggable={false}
+                style={{ touchAction: "manipulation" }}
                 className={clsx(
                   pathname === "/auth/inboxes/departments"
                     ? "bg-neutral-800 shadow-sm shadow-black/20"
@@ -555,7 +555,7 @@ export function LayoutPrivateProvider(): JSX.Element {
                     });
                   }
                 }}
-                draggable={false}
+                style={{ touchAction: "manipulation" }}
                 className={clsx(
                   pathname === "/auth/settings/account"
                     ? "bg-neutral-800 shadow-sm shadow-black/20"
