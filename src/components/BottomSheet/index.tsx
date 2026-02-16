@@ -71,11 +71,13 @@ export function BottomSheetComponent(props: {
   useEffect(() => {
     api.start({
       y: isOpen ? 0 : RANGE,
-      config: { tension: 600, friction: 35, precision: 1, restVelocity: 10 },
-    });
-    api.start({
-      y: isOpen ? 0 : RANGE,
-      config: { tension: 600, friction: 35, precision: 1, restVelocity: 10 },
+      config: {
+        tension: 200,
+        friction: 50,
+        precision: 1,
+        restVelocity: 100,
+        clamp: true,
+      },
     });
   }, [isOpen, api]);
 
@@ -113,20 +115,24 @@ export function BottomSheetComponent(props: {
 
       if (!last) {
         const base = currentlyOpen ? 0 : RANGE;
-        let targetY = base + my;
+        // Aplicamos a resistência aqui: o movimento real do dedo (my)
+        // é reduzido para 1/3 da velocidade normal.
+        let targetY = base + my / 3;
 
         if (targetY < 0) {
-          targetY = targetY * 0.1;
+          // Elástico no topo (puxando para cima além do limite)
+          targetY = targetY * 0.2;
         }
 
         if (targetY > RANGE) {
-          targetY = RANGE + (targetY - RANGE) * 0.1;
+          // Elástico no fundo (puxando para baixo além do limite)
+          targetY = RANGE + (targetY - RANGE) * 0.2;
         }
 
         return api.start({ y: targetY, immediate: true });
       }
 
-      const THRESHOLD = 20;
+      const THRESHOLD = 5;
       const midpoint = RANGE / 2;
       const finalPos = clamp((currentlyOpen ? 0 : RANGE) + my, 0, RANGE);
       const fastUp = vy > 0.5 && dy < 0;
@@ -145,13 +151,15 @@ export function BottomSheetComponent(props: {
         closeSheet();
         return;
       }
-      api.start({
-        y: currentlyOpen ? 0 : RANGE,
-        config: { tension: 600, friction: 35, precision: 1, restVelocity: 10 },
-      });
       return api.start({
         y: currentlyOpen ? 0 : RANGE,
-        config: { tension: 600, friction: 35, precision: 1, restVelocity: 10 },
+        config: {
+          tension: 200,
+          friction: 50,
+          precision: 1,
+          restVelocity: 100,
+          clamp: true,
+        },
       });
     },
     {
