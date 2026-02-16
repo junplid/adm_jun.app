@@ -423,14 +423,14 @@ export function LayoutPrivateProvider(): JSX.Element {
                   style={{ touchAction: "manipulation" }}
                   onClick={() => {
                     api.stop();
-                    if (pathname !== "/auth/orders") {
-                      navigate("/auth/orders", {
+                    if (pathname !== "/auth/teste1") {
+                      navigate("/auth/teste1", {
                         replace: searchParams.get("bs") === "true",
                       });
                     }
                   }}
                   className={clsx(
-                    pathname === "/auth/orders"
+                    pathname === "/auth/teste1"
                       ? "bg-neutral-800 shadow-sm shadow-black/20"
                       : "bg-transparent",
                     "w-full h-full select-none! justify-center flex flex-col items-center gap-y-1 rounded-xl",
@@ -444,15 +444,15 @@ export function LayoutPrivateProvider(): JSX.Element {
                 <a
                   onClick={() => {
                     api.stop();
-                    if (pathname !== "/auth/dashboard") {
-                      navigate("/auth/dashboard", {
+                    if (pathname !== "/auth/teste2") {
+                      navigate("/auth/teste2", {
                         replace: searchParams.get("bs") === "true",
                       });
                     }
                   }}
                   style={{ touchAction: "manipulation" }}
                   className={clsx(
-                    pathname === "/auth/dashboard"
+                    pathname === "/auth/teste2"
                       ? "bg-neutral-800 shadow-sm shadow-black/20"
                       : "bg-transparent",
                     "w-full select-none! h-full justify-center flex flex-col items-center gap-y-1 rounded-xl",
@@ -466,15 +466,15 @@ export function LayoutPrivateProvider(): JSX.Element {
                 <a
                   onClick={() => {
                     api.stop();
-                    if (pathname !== "/auth/agents-ai") {
-                      navigate("/auth/agents-ai", {
+                    if (pathname !== "/auth/teste3") {
+                      navigate("/auth/teste3", {
                         replace: searchParams.get("bs") === "true",
                       });
                     }
                   }}
                   style={{ touchAction: "manipulation" }}
                   className={clsx(
-                    pathname === "/auth/agents-ai"
+                    pathname === "/auth/teste3"
                       ? "bg-neutral-800 shadow-sm shadow-black/20"
                       : "bg-transparent",
                     "w-full select-none! h-full justify-center flex flex-col items-center gap-y-1 rounded-xl",
