@@ -179,7 +179,7 @@ export function BottomSheetComponent(props: {
       <animated.div
         {...bind()}
         style={{
-          transform: y.to((v) => `translate3d(0, ${v}px, 0)`),
+          transform: y.to((v) => `translateY(${v}px)`),
           willChange: "transform",
           touchAction: "none",
           userSelect: "none",
@@ -195,8 +195,7 @@ export function BottomSheetComponent(props: {
         <div style={{ height: MAX }}>
           <div
             className={clsx(
-              isOpen ? "bg-[#dadada]" : "bg-[#4f4e4e]",
-              "w-13 h-1 rounded-full mx-auto my-1.5 mb-1",
+              "w-13 h-1 rounded-full mx-auto my-1.5 mb-1 bg-[#dadada]",
             )}
           />
           {props.children(api)}
