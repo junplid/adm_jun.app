@@ -419,7 +419,10 @@ export function LayoutPrivateProvider(): JSX.Element {
           <BottomSheetComponent>
             <div className="grid select-none! grid-cols-[repeat(auto-fit,84px)] auto-rows-[55px] justify-center gap-1 gap-y-4 bg-[#1a1c1c] w-full px-2">
               <a
-                onPointerDown={(e) => e.stopPropagation()}
+                onPointerDown={(e) => {
+                  alert("/auth/orders DOWN");
+                  e.stopPropagation();
+                }}
                 onClick={(e) => {
                   alert("/auth/orders");
                   e.preventDefault();
@@ -443,7 +446,10 @@ export function LayoutPrivateProvider(): JSX.Element {
                 </span>
               </a>
               <a
-                onPointerDown={(e) => e.stopPropagation()}
+                onPointerDown={(e) => {
+                  alert("/auth/dashboard DOWN");
+                  e.stopPropagation();
+                }}
                 onClick={(e) => {
                   alert("/auth/dashboard");
                   e.preventDefault();
@@ -467,7 +473,10 @@ export function LayoutPrivateProvider(): JSX.Element {
                 </span>
               </a>
               <a
-                onPointerDown={(e) => e.stopPropagation()}
+                onPointerDown={(e) => {
+                  alert("/auth/agents-ai DOWN");
+                  e.stopPropagation();
+                }}
                 onClick={(e) => {
                   alert("/auth/agents-ai");
                   e.preventDefault();
@@ -491,7 +500,10 @@ export function LayoutPrivateProvider(): JSX.Element {
                 </span>
               </a>
               <a
-                onPointerDown={(e) => e.stopPropagation()}
+                onPointerDown={(e) => {
+                  alert("/auth/appointments DOWN");
+                  e.stopPropagation();
+                }}
                 onClick={(e) => {
                   alert("/auth/appointments");
                   e.preventDefault();
@@ -515,7 +527,10 @@ export function LayoutPrivateProvider(): JSX.Element {
                 </span>
               </a>
               <a
-                onPointerDown={(e) => e.stopPropagation()}
+                onPointerDown={(e) => {
+                  alert("/auth/inboxes/departments DOWN");
+                  e.stopPropagation();
+                }}
                 onClick={(e) => {
                   alert("/auth/inboxes/departments");
                   e.preventDefault();
@@ -539,7 +554,10 @@ export function LayoutPrivateProvider(): JSX.Element {
                 </span>
               </a>
               <a
-                onPointerDown={(e) => e.stopPropagation()}
+                onPointerDown={(e) => {
+                  alert("/auth/settings/account DOWN");
+                  e.stopPropagation();
+                }}
                 onClick={(e) => {
                   alert("/auth/settings/account");
                   e.preventDefault();

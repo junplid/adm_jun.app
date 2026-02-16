@@ -113,6 +113,7 @@ export function BottomSheetComponent(props: { children: ReactNode }) {
       axis: "y",
       pointer: { touch: true },
       filterTaps: true,
+      delay: 0,
     },
   );
 
@@ -127,7 +128,10 @@ export function BottomSheetComponent(props: { children: ReactNode }) {
           pointerEvents: isOpen ? "auto" : "none",
         }}
         className="fixed inset-0 z-50"
-        onClick={closeSheet}
+        onClick={(e) => {
+          e.stopPropagation();
+          closeSheet();
+        }}
       />
 
       <animated.div
@@ -136,6 +140,7 @@ export function BottomSheetComponent(props: { children: ReactNode }) {
           transform: y.to((v) => `translate3d(0, ${v}px, 0)`),
           willChange: "transform",
           touchAction: "none",
+          userSelect: "none",
           boxShadow: "0 -1px 0px 0 rgba(255,255,255,0.123)",
           paddingBottom: 500,
           marginBottom: -500,
