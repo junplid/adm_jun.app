@@ -425,6 +425,7 @@ export function LayoutPrivateProvider(): JSX.Element {
                 <a
                   style={{ touchAction: "manipulation" }}
                   onClick={() => {
+                    alert("1");
                     if (pathname !== "/auth/teste1") {
                       navigate("/auth/teste1", {
                         replace: searchParams.get("bs") === "true",
@@ -445,6 +446,7 @@ export function LayoutPrivateProvider(): JSX.Element {
                 </a>
                 <a
                   onClick={() => {
+                    alert("2");
                     if (pathname !== "/auth/teste2") {
                       navigate("/auth/teste2", {
                         replace: searchParams.get("bs") === "true",
@@ -466,6 +468,7 @@ export function LayoutPrivateProvider(): JSX.Element {
                 </a>
                 <a
                   onClick={() => {
+                    alert("3");
                     if (pathname !== "/auth/teste3") {
                       navigate("/auth/teste3", {
                         replace: searchParams.get("bs") === "true",
