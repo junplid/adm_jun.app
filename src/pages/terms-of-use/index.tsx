@@ -14,20 +14,21 @@ export const TermsOfUsePage: React.FC = (): JSX.Element => {
     >
       <header>
         <h1 className="font-extrabold text-2xl">Termos de Uso - Junplid</h1>
-        <p>Last updated: 2026-02-07</p>
+        <p>Última atualização: 17 de fevereiro de 2026</p>
       </header>
       <br />
       <section>
         <h3 className="font-semibold text-xl">1. VISÃO GERAL</h3>
         <br />
         <p>
-          A Junplid Tecnologia Ltda. {"("}“Junplid", “nós”, “plataforma”{")"}
+          A Junplid Tecnologia Ltda. {"("}“Junplid", “nós”, “plataforma”{") "}
           disponibiliza uma plataforma SaaS que permite a automação e
-          gerenciamento de mensagens diretas (DM) do Instagram ou WhatsApp, por
-          meio de assistentes de inteligência artificial e atendimento humano,
-          utilizando exclusivamente APIs oficiais da Meta(Para instagram) e
-          WhatsApp{"("}Via Baileys{")"}. Ao utilizar a plataforma, o usuário
-          concorda integralmente com estes Termos de Uso.
+          gerenciamento de mensagens diretas (DM) do Instagram ou integrações de
+          mensageria, por meio de assistentes de inteligência artificial e
+          atendimento humano, utilizando exclusivamente APIs oficiais da
+          Meta(Para Instagram) e outras integrações de mensageiria. Ao utilizar
+          a plataforma, o usuário concorda integralmente com estes Termos de
+          Uso.
         </p>
         <br />
         <hr />
@@ -66,7 +67,7 @@ export const TermsOfUsePage: React.FC = (): JSX.Element => {
           conta.
         </p>
         <p>
-          3.4. É extritamente proibido o compartilhamento de credenciais com
+          3.4. É estritamente proibido o compartilhamento de credenciais com
           terceiros não autorizados.
         </p>
 
@@ -75,9 +76,9 @@ export const TermsOfUsePage: React.FC = (): JSX.Element => {
         <br />
         <p>
           4.1. A Junplid oferece ferramentas de automação, criação de fluxos de
-          conversa, assitentes de IA{"(Via APIs oficiais da Openai)"} e
-          integrações com serviços de mensageria WhatsApp{"(Via Baileys)"} e
-          mensagens diretas (DM) do Instagram{"(Via APIs oficiais da Meta)"}.
+          conversa, assitentes de IA{" (Via APIs oficiais da OpenAi)"} e
+          integrações com serviços de mensageria e mensagens diretas (DM) do
+          Instagram{"(Via APIs oficiais da Meta)"}.
         </p>
         <p>
           4.2. Todos os recursos são gratuitos, mas podem ser limitados,
@@ -92,9 +93,9 @@ export const TermsOfUsePage: React.FC = (): JSX.Element => {
         <h3 className="font-semibold">5. USO DA PLATAFORMA</h3>
         <br />
         <p>
-          5.1 A Junplid permite que o Usuário conecte contas próprias do
-          Instagram e WhatsApp(Via QR Code), previamente autorizadas, para fins
-          de automação e atendimento.
+          5.1 O Usuário pode conectar sua conta do Instagram (via API oficial da
+          Meta) ou contas de mensageria separadas previamente autorizadas, para
+          fins de automação e atendimento.
         </p>
         <h4>5.2. O Usuário declara que:</h4>
         <ul>
@@ -108,12 +109,16 @@ export const TermsOfUsePage: React.FC = (): JSX.Element => {
           </li>
           <li className="pl-2">
             c{")"} Utiliza a plataforma em conformidade com as políticas da
-            Meta, Instagram e do WhatsApp;
+            Meta, Instagram e integração de terceiros;
           </li>
         </ul>
         <p>
-          5.3 A Junplid não realiza scraping, coleta paralela ou qualquer acesso
-          não autorizado a dados do Instagram ou WhatsApp.
+          5.3. A Junplid não realiza scraping, coleta paralela ou qualquer
+          acesso não autorizado a dados do Instagram.
+        </p>
+        <p>
+          5.4. Integrações de mensageiria de terceiros estão sujeitas a
+          restrições da plataforma e podem ser bloqueadas sem aviso prévio.
         </p>
 
         <br />
@@ -122,8 +127,8 @@ export const TermsOfUsePage: React.FC = (): JSX.Element => {
         </h3>
         <br />
         <p>
-          6.1 A Junplid permite permite a criação de assistentes de IA,
-          configurados com informações fornecidas pelo próprio usuário.
+          6.1 A Junplid permite a criação de assistentes de IA, configurados com
+          informações fornecidas pelo próprio usuário.
         </p>
         <p>
           6.2 As respostas automatizadas refletem exclusivamente as
@@ -146,7 +151,7 @@ export const TermsOfUsePage: React.FC = (): JSX.Element => {
         <p>
           7.1 A Junplid disponibiliza funcionalidade opcional de atendimento
           humano que é divido em Departamentos, por meio de tickets integrados
-          às DMs do Instagram ou WhatsApp(QR Code).
+          às DMs do Instagram ou outras plataformas de mensageiria.
         </p>
         <p>
           7.2 Apenas usuários e agentes autorizados pelo titular da conta
@@ -239,6 +244,12 @@ export const TermsOfUsePage: React.FC = (): JSX.Element => {
           <li className="pl-2">
             c{")"} Conteúdo enviados pelo usuário ou por seus atendentes;
           </li>
+          <li>
+            d{")"} Integrações com serviços de mensageria não oficiais são
+            fornecidas "como estão". A Junplid não garante disponibilidade
+            contínua, estabilidade ou compatibilidade e não se responsabiliza
+            por bloqueios ou restrições aplicadas por tais serviços.
+          </li>
         </ul>
 
         <br />
@@ -271,6 +282,12 @@ export const TermsOfUsePage: React.FC = (): JSX.Element => {
           13.2. O Usuário reconhece que o uso indevido da plataforma pode
           resultar em medidas aplicadas diretamente pela Meta, independentemente
           da Junplid.
+        </p>
+        <p>
+          13.3. A Junplid opera em conformidade com as políticas da Meta apenas
+          para integrações oficiais (Instagram DM). O usuário reconhece que o
+          uso indevido de integrações não oficiais, incluindo mensageria de
+          terceiros, é de sua responsabilidade.
         </p>
 
         <br />
@@ -320,8 +337,8 @@ export const TermsOfUsePage: React.FC = (): JSX.Element => {
         </p>
         <p>
           15.7. A Junplid poderá enviar comunicações, avisos e notificações ao
-          Usuário por e-mail, aplicativo PWA, WhatsApp, notificações in-app ou
-          outros meios disponibilizados pela Plataforma.
+          Usuário por e-mail, aplicativo PWA, notificações in-app ou outros
+          meios disponibilizados pela Plataforma.
         </p>
         <p>
           15.8. A Junplid poderá monitorar e registrar o uso da Plataforma, de
