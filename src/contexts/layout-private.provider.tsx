@@ -405,19 +405,12 @@ export function LayoutPrivateProvider(): JSX.Element {
             <ShadowBottomMemoComponent />
           </div>
         </Sidebar>
-        <main
-          // onClick={() => {
-          //   if (sheetRef.current?.height !== 75) {
-          //     sheetRef.current?.snapTo(1, { velocity: 10 });
-          //   }
-          // }}
-          className="w-full h-screen"
-        >
+        <main className="w-full h-screen">
           <Outlet />
         </main>
         {(clientMeta.isMobileLike || clientMeta.isSmallScreen) && (
           <BottomSheetComponent>
-            {() => (
+            {(api) => (
               <div
                 key={pathname}
                 className="grid select-none! grid-cols-[repeat(auto-fit,84px)] auto-rows-[55px] justify-center gap-1 gap-y-4 bg-[#1a1c1c] w-full px-2"
@@ -425,15 +418,17 @@ export function LayoutPrivateProvider(): JSX.Element {
                 <a
                   style={{ touchAction: "manipulation" }}
                   onClick={() => {
-                    alert("1");
-                    if (pathname !== "/auth/teste1") {
-                      navigate("/auth/teste1", {
-                        replace: searchParams.get("bs") === "true",
-                      });
-                    }
+                    api.stop();
+                    setTimeout(() => {
+                      if (pathname !== "/auth/orders") {
+                        navigate("/auth/orders", {
+                          replace: searchParams.get("bs") === "true",
+                        });
+                      }
+                    }, 10);
                   }}
                   className={clsx(
-                    pathname === "/auth/teste1"
+                    pathname === "/auth/orders"
                       ? "bg-neutral-800 shadow-sm shadow-black/20"
                       : "bg-transparent",
                     "w-full h-full select-none! justify-center flex flex-col items-center gap-y-1 rounded-xl",
@@ -446,16 +441,18 @@ export function LayoutPrivateProvider(): JSX.Element {
                 </a>
                 <a
                   onClick={() => {
-                    alert("2");
-                    if (pathname !== "/auth/teste2") {
-                      navigate("/auth/teste2", {
-                        replace: searchParams.get("bs") === "true",
-                      });
-                    }
+                    api.stop();
+                    setTimeout(() => {
+                      if (pathname !== "/auth/dashboard") {
+                        navigate("/auth/dashboard", {
+                          replace: searchParams.get("bs") === "true",
+                        });
+                      }
+                    });
                   }}
                   style={{ touchAction: "manipulation" }}
                   className={clsx(
-                    pathname === "/auth/teste2"
+                    pathname === "/auth/dashboard"
                       ? "bg-neutral-800 shadow-sm shadow-black/20"
                       : "bg-transparent",
                     "w-full select-none! h-full justify-center flex flex-col items-center gap-y-1 rounded-xl",
@@ -468,16 +465,18 @@ export function LayoutPrivateProvider(): JSX.Element {
                 </a>
                 <a
                   onClick={() => {
-                    alert("3");
-                    if (pathname !== "/auth/teste3") {
-                      navigate("/auth/teste3", {
-                        replace: searchParams.get("bs") === "true",
-                      });
-                    }
+                    api.stop();
+                    setTimeout(() => {
+                      if (pathname !== "/auth/agents-ai") {
+                        navigate("/auth/agents-ai", {
+                          replace: searchParams.get("bs") === "true",
+                        });
+                      }
+                    });
                   }}
                   style={{ touchAction: "manipulation" }}
                   className={clsx(
-                    pathname === "/auth/teste3"
+                    pathname === "/auth/agents-ai"
                       ? "bg-neutral-800 shadow-sm shadow-black/20"
                       : "bg-transparent",
                     "w-full select-none! h-full justify-center flex flex-col items-center gap-y-1 rounded-xl",
@@ -490,11 +489,14 @@ export function LayoutPrivateProvider(): JSX.Element {
                 </a>
                 <a
                   onClick={() => {
-                    if (pathname !== "/auth/appointments") {
-                      navigate("/auth/appointments", {
-                        replace: searchParams.get("bs") === "true",
-                      });
-                    }
+                    api.stop();
+                    setTimeout(() => {
+                      if (pathname !== "/auth/appointments") {
+                        navigate("/auth/appointments", {
+                          replace: searchParams.get("bs") === "true",
+                        });
+                      }
+                    });
                   }}
                   style={{ touchAction: "manipulation" }}
                   className={clsx(
@@ -511,11 +513,14 @@ export function LayoutPrivateProvider(): JSX.Element {
                 </a>
                 <a
                   onClick={() => {
-                    if (pathname !== "/auth/inboxes/departments") {
-                      navigate("/auth/inboxes/departments", {
-                        replace: searchParams.get("bs") === "true",
-                      });
-                    }
+                    api.stop();
+                    setTimeout(() => {
+                      if (pathname !== "/auth/inboxes/departments") {
+                        navigate("/auth/inboxes/departments", {
+                          replace: searchParams.get("bs") === "true",
+                        });
+                      }
+                    });
                   }}
                   style={{ touchAction: "manipulation" }}
                   className={clsx(
@@ -532,11 +537,14 @@ export function LayoutPrivateProvider(): JSX.Element {
                 </a>
                 <a
                   onClick={() => {
-                    if (pathname !== "/auth/settings/account") {
-                      navigate("/auth/settings/account", {
-                        replace: searchParams.get("bs") === "true",
-                      });
-                    }
+                    api.stop();
+                    setTimeout(() => {
+                      if (pathname !== "/auth/settings/account") {
+                        navigate("/auth/settings/account", {
+                          replace: searchParams.get("bs") === "true",
+                        });
+                      }
+                    });
                   }}
                   style={{ touchAction: "manipulation" }}
                   className={clsx(

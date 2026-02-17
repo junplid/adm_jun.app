@@ -5,7 +5,7 @@ import { useEffect, useRef, useCallback, ReactNode } from "react";
 import clsx from "clsx";
 
 const MIN = 75;
-const MAX = 388;
+const MAX = 300;
 const RANGE = MAX - MIN;
 
 function clamp(value: number, min: number, max: number) {
