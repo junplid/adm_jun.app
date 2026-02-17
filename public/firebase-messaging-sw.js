@@ -12,6 +12,8 @@ firebase.initializeApp({
 const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage(async payload => {
+  const { title, body, url, tag } = payload.data;
+
   const allClients = await self.clients.matchAll({
     type: "window",
     includeUncontrolled: true,
@@ -22,13 +24,9 @@ messaging.onBackgroundMessage(async payload => {
     client.visibilityState === "visible"
   );
 
-  if (isOnSamePage) {
-    // Usuário já está exatamente nessa página
+  if (isOnSamePage) { 
     return;
   }
-
-
-  const { title, body, url, tag } = payload.data;
 
   self.registration.showNotification(title, {
     body,
