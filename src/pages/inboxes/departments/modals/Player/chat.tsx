@@ -64,7 +64,6 @@ import { InViewComponent } from "@components/InView";
 import { InView } from "react-intersection-observer";
 import { BiTimeFive } from "react-icons/bi";
 import { SocketContext } from "@contexts/socket.context";
-import { FloatChannelComponent } from "@components/FloatChannel";
 import { v4 } from "uuid";
 import { IoCheckmarkSharp } from "react-icons/io5";
 import { MessageContentType } from "./provider.context";
@@ -571,10 +570,6 @@ export const ChatPlayer: FC = () => {
                 width={"40px"}
                 bg={"#555555"}
                 height={"40px"}
-              />
-              <FloatChannelComponent
-                channel={dataTicket.connection.channel}
-                offset={[1, 1]}
               />
             </div>
             <div className="flex flex-col">

@@ -1,5 +1,4 @@
 import { Circle, Portal, Spinner } from "@chakra-ui/react";
-import { FloatChannelComponent } from "@components/FloatChannel";
 import {
   defaultDropAnimationSideEffects,
   DndContext,
@@ -282,11 +281,8 @@ export function SortableItem({
             // isOver && "opacity-0",
           )}
         >
-          {!isDragging && (
-            <FloatChannelComponent channel={"instagram"} offset={[2, 4]} />
-          )}
           <div className="px-2 pt-2 flex w-full mb-0 items-center gap-x-1 justify-between">
-            <span className="text-white/55 text-xs sm:text-sm ml-3">
+            <span className="text-white/55 text-xs sm:text-sm">
               #{order.n_order}
             </span>
 
