@@ -29,12 +29,13 @@ import { motion } from "framer-motion";
 import { AuthContext } from "@contexts/auth.context";
 import { BsStars } from "react-icons/bs";
 import { useRoomWebSocket } from "../../hooks/roomWebSocket";
+import { FaInstagram } from "react-icons/fa";
 
 export type TypeConnectionWA = "chatbot" | "marketing";
 
 export interface ConnectionWARow {
   business: { name: string; id: number }[];
-  type: TypeConnectionWA;
+  type: "ig" | "msg";
   name: string;
   id: number;
   value: string | null;
@@ -106,7 +107,14 @@ export const ConnectionsWAPage: React.FC = (): JSX.Element => {
         render(row) {
           return (
             <div className="flex items-start flex-col">
-              <span>{row.name}</span>
+              <span className="flex items-center gap-x-1.5">
+                {row.type === "ig" && (
+                  <div className="w-4 opacity-70 h-4 flex items-center justify-center bg-linear-to-tr from-yellow-400 via-red-500 to-purple-600 rounded-sm">
+                    <FaInstagram size={clientMeta.isMobileLike ? 25 : 14} />
+                  </div>
+                )}
+                <span>{row.name}</span>
+              </span>
               {row.value && (
                 <small className="text-white/45">= {row.value}</small>
               )}
@@ -203,7 +211,7 @@ export const ConnectionsWAPage: React.FC = (): JSX.Element => {
                   onOpen({
                     content: (
                       <ModalDeleteConnectionWA
-                        data={{ id: row.id, name: row.name }}
+                        data={{ id: row.id, name: row.name, type: row.type }}
                         close={close}
                       />
                     ),
@@ -263,7 +271,7 @@ export const ConnectionsWAPage: React.FC = (): JSX.Element => {
     <div className="h-full gap-y-2 flex flex-col">
       <div className="flex flex-col gap-y-0.5">
         <div className="flex items-center gap-x-5">
-          <h1 className="text-lg font-semibold">Conexões WA</h1>
+          <h1 className="text-lg font-semibold">Conexões</h1>
           <ModalCreateConnectionWA
             trigger={
               <Button
@@ -296,7 +304,7 @@ export const ConnectionsWAPage: React.FC = (): JSX.Element => {
           <TableComponent
             rows={connectionsWA || []}
             columns={renderColumns}
-            textEmpity="Suas conexões WA aparecerão aqui."
+            textEmpity="Suas conexões aparecerão aqui."
             load={isFetching || isPending}
           />
         </div>

@@ -37,7 +37,7 @@ function Content({ id, close }: IProps) {
               content: (
                 <ModalDeleteConnectionWA
                   close={close}
-                  data={data ? { id, name: data.name } : null}
+                  data={data ? { id, name: data.name, type: "msg" } : null}
                 />
               ),
             });
@@ -108,7 +108,7 @@ export const ModalViewConnectionWA: React.FC<IProps> = ({
   return (
     <DialogContent w={"410px"} minH={"400px"}>
       <DialogHeader flexDirection={"column"} gap={0}>
-        <DialogTitle>Visualizar detalhes da conexão WA</DialogTitle>
+        <DialogTitle>Visualizar detalhes da conexão</DialogTitle>
       </DialogHeader>
       <Content id={id} close={close} />
       <DialogCloseTrigger>

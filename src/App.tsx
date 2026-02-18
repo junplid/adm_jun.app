@@ -11,7 +11,7 @@ import { AuthProvider } from "@contexts/auth.provider";
 import { FlowsPage } from "./pages/workbench/flows";
 import { VariablesPage } from "./pages/workbench/variables";
 import { DialogProvider } from "@contexts/dialog.provider";
-import { ConnectionsWAPage } from "./pages/connectionswa";
+import { ConnectionsWAPage } from "./pages/connections";
 import { SocketProvider } from "@contexts/socket.provider";
 import { ChatbotsPage } from "./pages/chatbots";
 import { TermsOfUsePage } from "./pages/terms-of-use";
@@ -65,7 +65,7 @@ export default function App() {
             <Route path="flows" caseSensitive element={<FlowsPage />} />
             <Route path="variables" caseSensitive element={<VariablesPage />} />
             <Route
-              path="connectionswa"
+              path="connections"
               caseSensitive
               element={<ConnectionsWAPage />}
             />

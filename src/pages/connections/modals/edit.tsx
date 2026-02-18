@@ -245,7 +245,7 @@ function Content({
                 errorText={errors.name?.message}
                 invalid={!!errors.name}
                 label="Nome"
-                helperText="Não é o nome que será exibido no perfil do WhatsApp."
+                helperText="Não é o nome que será exibido no perfil do Mensageiro."
               >
                 <Input
                   {...register("name", {
@@ -518,9 +518,9 @@ export function ModalEditConnectionWA({ id, ...props }: IProps): JSX.Element {
   return (
     <DialogContent>
       <DialogHeader flexDirection={"column"} gap={0}>
-        <DialogTitle>Editar conexão WA</DialogTitle>
+        <DialogTitle>Editar conexão</DialogTitle>
         <DialogDescription>
-          80% das empresas usam WhatsApp para o marketing e vendas.
+          80% das empresas usam o WhatsApp para vendas.
         </DialogDescription>
       </DialogHeader>
       <Content id={id} onClose={props.close} />

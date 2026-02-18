@@ -416,7 +416,7 @@ function Content({
               <Field
                 errorText={errors.connectionWAId?.message}
                 invalid={!!errors.connectionWAId}
-                label="Conexão WA"
+                label="conexão"
                 disabled={props.isAgent}
               >
                 <Controller
@@ -448,7 +448,7 @@ function Content({
                           name={field.name}
                           isMulti={false} 
                           onBlur={field.onBlur}
-                          placeholder="Selecione a conexão WA"
+                          placeholder="Selecione a conexão"
                           onChange={(e: any) => field.onChange(e.value)}
                           options={optionsStatus}
                           // value={

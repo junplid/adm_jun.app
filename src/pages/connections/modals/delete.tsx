@@ -12,10 +12,13 @@ import { AxiosError } from "axios";
 import { useCallback, JSX } from "react";
 import { Button } from "@chakra-ui/react";
 import { CloseButton } from "@components/ui/close-button";
-import { useDeleteConnectionWA } from "../../../hooks/connectionWA";
+import {
+  useDeleteConnectionIG,
+  useDeleteConnectionWA,
+} from "../../../hooks/connectionWA";
 
 interface PropsModalDelete {
-  data: { id: number; name: string } | null;
+  data: { id: number; name: string; type: "msg" | "ig" } | null;
   close: () => void;
 }
 
@@ -30,9 +33,20 @@ export const ModalDeleteConnectionWA: React.FC<PropsModalDelete> = ({
     },
   });
 
+  const { mutateAsync: deleteConnectionIG, isPending: ispendingig } =
+    useDeleteConnectionIG({
+      async onSuccess() {
+        props.close();
+        await new Promise((resolve) => setTimeout(resolve, 220));
+      },
+    });
+
   const onDelete = useCallback(async (): Promise<void> => {
     try {
-      if (data?.id) await deleteConnectionWA(data?.id);
+      if (data?.id) {
+        if (data.type === "msg") await deleteConnectionWA(data.id);
+        if (data?.type === "ig") await deleteConnectionIG(data.id);
+      }
     } catch (error) {
       if (error instanceof AxiosError) {
         console.log("Error-API", error);
@@ -45,7 +59,7 @@ export const ModalDeleteConnectionWA: React.FC<PropsModalDelete> = ({
   return (
     <DialogContent w={"370px"}>
       <DialogHeader flexDirection={"column"} gap={0}>
-        <DialogTitle>Deletar conexão WA</DialogTitle>
+        <DialogTitle>Deletar conexão</DialogTitle>
         <DialogDescription color={"#f86363"}>
           Essa ação não poderá ser desfeita.
         </DialogDescription>
@@ -60,13 +74,13 @@ export const ModalDeleteConnectionWA: React.FC<PropsModalDelete> = ({
       </DialogBody>
       <DialogFooter>
         <DialogActionTrigger>
-          <Button colorPalette={"red"} disabled={isPending}>
+          <Button colorPalette={"red"} disabled={isPending || ispendingig}>
             Cancelar
           </Button>
         </DialogActionTrigger>
         <Button
           onClick={onDelete}
-          loading={isPending}
+          loading={isPending || ispendingig}
           loadingText={"Deletando, aguarde..."}
           variant="outline"
         >

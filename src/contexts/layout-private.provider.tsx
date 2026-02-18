@@ -284,10 +284,10 @@ export function LayoutPrivateProvider(): JSX.Element {
               </MenuItem>
               <MenuItem
                 icon={<GrConnect size={20} />}
-                component={<Link to={"/auth/connectionswa"} />}
-                active={pathname === "/auth/connectionswa"}
+                component={<Link to={"/auth/connections"} />}
+                active={pathname === "/auth/connections"}
               >
-                Conexões WA
+                Conexões
               </MenuItem>
               <MenuItem
                 icon={<LuCalendarDays size={20} />}

@@ -396,7 +396,7 @@ function Content({
                       </div>
                     </div>
                     <span className="font-light text-white/70">
-                      ~cálculo aproximado por conexão WA.
+                      ~cálculo aproximado por conexão.
                     </span>
                   </>
                 )}
@@ -405,9 +405,9 @@ function Content({
               <Field
                 errorText={errors.connectionIds?.message}
                 invalid={!!errors.connectionIds}
-                label="Conexões WA"
+                label="Conexões"
                 helperText={
-                  "Em caso de indisponibilidade de uma conexão WA, outra assumirá automaticamente o lote de contatos pendentes."
+                  "Em caso de indisponibilidade de uma conexão, outra assumirá automaticamente o lote de contatos pendentes."
                 }
               >
                 <Controller

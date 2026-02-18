@@ -259,7 +259,7 @@ export function ModalCreateCampaign({
         <DialogHeader flexDirection={"column"} gap={0}>
           <DialogTitle>Criar campanha</DialogTitle>
           <DialogDescription>
-            Campanhas com múltiplas conexões WA para maximizar o desempenho dos
+            Campanhas com múltiplas conexões para maximizar o desempenho dos
             seus disparos.
           </DialogDescription>
         </DialogHeader>
@@ -532,7 +532,7 @@ export function ModalCreateCampaign({
                         </div>
                       </div>
                       <span className="font-light text-white/70">
-                        ~cálculo aproximado por conexão WA.
+                        ~cálculo aproximado por conexão.
                       </span>
                     </>
                   )}
@@ -541,9 +541,9 @@ export function ModalCreateCampaign({
                 <Field
                   errorText={errors.connectionIds?.message}
                   invalid={!!errors.connectionIds}
-                  label="Conexões WA"
+                  label="Conexões"
                   helperText={
-                    "Em caso de indisponibilidade de uma conexão WA, outra assumirá automaticamente o lote de contatos pendentes."
+                    "Em caso de indisponibilidade de uma conexão, outra assumirá automaticamente o lote de contatos pendentes."
                   }
                 >
                   <Controller

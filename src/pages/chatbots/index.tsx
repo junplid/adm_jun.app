@@ -19,7 +19,7 @@ import { IoMdRadioButtonOff, IoMdRadioButtonOn } from "react-icons/io";
 import { useGetChatbots } from "../../hooks/chatbot";
 import { AuthContext } from "@contexts/auth.context";
 import { ImConnection } from "react-icons/im";
-import { ModalConnectConnectionWA } from "../connectionswa/modals/connect";
+import { ModalConnectConnectionWA } from "../connections/modals/connect";
 import { TbPlugConnected } from "react-icons/tb";
 import { AiOutlinePoweroff } from "react-icons/ai";
 import { useDisconnectConnectionWA } from "../../hooks/connectionWA";

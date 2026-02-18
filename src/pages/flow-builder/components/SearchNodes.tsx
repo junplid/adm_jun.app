@@ -303,8 +303,7 @@ const nodesList: {
       </div>
     ),
     name: "Escutar reações",
-    description:
-      "Escuta reações de mensagens enviadas pela conexão WA do fluxo.",
+    description: "Escuta reações de mensagens enviadas pela conexão do fluxo.",
     type: "NodeListenReaction",
     new: false,
     premium: true,

@@ -238,7 +238,7 @@ export const FormSignup: React.FC = (): JSX.Element => {
 
                 <Field
                   invalid={!!errors.number}
-                  label="Número whatsApp"
+                  label="Número WhatsApp"
                   errorText={errors.number?.message}
                   disabled={isPending || !av}
                 >

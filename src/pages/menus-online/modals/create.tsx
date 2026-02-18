@@ -178,7 +178,7 @@ export function ModalCreateMenuOnline({
             <Field
               errorText={errors.connectionWAId?.message}
               invalid={!!errors.connectionWAId}
-              label="Conexão WA"
+              label="conexão"
             >
               <Controller
                 name="connectionWAId"

@@ -149,7 +149,7 @@ export function useCreateConnectionWA(props?: {
       if (queryClient.getQueryData<any>(["connections-wa-options", null])) {
         queryClient.setQueryData(
           ["connections-wa-options", null],
-          (old: any) => [...(old || []), { id: data.id, name: body.name }]
+          (old: any) => [...(old || []), { id: data.id, name: body.name }],
         );
       }
     },
@@ -162,7 +162,7 @@ export function useCreateConnectionWA(props?: {
           if (dataError.input.length) {
             dataError.input.forEach(({ text, path }) =>
               // @ts-expect-error
-              props?.setError?.(path, { message: text })
+              props?.setError?.(path, { message: text }),
             );
           }
         }
@@ -248,7 +248,7 @@ export function useUpdateConnectionWA(props?: {
                 business: data.business,
               };
             return b;
-          })
+          }),
         );
       }
       if (queryClient.getQueryData<any>(["connections-wa-options", null])) {
@@ -256,7 +256,7 @@ export function useUpdateConnectionWA(props?: {
           old?.map((b: any) => {
             if (b.id === id) b = { ...b, name: body.name || b.name };
             return b;
-          })
+          }),
         );
       }
     },
@@ -269,7 +269,7 @@ export function useUpdateConnectionWA(props?: {
           if (dataError.input.length) {
             dataError.input.forEach(({ text, path }) =>
               // @ts-expect-error
-              props?.setError?.(path, { message: text })
+              props?.setError?.(path, { message: text }),
             );
           }
         }
@@ -294,7 +294,7 @@ export function useDisconnectConnectionWA(props?: {
           old?.map((b: any) => {
             if (b.id === id) b = { ...b, ...data };
             return b;
-          })
+          }),
         );
       }
       // if (queryClient.getQueryData<any>(["connections-wa-options", null])) {
@@ -315,7 +315,7 @@ export function useDisconnectConnectionWA(props?: {
           if (dataError.input.length) {
             dataError.input.forEach(({ text, path }) =>
               // @ts-expect-error
-              props?.setError?.(path, { message: text })
+              props?.setError?.(path, { message: text }),
             );
           }
         }
@@ -337,10 +337,41 @@ export function useDeleteConnectionWA(props?: {
       queryClient.removeQueries({ queryKey: ["connection-wa-details", id] });
       queryClient.removeQueries({ queryKey: ["connection-wa", id] });
       queryClient.setQueryData(["connections-wa", null], (old: any) =>
-        old?.filter((b: any) => b.id !== id)
+        old?.filter((b: any) => b.id !== id),
       );
       queryClient.setQueryData(["connections-wa-options", null], (old: any) =>
-        old?.filter((b: any) => b.id !== id)
+        old?.filter((b: any) => b.id !== id),
+      );
+    },
+    onError(error: unknown) {
+      if (error instanceof AxiosError) {
+        if (error.response?.status === 401) logout();
+        if (error.response?.status === 400) {
+          const dataError = error.response?.data as ErrorResponse_I;
+          if (dataError.toast.length) dataError.toast.forEach(toaster.create);
+        }
+      }
+    },
+  });
+}
+
+export function useDeleteConnectionIG(props?: {
+  onSuccess?: () => Promise<void>;
+}) {
+  const queryClient = useQueryClient();
+  const { logout } = useContext(AuthContext);
+
+  return useMutation({
+    mutationFn: (id: number) => ConnectionWAService.deleteConnectionWA(id),
+    async onSuccess(_, id) {
+      if (props?.onSuccess) await props.onSuccess();
+      queryClient.removeQueries({ queryKey: ["connection-wa-details", id] });
+      queryClient.removeQueries({ queryKey: ["connection-wa", id] });
+      queryClient.setQueryData(["connections-wa", null], (old: any) =>
+        old?.filter((b: any) => b.id !== id),
+      );
+      queryClient.setQueryData(["connections-wa-options", null], (old: any) =>
+        old?.filter((b: any) => b.id !== id),
       );
     },
     onError(error: unknown) {

@@ -1533,11 +1533,17 @@ function Content(props: { onClose: () => void }) {
                         </button>
                         <p className="mt-2 text-center text-xs text-slate-400">
                           Ao conectar sua conta, você concorda com nossos{" "}
-                          <a className="text-blue-400 underline">
+                          <a
+                            href="/terms-of-use"
+                            className="text-white underline"
+                          >
                             Termos de Uso
                           </a>{" "}
                           e{" "}
-                          <a className="text-blue-400 underline">
+                          <a
+                            href="/privacy-policy"
+                            className="text-white underline"
+                          >
                             Política de Privacidade
                           </a>
                           .

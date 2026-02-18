@@ -145,7 +145,7 @@ export async function disconnectConnectionWA(
   id: number,
 ): Promise<{ status: "close" }> {
   const { data } = await api.put(
-    `/private/disconnect-connection-whatsapp/${id}`,
+    `/private/disconnect-connection-wa/${id}`,
     undefined,
   );
   return data.connectionWA;
@@ -153,4 +153,8 @@ export async function disconnectConnectionWA(
 
 export async function deleteConnectionWA(id: number): Promise<void> {
   await api.delete(`/private/connections-wa/${id}`);
+}
+
+export async function deleteConnectionIG(id: number): Promise<void> {
+  await api.delete(`/private/connections-ig/${id}`);
 }

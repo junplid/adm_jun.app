@@ -155,9 +155,9 @@ export function ModalCreateConnectionWA({
       <DialogTrigger asChild>{props.trigger}</DialogTrigger>
       <DialogContent backdrop as={"form"} onSubmit={handleSubmit(create)}>
         <DialogHeader flexDirection={"column"} gap={0}>
-          <DialogTitle>Criar conexão WA</DialogTitle>
+          <DialogTitle>Criar conexão</DialogTitle>
           <DialogDescription>
-            80% das empresas usam WhatsApp para o marketing e vendas.
+            80% das empresas usam o WhatsApp para vendas.
           </DialogDescription>
         </DialogHeader>
         <DialogBody mt={"-5px"}>

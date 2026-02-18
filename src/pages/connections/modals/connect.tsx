@@ -407,7 +407,7 @@ export function ModalConnectConnectionWA({ ...props }: IProps): JSX.Element {
   return (
     <DialogContent backdrop>
       <DialogHeader flexDirection={"column"} gap={0}>
-        <DialogTitle>{props.name || "Conectar Whatsapp"}</DialogTitle>
+        <DialogTitle>{props.name || "Conectar WhatsApp"}</DialogTitle>
         <DialogDescription>
           Escale suas vendas e fortaleça o relacionamento com seus clientes no
           WhatsApp, com rapidez e eficiência.

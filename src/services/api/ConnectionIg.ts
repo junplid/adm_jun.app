@@ -125,7 +125,7 @@ export async function createConnectionIg(body: {
 //   id: number,
 // ): Promise<{ status: "close" }> {
 //   const { data } = await api.put(
-//     `/private/disconnect-connection-whatsapp/${id}`,
+//     `/private/disconnect-connection-wa/${id}`,
 //     undefined,
 //   );
 //   return data.connectionWA;

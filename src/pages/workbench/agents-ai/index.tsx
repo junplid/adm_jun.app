@@ -25,7 +25,7 @@ import { AuthContext } from "@contexts/auth.context";
 // import { LayoutWorkbenchPageContext } from "../contexts";
 import { TbPlugConnected } from "react-icons/tb";
 import { AiOutlinePoweroff } from "react-icons/ai";
-import { ModalConnectConnectionWA } from "../../connectionswa/modals/connect";
+import { ModalConnectConnectionWA } from "../../connections/modals/connect";
 import { SocketContext } from "@contexts/socket.context";
 import { useDisconnectConnectionWA } from "../../../hooks/connectionWA";
 import { queryClient } from "../../../main";

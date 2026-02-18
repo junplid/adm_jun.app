@@ -20,7 +20,7 @@ const SelectConnectionsWA = forwardRef<any, ISelectConnectionsWAProps>(
       <SelectComponent
         ref={ref}
         isLoading={isLoading || isFetching || isPending}
-        placeholder={`Selecione ${isMulti ? "as conexões WA" : "a conexão WA"}`}
+        placeholder={`Selecione ${isMulti ? "as conexões" : "a conexão"}`}
         options={(opt || []).map((item) => ({
           label: item.name,
           value: item.id,
@@ -30,7 +30,7 @@ const SelectConnectionsWA = forwardRef<any, ISelectConnectionsWAProps>(
           return (
             <div className="flex  text-sm flex-col gap-1 pointer-events-auto">
               <span className="text-white/60">
-                Nenhuma conexão WA {inputValue && `"${inputValue}"`} encontrada.
+                Nenhuma conexão {inputValue && `"${inputValue}"`} encontrada.
               </span>
             </div>
           );

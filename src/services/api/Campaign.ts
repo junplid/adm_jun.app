@@ -1,4 +1,4 @@
-import { TypeConnectionWA } from "../../pages/connectionswa";
+import { TypeConnectionWA } from "../../pages/connections";
 import { api } from "./index";
 
 export type TypeStatusCampaign =
@@ -41,7 +41,7 @@ export async function updateCampaign(
   body: {
     name?: string;
     description?: string | null;
-  }
+  },
 ): Promise<void> {
   await api.put(`/private/campaigns/${id}`, body);
 }

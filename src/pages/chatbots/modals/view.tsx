@@ -134,7 +134,7 @@ function Content({ id, close }: IProps) {
           </div>
           {!data.target && (
             <div className="text-white/80 text-center text-xs mt-2">
-              QR Code e link aparecem quando a Conexão WA está ativa.
+              QR Code e link aparecem quando a conexão está ativa.
             </div>
           )}
         </div>
