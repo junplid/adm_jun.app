@@ -337,7 +337,6 @@ export const PrivacyPolicyPage: React.FC = (): JSX.Element => {
 
         <br />
         <h3 className="font-semibold">16. SUPORTE E CONTATO</h3>
-        <br />
         <p>
           Endereço: Rua Paulo Gonçalves da Silva, 75 - Valéria, Salvador - BA -
           Brasil.
