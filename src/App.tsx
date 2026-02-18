@@ -35,9 +35,7 @@ import { OrdersPage } from "./pages/orders";
 import { LayoutSettingsPageProvider } from "./pages/settings/page.context";
 import { SettingsAccountPage } from "./pages/settings/account";
 import FarewellPage from "./pages/farewell";
-import { Teste1Page } from "./pages/teste1";
-import { Teste2Page } from "./pages/teste2";
-import { Teste3Page } from "./pages/teste3";
+import DataDeletionPage from "./pages/data-deletion";
 
 export default function App() {
   return (
@@ -140,9 +138,6 @@ export default function App() {
               />
             </Route>
             <Route path="orders" caseSensitive element={<OrdersPage />} />
-            <Route path="teste1" caseSensitive element={<Teste1Page />} />
-            <Route path="teste2" caseSensitive element={<Teste2Page />} />
-            <Route path="teste3" caseSensitive element={<Teste3Page />} />
 
             <Route
               path="appointments"
@@ -180,6 +175,7 @@ export default function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/farewell" element={<FarewellPage />} />
+        <Route path="/data-deletion" element={<DataDeletionPage />} />
 
         <Route
           path="*"
