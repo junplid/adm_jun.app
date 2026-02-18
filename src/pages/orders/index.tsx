@@ -468,6 +468,11 @@ export const OrdersPage: React.FC = (): JSX.Element => {
     {} as { [x: string]: Order[] },
   );
   const [load, setLoad] = useState(true);
+  const [itemStartDrag, setItemStartDrag] = useState<{
+    column: string;
+    index: number;
+    id: number;
+  } | null>(null);
 
   const [activeOrder, setActiveOrder] = useState<Order | null>(null);
   // const [overColumnId, setOverColumnId] = useState<string | null>(null);
@@ -487,6 +492,11 @@ export const OrdersPage: React.FC = (): JSX.Element => {
     const { active } = event;
     const container = findContainer(active.id);
     if (container) {
+      setItemStartDrag({
+        column: container,
+        index: active.data.current?.sortable.index!,
+        id: Number(active.id),
+      });
       const order = orders[container].find((o) => o.id === active.id);
       setActiveOrder(order || null);
     }
@@ -543,7 +553,6 @@ export const OrdersPage: React.FC = (): JSX.Element => {
             return prev;
           } else {
             overIndex = column.findIndex((item) => item.id === overId);
-            console.log(activeIndex, overIndex);
           }
 
           return {
@@ -556,24 +565,17 @@ export const OrdersPage: React.FC = (): JSX.Element => {
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
+    const { over } = event;
     const overId = over?.id;
 
     if (!overId) return;
 
-    const activeContainer = findContainer(active.id as string);
     const overContainer = findContainer(overId as string);
 
-    if (activeContainer && overContainer) {
-      if (activeContainer !== overContainer) {
+    if (itemStartDrag && overContainer) {
+      if (itemStartDrag.column !== overContainer) {
         setOrders((prev) => {
-          const activeItems = prev[activeContainer];
           const overItems = prev[overContainer];
-
-          const activeIndex = activeItems.findIndex(
-            (item) => item.id === active.id,
-          );
-
           let overIndex = 0;
           if (typeof overId === "string") {
             overIndex = overItems.length;
@@ -584,74 +586,65 @@ export const OrdersPage: React.FC = (): JSX.Element => {
             }
           }
 
-          const [itemRemoved] = activeItems.splice(activeIndex, 1);
-          overItems.splice(overIndex, 0, itemRemoved);
-
           const prevRank = overItems[overIndex - 1]
             ? { sequence: overItems[overIndex - 1].sequence }
             : undefined;
           const nextRank = overItems[overIndex + 1]
             ? { sequence: overItems[overIndex + 1].sequence }
             : undefined;
+
           const newRank = calcRank(prevRank, nextRank);
 
           const nextOrdersDest = overItems.map((c) => {
-            if (c.id === itemRemoved.id) c.sequence = newRank;
+            if (c.id === itemStartDrag.id) c.sequence = newRank;
             return c;
           });
-
-          socket.emit("update_status", {
+          socket.emit("order:update_status", {
             rank: newRank,
-            orderId: active.id,
+            orderId: itemStartDrag.id,
             nextIndex: overIndex,
-            sourceStatus: activeContainer,
+            sourceStatus: itemStartDrag.column,
             nextStatus: overContainer,
           });
 
           return {
             ...prev,
-            [activeContainer]: activeItems.filter(
-              (item) => item.id !== active.id,
-            ),
             [overContainer]: nextOrdersDest,
           };
         });
       } else {
         setOrders((prev) => {
           const column = prev[overContainer];
-          const activeIndex = column.findIndex((item) => item.id === active.id);
-
+          const activeIndex = column.findIndex(
+            (item) => item.id === itemStartDrag.id,
+          );
           let overIndex = 0;
-
           if (typeof overId === "string") {
             return prev;
           } else {
             overIndex = column.findIndex((item) => item.id === overId);
           }
-
           const prevRank = column[overIndex - 1]
             ? { sequence: column[overIndex - 1].sequence }
             : undefined;
           const nextRank = column[overIndex + 1]
             ? { sequence: column[overIndex + 1].sequence }
             : undefined;
-          const newRank = calcRank(prevRank, nextRank);
 
-          socket.emit("update_rank", {
+          const newRank = calcRank(prevRank, nextRank);
+          socket.emit("order:update_rank", {
             rank: newRank,
-            orderId: active.id,
+            orderId: itemStartDrag.id,
             nextIndex: overIndex,
             status: overContainer,
           });
-
           const nextOrdersDest = column.map((c) => {
-            if (c.id === active.id) c.sequence = newRank;
+            if (c.id === itemStartDrag.id) c.sequence = newRank;
             return c;
           });
-
           return {
             ...prev,
-            [activeContainer]: arrayMove(
+            [itemStartDrag.column]: arrayMove(
               nextOrdersDest,
               activeIndex,
               overIndex,
@@ -830,7 +823,7 @@ export const OrdersPage: React.FC = (): JSX.Element => {
     );
 
     socket.on(
-      "update_rank",
+      "order:update_rank",
       (props: {
         rank: number;
         orderId: number;
@@ -861,7 +854,7 @@ export const OrdersPage: React.FC = (): JSX.Element => {
     );
 
     socket.on(
-      "update_status",
+      "order:update_status",
       (props: {
         rank: number;
         orderId: number;
@@ -900,8 +893,8 @@ export const OrdersPage: React.FC = (): JSX.Element => {
 
     return () => {
       socket.off("new_order");
-      socket.off("update_status");
-      socket.off("update_rank");
+      socket.off("order:update_status");
+      socket.off("order:update_rank");
       socket.off("new_ticket");
       socket.off("remove_ticket");
       socket.off("return_ticket");
