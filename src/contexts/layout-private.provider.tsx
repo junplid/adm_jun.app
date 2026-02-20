@@ -106,7 +106,7 @@ const ToggleMenu = ({
 
 export function LayoutPrivateProvider(): JSX.Element {
   const {
-    account: { onboarded },
+    account: { onboarded, isSub },
     setAccount,
     clientMeta,
   } = useContext(AuthContext);
@@ -137,7 +137,7 @@ export function LayoutPrivateProvider(): JSX.Element {
 
   return (
     <LayoutPrivateContext.Provider value={dataValue}>
-      {!onboarded && (
+      {!onboarded && isSub && (
         <ModalOnboarded
           onClose={async () => {
             await updateAccount({ onboarded: true });
@@ -147,6 +147,33 @@ export function LayoutPrivateProvider(): JSX.Element {
           }}
         />
       )}
+
+      {/* {!isSub && (
+        <div className="fixed bg-white left-0 top-0 w-full z-50">
+          <span className="text-black">
+            Sua conta precisa assinar um plano para ter acesso aos recursos.
+          </span>
+        </div>
+      )}
+      {isSub &&
+        subStatus &&
+        subStatus !== "active" &&
+        subStatus !== "trialing" && (
+          <div className="fixed">
+            {subStatus === "unpaid" &&
+              "Recursos congelados por falta de pagamento!"}
+            {subStatus === "canceled" &&
+              "Sua conta precisa assinar um plano para ter acesso aos recursos!"}
+            {subStatus === "past_due" &&
+              "Recursos congelados por falta de pagamento!"}
+            {subStatus === "paused" &&
+              "Recursos congelados. Seu plano foi pausado!"}
+            {subStatus === "incomplete" &&
+              "Assinatura ainda não foi concluida!"}
+            {subStatus === "incomplete_expired" &&
+              "Assinatura expirada e não foi concluida!"}
+          </div>
+        )} */}
 
       <div
         className={clsx(

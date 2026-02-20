@@ -18,6 +18,18 @@ export interface Account {
   isPremium: boolean;
   uuid: string;
   businessId: number;
+  isSub: boolean;
+  subStatus?:
+    | "active"
+    | "canceled"
+    | "incomplete"
+    | "incomplete_expired"
+    | "past_due"
+    | "paused"
+    | "trialing"
+    | "unpaid"
+    | null
+    | undefined;
 }
 
 export interface IFlowContextProps {

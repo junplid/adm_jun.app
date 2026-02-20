@@ -36,6 +36,7 @@ import { LayoutSettingsPageProvider } from "./pages/settings/page.context";
 import { SettingsAccountPage } from "./pages/settings/account";
 import FarewellPage from "./pages/farewell";
 import DataDeletionPage from "./pages/data-deletion";
+import { SettingsSubscriptionPage } from "./pages/settings/subscription";
 
 export default function App() {
   return (
@@ -91,6 +92,11 @@ export default function App() {
                 path="settings/account"
                 caseSensitive
                 element={<SettingsAccountPage />}
+              />
+              <Route
+                path="settings/subscription"
+                caseSensitive
+                element={<SettingsSubscriptionPage />}
               />
             </Route>
             <Route caseSensitive element={<LayoutWorkbenchPageProvider />}>

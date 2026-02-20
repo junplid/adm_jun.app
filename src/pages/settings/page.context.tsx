@@ -5,7 +5,7 @@ import { Link, Outlet, useLocation } from "react-router-dom";
 import { JSX } from "@emotion/react/jsx-runtime";
 import { HiMenu } from "react-icons/hi";
 import { LayoutSettingsPageContext } from "./contexts";
-import { MdOutlineAccountCircle } from "react-icons/md";
+import { MdOutlineAccountCircle, MdWorkspacePremium } from "react-icons/md";
 
 interface IToggleMenuProps {
   toggledMenu: boolean;
@@ -107,6 +107,13 @@ export function LayoutSettingsPageProvider(): JSX.Element {
                   component={<Link to={"settings/account"} />}
                 >
                   Conta
+                </MenuItem>
+                <MenuItem
+                  icon={<MdWorkspacePremium size={20} />}
+                  active={pathname === "/auth/settings/subscription"}
+                  component={<Link to={"settings/subscription"} />}
+                >
+                  Meu plano
                 </MenuItem>
               </Menu>
             </div>
