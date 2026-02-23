@@ -44,13 +44,13 @@ export default function App() {
         <Route
           caseSensitive
           element={
-            <DialogProvider>
-              <AuthProvider>
+            <AuthProvider>
+              <DialogProvider>
                 <SocketProvider>
                   <LayoutPrivateProvider />
                 </SocketProvider>
-              </AuthProvider>
-            </DialogProvider>
+              </DialogProvider>
+            </AuthProvider>
           }
           path="auth"
         >

@@ -31,6 +31,7 @@ import { useDisconnectConnectionWA } from "../../../hooks/connectionWA";
 import { queryClient } from "../../../main";
 import { ImConnection } from "react-icons/im";
 import { motion } from "framer-motion";
+import { ListOfAgentTemplatesComponent } from "@components/ListOfAgentTemplates";
 
 export interface AgentsAIRow {
   businesses: { id: number; name: string }[];
@@ -296,148 +297,158 @@ export const AgentsAIPage: React.FC = (): JSX.Element => {
           </div>
         </div>
       </div>
-      <div className="flex-1 grid px-2 mt-1">
+      <div className="flex-1 grid pb-5 md:pb-0 px-2 mt-1">
         {clientMeta.isMobileLike ? (
-          <TableMobileComponent
-            totalCount={agentsAI?.length || 0}
-            renderItem={(index) => {
-              const row = agentsAI![index];
-              return (
-                <div className="flex flex-col bg-amber-50/5 p-3! py-2! rounded-md">
-                  <div className="flex items-center justify-between gap-x-1">
-                    <span className="text-sm truncate font-semibold">
-                      {row.name}
-                    </span>
-                    <div className="flex w-[185px] items-center justify-end text-xs gap-x-1">
-                      <span className="text-white/50">Data de criação:</span>
-                      <span>{moment(row.createAt).format("D/M/YY")}</span>
-                      <span className="text-white/50 text-[11px]">
-                        {moment(row.createAt).format("HH:mm")}
+          <div className="h-full justify-between flex flex-col">
+            <TableMobileComponent
+              totalCount={agentsAI?.length || 0}
+              renderItem={(index) => {
+                const row = agentsAI![index];
+                return (
+                  <div className="flex flex-col bg-amber-50/5 p-3! py-2! rounded-md">
+                    <div className="flex items-center justify-between gap-x-1">
+                      <span className="text-sm truncate font-semibold">
+                        {row.name}
                       </span>
+                      <div className="flex w-[185px] items-center justify-end text-xs gap-x-1">
+                        <span className="text-white/50">Data de criação:</span>
+                        <span>{moment(row.createAt).format("D/M/YY")}</span>
+                        <span className="text-white/50 text-[11px]">
+                          {moment(row.createAt).format("HH:mm")}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex items-center mt-1 justify-between">
-                    <div className="flex items-center">
-                      {row.status === "close" && (
-                        <div className="flex text-xs items-center gap-x-1 px-1! bg-red-300/20 text-red-300">
-                          <MdSignalWifiConnectedNoInternet0
-                            color={"#e96068"}
-                            size={18}
-                          />
-                          <span>Conexão off</span>
-                        </div>
-                      )}
-                      {row.status === "open" && (
-                        <div className="flex text-xs items-center gap-x-1 px-1! bg-green-300/20 text-green-300">
-                          <ImConnection color={"#7bf1a8e2"} size={18} />
-                          <span>Conexão on</span>
-                        </div>
-                      )}
-                      {row.status === "sync" && (
-                        <div className="flex text-xs items-center gap-x-1 px-1! bg-blue-300/20 text-blue-300">
-                          <MotionIcon
-                            size={18}
-                            color="#7bb4f1"
-                            animate={{ rotate: -360 }}
-                            transition={{
-                              repeat: Infinity,
-                              duration: 1.2,
-                              ease: "linear",
-                            }}
-                          />
-                          <span>Conexão sync</span>
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex gap-x-1">
-                      {row.connectionWAId && row.status === "close" && (
-                        <Button
-                          onClick={() =>
-                            onOpen({
-                              size: "lg",
-                              content: (
-                                <ModalConnectConnectionWA
-                                  name={`Conectar "${row.name}" ao WhatsApp`}
-                                  close={close}
-                                  id={row.connectionWAId!}
-                                />
-                              ),
-                            })
-                          }
-                          size={"xs"}
-                          bg={"#def5cf18"}
-                          color={"#9cc989"}
-                          _hover={{ bg: "#def5cf2b" }}
-                          _icon={{ width: "16px", height: "16px" }}
-                          disabled
-                        >
-                          <TbPlugConnected />
-                        </Button>
-                      )}
-                      {row.connectionWAId &&
-                        (row.status === "open" || row.status === "sync") && (
+                    <div className="flex items-center mt-1 justify-between">
+                      <div className="flex items-center">
+                        {row.status === "close" && (
+                          <div className="flex text-xs items-center gap-x-1 px-1! bg-red-300/20 text-red-300">
+                            <MdSignalWifiConnectedNoInternet0
+                              color={"#e96068"}
+                              size={18}
+                            />
+                            <span>Conexão off</span>
+                          </div>
+                        )}
+                        {row.status === "open" && (
+                          <div className="flex text-xs items-center gap-x-1 px-1! bg-green-300/20 text-green-300">
+                            <ImConnection color={"#7bf1a8e2"} size={18} />
+                            <span>Conexão on</span>
+                          </div>
+                        )}
+                        {row.status === "sync" && (
+                          <div className="flex text-xs items-center gap-x-1 px-1! bg-blue-300/20 text-blue-300">
+                            <MotionIcon
+                              size={18}
+                              color="#7bb4f1"
+                              animate={{ rotate: -360 }}
+                              transition={{
+                                repeat: Infinity,
+                                duration: 1.2,
+                                ease: "linear",
+                              }}
+                            />
+                            <span>Conexão sync</span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex gap-x-1">
+                        {row.connectionWAId && row.status === "close" && (
                           <Button
                             onClick={() =>
-                              disconnectWhatsapp(row.connectionWAId!)
+                              onOpen({
+                                size: "lg",
+                                content: (
+                                  <ModalConnectConnectionWA
+                                    name={`Conectar "${row.name}" ao WhatsApp`}
+                                    close={close}
+                                    id={row.connectionWAId!}
+                                  />
+                                ),
+                              })
                             }
                             size={"xs"}
-                            bg={"#ddafaf14"}
-                            disabled={row.status === "sync"}
-                            color={"#d77474"}
-                            _hover={{ bg: "#f5cfcf2b" }}
+                            bg={"#def5cf18"}
+                            color={"#9cc989"}
+                            _hover={{ bg: "#def5cf2b" }}
                             _icon={{ width: "16px", height: "16px" }}
+                            disabled
                           >
-                            <AiOutlinePoweroff />
+                            <TbPlugConnected />
                           </Button>
                         )}
-                      <Button
-                        size={"xs"}
-                        bg={"#30c9e414"}
-                        _hover={{ bg: "#30c9e422" }}
-                        _icon={{ width: "16px", height: "16px" }}
-                        onClick={() => {
-                          onOpen({
-                            content: (
-                              <ModalEditAgentAI close={close} id={row.id} />
-                            ),
-                          });
-                        }}
-                      >
-                        <MdEdit color={"#9ec9fa"} />
-                      </Button>
-                      <Button
-                        size={"xs"}
-                        bg={"#cf5c5c24"}
-                        _hover={{ bg: "#eb606028" }}
-                        _icon={{ width: "16px", height: "16px" }}
-                        onClick={() => {
-                          onOpen({
-                            content: (
-                              <ModalDeleteAgentAI
-                                data={{ id: row.id, name: row.name }}
-                                close={close}
-                              />
-                            ),
-                          });
-                        }}
-                      >
-                        <MdDeleteOutline color={"#f75050"} />
-                      </Button>
+                        {row.connectionWAId &&
+                          (row.status === "open" || row.status === "sync") && (
+                            <Button
+                              onClick={() =>
+                                disconnectWhatsapp(row.connectionWAId!)
+                              }
+                              size={"xs"}
+                              bg={"#ddafaf14"}
+                              disabled={row.status === "sync"}
+                              color={"#d77474"}
+                              _hover={{ bg: "#f5cfcf2b" }}
+                              _icon={{ width: "16px", height: "16px" }}
+                            >
+                              <AiOutlinePoweroff />
+                            </Button>
+                          )}
+                        <Button
+                          size={"xs"}
+                          bg={"#30c9e414"}
+                          _hover={{ bg: "#30c9e422" }}
+                          _icon={{ width: "16px", height: "16px" }}
+                          onClick={() => {
+                            onOpen({
+                              content: (
+                                <ModalEditAgentAI close={close} id={row.id} />
+                              ),
+                            });
+                          }}
+                        >
+                          <MdEdit color={"#9ec9fa"} />
+                        </Button>
+                        <Button
+                          size={"xs"}
+                          bg={"#cf5c5c24"}
+                          _hover={{ bg: "#eb606028" }}
+                          _icon={{ width: "16px", height: "16px" }}
+                          onClick={() => {
+                            onOpen({
+                              content: (
+                                <ModalDeleteAgentAI
+                                  data={{ id: row.id, name: row.name }}
+                                  close={close}
+                                />
+                              ),
+                            });
+                          }}
+                        >
+                          <MdDeleteOutline color={"#f75050"} />
+                        </Button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            }}
-            textEmpity="Seus assistentes de IA aparecerão aqui."
-            load={isFetching || isPending}
-          />
+                );
+              }}
+              textEmpity="Seus assistentes de IA aparecerão aqui."
+              load={isFetching || isPending}
+            />
+            {!(isFetching || isPending) && !agentsAI?.length && (
+              <ListOfAgentTemplatesComponent />
+            )}
+          </div>
         ) : (
-          <TableComponent
-            rows={agentsAI || []}
-            columns={renderColumns}
-            textEmpity="Seus assistentes de IA aparecerão aqui."
-            load={isFetching || isPending}
-          />
+          <div className="h-full justify-between flex flex-col">
+            <TableComponent
+              rows={agentsAI || []}
+              columns={renderColumns}
+              textEmpity="Seus assistentes de IA aparecerão aqui."
+              load={isFetching || isPending}
+            />
+            {!(isFetching || isPending) && !agentsAI?.length && (
+              <ListOfAgentTemplatesComponent />
+            )}
+          </div>
         )}
       </div>
       {DialogModal}

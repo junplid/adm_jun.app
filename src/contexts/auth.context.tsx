@@ -7,6 +7,7 @@ export interface IClienteMeta {
   isTouch: boolean;
   isSmallScreen: boolean;
   isMobileLike: boolean;
+  windowWidth: number;
 }
 
 export interface Account {

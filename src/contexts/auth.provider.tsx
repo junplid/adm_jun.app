@@ -41,6 +41,7 @@ function getClientMeta(): IClienteMeta {
     isTouch,
     isSmallScreen,
     isMobileLike: isTouch || isSmallScreen,
+    windowWidth: window.innerWidth,
   };
 }
 

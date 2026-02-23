@@ -97,8 +97,8 @@ export const TableComponent = (props: Props): JSX.Element => {
         }
       />
       {!rows.length && props.textEmpity && !props.load && (
-        <div className="cursor-default absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 px-4 py-2 text-sm text-white/30">
-          {props.textEmpity}
+        <div className="cursor-default mt-10 w-full text-center px-4 py-2 text-sm text-white/30">
+          <span>{props.textEmpity}</span>
         </div>
       )}
       {props.load && (

@@ -136,7 +136,6 @@ body {
   background: #55555507;
 }
 
-
 .fade-in {
   animation: fadeIn 200ms ease-out;
 }
@@ -150,4 +149,22 @@ body {
     opacity: 1;
     transform: none;
   }
+}
+
+@keyframes animate_typing {
+  0% {
+    opacity: 0.4;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0.4;
+  }
+}
+
+.animate-typing {
+  animation: animate_typing infinite 900ms;
 }
