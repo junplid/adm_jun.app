@@ -45,8 +45,8 @@ export const useDialogModal = ({
         onOpenChange={(change) => setOpen(change.open)}
         placement={placement}
         motionPreset={motionPreset}
-        lazyMount
-        unmountOnExit
+        lazyMount={true}
+        unmountOnExit={true}
         size={dialog?.size}
       >
         {dialog?.content}

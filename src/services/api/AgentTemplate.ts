@@ -30,7 +30,7 @@ export async function testAgentTemplate(body: {
   content: string; // mensagem
   providerCredentialId?: number;
   apiKey?: string;
-  token_modal_template: string;
+  token_modal_chat_template: string;
   templatedId: number;
   fields: Record<string, Record<string, number | string | number[] | string[]>>;
 }): Promise<any> {

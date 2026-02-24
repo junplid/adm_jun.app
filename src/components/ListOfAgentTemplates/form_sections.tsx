@@ -17,6 +17,7 @@ import { testAgentTemplate } from "../../services/api/AgentTemplate";
 import { AxiosError } from "axios";
 import { AuthContext } from "@contexts/auth.context";
 import { ErrorResponse_I } from "../../services/api/ErrorResponse";
+import { SocketContext } from "@contexts/socket.context";
 
 interface Props {
   id: number;
@@ -38,7 +39,7 @@ const schema = z.object({
 type Schema = z.infer<typeof schema>;
 
 function buildDefaultValues(sections: Section[]) {
-  return sections.reduce<
+  const result = sections.reduce<
     Record<string, Record<string, string | number | string[] | number[]>>
   >((acc, section) => {
     const sectionDefaults = section.inputs.reduce<Record<string, string>>(
@@ -57,6 +58,7 @@ function buildDefaultValues(sections: Section[]) {
 
     return acc;
   }, {});
+  return result;
 }
 
 type Message = {
@@ -66,13 +68,16 @@ type Message = {
 };
 
 export function FormSectionsComponent(props: Props) {
+  const { socket } = useContext(SocketContext);
   const { logout } = useContext(AuthContext);
   const defaultValues = buildDefaultValues(props.sections);
   const [messages, setMessages] = useState<Message[]>([]);
   const virtuosoRef = useRef<VirtuosoHandle>(null);
   const [errorDraft, setErrorDraft] = useState<string | null>(null);
-  const token_modal_templateRef = useRef<string | null>(null);
+  const token_modal_chat_templateRef = useRef<string | null>(null);
   const [draft, setDraft] = useState("");
+  const [compose, setCompose] = useState(false);
+  const [showLogs, setShowLogs] = useState(false);
 
   const {
     handleSubmit,
@@ -92,7 +97,7 @@ export function FormSectionsComponent(props: Props) {
 
   const sendMessage = useCallback(async () => {
     try {
-      if (!draft.trim() || !token_modal_templateRef.current) return;
+      if (!draft.trim() || !token_modal_chat_templateRef.current) return;
       setMessages((prev) => [
         ...prev,
         { id: v4(), role: "user", content: draft },
@@ -100,7 +105,7 @@ export function FormSectionsComponent(props: Props) {
       setDraft("");
       testAgentTemplate({
         content: draft.trim(),
-        token_modal_template: token_modal_templateRef.current,
+        token_modal_chat_template: token_modal_chat_templateRef.current,
         fields: getValues("fields"),
         templatedId: props.id,
         apiKey: getValues("apiKey"),
@@ -126,11 +131,43 @@ export function FormSectionsComponent(props: Props) {
     }
   }, [draft, props.id]);
 
+  const clearTokenTest = () => {
+    if (token_modal_chat_templateRef.current) {
+      socket.emit(
+        "agent-template:clear-tokenTest",
+        token_modal_chat_templateRef.current,
+      );
+      socket.off(`test-agent-template-${token_modal_chat_templateRef.current}`);
+      createTokenTest();
+    }
+  };
+
+  const createTokenTest = () => {
+    token_modal_chat_templateRef.current = v4();
+    socket.on(
+      `test-agent-template-${token_modal_chat_templateRef.current}`,
+      async (data: {
+        role: "agent" | "system";
+        content: string;
+        compose?: boolean;
+      }) => {
+        if (data.compose === undefined) {
+          if (
+            data.role === "system" &&
+            data.content === `System: Teste finalizado!`
+          ) {
+            clearTokenTest();
+          }
+          setMessages((prev) => [...prev, { id: v4(), ...data }]);
+          return;
+        }
+        setCompose(data.compose);
+      },
+    );
+  };
+
   useEffect(() => {
-    token_modal_templateRef.current = v4();
-    return () => {
-      token_modal_templateRef.current = null;
-    };
+    createTokenTest();
   }, []);
 
   return (
@@ -150,23 +187,28 @@ export function FormSectionsComponent(props: Props) {
                   <Controller
                     control={control}
                     name={`fields.${section.name}.${input.name}`}
-                    render={({ field: { value, ...rest } }) => (
-                      <Field
-                        invalid={!!errors?.fields?.[section.name]?.[input.name]}
-                        errorText={
-                          errors?.fields?.[section.name]?.[input.name]?.message
-                        }
-                        label={input.label}
-                        required={input.required}
-                      >
-                        <Input
-                          placeholder={input.placeholder}
-                          value={String(value)}
-                          {...rest}
-                          className={value ? "bg-white/10!" : "bg-white/4!"}
-                        />
-                      </Field>
-                    )}
+                    render={({ field: { value, ...rest } }) => {
+                      return (
+                        <Field
+                          invalid={
+                            !!errors?.fields?.[section.name]?.[input.name]
+                          }
+                          errorText={
+                            errors?.fields?.[section.name]?.[input.name]
+                              ?.message
+                          }
+                          label={input.label}
+                          required={input.required}
+                        >
+                          <Input
+                            placeholder={input.placeholder}
+                            value={value ? String(value) : undefined}
+                            {...rest}
+                            className={value ? "bg-white/10!" : "bg-white/4!"}
+                          />
+                        </Field>
+                      );
+                    }}
                   />
                 )}
                 {input.type === "textarea" && (
@@ -191,7 +233,7 @@ export function FormSectionsComponent(props: Props) {
                             "p-3 py-2.5 rounded-sm w-full border-white/10 border",
                             value ? "bg-white/10" : "bg-white/4",
                           )}
-                          value={String(value)}
+                          value={value ? String(value) : undefined}
                           {...rest}
                         />
                       </Field>
@@ -323,7 +365,7 @@ export function FormSectionsComponent(props: Props) {
                 isMulti={false}
                 isSearchable={false}
                 onBlur={field.onBlur}
-                onChange={(e: any) => field.onChange(e.value)}
+                onChange={(e: any | null) => field.onChange(e?.value || null)}
                 value={field.value}
               />
             )}
@@ -357,28 +399,46 @@ export function FormSectionsComponent(props: Props) {
       <div className="mt-5 flex flex-col items-center space-y-2">
         <div className="max-w-xs w-full flex gap-y-2 flex-col h-96 sticky top-3">
           {!!messages.length && (
-            <a
-              onClick={() => {
-                //  clearTokenTest();
-                setMessages([]);
-              }}
-              className="text-sm text-white/50 hover:text-white duration-200 cursor-pointer text-center"
-            >
-              Limpar histórico
-            </a>
+            <div className="flex w-full items-center justify-between">
+              <a
+                onClick={() => {
+                  clearTokenTest();
+                  setMessages([]);
+                }}
+                className="text-sm text-white/50 hover:text-white cursor-pointer"
+              >
+                Limpar histórico
+              </a>
+
+              <a
+                onClick={() => setShowLogs(!showLogs)}
+                className={clsx(
+                  showLogs
+                    ? "hover:text-red-300 text-red-400"
+                    : "hover:text-blue-300 text-blue-400",
+                  "text-sm cursor-pointer",
+                )}
+              >
+                {showLogs ? "Esconder" : "Mostrar"} logs
+              </a>
+            </div>
           )}
           <div className="flex flex-col flex-1 bg-zinc-400/5 rounded-md">
             <Virtuoso
               ref={virtuosoRef}
-              data={messages}
+              data={
+                showLogs
+                  ? messages
+                  : messages.filter((s) => s.role !== "system")
+              }
               className="scroll-custom-table"
               followOutput="smooth"
               itemContent={(_, msg) => {
                 if (msg.role === "system") {
                   return (
-                    <div className="px-2 py-1.5 text-sm text-center opacity-20">
+                    <div className="px-1 text-xs opacity-80">
                       <span
-                        className={`inline-block w-full wrap-break-word rounded-md font-semibold whitespace-pre-wrap px-1.5 py-1 bg-yellow-200/20 text-white`}
+                        className={`inline-block wrap-break-word whitespace-pre-wrap px-1.5 py-1 bg-yellow-200/20 text-white`}
                       >
                         <ReactMarkdown remarkPlugins={[remarkGfm]}>
                           {msg.content}
@@ -413,6 +473,11 @@ export function FormSectionsComponent(props: Props) {
                 );
               }}
             />
+            {compose && (
+              <span className="text-xs p-1 select-none text-white/45 animate-typing">
+                digitando...
+              </span>
+            )}
           </div>
           <div className="flex flex-col">
             <div className="flex items-center gap-x-2">
@@ -435,14 +500,18 @@ export function FormSectionsComponent(props: Props) {
                 <RiSendPlane2Line />
               </IconButton>
             </div>
-            <span className="text-xs mt-1 text-center text-white/50">
-              Teste e melhore até se adaptar às suas necessidades.
-            </span>
             {errorDraft && (
               <span className="text-red-500 text-xs text-center">
                 Error interno ao processar o teste
               </span>
             )}
+            <span className="text-xs mt-1 text-center text-white/80">
+              Teste e melhore até se adaptar às suas necessidades.
+            </span>
+            <span className="text-xs text-center text-white/50">
+              A janela de teste dura 10 minutos e é renovada a cada mensagem
+              enviada.
+            </span>
           </div>
         </div>
       </div>
