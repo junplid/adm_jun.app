@@ -5,7 +5,7 @@ import {
   DialogBody,
   DialogCloseTrigger,
 } from "@components/ui/dialog";
-import { useCallback, JSX, useContext, useState, useEffect } from "react";
+import { useCallback, JSX, useContext, useState, useEffect, FC } from "react";
 import { Skeleton } from "@chakra-ui/react";
 import { CloseButton } from "@components/ui/close-button";
 import { ImInsertTemplate } from "react-icons/im";
@@ -14,11 +14,13 @@ import { useGetAgentTemplates } from "../../hooks/agentTemplate";
 import { DigitizingChatComponent } from "@components/DigitizingChat";
 import clsx from "clsx";
 
-interface PropsModalDelete {}
+interface PropsModalDelete {
+  onClick(props: { id: number; title: string }): void;
+}
 
-export const ModalListAgentTemplates: React.FC<
-  PropsModalDelete
-> = (): JSX.Element => {
+export const ModalListAgentTemplates: FC<PropsModalDelete> = (
+  props,
+): JSX.Element => {
   const { clientMeta } = useContext(AuthContext);
   const { data, isPending, isFetching, isLoading } = useGetAgentTemplates({});
   const [visibleItems, setVisibleItems] = useState<number[]>([]);
@@ -77,6 +79,9 @@ export const ModalListAgentTemplates: React.FC<
                   }}
                   key={template.id}
                   className="pt-10 w-full"
+                  onClick={() => {
+                    props.onClick({ id: template.id, title: template.title });
+                  }}
                 >
                   <li
                     className={clsx(

@@ -32,6 +32,8 @@ import { queryClient } from "../../../main";
 import { ImConnection } from "react-icons/im";
 import { motion } from "framer-motion";
 import { ListOfAgentTemplatesComponent } from "@components/ListOfAgentTemplates";
+import { ModalListAgentTemplates } from "@components/ListOfAgentTemplates/modal_list";
+import { ModalAgentTemplate } from "@components/ListOfAgentTemplates/modal_agent";
 
 export interface AgentsAIRow {
   businesses: { id: number; name: string }[];
@@ -47,7 +49,7 @@ const MotionIcon = motion.create(MdOutlineSync);
 export const AgentsAIPage: React.FC = (): JSX.Element => {
   // const { ToggleMenu } = useContext(LayoutWorkbenchPageContext);
   const { clientMeta } = useContext(AuthContext);
-  const { dialog: DialogModal, close, onOpen } = useDialogModal({});
+  const { dialog: DialogModal, close: onClose, onOpen } = useDialogModal({});
   const { data: agentsAI, isFetching, isPending } = useGetAgentsAI();
 
   const { socket } = useContext(SocketContext);
@@ -137,7 +139,7 @@ export const AgentsAIPage: React.FC = (): JSX.Element => {
                       content: (
                         <ModalConnectConnectionWA
                           name={`Conectar "${row.name}" ao WhatsApp`}
-                          close={close}
+                          close={onClose}
                           id={row.connectionWAId}
                         />
                       ),
@@ -177,7 +179,7 @@ export const AgentsAIPage: React.FC = (): JSX.Element => {
                 onClick={() => {
                   onOpen({
                     size: "xl",
-                    content: <ModalEditAgentAI close={close} id={row.id} />,
+                    content: <ModalEditAgentAI close={onClose} id={row.id} />,
                   });
                 }}
                 size={"sm"}
@@ -198,7 +200,7 @@ export const AgentsAIPage: React.FC = (): JSX.Element => {
                     content: (
                       <ModalDeleteAgentAI
                         data={{ id: row.id, name: row.name }}
-                        close={close}
+                        close={onClose}
                       />
                     ),
                   });
@@ -282,7 +284,7 @@ export const AgentsAIPage: React.FC = (): JSX.Element => {
                 onClick={() => {
                   onOpen({
                     size: "xl",
-                    content: <ModalCreateAgentAI close={close} />,
+                    content: <ModalCreateAgentAI close={onClose} />,
                   });
                 }}
                 variant="outline"
@@ -290,6 +292,41 @@ export const AgentsAIPage: React.FC = (): JSX.Element => {
               >
                 <IoAdd /> Adicionar
               </Button>
+              <a
+                onClick={() => {
+                  onOpen({
+                    size: "xl",
+                    content: (
+                      <ModalListAgentTemplates
+                        onClick={(temp) => {
+                          onClose();
+                          setTimeout(() => {
+                            onOpen({
+                              size: "xl",
+                              content: (
+                                <ModalAgentTemplate
+                                  title={temp.title}
+                                  id={temp.id}
+                                  onClose={onClose}
+                                  onCloseAndFetch={() => {
+                                    onClose();
+                                    queryClient.invalidateQueries({
+                                      queryKey: ["agents-ai"],
+                                    });
+                                  }}
+                                />
+                              ),
+                            });
+                          }, 300);
+                        }}
+                      />
+                    ),
+                  });
+                }}
+                className="text-gray-400 underline text-sm cursor-pointer"
+              >
+                Templates
+              </a>
             </div>
             <p className="text-white/60 font-light">
               Autônomos que usam IA para realizar tarefas e alcançar objetivos.
@@ -299,13 +336,13 @@ export const AgentsAIPage: React.FC = (): JSX.Element => {
       </div>
       <div className="flex-1 grid pb-5 md:pb-0 px-2 mt-1">
         {clientMeta.isMobileLike ? (
-          <div className="h-full justify-between flex flex-col">
+          <div className="h-full flex-1 grid">
             <TableMobileComponent
               totalCount={agentsAI?.length || 0}
               renderItem={(index) => {
                 const row = agentsAI![index];
                 return (
-                  <div className="flex flex-col bg-amber-50/5 p-3! py-2! rounded-md">
+                  <div className="flex flex-col my-1 bg-amber-50/5 p-3! py-2! rounded-md">
                     <div className="flex items-center justify-between gap-x-1">
                       <span className="text-sm truncate font-semibold">
                         {row.name}
@@ -360,7 +397,7 @@ export const AgentsAIPage: React.FC = (): JSX.Element => {
                                 content: (
                                   <ModalConnectConnectionWA
                                     name={`Conectar "${row.name}" ao WhatsApp`}
-                                    close={close}
+                                    close={onClose}
                                     id={row.connectionWAId!}
                                   />
                                 ),
@@ -400,7 +437,7 @@ export const AgentsAIPage: React.FC = (): JSX.Element => {
                           onClick={() => {
                             onOpen({
                               content: (
-                                <ModalEditAgentAI close={close} id={row.id} />
+                                <ModalEditAgentAI close={onClose} id={row.id} />
                               ),
                             });
                           }}
@@ -417,7 +454,7 @@ export const AgentsAIPage: React.FC = (): JSX.Element => {
                               content: (
                                 <ModalDeleteAgentAI
                                   data={{ id: row.id, name: row.name }}
-                                  close={close}
+                                  close={onClose}
                                 />
                               ),
                             });
@@ -438,7 +475,7 @@ export const AgentsAIPage: React.FC = (): JSX.Element => {
             )}
           </div>
         ) : (
-          <div className="h-full justify-between flex flex-col">
+          <div className="h-full flex-1 grid">
             <TableComponent
               rows={agentsAI || []}
               columns={renderColumns}

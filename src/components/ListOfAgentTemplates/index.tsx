@@ -3,7 +3,7 @@ import { DigitizingChatComponent } from "@components/DigitizingChat";
 import { useGetAgentTemplates } from "../../hooks/agentTemplate";
 import { ImInsertTemplate } from "react-icons/im";
 import Carousel, { ResponsiveType } from "react-multi-carousel";
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { AuthContext } from "@contexts/auth.context";
 import { useDialogModal } from "../../hooks/dialog.modal";
 import { ModalListAgentTemplates } from "./modal_list";
@@ -89,6 +89,7 @@ export function ListOfAgentTemplatesComponent() {
   const [execNow, setExecNow] = useState<number | null>(null);
 
   const queryClient = useQueryClient();
+  const isMoving = useRef(false);
 
   const {
     clientMeta: { windowWidth },
@@ -120,14 +121,38 @@ export function ListOfAgentTemplatesComponent() {
 
   return (
     <section className="grid">
-      <div className="flex justify-center items-center gap-x-2">
+      <div className="flex justify-center z-50 items-center gap-x-2">
         <ImInsertTemplate size={20} />
         <span className="text-lg font-light">Templates disponíveis</span>
         <a
           onClick={() => {
             onOpen({
               size: "xl",
-              content: <ModalListAgentTemplates />,
+              content: (
+                <ModalListAgentTemplates
+                  onClick={(temp) => {
+                    onClose();
+                    setTimeout(() => {
+                      onOpen({
+                        size: "xl",
+                        content: (
+                          <ModalAgentTemplate
+                            title={temp.title}
+                            id={temp.id}
+                            onClose={onClose}
+                            onCloseAndFetch={() => {
+                              onClose();
+                              queryClient.invalidateQueries({
+                                queryKey: ["agents-ai"],
+                              });
+                            }}
+                          />
+                        ),
+                      });
+                    }, 300);
+                  }}
+                />
+              ),
             });
           }}
           className="text-gray-400 underline text-sm cursor-pointer"
@@ -206,9 +231,39 @@ export function ListOfAgentTemplatesComponent() {
           partialVisible
           responsive={responsive}
           className="w-full"
+          beforeChange={() => {
+            isMoving.current = true;
+          }}
+          afterChange={() => {
+            setTimeout(() => {
+              isMoving.current = false;
+            }, 20);
+          }}
         >
           {data.map((template) => (
-            <div key={template.id} className="pt-10 w-full px-1">
+            <div
+              onClick={() => {
+                if (isMoving.current) return;
+                onOpen({
+                  size: "xl",
+                  content: (
+                    <ModalAgentTemplate
+                      title={template.title}
+                      id={template.id}
+                      onClose={onClose}
+                      onCloseAndFetch={() => {
+                        onClose();
+                        queryClient.invalidateQueries({
+                          queryKey: ["agents-ai"],
+                        });
+                      }}
+                    />
+                  ),
+                });
+              }}
+              key={template.id}
+              className="pt-10 w-full px-1"
+            >
               <li className="flex select-none w-full cursor-pointer group relative flex-col h-52.75 items-end justify-end  bg-neutral-200/5 hover:bg-neutral-200/7 p-3 rounded-2xl">
                 <div className="absolute pointer-events-none! -top-8  left-0 w-full">
                   <DigitizingChatComponent
@@ -216,13 +271,13 @@ export function ListOfAgentTemplatesComponent() {
                     list={template.chat_demo}
                   />
                 </div>
-                <h4 className="font-extrabold text-xl line-clamp-2 text-center ">
+                <h4 className="font-semibold text-lg line-clamp-2 text-center ">
                   {template.title}
                 </h4>
-                <span className="text-center mt-1 line-clamp-2 leading-5 text-neutral-400">
+                <span className="text-center mt-1 line-clamp-2 text-sm leading-4 text-neutral-400">
                   {template.card_desc}
                 </span>
-                <span className="text-sm mt-1 font-medium">
+                <span className="text-xs mt-1 font-medium">
                   por: {template.created_by}
                 </span>
               </li>

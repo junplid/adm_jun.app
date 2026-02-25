@@ -257,7 +257,7 @@ export const InboxDepartmentsPage: React.FC = (): JSX.Element => {
             renderItem={(index) => {
               const row = inboxDepartments![index];
               return (
-                <div className="flex flex-col bg-amber-50/5 p-3! py-2! rounded-md">
+                <div className="flex flex-col bg-amber-50/5 p-3! py-2! my-1 rounded-md">
                   <span className="text-xs font-semibold">{row.name}</span>
                   <div className="flex items-center mt-1 justify-between">
                     <div className="flex flex-col gap-y-0.5 text-xs">

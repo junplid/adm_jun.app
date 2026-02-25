@@ -10,6 +10,7 @@ import { toaster } from "@components/ui/toaster";
 import { AuthContext } from "@contexts/auth.context";
 import { Skeleton } from "@chakra-ui/react";
 import { useFiveMinuteClock } from "../../hooks/preciseFiveMinuteListener";
+import { ListOfAgentTemplatesComponent } from "@components/ListOfAgentTemplates";
 
 export function DashboardPage(): JSX.Element {
   const { logout } = useContext(AuthContext);
@@ -100,9 +101,16 @@ export function DashboardPage(): JSX.Element {
 
   return (
     <div className="sm:p-0 p-2">
+      <div className="mb-4 flex flex-col text-sm text-center text-white/70">
+        <span>Estamos construindo algo melhor.</span>
+        <span className="text-white text-base">
+          Em breve, métricas profundas e mais inteligentes.
+        </span>
+      </div>
+
       <Skeleton
-        height="200px"
-        className="rounded-xl!"
+        height="180px"
+        className="rounded-xl! mb-3"
         loading={load}
         css={{
           "--start-color": "#474545",
@@ -141,7 +149,7 @@ export function DashboardPage(): JSX.Element {
           <div
             style={{
               width: "calc(100%)",
-              height: 160,
+              height: 140,
             }}
             className="p-0.5 pt-0"
           >
@@ -228,12 +236,7 @@ export function DashboardPage(): JSX.Element {
         </div>
       </Skeleton>
 
-      <div className="mt-10 flex flex-col text-sm text-center text-white/70">
-        <span>Estamos construindo algo melhor.</span>
-        <span className="text-white text-base">
-          Em breve, métricas profundas e mais inteligentes.
-        </span>
-      </div>
+      <ListOfAgentTemplatesComponent />
       <InstallPWA />
     </div>
   );

@@ -118,22 +118,22 @@ const mapCreateList: MapCreate[] = [
     id: "2",
   },
   {
-    label: "Criar Assistente de IA.",
+    label: "Criar assistente de IA.",
     type: "wait",
     id: "3",
   },
   {
-    label: "Criar Fluxo de conversa.",
+    label: "Criar fluxo de conversa.",
     type: "wait",
     id: "4",
   },
   {
-    label: "Criar Conexão WhatsApp.",
+    label: "Criar conexão WhatsApp.",
     type: "wait",
     id: "5",
   },
   {
-    label: "Criar Chatbot.",
+    label: "Criar chatbot.",
     type: "wait",
     id: "6",
   },
@@ -145,7 +145,7 @@ export function FormSectionsComponent(props: Props) {
   const defaultValues = buildDefaultValues(props.sections);
   const [messages, setMessages] = useState<Message[]>([]);
   const virtuosoRef = useRef<VirtuosoHandle>(null);
-  const [errorDraft, setErrorDraft] = useState<string | null>(null);
+  const [errorDraft, _setErrorDraft] = useState<string | null>(null);
   const token_modal_chat_templateRef = useRef<string | null>(null);
   const [draft, setDraft] = useState("");
   const [compose, setCompose] = useState(false);
@@ -283,6 +283,10 @@ export function FormSectionsComponent(props: Props) {
     return () => {
       socket.off(`test-agent-template-${token_modal_chat_templateRef.current}`);
       socket.off(`modal-agent-template-${modalHash}`);
+      setLoadCreate(false);
+      setIsCreating(true);
+      setSucessCreate(false);
+      setShowLoader(false);
     };
   }, []);
 
@@ -296,6 +300,8 @@ export function FormSectionsComponent(props: Props) {
       });
       setLoadCreate(false);
       setIsCreating(true);
+      setSucessCreate(false);
+      setShowLoader(false);
     } catch (error) {
       setLoadCreate(false);
       setIsCreating(false);
@@ -314,20 +320,23 @@ export function FormSectionsComponent(props: Props) {
     }
   }, []);
 
-  if (!sucessCreate) {
+  if (sucessCreate) {
     return (
       <div className="min-h-[calc(100vh-200px)] w-full gap-y-5 flex flex-col">
         <h3 className="font-semibold text-lg text-center">
           Conetar o WhatsApp
         </h3>
-        <ConnectWAComponent  id={1} onConnected={() => props.onCloseAndFetch()} />
+        <ConnectWAComponent
+          id={1}
+          onConnected={() => props.onCloseAndFetch()}
+        />
       </div>
     );
   }
 
   if (isCreating) {
     return (
-      <div className="min-h-[calc(100vh-200px)] flex items-center flex-col justify-center">
+      <div className="min-h-[calc(100vh-200px)] gap-y-3 flex items-center flex-col justify-center">
         <div className="flex flex-col gap-y-1">
           {mapCreate.map((item) => {
             let color = "text-gray-300";
@@ -365,7 +374,7 @@ export function FormSectionsComponent(props: Props) {
         </div>
 
         {showLoader ? (
-          <Spinner size={"lg"} />
+          <Spinner size={"md"} />
         ) : (
           <span className="text-xs mt-3 text-center text-white/80">
             Esse processo pode levar alguns minutos*
@@ -896,6 +905,7 @@ export function FormSectionsComponent(props: Props) {
           loading={loadCreate}
           variant={"subtle"}
           colorPalette={"cyan"}
+          type="submit"
         >
           Criar automação e <br /> Conectar WhatsApp
         </Button>
