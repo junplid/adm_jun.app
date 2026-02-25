@@ -3,8 +3,22 @@ import { Section } from "./modal_agent";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
-import { Button, Collapsible, IconButton, Input } from "@chakra-ui/react";
-import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import {
+  Button,
+  Collapsible,
+  IconButton,
+  Input,
+  Spinner,
+  TagsInput,
+} from "@chakra-ui/react";
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import TextareaAutosize from "react-textarea-autosize";
 import clsx from "clsx";
 import SelectProviders from "@components/SelectProviders";
@@ -13,15 +27,24 @@ import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { v4 } from "uuid";
-import { testAgentTemplate } from "../../services/api/AgentTemplate";
+import {
+  createAgentTemplate,
+  testAgentTemplate,
+} from "../../services/api/AgentTemplate";
 import { AxiosError } from "axios";
 import { AuthContext } from "@contexts/auth.context";
 import { ErrorResponse_I } from "../../services/api/ErrorResponse";
 import { SocketContext } from "@contexts/socket.context";
+import SelectComponent from "@components/Select";
+import { BiErrorAlt } from "react-icons/bi";
+import { BsCheckLg } from "react-icons/bs";
+import { ConnectWAComponent } from "./connectionwa";
 
 interface Props {
   id: number;
   sections: Section[];
+  onClose: () => void;
+  onCloseAndFetch: () => void;
 }
 
 const InputItemSectionSchema = z.record(
@@ -31,7 +54,6 @@ const InputItemSectionSchema = z.record(
 const schema = z.object({
   fields: z.record(InputItemSectionSchema),
 
-  connectionWAId: z.number().nullish(),
   providerCredentialId: z.number().optional(),
   apiKey: z.string().optional(),
   nameProvider: z.string().optional(),
@@ -67,6 +89,56 @@ type Message = {
   content: string;
 };
 
+type DataSocketMapCreate =
+  | {
+      label: string;
+      type: "error" | "success" | "wait" | "runner";
+      id: string;
+    }
+  | {
+      type: "error-input";
+      input: { path: string; text: string }[];
+    };
+
+type MapCreate = {
+  label: string;
+  type: "error" | "success" | "wait" | "runner";
+  id: string;
+};
+
+const mapCreateList: MapCreate[] = [
+  {
+    label: "Validar ambiente.",
+    type: "wait",
+    id: "1",
+  },
+  {
+    label: "Criar dependências.",
+    type: "wait",
+    id: "2",
+  },
+  {
+    label: "Criar Assistente de IA.",
+    type: "wait",
+    id: "3",
+  },
+  {
+    label: "Criar Fluxo de conversa.",
+    type: "wait",
+    id: "4",
+  },
+  {
+    label: "Criar Conexão WhatsApp.",
+    type: "wait",
+    id: "5",
+  },
+  {
+    label: "Criar Chatbot.",
+    type: "wait",
+    id: "6",
+  },
+];
+
 export function FormSectionsComponent(props: Props) {
   const { socket } = useContext(SocketContext);
   const { logout } = useContext(AuthContext);
@@ -78,17 +150,25 @@ export function FormSectionsComponent(props: Props) {
   const [draft, setDraft] = useState("");
   const [compose, setCompose] = useState(false);
   const [showLogs, setShowLogs] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
+  const [sucessCreate, setSucessCreate] = useState(false);
+  const [mapCreate, setMapCreate] = useState<MapCreate[]>(mapCreateList);
+  const [showLoader, setShowLoader] = useState(false);
+  const [loadCreate, setLoadCreate] = useState(false);
+
+  const modalHash = useMemo(() => {
+    return v4();
+  }, []);
 
   const {
     handleSubmit,
     register,
     control,
     formState: { errors },
-    setValue,
     setError,
     getValues,
-    watch,
-    reset,
+    setFocus,
+    clearErrors,
   } = useForm<Schema>({
     resolver: zodResolver(schema),
     mode: "onSubmit",
@@ -96,14 +176,15 @@ export function FormSectionsComponent(props: Props) {
   });
 
   const sendMessage = useCallback(async () => {
+    const keyMsg = v4();
     try {
       if (!draft.trim() || !token_modal_chat_templateRef.current) return;
       setMessages((prev) => [
         ...prev,
-        { id: v4(), role: "user", content: draft },
+        { id: keyMsg, role: "user", content: draft },
       ]);
       setDraft("");
-      testAgentTemplate({
+      await testAgentTemplate({
         content: draft.trim(),
         token_modal_chat_template: token_modal_chat_templateRef.current,
         fields: getValues("fields"),
@@ -111,19 +192,19 @@ export function FormSectionsComponent(props: Props) {
         apiKey: getValues("apiKey"),
         providerCredentialId: getValues("providerCredentialId"),
       });
+      clearErrors();
     } catch (error) {
+      setMessages((prev) => prev.filter((s) => s.id !== keyMsg));
       if (error instanceof AxiosError) {
         if (error.response?.status === 401) logout();
         if (error.response?.status === 400) {
           const dataError = error.response?.data as ErrorResponse_I;
           if (dataError.input.length) {
+            // @ts-expect-error
+            setFocus(dataError.input[0].path);
             dataError.input.forEach(({ text, path }) => {
-              if (path === "draft") {
-                setErrorDraft(text);
-              } else {
-                // @ts-expect-error
-                props?.setError?.(path, { message: text });
-              }
+              // @ts-expect-error
+              setError(path, { message: text });
             });
           }
         }
@@ -167,11 +248,138 @@ export function FormSectionsComponent(props: Props) {
   };
 
   useEffect(() => {
+    socket.on(
+      `modal-agent-template-${modalHash}`,
+      (data: DataSocketMapCreate) => {
+        if (data.type === "error-input") {
+          setIsCreating(false);
+          setMapCreate(mapCreateList);
+          // @ts-expect-error
+          setFocus(data.input[0].path);
+          data.input.forEach(({ text, path }) => {
+            // @ts-expect-error
+            setError(path, { message: text });
+          });
+          return;
+        }
+
+        setMapCreate((state) =>
+          state.map((s) => {
+            const { id, ...rest } = data;
+            if (s.id === id) s = { ...s, ...rest };
+            return s;
+          }),
+        );
+        if (data.id === "6" && data.type === "success") {
+          setShowLoader(true);
+          setTimeout(() => {
+            setShowLoader(false);
+            setSucessCreate(true);
+          }, 2400);
+        }
+      },
+    );
     createTokenTest();
+    return () => {
+      socket.off(`test-agent-template-${token_modal_chat_templateRef.current}`);
+      socket.off(`modal-agent-template-${modalHash}`);
+    };
   }, []);
 
+  const create = useCallback(async (fields: Schema) => {
+    try {
+      setLoadCreate(true);
+      await createAgentTemplate({
+        ...fields,
+        modalHash,
+        templatedId: props.id,
+      });
+      setLoadCreate(false);
+      setIsCreating(true);
+    } catch (error) {
+      setLoadCreate(false);
+      setIsCreating(false);
+      if (error instanceof AxiosError) {
+        if (error.response?.status === 401) logout();
+        if (error.response?.status === 400) {
+          const dataError = error.response?.data as ErrorResponse_I;
+          if (dataError.input.length) {
+            dataError.input.forEach(({ text, path }) => {
+              // @ts-expect-error
+              setError(path, { message: text });
+            });
+          }
+        }
+      }
+    }
+  }, []);
+
+  if (!sucessCreate) {
+    return (
+      <div className="min-h-[calc(100vh-200px)] w-full gap-y-5 flex flex-col">
+        <h3 className="font-semibold text-lg text-center">
+          Conetar o WhatsApp
+        </h3>
+        <ConnectWAComponent  id={1} onConnected={() => props.onCloseAndFetch()} />
+      </div>
+    );
+  }
+
+  if (isCreating) {
+    return (
+      <div className="min-h-[calc(100vh-200px)] flex items-center flex-col justify-center">
+        <div className="flex flex-col gap-y-1">
+          {mapCreate.map((item) => {
+            let color = "text-gray-300";
+            if (item.type === "runner") color = "text-yellow-200";
+            if (item.type === "error") color = "text-red-300";
+            if (item.type === "success") color = "text-green-300";
+
+            return (
+              <div className="flex gap-x-2 items-center" key={item.id}>
+                {item.type === "runner" && (
+                  <div className="w-5 h-5 bg-yellow-300/20 text-yellow-200 rounded-sm flex items-center justify-center border-yellow-300/30 border">
+                    <Spinner size={"sm"} />
+                  </div>
+                )}
+                {item.type === "error" && (
+                  <div className="w-5 h-5 bg-red-300/20 text-red-300 rounded-sm flex items-center justify-center border-red-300/30 border">
+                    <BiErrorAlt size={17} />
+                  </div>
+                )}
+                {item.type === "success" && (
+                  <div className="w-5 h-5 bg-green-300/20 text-green-300 rounded-sm flex items-center justify-center border-green-300/30 border">
+                    <BsCheckLg size={17} />
+                  </div>
+                )}
+                {item.type === "wait" && (
+                  <div className="w-5 h-5 bg-gray-300/20 text-gray-300 rounded-sm flex items-center justify-center border-gray-300/30 border"></div>
+                )}
+
+                <span className={clsx("text-sm text-center", color)}>
+                  {item.label}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+
+        {showLoader ? (
+          <Spinner size={"lg"} />
+        ) : (
+          <span className="text-xs mt-3 text-center text-white/80">
+            Esse processo pode levar alguns minutos*
+          </span>
+        )}
+      </div>
+    );
+  }
+
   return (
-    <form className="mt-10 flex flex-col space-y-3">
+    <form
+      onSubmit={handleSubmit(create)}
+      className="mt-10 flex flex-col space-y-3"
+    >
       {props.sections
         .filter((s) => !s.collapsible)
         .map((section) => (
@@ -238,6 +446,82 @@ export function FormSectionsComponent(props: Props) {
                         />
                       </Field>
                     )}
+                  />
+                )}
+                {input.type === "tags-input" && (
+                  <Controller
+                    control={control}
+                    name={`fields.${section.name}.${input.name}`}
+                    render={({
+                      field: { value, onChange, ...rest },
+                      fieldState,
+                    }) => (
+                      <TagsInput.Root
+                        {...rest}
+                        onValueChange={(details) => onChange(details.value)}
+                        required={input.required}
+                        invalid={!!fieldState.error}
+                        max={input.max}
+                      >
+                        <TagsInput.Label>{input.label}</TagsInput.Label>
+                        <TagsInput.Control
+                          className={clsx(
+                            (value as string[] | undefined)?.length
+                              ? "bg-white/10!"
+                              : "bg-white/4! ",
+                            "border-white/5",
+                          )}
+                        >
+                          <TagsInput.Items />
+                          <TagsInput.Input placeholder={input.placeholder} />
+                        </TagsInput.Control>
+                      </TagsInput.Root>
+                    )}
+                  />
+                )}
+                {input.type === "select" && (
+                  <Controller
+                    control={control}
+                    name={`fields.${section.name}.${input.name}`}
+                    render={({ field }) => {
+                      const options = (input.options || []).map((s) => ({
+                        label: s,
+                        value: s,
+                      }));
+                      return (
+                        <Field
+                          invalid={
+                            !!errors?.fields?.[section.name]?.[input.name]
+                          }
+                          errorText={
+                            errors?.fields?.[section.name]?.[input.name]
+                              ?.message
+                          }
+                          label={input.label}
+                          required={input.required}
+                        >
+                          <SelectComponent
+                            isMulti={!!input.isMulti}
+                            onChange={(e: any) =>
+                              field.onChange(e?.value || undefined)
+                            }
+                            className={
+                              field.value
+                                ? "bg-white/10! rounded-sm"
+                                : "bg-white/4!"
+                            }
+                            isClearable={!!input.isClearable}
+                            isSearchable={!!input.isSearchable}
+                            options={options}
+                            value={
+                              options.find((xx) => xx.value === field.value) ||
+                              null
+                            }
+                            placeholder={input.placeholder || "Selecione"}
+                          />
+                        </Field>
+                      );
+                    }}
                   />
                 )}
               </div>
@@ -333,6 +617,96 @@ export function FormSectionsComponent(props: Props) {
                               )}
                             />
                           )}
+                          {input.type === "tags-input" && (
+                            <Controller
+                              control={control}
+                              name={`fields.${section.name}.${input.name}`}
+                              render={({
+                                field: { value, onChange, ...rest },
+                                fieldState,
+                              }) => (
+                                <TagsInput.Root
+                                  {...rest}
+                                  onValueChange={(details) =>
+                                    onChange(details.value)
+                                  }
+                                  required={input.required}
+                                  invalid={!!fieldState.error}
+                                  max={input.max}
+                                >
+                                  <TagsInput.Label>
+                                    {input.label}
+                                  </TagsInput.Label>
+                                  <TagsInput.Control
+                                    className={clsx(
+                                      (value as string[] | undefined)?.length
+                                        ? "bg-white/10!"
+                                        : "bg-white/4! ",
+                                      "border-white/5",
+                                    )}
+                                  >
+                                    <TagsInput.Items />
+                                    <TagsInput.Input
+                                      placeholder={input.placeholder}
+                                    />
+                                  </TagsInput.Control>
+                                </TagsInput.Root>
+                              )}
+                            />
+                          )}
+                          {input.type === "select" && (
+                            <Controller
+                              control={control}
+                              name={`fields.${section.name}.${input.name}`}
+                              render={({ field }) => {
+                                const options = (input.options || []).map(
+                                  (s) => ({
+                                    label: s,
+                                    value: s,
+                                  }),
+                                );
+                                return (
+                                  <Field
+                                    invalid={
+                                      !!errors?.fields?.[section.name]?.[
+                                        input.name
+                                      ]
+                                    }
+                                    errorText={
+                                      errors?.fields?.[section.name]?.[
+                                        input.name
+                                      ]?.message
+                                    }
+                                    label={input.label}
+                                    required={input.required}
+                                  >
+                                    <SelectComponent
+                                      isMulti={!!input.isMulti}
+                                      onChange={(e: any) =>
+                                        field.onChange(e?.value || undefined)
+                                      }
+                                      className={
+                                        field.value
+                                          ? "bg-white/10! rounded-sm"
+                                          : "bg-white/4!"
+                                      }
+                                      isClearable={!!input.isClearable}
+                                      isSearchable={!!input.isSearchable}
+                                      options={options}
+                                      value={
+                                        options.find(
+                                          (xx) => xx.value === field.value,
+                                        ) || null
+                                      }
+                                      placeholder={
+                                        input.placeholder || "Selecione"
+                                      }
+                                    />
+                                  </Field>
+                                );
+                              }}
+                            />
+                          )}
                         </div>
                       ))}
                     </div>
@@ -367,6 +741,7 @@ export function FormSectionsComponent(props: Props) {
                 onBlur={field.onBlur}
                 onChange={(e: any | null) => field.onChange(e?.value || null)}
                 value={field.value}
+                ref={field.ref}
               />
             )}
           />
@@ -515,14 +890,24 @@ export function FormSectionsComponent(props: Props) {
           </div>
         </div>
       </div>
-      {/* <Button
-                        loading={loadSections}
-                        onClick={() => {
-                          getSections();
-                        }}
-                      >
-                        Usar este template
-                      </Button> */}
+      <div className="flex justify-center mt-3">
+        <Button
+          py={9}
+          loading={loadCreate}
+          variant={"subtle"}
+          colorPalette={"cyan"}
+        >
+          Criar automação e <br /> Conectar WhatsApp
+        </Button>
+      </div>
+      <p className="text-sm text-gray-500 sm:text-center text-justify">
+        Ao utilizar este template, o usuário declara estar ciente de que é o
+        único e exclusivo responsável pelo conteúdo das mensagens enviadas e
+        pelas decisões tomadas com base nas respostas geradas por Inteligência
+        Artificial. A Junplid não se responsabiliza por danos, prejuízos,
+        interpretações, omissões, uso indevido ou quaisquer consequências
+        decorrentes da utilização do conteúdo gerado.
+      </p>
     </form>
   );
 }

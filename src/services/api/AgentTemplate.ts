@@ -36,3 +36,14 @@ export async function testAgentTemplate(body: {
 }): Promise<any> {
   await api.post(`/private/agent-template/test`, body);
 }
+
+export async function createAgentTemplate(body: {
+  providerCredentialId?: number;
+  apiKey?: string;
+  nameProvider?: string;
+  modalHash: string;
+  templatedId: number;
+  fields: Record<string, Record<string, number | string | number[] | string[]>>;
+}): Promise<any> {
+  await api.post(`/private/agent-template`, body);
+}

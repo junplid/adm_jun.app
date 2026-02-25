@@ -17,7 +17,6 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import moment from "moment";
-import { useDialogModal } from "../../hooks/dialog.modal";
 import { FormSectionsComponent } from "./form_sections";
 import { DemoChatComponent } from "@components/DemoChat";
 import clsx from "clsx";
@@ -25,6 +24,8 @@ import clsx from "clsx";
 interface PropsModalDelete {
   id: number;
   title: string;
+  onClose: () => void;
+  onCloseAndFetch: () => void;
 }
 
 interface Template {
@@ -59,17 +60,22 @@ export interface Section {
     defaultValue?: string;
     helperText?: string;
     required?: boolean;
+    max?: number;
+    min?: number;
+    isSearchable?: boolean;
+    isMulti?: boolean;
+    isClearable?: boolean;
+    options?: string[];
     type?: string;
   }[];
 }
 
-function Body({ id, title }: PropsModalDelete) {
+function Body({ id, title, ...props }: PropsModalDelete) {
   const { clientMeta, logout } = useContext(AuthContext);
   const [execNow, setExecNow] = useState<boolean>(false);
   const [template, setTemplate] = useState<null | Template>(null);
   const [load, setLoad] = useState<boolean>(false);
   const [loadSections, setLoadSections] = useState<boolean>(false);
-  const { dialog: DialogModal, onOpen } = useDialogModal({});
 
   const [sections, setSections] = useState<null | Section[]>(null);
 
@@ -167,34 +173,32 @@ function Body({ id, title }: PropsModalDelete) {
               Demostração*
             </span>
           </div>
+          <div className="h-0.5 w-full bg-neutral-800 my-5 mb-7"></div>
 
           {!!sections?.length && (
-            <FormSectionsComponent id={id} sections={sections} />
+            <FormSectionsComponent
+              id={id}
+              sections={sections}
+              onClose={props.onClose}
+              onCloseAndFetch={props.onCloseAndFetch}
+            />
           )}
 
           {!sections?.length && (
             <div className="flex justify-center mt-3">
               <Button
+                type="submit"
                 loading={loadSections}
                 onClick={() => {
                   getSections();
                 }}
               >
-                Usar este template
+                Personalizar template
               </Button>
             </div>
           )}
-          <p className="text-sm text-gray-500 text-center mt-5">
-            Ao utilizar este template, o usuário declara estar ciente de que é o
-            único e exclusivo responsável pelo conteúdo das mensagens enviadas e
-            pelas decisões tomadas com base nas respostas geradas por
-            Inteligência Artificial. A Junplid não se responsabiliza por danos,
-            prejuízos, interpretações, omissões, uso indevido ou quaisquer
-            consequências decorrentes da utilização do conteúdo gerado.
-          </p>
         </div>
       )}
-      {DialogModal}
     </DialogBody>
   );
 }
@@ -202,8 +206,6 @@ function Body({ id, title }: PropsModalDelete) {
 export const ModalAgentTemplate: FC<PropsModalDelete> = (
   props,
 ): JSX.Element => {
-  console.log("renderizou");
-
   return (
     <DialogContent autoFocus={false} w={"1860px"} mx={2} backdrop>
       <DialogHeader flexDirection={"column"} gap={0} pb={0}>

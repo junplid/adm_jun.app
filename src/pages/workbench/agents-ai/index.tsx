@@ -310,7 +310,7 @@ export const AgentsAIPage: React.FC = (): JSX.Element => {
                       <span className="text-sm truncate font-semibold">
                         {row.name}
                       </span>
-                      <div className="flex w-[185px] items-center justify-end text-xs gap-x-1">
+                      <div className="flex w-46.25 items-center justify-end text-xs gap-x-1">
                         <span className="text-white/50">Data de criação:</span>
                         <span>{moment(row.createAt).format("D/M/YY")}</span>
                         <span className="text-white/50 text-[11px]">

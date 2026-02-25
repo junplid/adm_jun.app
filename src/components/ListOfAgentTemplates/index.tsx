@@ -9,6 +9,7 @@ import { useDialogModal } from "../../hooks/dialog.modal";
 import { ModalListAgentTemplates } from "./modal_list";
 import clsx from "clsx";
 import { ModalAgentTemplate } from "./modal_agent";
+import { useQueryClient } from "@tanstack/react-query";
 
 const responsive: ResponsiveType = {
   desktop: {
@@ -87,6 +88,8 @@ export function ListOfAgentTemplatesComponent() {
   const [visibleItems, setVisibleItems] = useState<number[]>([]);
   const [execNow, setExecNow] = useState<number | null>(null);
 
+  const queryClient = useQueryClient();
+
   const {
     clientMeta: { windowWidth },
   } = useContext(AuthContext);
@@ -146,6 +149,13 @@ export function ListOfAgentTemplatesComponent() {
                     <ModalAgentTemplate
                       title={template.title}
                       id={template.id}
+                      onClose={onClose}
+                      onCloseAndFetch={() => {
+                        onClose();
+                        queryClient.invalidateQueries({
+                          queryKey: ["agents-ai"],
+                        });
+                      }}
                     />
                   ),
                 })
