@@ -340,7 +340,7 @@ function Content(props: { onClose: () => void }) {
           businessId,
           flowId: flow.id,
           name: `Bot for ${fields.name}`,
-          connectionWAId: connectionWAId || state.connectionIgId,
+          connectionWAId: connectionWAId || state.connectionWAId,
           connectionIgId: state.connectionIgId || undefined,
           ...chatbot,
           status: true,

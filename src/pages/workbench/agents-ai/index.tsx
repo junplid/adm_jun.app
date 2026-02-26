@@ -34,6 +34,7 @@ import { motion } from "framer-motion";
 import { ListOfAgentTemplatesComponent } from "@components/ListOfAgentTemplates";
 import { ModalListAgentTemplates } from "@components/ListOfAgentTemplates/modal_list";
 import { ModalAgentTemplate } from "@components/ListOfAgentTemplates/modal_agent";
+import { useGetAgentTemplates } from "../../../hooks/agentTemplate";
 
 export interface AgentsAIRow {
   businesses: { id: number; name: string }[];
@@ -51,6 +52,9 @@ export const AgentsAIPage: React.FC = (): JSX.Element => {
   const { clientMeta } = useContext(AuthContext);
   const { dialog: DialogModal, close: onClose, onOpen } = useDialogModal({});
   const { data: agentsAI, isFetching, isPending } = useGetAgentsAI();
+  const { data: templates } = useGetAgentTemplates({
+    limit: 1,
+  });
 
   const { socket } = useContext(SocketContext);
 
@@ -292,41 +296,43 @@ export const AgentsAIPage: React.FC = (): JSX.Element => {
               >
                 <IoAdd /> Adicionar
               </Button>
-              <a
-                onClick={() => {
-                  onOpen({
-                    size: "xl",
-                    content: (
-                      <ModalListAgentTemplates
-                        onClick={(temp) => {
-                          onClose();
-                          setTimeout(() => {
-                            onOpen({
-                              size: "xl",
-                              content: (
-                                <ModalAgentTemplate
-                                  title={temp.title}
-                                  id={temp.id}
-                                  onClose={onClose}
-                                  onCloseAndFetch={() => {
-                                    onClose();
-                                    queryClient.invalidateQueries({
-                                      queryKey: ["agents-ai"],
-                                    });
-                                  }}
-                                />
-                              ),
-                            });
-                          }, 300);
-                        }}
-                      />
-                    ),
-                  });
-                }}
-                className="text-gray-400 underline text-sm cursor-pointer"
-              >
-                Templates
-              </a>
+              {!!templates?.length && (
+                <a
+                  onClick={() => {
+                    onOpen({
+                      size: "xl",
+                      content: (
+                        <ModalListAgentTemplates
+                          onClick={(temp) => {
+                            onClose();
+                            setTimeout(() => {
+                              onOpen({
+                                size: "xl",
+                                content: (
+                                  <ModalAgentTemplate
+                                    title={temp.title}
+                                    id={temp.id}
+                                    onClose={onClose}
+                                    onCloseAndFetch={() => {
+                                      onClose();
+                                      queryClient.invalidateQueries({
+                                        queryKey: ["agents-ai"],
+                                      });
+                                    }}
+                                  />
+                                ),
+                              });
+                            }, 300);
+                          }}
+                        />
+                      ),
+                    });
+                  }}
+                  className="text-gray-400 underline text-sm cursor-pointer"
+                >
+                  Templates
+                </a>
+              )}
             </div>
             <p className="text-white/60 font-light">
               Autônomos que usam IA para realizar tarefas e alcançar objetivos.
