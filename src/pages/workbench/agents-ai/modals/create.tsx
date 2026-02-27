@@ -778,28 +778,62 @@ function Content(props: { onClose: () => void }) {
                     )}
                   </div>
 
-                  <Field
-                    invalid={!!errors.temperature}
-                    label="Temperatura"
-                    helperText={
-                      clientMeta.isMobileLike
-                        ? "Controla a aleatoriedade das respostas."
-                        : "Controla a aleatoriedade das respostas do assistente."
-                    }
-                    className="w-full"
-                    errorText={errors.temperature?.message}
-                  >
-                    <NumberInput.Root
-                      // @ts-expect-error
-                      min={0}
-                      // @ts-expect-error
-                      max={2}
-                      size={"md"}
-                      {...register("temperature")}
+                  <div className="space-y-2">
+                    <Field
+                      invalid={!!errors.temperature}
+                      label="Temperatura"
+                      helperText={
+                        clientMeta.isMobileLike
+                          ? "Controla a aleatoriedade das respostas."
+                          : "Controla a aleatoriedade das respostas do assistente."
+                      }
+                      className="w-full"
+                      errorText={errors.temperature?.message}
                     >
-                      <NumberInput.Input placeholder="0 - 1" />
-                    </NumberInput.Root>
-                  </Field>
+                      <NumberInput.Root
+                        // @ts-expect-error
+                        min={0}
+                        // @ts-expect-error
+                        max={2}
+                        size={"md"}
+                        {...register("temperature")}
+                      >
+                        <NumberInput.Input placeholder="0 - 1" />
+                      </NumberInput.Root>
+                    </Field>
+                    {optionsModels.some(
+                      (m) => m.value === model && m.isPriority,
+                    ) && (
+                      <Field
+                        helperText={
+                          clientMeta.isMobileLike
+                            ? "Caro e menor latência"
+                            : "Mais caro e menor latência"
+                        }
+                      >
+                        <Checkbox.Root
+                          checked={service_tier === "priority"}
+                          onCheckedChange={(e) =>
+                            setValue(
+                              "service_tier",
+                              e.checked ? "priority" : "default",
+                            )
+                          }
+                        >
+                          <Checkbox.HiddenInput />
+                          <Checkbox.Control />
+                          <Checkbox.Label>
+                            Modo prioridade
+                            {!clientMeta.isMobileLike && (
+                              <span className="text-white/60 font-light text-sm">
+                                (+ rápido)
+                              </span>
+                            )}
+                          </Checkbox.Label>
+                        </Checkbox.Root>
+                      </Field>
+                    )}
+                  </div>
                 </div>
 
                 {model && (

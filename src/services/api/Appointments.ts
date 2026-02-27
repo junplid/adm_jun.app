@@ -74,6 +74,7 @@ export async function getAppointments(params?: {
     desc: string | null;
     startAt: Date;
     channel: "instagram" | "baileys";
+    status: TypeStatusAppointment;
   }[];
 }> {
   const { data } = await api.get("/private/appointments", { params });

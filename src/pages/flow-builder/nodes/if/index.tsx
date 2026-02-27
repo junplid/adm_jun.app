@@ -23,7 +23,7 @@ import SelectTags from "@components/SelectTags";
 import { CustomHandle } from "../../customs/node";
 import { useGetVariablesOptions } from "../../../../hooks/variable";
 
-type NameEntity = "has-tags" | "no-tags" | "var";
+type NameEntity = "has-tags" | "no-tags" | "var" | "appointment";
 
 const operatorComparisonList = createListCollection({
   items: [
@@ -35,6 +35,17 @@ const operatorComparisonList = createListCollection({
     { label: ">", value: ">", description: "Maior que" },
     { label: ">=", value: ">=", description: "Maior/igual" },
     // { label: "Regex", value: "regex", description: "/^(\\D)$/g" },
+  ],
+});
+
+const operatorComparisonList2 = createListCollection({
+  items: [
+    { label: "===", value: "===", description: "Igual a" },
+    { label: "!==", value: "!==", description: "Oposto de" },
+    { label: "<", value: "<", description: "Menor que" },
+    { label: "<=", value: "<=", description: "Menor/igual" },
+    { label: ">", value: ">", description: "Maior que" },
+    { label: ">=", value: ">=", description: "Maior/igual" },
   ],
 });
 
@@ -133,7 +144,7 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
                     w={"100%"}
                   >
                     <div className="flex flex-col items-center">
-                      <span className="text-xs leading-3">Não tem as</span>
+                      <span className="text-xs leading-3">Não há</span>
                       <span className="leading-4">Etiquetas</span>
                     </div>
                   </TabsTrigger>
@@ -146,6 +157,17 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
                     <div className="flex flex-col items-center">
                       <span className="text-xs leading-3">Lógica de</span>
                       <span className="leading-4">Variável</span>
+                    </div>
+                  </TabsTrigger>
+                  <TabsTrigger
+                    _selected={{ bg: "bg.subtle", color: "#fff" }}
+                    color={"#757575"}
+                    value="appointment"
+                    w={"100%"}
+                  >
+                    <div className="flex flex-col items-center">
+                      <span className="text-xs leading-3">Lógica de</span>
+                      <span className="leading-4">Agenda</span>
                     </div>
                   </TabsTrigger>
                 </TabsList>
@@ -265,6 +287,66 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
                     </div>
                   </div>
                 </TabsContent>
+                <TabsContent value="appointment">
+                  <span className="text-sm text-center block mb-3 text-neutral-400 leading-4">
+                    Logica de quantidade de agendamentos futuros vinculados ao
+                    contato.
+                  </span>
+                  <div className="flex flex-col w-full -mt-2">
+                    <div className="w-full flex gap-1 mt-1">
+                      <SelectRoot
+                        value={[item.operatorComparison || ""]}
+                        disabled={!item.name}
+                        onValueChange={(e) => {
+                          data.list![index].operatorComparison = e
+                            .value[0] as any;
+                          updateNode(id, { data: { list: data.list } });
+                        }}
+                        collection={operatorComparisonList2}
+                        style={{ maxWidth: 90 }}
+                      >
+                        <SelectTrigger>
+                          <SelectValueText
+                            placeholder="Testar"
+                            className="text-center -translate-x-0.5 w-full absolute"
+                          />
+                        </SelectTrigger>
+                        <SelectContent className="scroll-hidden">
+                          {operatorComparisonList2.items.map((time) => (
+                            <SelectItem item={time} key={time.value}>
+                              <Stack gap="0">
+                                <Select.ItemText textStyle={"md"}>
+                                  {time.label}
+                                </Select.ItemText>
+                                {time.description && (
+                                  <Span color="fg.muted" textStyle="xs">
+                                    {time.description}
+                                  </Span>
+                                )}
+                              </Stack>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </SelectRoot>
+                      {item.operatorComparison !== "regex" && (
+                        <AutocompleteTextField
+                          // @ts-expect-error
+                          trigger={["{{"]}
+                          options={{
+                            "{{": variables?.map((s) => s.name) || [],
+                          }}
+                          spacer={"}}"}
+                          placeholder="Definir valor ou {{variavel}}"
+                          defaultValue={item.value1 || ""}
+                          onChange={(target: string) => {
+                            data.list![index].value1 = target;
+                            setDataMok({ list: data.list });
+                          }}
+                        />
+                      )}
+                    </div>
+                  </div>
+                </TabsContent>
               </TabsRoot>
             </div>
             <div className="w-full flex flex-col items-center mt-3">
@@ -316,7 +398,7 @@ export const NodeIF: React.FC<Node<DataNode>> = ({ id, data }) => {
   return (
     <div>
       <PatternNode.PatternPopover
-        size="350px"
+        size="410px"
         title="Node de condição IF"
         description="Verifica e executa regras lógicas"
         node={{

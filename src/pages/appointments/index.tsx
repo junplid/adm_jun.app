@@ -14,7 +14,10 @@ import { clsx } from "clsx";
 import { RxCaretLeft, RxCaretRight } from "react-icons/rx";
 import { usePopoverComponent } from "../../hooks/popover";
 import { PopoverViewAppointment } from "./modals/view";
-import { getAppointments } from "../../services/api/Appointments";
+import {
+  getAppointments,
+  TypeStatusAppointment,
+} from "../../services/api/Appointments";
 
 moment.updateLocale("pt-br", {
   longDateFormat: {
@@ -35,6 +38,7 @@ export interface Appointment {
   desc: string | null;
   startAt: Date;
   channel: "instagram" | "baileys";
+  status: TypeStatusAppointment;
 }
 
 const messages = {
@@ -255,7 +259,10 @@ export const AppointmentsPage: React.FC = (): JSX.Element => {
               ...s,
               start: new Date(startAt),
               end: new Date(startAt),
-              color: "#3B3B3B",
+              color:
+                s.status === "canceled" || s.status === "expired"
+                  ? "#3B3B3B"
+                  : "#0a695d",
               desc: s.desc || undefined,
             }))}
             startAccessor="start"
