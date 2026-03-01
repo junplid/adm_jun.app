@@ -31,5 +31,5 @@ createRoot(document.getElementById("root")!).render(
       {/* <ReactQueryDevtools /> */}
     </QueryClientProvider>
     <Toaster />
-  </Provider>
+  </Provider>,
 );

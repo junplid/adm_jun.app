@@ -2,22 +2,25 @@ import { api } from "./index";
 
 export type TypeStatusTicket = "NEW" | "OPEN" | "RESOLVED" | "DELETED";
 
-export async function pickTicket(id: number, orderId?: number): Promise<void> {
-  await api.post(`/private/tickets/${id}/pick`, { orderId });
+export async function pickTicket(
+  id: number,
+  target?: { orderId?: number; appointmentId?: number },
+): Promise<void> {
+  await api.post(`/private/tickets/${id}/pick`, target);
 }
 
 export async function returnTicket(
   id: number,
-  orderId?: number,
+  target?: { orderId?: number; appointmentId?: number },
 ): Promise<void> {
-  await api.post(`/private/tickets/${id}/return`, { orderId });
+  await api.post(`/private/tickets/${id}/return`, target);
 }
 
 export async function resolveTicket(
   id: number,
-  orderId?: number,
+  target?: { orderId?: number; appointmentId?: number },
 ): Promise<void> {
-  await api.post(`/private/tickets/${id}/resolve`, { orderId });
+  await api.post(`/private/tickets/${id}/resolve`, target);
 }
 
 export async function sendTicketMessage(

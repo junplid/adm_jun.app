@@ -141,7 +141,6 @@ function TicketCard({
               orderId={id}
               close={props.onCloseDialog}
               data={{
-                businessId: props.businessId,
                 id: tk.id,
                 name: `#${props.n_order} / ${props.name}`,
               }}

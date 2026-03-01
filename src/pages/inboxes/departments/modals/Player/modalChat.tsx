@@ -9,9 +9,10 @@ import { FC, JSX } from "react";
 import { OnlyChatPlayer } from "./onlyChat";
 
 interface PropsModalPlayer {
-  data: { id: number; name: string; businessId: number };
+  data: { id: number; name: string };
   close: () => void;
   orderId?: number;
+  appointmentId?: number;
 }
 
 export const PlayerInboxDepartment: React.FC<PropsModalPlayer> = ({
@@ -43,7 +44,6 @@ export const PlayerInboxDepartment: React.FC<PropsModalPlayer> = ({
           <OnlyChatPlayer
             orderId={props.orderId}
             closeModal={props.close}
-            businessId={props.data.businessId}
             id={props.data.id}
           />
         </div>

@@ -2,11 +2,9 @@ import moment from "moment";
 import { FC, JSX, useContext, useEffect, useState } from "react";
 import { Button, Input, Spinner } from "@chakra-ui/react";
 import { PopoverBody } from "@components/ui/popover";
-
-import { useDialogModal } from "../../../hooks/dialog.modal";
-import { ModalDeleteAppaintment } from "./delete";
 import {
   AppointmentDetails,
+  deleteAppointment,
   getAppointmentDetails,
   // TypeStatusAppointment,
   updateAppointment,
@@ -24,18 +22,22 @@ import {
   MdSupportAgent,
 } from "react-icons/md";
 import { BiTimeFive, BiUserCircle } from "react-icons/bi";
-import { ModalChatPlayer } from "../../inboxes/departments/modals/Player/modalChat";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Field } from "@components/ui/field";
 import TextareaAutosize from "react-textarea-autosize";
 import { useHookFormMask } from "use-mask-input";
+import clsx from "clsx";
+import { IoClose } from "react-icons/io5";
+import { SocketContext } from "@contexts/socket.context";
 // import SelectComponent from "@components/Select";
 
 interface IProps {
   id: number;
   close: () => void;
+  closeAndOpenTicket(id: number): void;
+  closeAndDelete(id: number): void;
 }
 
 // const optionsStatus: { label: string; value: TypeStatusAppointment }[] = [
@@ -45,6 +47,23 @@ interface IProps {
 //   { label: "Concluído", value: "completed" },
 //   { label: "Cancelado", value: "canceled" },
 // ];
+
+const endAtSchema = z.enum([
+  "10min",
+  "30min",
+  "1h",
+  "1h e 30min",
+  "2h",
+  "3h",
+  "4h",
+  "5h",
+  "10h",
+  "15h",
+  "1d",
+  "2d",
+]);
+
+type EndAtType = z.infer<typeof endAtSchema>;
 
 const FormSchema = z.object({
   title: z.string().min(1, "Campo obrigatório."),
@@ -67,12 +86,14 @@ const FormSchema = z.object({
       /^([01]\d|2[0-3]):([0-5]\d)$/,
       "Hora inválida (use HH:mm no formato 24h)",
     ),
+  endAt: endAtSchema,
 });
 
 type Fields = z.infer<typeof FormSchema>;
 
 const EditForm: FC<
-  Fields & {
+  Omit<Fields, "endAt"> & {
+    endAt: Date;
     update: (f: Fields) => Promise<void>;
     cancel: () => void;
     isEditing: boolean;
@@ -82,16 +103,49 @@ const EditForm: FC<
     handleSubmit,
     register,
     formState: { errors, isDirty },
-    // control,
+    setValue,
     reset,
+    watch,
   } = useForm<Fields>({
     resolver: zodResolver(FormSchema),
   });
-
+  const endAt = watch("endAt");
   const registerWithMask = useHookFormMask(register);
 
   useEffect(() => {
-    reset(values);
+    const start = moment(
+      `${values.dateAt} ${values.timeAt}`,
+      "YYYY-MM-DD HH:mm",
+    );
+    const end = moment(values.endAt);
+    let endAt: EndAtType = "1h";
+    const diffMinutes = end.diff(start, "minutes");
+    if (diffMinutes === 10) {
+      endAt = "10min";
+    } else if (diffMinutes === 30) {
+      endAt = "30min";
+    } else if (diffMinutes === 60) {
+      endAt = "1h";
+    } else if (diffMinutes === 90) {
+      endAt = "1h e 30min";
+    } else if (diffMinutes === 120) {
+      endAt = "2h";
+    } else if (diffMinutes === 180) {
+      endAt = "3h";
+    } else if (diffMinutes === 240) {
+      endAt = "4h";
+    } else if (diffMinutes === 300) {
+      endAt = "5h";
+    } else if (diffMinutes === 600) {
+      endAt = "10h";
+    } else if (diffMinutes === 900) {
+      endAt = "15h";
+    } else if (diffMinutes === 1440) {
+      endAt = "1d";
+    } else if (diffMinutes === 2880) {
+      endAt = "2d";
+    }
+    reset({ ...values, endAt });
   }, []);
 
   return (
@@ -104,28 +158,10 @@ const EditForm: FC<
         <Input
           {...register("title")}
           autoComplete="off"
+          size={"sm"}
           placeholder="Digite o título do agendamento"
         />
       </Field>
-      <Field
-        errorText={errors.dateAt?.message}
-        invalid={!!errors.dateAt}
-        label="Data do agendamento"
-      >
-        <Input
-          type="date"
-          {...register("dateAt")}
-          min={moment().format("YYYY-MM-DD")}
-        />
-      </Field>
-      <Field
-        errorText={errors.timeAt?.message}
-        invalid={!!errors.timeAt}
-        label="Horário do agendamento"
-      >
-        <Input {...registerWithMask("timeAt", "99:99")} placeholder="HH:mm" />
-      </Field>
-
       <Field
         errorText={errors.desc?.message}
         invalid={!!errors.desc}
@@ -140,6 +176,191 @@ const EditForm: FC<
           {...register("desc")}
         />
       </Field>
+      <div className="flex flex-col">
+        <div className="flex flex-col w-full">
+          <div className="flex items-center gap-x-2 justify-between mb-1">
+            <span>Começa</span>
+            <div className="grid grid-cols-[70px_1fr] w-full items-end gap-x-2 mb-1">
+              <Field invalid={!!errors.timeAt}>
+                <Input
+                  size={"sm"}
+                  {...registerWithMask("timeAt", "99:99")}
+                  placeholder="HH:mm"
+                />
+              </Field>
+              <Field invalid={!!errors.dateAt}>
+                <Input
+                  type="date"
+                  size={"sm"}
+                  {...register("dateAt")}
+                  min={moment().format("YYYY-MM-DD")}
+                />
+              </Field>
+            </div>
+          </div>
+          {!!errors.timeAt && (
+            <span className="text-xs block text-center w-full text-red-400">
+              {errors.timeAt.message}
+            </span>
+          )}
+          {!!errors.dateAt && (
+            <span className="text-xs block text-center w-full text-red-400">
+              {errors.dateAt.message}
+            </span>
+          )}
+        </div>
+        <div className="flex flex-col gap-y-1 mt-1">
+          <span className="block">Termina em</span>
+          <div className="grid w-full grid-cols-4 gap-1.5">
+            <button
+              type="button"
+              className={clsx(
+                "cursor-pointer font-light p-1 rounded-sm",
+                endAt === "10min"
+                  ? "text-white bg-neutral-700/60"
+                  : "text-neutral-400 bg-neutral-700/10",
+              )}
+              onClick={() => setValue("endAt", "10min", { shouldDirty: true })}
+            >
+              10 min
+            </button>
+            <button
+              type="button"
+              className={clsx(
+                "cursor-pointer font-light p-1 rounded-sm",
+                endAt === "30min"
+                  ? "text-white bg-neutral-700/60"
+                  : "text-neutral-400 bg-neutral-700/10",
+              )}
+              onClick={() => setValue("endAt", "30min", { shouldDirty: true })}
+            >
+              30 min
+            </button>
+            <button
+              type="button"
+              className={clsx(
+                "cursor-pointer font-light p-1 rounded-sm",
+                endAt === "1h"
+                  ? "text-white bg-neutral-700/60"
+                  : "text-neutral-400 bg-neutral-700/10",
+              )}
+              onClick={() => setValue("endAt", "1h", { shouldDirty: true })}
+            >
+              1h
+            </button>
+            <button
+              type="button"
+              className={clsx(
+                "cursor-pointer font-light p-1 rounded-sm",
+                endAt === "1h e 30min"
+                  ? "text-white bg-neutral-700/60"
+                  : "text-neutral-400 bg-neutral-700/10",
+              )}
+              onClick={() =>
+                setValue("endAt", "1h e 30min", { shouldDirty: true })
+              }
+            >
+              1h e meia
+            </button>
+            <button
+              type="button"
+              className={clsx(
+                "cursor-pointer font-light p-1 rounded-sm",
+                endAt === "2h"
+                  ? "text-white bg-neutral-700/60"
+                  : "text-neutral-400 bg-neutral-700/10",
+              )}
+              onClick={() => setValue("endAt", "2h", { shouldDirty: true })}
+            >
+              2 horas
+            </button>
+            <button
+              type="button"
+              className={clsx(
+                "cursor-pointer font-light p-1 rounded-sm",
+                endAt === "3h"
+                  ? "text-white bg-neutral-700/60"
+                  : "text-neutral-400 bg-neutral-700/10",
+              )}
+              onClick={() => setValue("endAt", "3h", { shouldDirty: true })}
+            >
+              3 horas
+            </button>
+            <button
+              type="button"
+              className={clsx(
+                "cursor-pointer font-light p-1 rounded-sm",
+                endAt === "4h"
+                  ? "text-white bg-neutral-700/60"
+                  : "text-neutral-400 bg-neutral-700/10",
+              )}
+              onClick={() => setValue("endAt", "4h", { shouldDirty: true })}
+            >
+              4 horas
+            </button>
+            <button
+              type="button"
+              className={clsx(
+                "cursor-pointer font-light p-1 rounded-sm",
+                endAt === "5h"
+                  ? "text-white bg-neutral-700/60"
+                  : "text-neutral-400 bg-neutral-700/10",
+              )}
+              onClick={() => setValue("endAt", "5h", { shouldDirty: true })}
+            >
+              5 horas
+            </button>
+            <button
+              type="button"
+              className={clsx(
+                "cursor-pointer font-light p-1 rounded-sm",
+                endAt === "10h"
+                  ? "text-white bg-neutral-700/60"
+                  : "text-neutral-400 bg-neutral-700/10",
+              )}
+              onClick={() => setValue("endAt", "10h", { shouldDirty: true })}
+            >
+              10 horas
+            </button>
+            <button
+              type="button"
+              className={clsx(
+                "cursor-pointer font-light p-1 rounded-sm",
+                endAt === "15h"
+                  ? "text-white bg-neutral-700/60"
+                  : "text-neutral-400 bg-neutral-700/10",
+              )}
+              onClick={() => setValue("endAt", "15h", { shouldDirty: true })}
+            >
+              15 horas
+            </button>
+            <button
+              type="button"
+              className={clsx(
+                "cursor-pointer font-light p-1 rounded-sm",
+                endAt === "1d"
+                  ? "text-white bg-neutral-700/60"
+                  : "text-neutral-400 bg-neutral-700/10",
+              )}
+              onClick={() => setValue("endAt", "1d", { shouldDirty: true })}
+            >
+              1 dia
+            </button>
+            <button
+              type="button"
+              className={clsx(
+                "cursor-pointer font-light p-1 rounded-sm",
+                endAt === "2d"
+                  ? "text-white bg-neutral-700/60"
+                  : "text-neutral-400 bg-neutral-700/10",
+              )}
+              onClick={() => setValue("endAt", "2d", { shouldDirty: true })}
+            >
+              2 dias
+            </button>
+          </div>
+        </div>
+      </div>
 
       {/* <Field
         label="Situação"
@@ -172,12 +393,19 @@ const EditForm: FC<
         />
       </Field> */}
 
-      <div className="flex gap-x-2">
-        <Button type="button" disabled={isEditing} variant="outline">
+      <div className="flex justify-end gap-x-2 mt-3">
+        <Button
+          type="button"
+          onClick={cancel}
+          size={"sm"}
+          disabled={isEditing}
+          variant="ghost"
+        >
           Cancelar
         </Button>
         <Button
           type="submit"
+          size={"sm"}
           colorPalette={"teal"}
           disabled={!isDirty}
           loading={isEditing}
@@ -189,7 +417,100 @@ const EditForm: FC<
   );
 };
 
-function Content({ id }: { id: number; close: () => void }) {
+interface DelProps {
+  onGoBack(): void;
+  onDelete(): void;
+  id: number;
+}
+function ContentDelete(props: DelProps) {
+  const { logout } = useContext(AuthContext);
+  const { socket } = useContext(SocketContext);
+  const [message, setMessage] = useState("");
+  const [load, setLoad] = useState(false);
+
+  const onDelete = async () => {
+    try {
+      setLoad(true);
+      await deleteAppointment(props.id, { socketIgnore: socket.id, message });
+      setMessage("");
+      props.onDelete();
+      setLoad(false);
+    } catch (error) {
+      setLoad(false);
+      if (error instanceof AxiosError) {
+        if (error instanceof AxiosError) {
+          if (error.response?.status === 401) logout();
+          if (error.response?.status === 400) {
+            const dataError = error.response?.data as ErrorResponse_I;
+            if (dataError.toast.length) dataError.toast.forEach(toaster.create);
+          }
+        }
+      } else {
+        console.log("Error-Client", error);
+      }
+    }
+  };
+
+  return (
+    <PopoverBody className="scroll-hidden overflow-y-scroll duration-300">
+      <div className="flex flex-col w-full gap-y-2.5">
+        <p className="leading-4 text-sm text-center text-neutral-300">
+          O contato será informado que o agendamento foi cancelado
+        </p>
+        <TextareaAutosize
+          placeholder="Adicione uma mensagem(opcional)"
+          style={{ resize: "none" }}
+          minRows={2}
+          maxRows={2}
+          value={message}
+          onChange={({ target }) => setMessage(target.value)}
+          className={clsx(
+            "p-3 py-2.5 rounded-sm w-full border-white/10 border",
+          )}
+          disabled={load}
+        />
+      </div>
+      <div className="flex gap-x-2 justify-end mt-4">
+        <Button
+          size={"xs"}
+          variant={"ghost"}
+          rounded={"full"}
+          colorPalette={"red"}
+          onClick={() => {
+            setMessage("");
+            props.onGoBack();
+          }}
+          disabled={load}
+        >
+          Voltar
+        </Button>
+        <Button
+          onClick={onDelete}
+          size={"xs"}
+          px={5}
+          rounded={"full"}
+          colorPalette={"cyan"}
+          disabled={load}
+        >
+          {load ? "Aguarde..." : "Deletar"}
+        </Button>
+      </div>
+    </PopoverBody>
+  );
+}
+
+const weekDayName: { [s: string]: string } = {
+  Sunday: "Domingo",
+  Monday: "Segunda-feira",
+  Tuesday: "Terça-feira",
+  Wednesday: "Quarta-feira",
+  Thursday: "Quinta-feira",
+  Friday: "Sexta-feira",
+  Saturday: "Sábado",
+};
+
+function Content({ id, closeAndOpenTicket, close, closeAndDelete }: IProps) {
+  const { socket } = useContext(SocketContext);
   const { logout } = useContext(AuthContext);
   const [status, setStatus] = useState<"error" | "success" | "pending">(
     "pending",
@@ -197,12 +518,8 @@ function Content({ id }: { id: number; close: () => void }) {
   const [isFetching, setIsFetching] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
+  const [isDelete, setIsDelete] = useState(false);
   const [data, setData] = useState<AppointmentDetails | null>(null);
-  const {
-    dialog: dialogModal,
-    close: closeModal,
-    onOpen: openModal,
-  } = useDialogModal({});
 
   useEffect(() => {
     (async () => {
@@ -229,9 +546,13 @@ function Content({ id }: { id: number; close: () => void }) {
     try {
       setIsEditing(true);
       const nextStartAt = moment(`${dateAt}T${timeAt}`).toDate();
-      await updateAppointment(id, { ...fields, startAt: nextStartAt });
+      await updateAppointment(id, {
+        ...fields,
+        startAt: nextStartAt,
+        socketIgnore: socket.id,
+      });
       setIsEdit(false);
-      setData((state) => (state ? { ...state, ...fields } : null));
+      // setData((state) => (state ? { ...state, ...fields } : null));
       setIsEditing(false);
     } catch (error) {
       setIsEditing(false);
@@ -265,77 +586,95 @@ function Content({ id }: { id: number; close: () => void }) {
     );
   }
 
+  if (isDelete) {
+    return (
+      <ContentDelete
+        onDelete={() => closeAndDelete(id)}
+        id={id}
+        onGoBack={() => setIsDelete(false)}
+      />
+    );
+  }
+
   return (
     <>
-      <PopoverBody className="relative scroll-hidden rounded-b-xl overflow-y-scroll duration-300">
-        {!isEdit && (
-          <div className="-mb-3 flex justify-end gap-x-3">
+      <PopoverBody
+        p={3}
+        className="relative scroll-hidden rounded-b-xl overflow-y-scroll duration-300"
+      >
+        <div className="flex justify-between items-center -translate-y-1">
+          <span className="text-neutral-300 tracking-wide text-xs">
+            #{data.n_appointment}
+          </span>
+
+          <div className="flex gap-x-0.5">
+            {!isEdit && (
+              <>
+                <button
+                  onClick={() => setIsDelete(true)}
+                  className="cursor-pointer z-10 p-2 rounded-md hover:bg-[#eb606028]"
+                >
+                  <MdDeleteOutline size={14} color={"#D14141"} />
+                </button>
+                <button
+                  onClick={() => setIsEdit(true)}
+                  className="cursor-pointer z-10 p-2 rounded-md hover:bg-[#2198ad22]"
+                >
+                  <MdEdit size={14} color={"#76ABE8"} />
+                </button>
+              </>
+            )}
             <button
-              onClick={() => {
-                openModal({
-                  content: (
-                    <ModalDeleteAppaintment
-                      close={close}
-                      data={
-                        data
-                          ? {
-                              id,
-                              name: `${data.title} - ${moment(data.startAt).format("DD/MM/YYYY HH:mm")}`,
-                            }
-                          : null
-                      }
-                    />
-                  ),
-                });
-              }}
-              className="cursor-pointer z-10 p-2 border border-[#d63c3c53] bg-[#eb606022] rounded-md hover:bg-[#eb606028]"
+              onClick={close}
+              className="cursor-pointer z-10 p-2 rounded-md hover:bg-[#ffffff17]"
             >
-              <MdDeleteOutline size={18} color={"#D14141"} />
-            </button>
-            <button
-              onClick={() => setIsEdit(true)}
-              className="cursor-pointer z-10 p-2 border border-[#1c9bb183] bg-[#30c9e41e] rounded-md hover:bg-[#30c9e422]"
-            >
-              <MdEdit size={18} color={"#76ABE8"} />
+              <IoClose size={14} color={"#fff"} />
             </button>
           </div>
-        )}
+        </div>
         {!isEdit && (
-          <div className="flex flex-col">
-            <span className="text-gray-200">#{data.n_appointment}</span>
-
-            <div className="flex flex-col">
-              <span className="font-medium text-base">{data.title}</span>
-              <span className="text-xs">
-                {moment(data.startAt).format("dddd, D [de] MMMM YYYY")}
-              </span>
-            </div>
-            <div className="mb-1 text-gray-200">
-              {data.desc && <span>{data.desc}</span>}
-            </div>
-            <div className="flex items-center gap-x-1">
-              <BiUserCircle size={20} />
-              <span>{data.contactName}</span>
-            </div>
-            <div className="mt-2"></div>
-
-            <span>Lembretes enviados: {data.reminders.sent}</span>
-            {data.reminders.failed > 0 && (
-              <span>Lembretes falhados: {data.reminders.failed}</span>
-            )}
-            {/* <span>Projeto: {data.business.name}</span> */}
-            <span>Status: {data.status}</span>
-            <div className="flex items-start gap-2">
-              <span>Criado em:</span>
-              <div className="flex items-center gap-2">
-                <span>{moment(data.createAt).format("DD/MM/YYYY")}</span>
-                <span className="text-white/50">
-                  {moment(data.createAt).format("HH:mm")}
+          <>
+            <div className="flex flex-col -mt-1">
+              <div className="flex flex-col mb-3">
+                <span className="font-medium text-base">{data.title}</span>
+                <span className="text-xs text-neutral-300">
+                  {weekDayName[moment(data.startAt).format("dddd")]},{" "}
+                  {moment(data.startAt).format("DD/MM")} às{" "}
+                  {moment(data.startAt).format("HH:mm")}
                 </span>
               </div>
-            </div>
-            {!isEdit &&
-              data.ticket.map((tk) => (
+              <div className="mb-1 flex flex-col text-gray-200">
+                <span className="text-xs">Descrição</span>
+                {data.desc && (
+                  <span className="block bg-neutral-900/50 text-xs p-1">
+                    {data.desc}
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center gap-x-1 mt-3">
+                <BiUserCircle size={20} />
+                <span>{data.contactName}</span>
+              </div>
+              <div className="mt-2"></div>
+
+              <span className="text-xs">
+                {data.reminders.sent} lembrete enviado
+              </span>
+              {data.reminders.failed > 0 && (
+                <span>Lembretes falhados: {data.reminders.failed}</span>
+              )}
+              {/* <span>Projeto: {data.business.name}</span> */}
+              <span>Status: {data.status}</span>
+              <div className="flex text-white/50 items-start gap-1 text-xs mt-2">
+                <span>Criado em:</span>
+                <div className="flex items-center gap-2">
+                  <span>{moment(data.createAt).format("DD/MM/YYYY")}</span>
+                  <span className="">
+                    {moment(data.createAt).format("HH:mm")}
+                  </span>
+                </div>
+              </div>
+              {data.ticket.map((tk) => (
                 <div
                   key={tk.id}
                   style={{
@@ -345,22 +684,7 @@ function Content({ id }: { id: number; close: () => void }) {
                         : "linear-gradient(143deg,rgba(235, 203, 175, 0.07) 0%, rgba(219, 155, 99, 0.09) 100%)",
                   }}
                   className="cursor-pointer p-2 pr-2.5 rounded-md flex items-center justify-between w-full gap-x-1.5"
-                  onClick={() => {
-                    openModal({
-                      size: "xl",
-                      content: (
-                        <ModalChatPlayer
-                          orderId={id}
-                          close={closeModal}
-                          data={{
-                            businessId: data.business.id,
-                            id: tk.id,
-                            name: `#${data.n_appointment} / ${data.contactName}`,
-                          }}
-                        />
-                      ),
-                    });
-                  }}
+                  onClick={() => closeAndOpenTicket(tk.id)}
                 >
                   <div className="flex flex-col -space-y-0.5">
                     <div className="flex gap-x-1 items-center">
@@ -395,12 +719,14 @@ function Content({ id }: { id: number; close: () => void }) {
                   </div>
                 </div>
               ))}
-          </div>
+            </div>
+          </>
         )}
         {isEdit && (
           <EditForm
             // status={data.status}
             update={update}
+            endAt={data.endAt}
             cancel={() => setIsEdit(false)}
             title={data.title}
             desc={data.desc || undefined}
@@ -409,7 +735,6 @@ function Content({ id }: { id: number; close: () => void }) {
             isEditing={isEditing}
           />
         )}
-        {dialogModal}
       </PopoverBody>
     </>
   );
@@ -417,7 +742,16 @@ function Content({ id }: { id: number; close: () => void }) {
 
 export const PopoverViewAppointment: React.FC<IProps> = ({
   id,
+  closeAndOpenTicket,
   close,
+  closeAndDelete,
 }): JSX.Element => {
-  return <Content id={id} close={close} />;
+  return (
+    <Content
+      id={id}
+      closeAndDelete={closeAndDelete}
+      closeAndOpenTicket={closeAndOpenTicket}
+      close={close}
+    />
+  );
 };

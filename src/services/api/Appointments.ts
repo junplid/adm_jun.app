@@ -38,6 +38,7 @@ export interface AppointmentDetails {
   n_appointment: string;
   status: TypeStatusAppointment;
   startAt: Date;
+  endAt: Date;
   createdBy: TypeCreateByAppointment;
   createAt: Date;
   actionChannels: string[];
@@ -49,11 +50,42 @@ export async function updateAppointment(
     title?: string;
     desc?: string;
     startAt?: Date;
+    socketIgnore?: string;
   },
 ): Promise<void> {
   await api.put(`/private/appointments/${id}`, undefined, {
     params: body,
   });
+}
+
+export async function createAppointment(body: {
+  title: string;
+  desc?: string;
+  dateStartAt: string;
+  timeStartAt: string;
+  endAt:
+    | "10min"
+    | "30min"
+    | "1h"
+    | "1h e 30min"
+    | "2h"
+    | "3h"
+    | "4h"
+    | "5h"
+    | "10h"
+    | "15h"
+    | "1d"
+    | "2d";
+  socketIgnore?: string;
+}): Promise<{
+  id: number;
+  code: string;
+  startAt: Date;
+  endAt: Date;
+  status: "confirmed";
+}> {
+  const { data } = await api.post(`/private/appointments`, body);
+  return data.appointment;
 }
 
 export async function runActionAppointment(
@@ -73,7 +105,8 @@ export async function getAppointments(params?: {
     title: string;
     desc: string | null;
     startAt: Date;
-    channel: "instagram" | "baileys";
+    endAt: Date;
+    channel: "instagram" | "baileys" | null;
     status: TypeStatusAppointment;
   }[];
 }> {
@@ -88,6 +121,9 @@ export async function getAppointmentDetails(id: number): Promise<{
   return { appointment: data.appointment };
 }
 
-export async function deleteAppointment(id: number): Promise<void> {
-  await api.delete(`/private/appointments/${id}`);
+export async function deleteAppointment(
+  id: number,
+  params?: { socketIgnore?: string; message?: string },
+): Promise<void> {
+  await api.delete(`/private/appointments/${id}`, { params });
 }

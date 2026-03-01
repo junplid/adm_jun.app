@@ -51,6 +51,7 @@ interface RoomArgsMap {
   player_department: { id: number };
   dashboard: undefined;
   connections: undefined;
+  appointments: undefined;
 }
 type RoomPrefix = keyof RoomArgsMap;
 
@@ -149,7 +150,6 @@ export const SocketProvider = ({
           <ModalChatPlayer
             close={close}
             data={{
-              businessId: Number(searchParams.get("bId")),
               id: ticketId,
               name: searchParams.get("name") ?? "",
             }}

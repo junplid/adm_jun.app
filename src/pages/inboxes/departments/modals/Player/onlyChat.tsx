@@ -118,8 +118,8 @@ const IconPreviewFile = (p: { mimetype: string }): JSX.Element => {
 };
 
 interface Props {
-  businessId: number;
   orderId?: number;
+  appointmentId?: number;
   id: number;
   closeModal(): void;
 }
@@ -149,12 +149,7 @@ export interface Ticket {
   }[];
 }
 
-export const OnlyChatPlayer: FC<Props> = ({
-  businessId,
-  id,
-  closeModal,
-  ...props
-}) => {
+export const OnlyChatPlayer: FC<Props> = ({ id, closeModal, ...props }) => {
   const { socket, joinRoom } = useContext(SocketContext);
 
   const { logout } = useContext(AuthContext);
@@ -392,7 +387,7 @@ export const OnlyChatPlayer: FC<Props> = ({
 
   const pick = useCallback(async (id: number) => {
     try {
-      await pickTicket(id, props.orderId);
+      await pickTicket(id, { orderId: props.orderId });
       setDataTicket((s) => {
         if (s) return { ...s, status: "OPEN" };
         return null;
@@ -571,7 +566,7 @@ export const OnlyChatPlayer: FC<Props> = ({
     if (!id || !dataTicket) return;
     if (dataTicket.status !== "OPEN") return;
     setLoadReturn(dataTicket.id);
-    await returnTicket(dataTicket.id, props.orderId);
+    await returnTicket(dataTicket.id, { orderId: props.orderId });
     closeModal();
   };
 
@@ -579,7 +574,7 @@ export const OnlyChatPlayer: FC<Props> = ({
     if (!id || !dataTicket) return;
     if (dataTicket.status !== "OPEN") return;
     setLoadResolved(dataTicket.id);
-    await resolveTicket(dataTicket.id, props.orderId);
+    await resolveTicket(dataTicket.id, { orderId: props.orderId });
     closeModal();
   };
 

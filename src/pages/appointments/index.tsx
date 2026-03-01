@@ -2,7 +2,7 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 import "./calendar-dark.scss";
 
 import { JSX, useContext, useEffect, useRef, useState } from "react";
-import { Spinner } from "@chakra-ui/react";
+import { Button, Spinner } from "@chakra-ui/react";
 import { AuthContext } from "@contexts/auth.context";
 import { AxiosError } from "axios";
 import { ErrorResponse_I } from "../../services/api/ErrorResponse";
@@ -18,6 +18,12 @@ import {
   getAppointments,
   TypeStatusAppointment,
 } from "../../services/api/Appointments";
+import { ModalChatPlayer } from "../inboxes/departments/modals/Player/modalChat";
+import { useRoomWebSocket } from "../../hooks/roomWebSocket";
+import { toast } from "sonner";
+import { RiDeleteBin2Fill } from "react-icons/ri";
+import { ModalCreateAppointment } from "./modals/create";
+import { IoAdd } from "react-icons/io5";
 
 moment.updateLocale("pt-br", {
   longDateFormat: {
@@ -37,7 +43,8 @@ export interface Appointment {
   title: string;
   desc: string | null;
   startAt: Date;
-  channel: "instagram" | "baileys";
+  endAt: Date;
+  channel?: "instagram" | "baileys" | null;
   status: TypeStatusAppointment;
 }
 
@@ -112,8 +119,9 @@ interface IAppointmentEvent {
   color: string;
   title: string;
   desc?: string;
-  channel: "instagram" | "baileys";
+  channel?: "instagram" | "baileys" | null;
   closePopover: () => void;
+  closeAndDelete(id: number): void;
   openPopover(props: {
     content: React.ReactNode;
     size?: "sm" | "md" | "lg" | "xs";
@@ -123,22 +131,47 @@ interface IAppointmentEvent {
 
 const AppointmentEvent = ({
   closePopover,
+  closeAndDelete,
   openPopover,
   ...event
 }: IAppointmentEvent) => {
   const ref = useRef<HTMLDivElement>(null);
 
+  const handleOpenChatTicket = (ticketId: number) => {
+    closePopover();
+    openPopover({
+      boundingClientRect: ref.current?.getBoundingClientRect(),
+      content: (
+        <ModalChatPlayer
+          appointmentId={event.id}
+          close={closePopover}
+          data={{
+            id: ticketId,
+            name: event.title,
+          }}
+        />
+      ),
+    });
+  };
+
   const handleClick = () => {
     if (!ref.current) return;
     openPopover({
       boundingClientRect: ref.current?.getBoundingClientRect(),
-      content: <PopoverViewAppointment close={closePopover} id={event.id} />,
+      content: (
+        <PopoverViewAppointment
+          closeAndDelete={closeAndDelete}
+          closeAndOpenTicket={handleOpenChatTicket}
+          close={closePopover}
+          id={event.id}
+        />
+      ),
     });
   };
 
   return (
     <div
-      className="rounded-sm w-full h-full px-1 relative"
+      className="rounded-sm w-full h-full px-1 z-0 relative"
       style={{ background: event.color }}
       ref={ref}
       onClick={handleClick}
@@ -154,16 +187,21 @@ const AppointmentEvent = ({
 };
 
 export const AppointmentsPage: React.FC = (): JSX.Element => {
-  const { socket, onSetFocused } = useContext(SocketContext);
+  useRoomWebSocket("appointments", undefined);
+
+  const { socket } = useContext(SocketContext);
+  const {
+    clientMeta: { isMobileLike },
+  } = useContext(AuthContext);
 
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const {
     popover,
     close: closePopover,
     onOpen: openPopover,
-  } = usePopoverComponent({ bg: "#545454" });
+  } = usePopoverComponent({ bg: "#000" });
 
-  const { logout, account } = useContext(AuthContext);
+  const { logout } = useContext(AuthContext);
   const [load, setLoad] = useState(true);
   const [_loadOrders, _setLoadOrders] = useState<number[]>([]);
 
@@ -191,62 +229,79 @@ export const AppointmentsPage: React.FC = (): JSX.Element => {
 
   useEffect(() => {
     if (socket) {
+      socket.on("new_appointment", (data: Appointment) => {
+        setAppointments((state) => [...state, data]);
+      });
+      socket.on("remove_appointment", (props: { id: number }) => {
+        setAppointments((state) => state.filter((s) => s.id !== props.id));
+      });
       socket.on(
-        "appointment:new",
-        (props: { accountId: number; appointment: Appointment }) => {
-          if (props.accountId === account.id) {
-            setAppointments((state) => [...state, props.appointment]);
-          }
-        },
-      );
-      socket.on(
-        "appointment:remove",
-        (props: { accountId: number; id: number }) => {
-          if (props.accountId === account.id) {
-            setAppointments((state) => state.filter((s) => s.id !== props.id));
-          }
-        },
-      );
-      socket.on(
-        "appointment:update",
-        (props: {
-          accountId: number;
-          data: Partial<Appointment> & { id: number };
-        }) => {
-          if (props.accountId === account.id) {
-            setAppointments((state) => {
-              return state.map((a) => {
-                if (a.id === props.data.id) a = { ...a, ...props.data };
-                return a;
-              });
+        "update_appointment",
+        (data: Partial<Appointment> & { id: number }) => {
+          setAppointments((state) => {
+            return state.map((a) => {
+              if (a.id === data.id) a = { ...a, ...data };
+              return a;
             });
-          }
+          });
         },
       );
     }
-
     return () => {
-      socket.off("appointment:new");
-      socket.off("appointment:remove");
-      socket.off("appointment:update");
+      socket.off("new_appointment");
+      socket.off("remove_appointment");
+      socket.off("update_appointment");
     };
   }, [socket]);
 
-  useEffect(() => {
-    onSetFocused(`page-appointments`);
-    return () => {
-      onSetFocused(null);
-    };
-  }, []);
+  const handleClosePopoverAndDeleteEvent = (id: number) => {
+    closePopover();
+    setAppointments((state) => state.filter((s) => s.id !== id));
+    const toastId = toast(
+      <div
+        onClick={() => toast.dismiss(toastId)}
+        className="border-0 w-56 jusce"
+      >
+        <div className="p-2 bg-zinc-300 select-none w-full mx-auto items-center border border-white rounded-sm flex gap-x-2 text-neutral-800">
+          <RiDeleteBin2Fill size={18} />
+          <span className="text-xs">Deletado com sucesso</span>
+        </div>
+      </div>,
+      {
+        classNames: {
+          default: "border-0!",
+          content: "w-full border-0! flex items-center justify-center",
+        },
+        duration: 1000 * 2,
+        unstyled: true,
+        ...(isMobileLike && { style: { bottom: 70 } }),
+      },
+    );
+  };
 
   return (
     <div className="h-full gap-y-2 flex flex-col">
-      <div className="flex flex-col sm:pl-0 pl-2">
+      <div className="flex items-center gap-x-2 sm:pl-0 pl-2">
         <h1 className="text-base sm:text-lg font-semibold">
           Agenda de compromissos
         </h1>
+        <ModalCreateAppointment
+          onCreate={(appnew) => setAppointments((app) => [...app, appnew])}
+          placement="top"
+          trigger={
+            <Button variant="outline" size={"sm"}>
+              <IoAdd /> Adicionar
+            </Button>
+          }
+        />
       </div>
-      <div className="flex-1 pt-0! grid gap-x-2 h-full rbc-dark">
+      {popover}
+      <div
+        className={clsx(
+          "flex-1 pt-0! grid gap-x-2 h-full rbc-dark",
+          isMobileLike && "pb-4",
+        )}
+      >
         {load ? (
           <div className="bg-white/5 sm:m-0 m-2 text-white/70 rounded-md flex flex-col items-center justify-center">
             <span className="">Carregando aguarde...</span>
@@ -255,10 +310,10 @@ export const AppointmentsPage: React.FC = (): JSX.Element => {
         ) : (
           <Calendar
             localizer={localizer}
-            events={appointments.map(({ startAt, ...s }) => ({
+            events={appointments.map(({ startAt, endAt, ...s }) => ({
               ...s,
               start: new Date(startAt),
-              end: new Date(startAt),
+              end: new Date(endAt),
               color:
                 s.status === "canceled" || s.status === "expired"
                   ? "#3B3B3B"
@@ -266,6 +321,7 @@ export const AppointmentsPage: React.FC = (): JSX.Element => {
               desc: s.desc || undefined,
             }))}
             startAccessor="start"
+            endAccessor="end"
             defaultView="month"
             messages={messages}
             dayLayoutAlgorithm="no-overlap"
@@ -378,6 +434,7 @@ export const AppointmentsPage: React.FC = (): JSX.Element => {
               },
               event: ({ event }) => (
                 <AppointmentEvent
+                  closeAndDelete={handleClosePopoverAndDeleteEvent}
                   channel={event.channel}
                   color={event.color}
                   id={event.id}
@@ -392,6 +449,7 @@ export const AppointmentsPage: React.FC = (): JSX.Element => {
                   <AppointmentEvent
                     channel={event.channel}
                     color={event.color}
+                    closeAndDelete={handleClosePopoverAndDeleteEvent}
                     id={event.id}
                     title={event.title}
                     closePopover={closePopover}
@@ -403,6 +461,7 @@ export const AppointmentsPage: React.FC = (): JSX.Element => {
                 event: ({ event }) => (
                   <AppointmentEvent
                     channel={event.channel}
+                    closeAndDelete={handleClosePopoverAndDeleteEvent}
                     color={event.color}
                     id={event.id}
                     title={event.title}
@@ -415,7 +474,6 @@ export const AppointmentsPage: React.FC = (): JSX.Element => {
           />
         )}
       </div>
-      {popover}
     </div>
   );
 };
