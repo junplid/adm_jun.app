@@ -174,9 +174,9 @@ export const DemoChatComponent = memo(
                     "p-1.5 rounded-xl leading-4 text-sm",
                     msg.by === "lead"
                       ? "bg-[#3d3a3a] max-w-2/3 text-start mx-auto mr-0"
-                      : `border border-white/60 bg-[linear-gradient(130deg,rgba(171,200,185,1)17%,rgba(132,189,163,1)100%)] text-black max-w-3/4 ${
-                          is ? "ml-7.5 -mt-2" : ""
-                        }`,
+                      : `border border-white/60 bg-[linear-gradient(130deg,rgba(171,200,185,1)17%,rgba(132,189,163,1)100%)] text-black max-w-3/4`,
+                    msg.by === "lead" && is && "-mt-0.5",
+                    msg.by === "ia" && is && "-mt-0.5 ml-6.5",
                   )}
                 >
                   <span>{msg.value}</span>

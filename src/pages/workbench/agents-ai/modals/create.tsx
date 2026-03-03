@@ -58,19 +58,12 @@ import { Tooltip } from "@components/ui/tooltip";
 import { ErrorResponse_I } from "../../../../services/api/ErrorResponse";
 import { AuthContext } from "@contexts/auth.context";
 import { RiAlarmWarningLine, RiSendPlane2Line } from "react-icons/ri";
-import {
-  FaCheckCircle,
-  FaFacebook,
-  FaInstagram,
-  FaWhatsapp,
-} from "react-icons/fa";
+import { FaInstagram, FaWhatsapp } from "react-icons/fa";
 import { Avatar } from "@components/ui/avatar";
 import {
   MdHorizontalRule,
-  MdLockOutline,
   MdOutlineDeleteOutline,
   MdOutlineModeEdit,
-  MdOutlineRadioButtonUnchecked,
 } from "react-icons/md";
 import { useHookFormMask } from "use-mask-input";
 import { GrClose } from "react-icons/gr";
@@ -233,18 +226,6 @@ type Message = {
   content: string;
 };
 
-interface AccountIg {
-  used_by: {
-    id: number;
-    name: string;
-  }[];
-  page_id: string;
-  page_name: string;
-  ig_id: string;
-  ig_username: string;
-  ig_picture: string;
-}
-
 function Content(props: { onClose: () => void }) {
   const {
     logout,
@@ -256,11 +237,11 @@ function Content(props: { onClose: () => void }) {
   const [draft, setDraft] = useState("");
   const [errorDraft, setErrorDraft] = useState<string | null>(null);
   const [loadSend, setLoadSend] = useState(false);
-  const [accounts, setAccounts] = useState<AccountIg[]>([]);
   const [currentTab, setCurrentTab] = useState<
     "secret-key" | "persona" | "engine" | "connection"
   >("secret-key");
   const [tokenTest, setTokenTest] = useState<string>("");
+
   const {
     handleSubmit,
     register,
@@ -364,7 +345,7 @@ function Content(props: { onClose: () => void }) {
         }
       }
     },
-    [modal_id, accounts, businessId],
+    [modal_id, businessId],
   );
 
   const providerCredentialId = watch("providerCredentialId");
@@ -373,7 +354,6 @@ function Content(props: { onClose: () => void }) {
   const fileImage = watch("connectionWA.fileImage");
   const service_tier = watch("service_tier");
   const model = watch("model");
-  const ig_id = watch("ig_id");
 
   const optionsOpertaingDaysMemo = useMemo(() => {
     if (!operatingDays?.length) return optionsOpertaingDays;
@@ -384,15 +364,10 @@ function Content(props: { onClose: () => void }) {
   useEffect(() => {
     setTokenTest(v4());
     socket.emit("join_modal:create_agentai", modal_id);
-    socket.on("receber_accounts", (accounts: AccountIg[]) => {
-      if (accounts.length === 1) setValue("ig_id", accounts[0].ig_id);
-      setAccounts(accounts);
-    });
 
     return () => {
       setTokenTest("");
       socket.emit("exit_modal:create_agentai", modal_id);
-      socket.off("receber_accounts");
     };
   }, [modal_id]);
 
@@ -453,7 +428,7 @@ function Content(props: { onClose: () => void }) {
                   setErrorDraft(text);
                 } else {
                   // @ts-expect-error
-                  props?.setError?.(path, { message: text });
+                  setError?.(path, { message: text });
                 }
               });
             }
@@ -498,8 +473,8 @@ function Content(props: { onClose: () => void }) {
           <TabsRoot
             value={currentTab}
             onValueChange={(s) => setCurrentTab(s.value as any)}
-            lazyMount
-            unmountOnExit
+            lazyMount={false}
+            unmountOnExit={false}
             variant={"enclosed"}
           >
             <Center mb={2}>
@@ -1326,9 +1301,278 @@ function Content(props: { onClose: () => void }) {
               </div>
             </TabsContent>
             <TabsContent value="connection">
-              <TabsRoot
-                lazyMount
-                unmountOnExit
+              <VStack gap={4}>
+                <Field
+                  errorText={errors.connectionWAId?.message}
+                  invalid={!!errors.connectionWAId}
+                  label="Selecionar conexão existente"
+                >
+                  <Controller
+                    name="connectionWAId"
+                    control={control}
+                    render={({ field }) => (
+                      <SelectConnectionsWA
+                        name={field.name}
+                        isSearchable={false}
+                        isClearable={true}
+                        isMulti={false}
+                        onBlur={field.onBlur}
+                        onChange={(e: any) => field.onChange(e?.value || null)}
+                        value={field.value}
+                      />
+                    )}
+                  />
+                </Field>
+                <span className="font-semibold">OU</span>
+                <div className="px-5">
+                  <div className="bg-amber-50 border-l-4 border-amber-400 p-3 pr-2 rounded-r-md">
+                    <div className="flex items-center gap-3">
+                      <RiAlarmWarningLine
+                        className="text-amber-600"
+                        size={40}
+                      />
+                      <p className="text-sm text-amber-700 font-medium">
+                        Caso seu WhatsApp já esteja configurado, desconsidere os
+                        campos abaixo.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <HStack w={"full"} mb={2} gap={3}>
+                  <Tooltip content="Atualizar foto de perfil">
+                    <div
+                      className="relative cursor-pointer"
+                      onClick={() => imgProfileRef.current?.click()}
+                    >
+                      <input
+                        type="file"
+                        ref={imgProfileRef}
+                        hidden
+                        className="hidden"
+                        accept="image/jpeg, image/png, image/jpg"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) setValue("connectionWA.fileImage", file);
+                        }}
+                      />
+                      <Avatar
+                        size={"2xl"}
+                        width={"90px"}
+                        height={"90px"}
+                        src={imgPreviewUrl}
+                      >
+                        <Center className="absolute -bottom-0.5 right-0.5 w-8 h-8 rounded-full bg-emerald-800">
+                          <MdOutlineModeEdit size={17} />
+                        </Center>
+                      </Avatar>
+                    </div>
+                  </Tooltip>
+                  <VStack w={"full"} gap={2}>
+                    <Field
+                      errorText={errors.connectionWA?.profileName?.message}
+                      invalid={!!errors.connectionWA?.profileName}
+                      w={"full"}
+                    >
+                      <Input
+                        w={"full"}
+                        {...register("connectionWA.profileName")}
+                        autoComplete="off"
+                        placeholder="Nome do perfil"
+                      />
+                    </Field>
+                    <Field
+                      errorText={errors.connectionWA?.profileStatus?.message}
+                      invalid={!!errors.connectionWA?.profileStatus}
+                      w={"full"}
+                    >
+                      <Input
+                        w={"full"}
+                        {...register("connectionWA.profileStatus")}
+                        autoComplete="off"
+                        placeholder="Recado"
+                      />
+                    </Field>
+                  </VStack>
+                </HStack>
+                <Text fontWeight={"medium"}>Privacidade</Text>
+                <HStack w={"full"}>
+                  <Field
+                    errorText={errors.connectionWA?.lastSeenPrivacy?.message}
+                    invalid={!!errors.connectionWA?.lastSeenPrivacy}
+                    label="Visto por último"
+                    disabled
+                  >
+                    <Controller
+                      name="connectionWA.lastSeenPrivacy"
+                      control={control}
+                      render={({ field }) => (
+                        <SelectComponent
+                          name={field.name}
+                          isMulti={false}
+                          isDisabled
+                          isSearchable={false}
+                          onBlur={field.onBlur}
+                          placeholder="Ninguém"
+                          onChange={(e: any) => field.onChange(e.value)}
+                          // options={optionsPrivacyValue}
+                        />
+                      )}
+                    />
+                  </Field>
+                  <Field
+                    errorText={errors.connectionWA?.onlinePrivacy?.message}
+                    invalid={!!errors.connectionWA?.onlinePrivacy}
+                    label="Online"
+                    disabled
+                  >
+                    <Controller
+                      name="connectionWA.onlinePrivacy"
+                      control={control}
+                      render={({ field }) => (
+                        <SelectComponent
+                          name={field.name}
+                          isMulti={false}
+                          onBlur={field.onBlur}
+                          isSearchable={false}
+                          isDisabled
+                          placeholder={'Igual ao "visto por último"'}
+                          // options={optionsOnlinePrivacy}
+                          onChange={(e: any) => field.onChange(e.value)}
+                          // value={field.value}
+                        />
+                      )}
+                    />
+                  </Field>
+                </HStack>
+                <HStack w={"full"}>
+                  <Field
+                    errorText={errors.connectionWA?.imgPerfilPrivacy?.message}
+                    invalid={!!errors.connectionWA?.imgPerfilPrivacy}
+                    label="Foto do perfil"
+                  >
+                    <Controller
+                      name="connectionWA.imgPerfilPrivacy"
+                      control={control}
+                      render={({ field }) => (
+                        <SelectComponent
+                          name={field.name}
+                          isMulti={false}
+                          placeholder="Todos"
+                          onBlur={field.onBlur}
+                          isSearchable={false}
+                          options={optionsPrivacyValue}
+                          onChange={(e: any) => field.onChange(e.value)}
+                          value={
+                            field.value
+                              ? {
+                                  label:
+                                    optionsPrivacyValue.find(
+                                      (s) => s.value === field.value,
+                                    )?.label || "",
+                                  value: field.value,
+                                }
+                              : null
+                          }
+                        />
+                      )}
+                    />
+                  </Field>
+                  <Field
+                    errorText={errors.connectionWA?.statusPrivacy?.message}
+                    invalid={!!errors.connectionWA?.statusPrivacy}
+                    label="Status"
+                    disabled
+                  >
+                    <Controller
+                      name="connectionWA.statusPrivacy"
+                      control={control}
+                      render={({ field }) => (
+                        <SelectComponent
+                          name={field.name}
+                          isMulti={false}
+                          isSearchable={false}
+                          isDisabled
+                          onBlur={field.onBlur}
+                          placeholder="Meus contatos"
+                          onChange={(e: any) => field.onChange(e.value)}
+                        />
+                      )}
+                    />
+                  </Field>
+                </HStack>
+                <HStack w={"full"}>
+                  <Field
+                    errorText={errors.connectionWA?.groupsAddPrivacy?.message}
+                    invalid={!!errors.connectionWA?.groupsAddPrivacy}
+                    label="Adicionar aos grupos"
+                  >
+                    <Controller
+                      name="connectionWA.groupsAddPrivacy"
+                      control={control}
+                      render={({ field }) => (
+                        <SelectComponent
+                          name={field.name}
+                          isMulti={false}
+                          isSearchable={false}
+                          onBlur={field.onBlur}
+                          placeholder="Meus contatos"
+                          options={optionsPrivacyGroupValue}
+                          onChange={(e: any) => field.onChange(e.value)}
+                          value={
+                            field.value
+                              ? {
+                                  label:
+                                    optionsPrivacyGroupValue.find(
+                                      (s) => s.value === field.value,
+                                    )?.label || "",
+                                  value: field.value,
+                                }
+                              : null
+                          }
+                        />
+                      )}
+                    />
+                  </Field>
+
+                  <Field
+                    errorText={
+                      errors.connectionWA?.readReceiptsPrivacy?.message
+                    }
+                    invalid={!!errors.connectionWA?.readReceiptsPrivacy}
+                    label="Confirmação de leitura"
+                    disabled
+                  >
+                    <Controller
+                      name="connectionWA.readReceiptsPrivacy"
+                      control={control}
+                      render={({ field }) => (
+                        <SelectComponent
+                          name={field.name}
+                          isMulti={false}
+                          isSearchable={false}
+                          isDisabled
+                          onBlur={field.onBlur}
+                          // options={optionsReadReceiptsValue}
+                          placeholder="Ninguém"
+                          onChange={(e: any) => field.onChange(e.value)}
+                        />
+                      )}
+                    />
+                  </Field>
+                </HStack>
+                <div className="flex items-center gap-x-2">
+                  <div className="border p-1 max-w-20 bg-white/2 text-green-100/5">
+                    <img src="/image-btn-connection.png" />
+                  </div>
+                  <p className="font-medium">
+                    Será possível conectar o WhatsApp {"(Via desktop)"} após
+                    criação do assistente de IA.
+                  </p>
+                </div>
+              </VStack>
+              {/* <TabsRoot
+                lazyMount={false}
+                unmountOnExit={false}
                 variant={"enclosed"}
                 defaultValue={"whatsapp"}
                 mt={-4}
@@ -1342,13 +1586,6 @@ function Content(props: { onClose: () => void }) {
                     >
                       WhatsApp
                     </TabsTrigger>
-                    <TabsTrigger
-                      _selected={{ bg: "bg.subtle", color: "#fff" }}
-                      color={"#757575"}
-                      value="instagram"
-                    >
-                      Instagram
-                    </TabsTrigger>
                   </TabsList>
                 </Center>
                 <TabsContent
@@ -1358,524 +1595,109 @@ function Content(props: { onClose: () => void }) {
                     "rounded-lg border border-slate-100/10",
                   )}
                 >
-                  {accounts.length ? (
-                    <div className="max-w-2xl mx-auto">
-                      <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-                        <FaInstagram className="text-pink-600" /> Selecione o
-                        Instagram
-                      </h2>
-                      <p className="text-gray-300 text-sm mb-4">
-                        Encontramos{" "}
-                        {accounts.length > 1
-                          ? "estas contas vinculadas ao seu Facebook."
-                          : "esta conta vinculada ao seu Facebook."}
-                      </p>
-
-                      <div className="space-y-3 mb-5 max-h-80 overflow-y-auto pr-2">
-                        {accounts.map((page) => (
-                          <div
-                            key={page.ig_id}
-                            onClick={() => {
-                              if (ig_id === page.ig_id) {
-                                setValue("ig_id", undefined);
-                                return;
-                              }
-                              setValue("ig_id", page.ig_id);
-                            }}
-                            className={`cursor-pointer border-2 rounded-xl p-4 flex items-center justify-between transition-all ${
-                              ig_id === page.ig_id
-                                ? "border-pink-500 bg-pink-50"
-                                : "border-gray-100/40 bg-white/10 hover:border-gray-300"
-                            }`}
-                          >
-                            <div className="flex items-center gap-3">
-                              <div className="relative">
-                                <img
-                                  src={page.ig_picture}
-                                  alt={page.ig_username}
-                                  className={clsx(
-                                    ig_id === page.ig_id
-                                      ? "border-gray-200"
-                                      : "border-gray-600",
-                                    "w-12 h-12 rounded-full border",
-                                  )}
-                                />
-                                <div className="absolute -bottom-1 -right-1 bg-blue-600 rounded-full p-1 border-2 border-white">
-                                  <FaFacebook className="text-white text-[8px]" />
-                                </div>
-                              </div>
-                              <div>
-                                <p
-                                  className={clsx(
-                                    ig_id === page.ig_id
-                                      ? "text-gray-800"
-                                      : "text-white",
-                                    "font-semibold ",
-                                  )}
-                                >
-                                  @{page.ig_username}
-                                </p>
-                                <p
-                                  className={clsx(
-                                    ig_id === page.ig_id
-                                      ? "text-gray-600"
-                                      : "text-gray-400",
-                                    "text-xs",
-                                  )}
-                                >
-                                  Página: {page.page_name}
-                                </p>
-                              </div>
-                            </div>
-
-                            {ig_id === page.ig_id ? (
-                              <FaCheckCircle className="text-pink-500 text-xl" />
-                            ) : (
-                              <MdOutlineRadioButtonUnchecked className="text-gray-300 text-xl" />
-                            )}
-                          </div>
-                        ))}
+                  <div className="max-w-2xl mx-auto space-y-3">
+                    <div
+                      className={clsx(
+                        clientMeta.isMobileLike ? "gap-2" : "gap-4",
+                        "flex items-center",
+                      )}
+                    >
+                      <div className="p-3 bg-linear-to-tr from-yellow-400 via-red-500 to-purple-600 rounded-2xl shadow-lg">
+                        <FaInstagram size={clientMeta.isMobileLike ? 25 : 40} />
                       </div>
-                      <hr className="border-slate-100/10" />
-                      <div className="mt-4 px-2">
-                        <p className="mt-4 text-center text-xs leading-relaxed text-slate-400 italic">
-                          * Caso você não finalize a criação do assistente,
-                          todos os dados importados nesta sessão serão
-                          **deletados permanentemente** de nossos servidores
-                          imediatamente.
-                        </p>
-
-                        <p className="mt-4 text-center text-xs text-slate-400">
-                          <span className="block font-semibold mb-1 text-slate-300">
-                            Privacidade por Design:
-                          </span>
-                          Após a criação, armazenamos apenas as credenciais
-                          estritamente necessárias para o gerenciamento das DMs,
-                          protegidas por criptografia de nível bancário. Por
-                          segurança, não mantemos acesso persistente ao seu
-                          perfil do Facebook; assim, para gerenciar novas contas
-                          no futuro, uma nova conexão será solicitada.
+                      <div>
+                        <h2
+                          className={clsx(
+                            clientMeta.isMobileLike ? "text-xl" : "text-2xl",
+                            "font-bold text-white",
+                          )}
+                        >
+                          Conectar DM
+                        </h2>
+                        <p className="text-gray-300 text-sm">
+                          Conecte sua conta para responder clientes
+                          automaticamente via Assistente de IA.
                         </p>
                       </div>
                     </div>
-                  ) : (
-                    <div className="max-w-2xl mx-auto space-y-3">
-                      <div
-                        className={clsx(
-                          clientMeta.isMobileLike ? "gap-2" : "gap-4",
-                          "flex items-center",
-                        )}
-                      >
-                        <div className="p-3 bg-linear-to-tr from-yellow-400 via-red-500 to-purple-600 rounded-2xl shadow-lg">
-                          <FaInstagram
-                            size={clientMeta.isMobileLike ? 25 : 40}
-                          />
-                        </div>
-                        <div>
-                          <h2
-                            className={clsx(
-                              clientMeta.isMobileLike ? "text-xl" : "text-2xl",
-                              "font-bold text-white",
-                            )}
-                          >
-                            Conectar DM
-                          </h2>
-                          <p className="text-gray-300 text-sm">
-                            Conecte sua conta para responder clientes
-                            automaticamente via Assistente de IA.
-                          </p>
-                        </div>
-                      </div>
 
-                      <hr className="border-slate-100/10" />
+                    <hr className="border-slate-100/10" />
 
-                      <div
+                    <div
+                      className={
+                        clientMeta.isMobileLike ? "space-y-2" : "space-y-4"
+                      }
+                    >
+                      <h3 className="text-lg font-semibold text-white">
+                        Como funciona?
+                      </h3>
+                      <ul
                         className={
-                          clientMeta.isMobileLike ? "space-y-2" : "space-y-4"
+                          clientMeta.isMobileLike ? "space-y-2" : "space-y-3"
                         }
                       >
-                        <h3 className="text-lg font-semibold text-white">
-                          Como funciona?
-                        </h3>
-                        <ul
-                          className={
-                            clientMeta.isMobileLike ? "space-y-2" : "space-y-3"
-                          }
-                        >
-                          <li className="flex items-start gap-3 text-gray-200 italic">
-                            <span className="shrink-0 w-6 h-6 bg-blue-100 text-black rounded-full flex items-center justify-center text-xs font-bold">
-                              1
-                            </span>
-                            <span>
-                              Sua conta do Instagram deve ser{" "}
-                              <strong>Comercial (Business)</strong> e estar
-                              vinculada a uma Página do Facebook.
-                            </span>
-                          </li>
-                          <li className="flex items-start gap-3 text-gray-200">
-                            <span className="shrink-0 w-6 h-6 bg-blue-100 text-black rounded-full flex items-center justify-center text-xs font-bold">
-                              2
-                            </span>
-                            <span>
-                              Ao clicar no botão abaixo, você autoriza nossa
-                              plataforma a gerenciar suas mensagens.
-                            </span>
-                          </li>
-                          <li className="flex items-start gap-3 text-gray-200">
-                            <span className="shrink-0 w-6 h-6 bg-blue-100 text-black rounded-full flex items-center justify-center text-xs font-bold">
-                              3
-                            </span>
-                            <span>
-                              Seu assistente de IA passará a responder suas DMs
-                              instantaneamente 24 horas por dia.
-                            </span>
-                          </li>
-                        </ul>
-                      </div>
+                        <li className="flex items-start gap-3 text-gray-200 italic">
+                          <span className="shrink-0 w-6 h-6 bg-blue-100 text-black rounded-full flex items-center justify-center text-xs font-bold">
+                            1
+                          </span>
+                          <span>
+                            Sua conta do Instagram deve ser{" "}
+                            <strong>Comercial (Business)</strong> e estar
+                            vinculada a uma Página do Facebook.
+                          </span>
+                        </li>
+                        <li className="flex items-start gap-3 text-gray-200">
+                          <span className="shrink-0 w-6 h-6 bg-blue-100 text-black rounded-full flex items-center justify-center text-xs font-bold">
+                            2
+                          </span>
+                          <span>
+                            Ao clicar no botão abaixo, você autoriza nossa
+                            plataforma a gerenciar suas mensagens.
+                          </span>
+                        </li>
+                        <li className="flex items-start gap-3 text-gray-200">
+                          <span className="shrink-0 w-6 h-6 bg-blue-100 text-black rounded-full flex items-center justify-center text-xs font-bold">
+                            3
+                          </span>
+                          <span>
+                            Seu assistente de IA passará a responder suas DMs
+                            instantaneamente 24 horas por dia.
+                          </span>
+                        </li>
+                      </ul>
+                    </div>
 
-                      <div className="bg-amber-50 border-l-4 border-amber-400 p-3 pr-2 rounded-r-md">
-                        <div className="flex items-center gap-3">
-                          <RiAlarmWarningLine
-                            className="text-amber-600"
-                            size={40}
-                          />
-                          <p className="text-sm text-amber-700 font-medium">
-                            Certifique-se de ativar "Permitir acesso às
-                            mensagens" nas configurações do seu Instagram.
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="pt-4">
-                        <button
-                          onClick={() => {}}
-                          title="Atualmente indisponível."
-                          className={clsx(
-                            clientMeta.isMobileLike
-                              ? "gap-1 px-3"
-                              : "gap-3 px-6",
-                            "relative w-full flex items-center justify-center gap-3 py-4 bg-blue-600/30 text-white/30 font-bold rounded-xl",
-                          )}
-                          type="button"
-                        >
-                          <div className="absolute right-2 text-xs items-center -top-2 bg-white flex text-black font-normal gap-x-1 rounded-md p-1">
-                            <span>Indisponível</span>
-                            <MdLockOutline size={17} />
-                          </div>
-                          <FaFacebook size={20} />
-                          Conectar com Facebook / Instagram
-                        </button>
-                        <p className="mt-2 text-center text-xs text-slate-400">
-                          Ao conectar sua conta, você concorda com nossos{" "}
-                          <a
-                            href="/terms-of-use"
-                            className="text-white underline"
-                          >
-                            Termos de Uso
-                          </a>{" "}
-                          e{" "}
-                          <a
-                            href="/privacy-policy"
-                            className="text-white underline"
-                          >
-                            Política de Privacidade
-                          </a>
-                          .
-                        </p>
-                        <p className="mt-4 text-center text-xs text-slate-400">
-                          Sua segurança é nossa prioridade. Nunca armazenamos
-                          sua senha pessoal. Todas as credenciais de acesso são
-                          protegidas por criptografia de ponta a ponta,
-                          garantindo a total integridade e privacidade dos seus
-                          dados.
+                    <div className="bg-amber-50 border-l-4 border-amber-400 p-3 pr-2 rounded-r-md">
+                      <div className="flex items-center gap-3">
+                        <RiAlarmWarningLine
+                          className="text-amber-600"
+                          size={40}
+                        />
+                        <p className="text-sm text-amber-700 font-medium">
+                          Certifique-se de ativar "Permitir acesso às mensagens"
+                          nas configurações do seu Instagram.
                         </p>
                       </div>
                     </div>
-                  )}
+
+                    <div className="pt-4">
+                      <SectionGetIgComponent
+                        control={control}
+                        onSelectIg={(ig) => setValue("ig_id", ig)}
+                      />
+                      <p className="mt-4 text-center text-xs text-slate-400">
+                        Sua segurança é nossa prioridade. Nunca armazenamos sua
+                        senha pessoal. Todas as credenciais de acesso são
+                        protegidas por criptografia de ponta a ponta, garantindo
+                        a total integridade e privacidade dos seus dados.
+                      </p>
+                    </div>
+                  </div>
                 </TabsContent>
                 <TabsContent value="whatsapp">
-                  <VStack gap={4}>
-                    <Field
-                      errorText={errors.connectionWAId?.message}
-                      invalid={!!errors.connectionWAId}
-                      label="Selecionar conexão existente"
-                    >
-                      <Controller
-                        name="connectionWAId"
-                        control={control}
-                        render={({ field }) => (
-                          <SelectConnectionsWA
-                            name={field.name}
-                            isSearchable={false}
-                            isClearable={true}
-                            isMulti={false}
-                            onBlur={field.onBlur}
-                            onChange={(e: any) =>
-                              field.onChange(e?.value || null)
-                            }
-                            value={field.value}
-                          />
-                        )}
-                      />
-                    </Field>
-                    <span className="font-semibold">OU</span>
-                    <div className="px-5">
-                      <div className="bg-amber-50 border-l-4 border-amber-400 p-3 pr-2 rounded-r-md">
-                        <div className="flex items-center gap-3">
-                          <RiAlarmWarningLine
-                            className="text-amber-600"
-                            size={40}
-                          />
-                          <p className="text-sm text-amber-700 font-medium">
-                            Caso seu WhatsApp já esteja configurado,
-                            desconsidere os campos abaixo.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                    <HStack w={"full"} mb={2} gap={3}>
-                      <Tooltip content="Atualizar foto de perfil">
-                        <div
-                          className="relative cursor-pointer"
-                          onClick={() => imgProfileRef.current?.click()}
-                        >
-                          <input
-                            type="file"
-                            ref={imgProfileRef}
-                            hidden
-                            className="hidden"
-                            accept="image/jpeg, image/png, image/jpg"
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file)
-                                setValue("connectionWA.fileImage", file);
-                            }}
-                          />
-                          <Avatar
-                            size={"2xl"}
-                            width={"90px"}
-                            height={"90px"}
-                            src={imgPreviewUrl}
-                          >
-                            <Center className="absolute -bottom-0.5 right-0.5 w-8 h-8 rounded-full bg-emerald-800">
-                              <MdOutlineModeEdit size={17} />
-                            </Center>
-                          </Avatar>
-                        </div>
-                      </Tooltip>
-                      <VStack w={"full"} gap={2}>
-                        <Field
-                          errorText={errors.connectionWA?.profileName?.message}
-                          invalid={!!errors.connectionWA?.profileName}
-                          w={"full"}
-                        >
-                          <Input
-                            w={"full"}
-                            {...register("connectionWA.profileName")}
-                            autoComplete="off"
-                            placeholder="Nome do perfil"
-                          />
-                        </Field>
-                        <Field
-                          errorText={
-                            errors.connectionWA?.profileStatus?.message
-                          }
-                          invalid={!!errors.connectionWA?.profileStatus}
-                          w={"full"}
-                        >
-                          <Input
-                            w={"full"}
-                            {...register("connectionWA.profileStatus")}
-                            autoComplete="off"
-                            placeholder="Recado"
-                          />
-                        </Field>
-                      </VStack>
-                    </HStack>
-                    <Text fontWeight={"medium"}>Privacidade</Text>
-                    <HStack w={"full"}>
-                      <Field
-                        errorText={
-                          errors.connectionWA?.lastSeenPrivacy?.message
-                        }
-                        invalid={!!errors.connectionWA?.lastSeenPrivacy}
-                        label="Visto por último"
-                        disabled
-                      >
-                        <Controller
-                          name="connectionWA.lastSeenPrivacy"
-                          control={control}
-                          render={({ field }) => (
-                            <SelectComponent
-                              name={field.name}
-                              isMulti={false}
-                              isDisabled
-                              isSearchable={false}
-                              onBlur={field.onBlur}
-                              placeholder="Ninguém"
-                              onChange={(e: any) => field.onChange(e.value)}
-                              // options={optionsPrivacyValue}
-                            />
-                          )}
-                        />
-                      </Field>
-                      <Field
-                        errorText={errors.connectionWA?.onlinePrivacy?.message}
-                        invalid={!!errors.connectionWA?.onlinePrivacy}
-                        label="Online"
-                        disabled
-                      >
-                        <Controller
-                          name="connectionWA.onlinePrivacy"
-                          control={control}
-                          render={({ field }) => (
-                            <SelectComponent
-                              name={field.name}
-                              isMulti={false}
-                              onBlur={field.onBlur}
-                              isSearchable={false}
-                              isDisabled
-                              placeholder={'Igual ao "visto por último"'}
-                              // options={optionsOnlinePrivacy}
-                              onChange={(e: any) => field.onChange(e.value)}
-                              // value={field.value}
-                            />
-                          )}
-                        />
-                      </Field>
-                    </HStack>
-                    <HStack w={"full"}>
-                      <Field
-                        errorText={
-                          errors.connectionWA?.imgPerfilPrivacy?.message
-                        }
-                        invalid={!!errors.connectionWA?.imgPerfilPrivacy}
-                        label="Foto do perfil"
-                      >
-                        <Controller
-                          name="connectionWA.imgPerfilPrivacy"
-                          control={control}
-                          render={({ field }) => (
-                            <SelectComponent
-                              name={field.name}
-                              isMulti={false}
-                              placeholder="Todos"
-                              onBlur={field.onBlur}
-                              isSearchable={false}
-                              options={optionsPrivacyValue}
-                              onChange={(e: any) => field.onChange(e.value)}
-                              value={
-                                field.value
-                                  ? {
-                                      label:
-                                        optionsPrivacyValue.find(
-                                          (s) => s.value === field.value,
-                                        )?.label || "",
-                                      value: field.value,
-                                    }
-                                  : null
-                              }
-                            />
-                          )}
-                        />
-                      </Field>
-                      <Field
-                        errorText={errors.connectionWA?.statusPrivacy?.message}
-                        invalid={!!errors.connectionWA?.statusPrivacy}
-                        label="Status"
-                        disabled
-                      >
-                        <Controller
-                          name="connectionWA.statusPrivacy"
-                          control={control}
-                          render={({ field }) => (
-                            <SelectComponent
-                              name={field.name}
-                              isMulti={false}
-                              isSearchable={false}
-                              isDisabled
-                              onBlur={field.onBlur}
-                              placeholder="Meus contatos"
-                              onChange={(e: any) => field.onChange(e.value)}
-                            />
-                          )}
-                        />
-                      </Field>
-                    </HStack>
-                    <HStack w={"full"}>
-                      <Field
-                        errorText={
-                          errors.connectionWA?.groupsAddPrivacy?.message
-                        }
-                        invalid={!!errors.connectionWA?.groupsAddPrivacy}
-                        label="Adicionar aos grupos"
-                      >
-                        <Controller
-                          name="connectionWA.groupsAddPrivacy"
-                          control={control}
-                          render={({ field }) => (
-                            <SelectComponent
-                              name={field.name}
-                              isMulti={false}
-                              isSearchable={false}
-                              onBlur={field.onBlur}
-                              placeholder="Meus contatos"
-                              options={optionsPrivacyGroupValue}
-                              onChange={(e: any) => field.onChange(e.value)}
-                              value={
-                                field.value
-                                  ? {
-                                      label:
-                                        optionsPrivacyGroupValue.find(
-                                          (s) => s.value === field.value,
-                                        )?.label || "",
-                                      value: field.value,
-                                    }
-                                  : null
-                              }
-                            />
-                          )}
-                        />
-                      </Field>
-
-                      <Field
-                        errorText={
-                          errors.connectionWA?.readReceiptsPrivacy?.message
-                        }
-                        invalid={!!errors.connectionWA?.readReceiptsPrivacy}
-                        label="Confirmação de leitura"
-                        disabled
-                      >
-                        <Controller
-                          name="connectionWA.readReceiptsPrivacy"
-                          control={control}
-                          render={({ field }) => (
-                            <SelectComponent
-                              name={field.name}
-                              isMulti={false}
-                              isSearchable={false}
-                              isDisabled
-                              onBlur={field.onBlur}
-                              // options={optionsReadReceiptsValue}
-                              placeholder="Ninguém"
-                              onChange={(e: any) => field.onChange(e.value)}
-                            />
-                          )}
-                        />
-                      </Field>
-                    </HStack>
-                    <div className="flex items-center gap-x-2">
-                      <div className="border p-1 max-w-20 bg-white/2 text-green-100/5">
-                        <img src="/image-btn-connection.png" />
-                      </div>
-                      <p className="font-medium">
-                        Será possível conectar o WhatsApp {"(Via desktop)"} após
-                        criação do assistente de IA.
-                      </p>
-                    </div>
-                  </VStack>
+                  
                 </TabsContent>
-              </TabsRoot>
+              </TabsRoot> */}
             </TabsContent>
           </TabsRoot>
           {!clientMeta.isMobileLike && (

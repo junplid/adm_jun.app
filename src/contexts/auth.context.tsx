@@ -17,6 +17,7 @@ export interface Account {
   emailVerified: boolean;
   onboarded: boolean;
   isPremium: boolean;
+  hash: string;
   uuid: string;
   businessId: number;
 }

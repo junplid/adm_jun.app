@@ -147,7 +147,7 @@ function Body({ id, title, ...props }: PropsModalDelete) {
               {moment(template.createAt).format("DD/MM/YYYY")}
             </span>
           </div>
-          <div className="h-0.5 w-full bg-neutral-800 my-5"></div>
+          <div className="h-0.5 w-full my-5"></div>
           <ReactMarkdown
             rehypePlugins={[rehypeRaw]}
             remarkPlugins={[remarkGfm]}
@@ -173,7 +173,7 @@ function Body({ id, title, ...props }: PropsModalDelete) {
               Demostração*
             </span>
           </div>
-          <div className="h-0.5 w-full bg-neutral-800 my-5 mb-7"></div>
+          <div className="h-0.5 w-full my-5 mb-7"></div>
 
           {!!sections?.length && (
             <FormSectionsComponent

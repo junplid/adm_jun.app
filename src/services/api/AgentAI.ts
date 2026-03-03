@@ -89,6 +89,12 @@ export async function getAgentAI(id: number): Promise<{
   debounce?: number;
   connectionWAId?: number;
   chatbotId?: number;
+  connectionIg: {
+    id: number;
+    page_name: string;
+    ig_username: string;
+    ig_picture: string | null;
+  } | null;
 }> {
   const { data } = await api.get(`/private/agents-ai/${id}`);
   return data.agentAI;

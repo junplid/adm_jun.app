@@ -206,7 +206,7 @@ export const ConnectionsWAPage: React.FC = (): JSX.Element => {
                 bg={"transparent"}
                 _hover={{ bg: "#eb606028" }}
                 _icon={{ width: "20px", height: "20px" }}
-                disabled={!!row.AgentAI}
+                // disabled={!!row.AgentAI}
                 onClick={() => {
                   onOpen({
                     content: (

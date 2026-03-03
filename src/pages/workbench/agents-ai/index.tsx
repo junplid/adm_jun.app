@@ -35,14 +35,18 @@ import { ListOfAgentTemplatesComponent } from "@components/ListOfAgentTemplates"
 import { ModalListAgentTemplates } from "@components/ListOfAgentTemplates/modal_list";
 import { ModalAgentTemplate } from "@components/ListOfAgentTemplates/modal_agent";
 import { useGetAgentTemplates } from "../../../hooks/agentTemplate";
+import { FaInstagram, FaWhatsapp } from "react-icons/fa";
 
 export interface AgentsAIRow {
+  connections: {
+    id: number;
+    type: "ig" | "wa";
+    status: "open" | "close" | "sync";
+  }[];
   businesses: { id: number; name: string }[];
   id: number;
   name: string;
   createAt: Date;
-  status: "open" | "close";
-  connectionWAId: number;
 }
 
 const MotionIcon = motion.create(MdOutlineSync);
@@ -77,37 +81,64 @@ export const AgentsAIPage: React.FC = (): JSX.Element => {
           return (
             <div className="flex items-start flex-col">
               <span>{row.name}</span>
-              <div className="flex items-center">
-                {row.status === "close" && (
-                  <div className="flex text-xs items-center gap-x-1 px-1! bg-red-300/20 text-red-300">
-                    <MdSignalWifiConnectedNoInternet0
-                      color={"#e96068"}
-                      size={18}
-                    />
-                    <span>Conexão off</span>
-                  </div>
-                )}
-                {row.status === "open" && (
-                  <div className="flex text-xs items-center gap-x-1 px-1! bg-green-300/20 text-green-300">
-                    <ImConnection color={"#7bf1a8e2"} size={18} />
-                    <span>Conexão on</span>
-                  </div>
-                )}
-                {row.status === "sync" && (
-                  <div className="flex text-xs items-center gap-x-1 px-1! bg-blue-300/20 text-blue-300">
-                    <MotionIcon
-                      size={18}
-                      color="#7bb4f1"
-                      animate={{ rotate: -360 }}
-                      transition={{
-                        repeat: Infinity,
-                        duration: 1.2,
-                        ease: "linear",
-                      }}
-                    />
-                    <span>Conexão sync</span>
-                  </div>
-                )}
+              <div className="flex items-center gap-x-1">
+                {row.connections.map((con: AgentsAIRow["connections"][1]) => (
+                  <>
+                    {con.type === "wa" && (
+                      <>
+                        {con.status === "close" && (
+                          <div className="flex text-xs items-center gap-x-1 px-1! bg-red-300/20 text-red-300">
+                            <MdSignalWifiConnectedNoInternet0
+                              color={"#e96068"}
+                              size={18}
+                            />
+                            <span>WhatsApp off</span>
+                          </div>
+                        )}
+                        {con.status === "open" && (
+                          <div className="flex text-xs items-center gap-x-1 px-1! bg-green-300/20 text-green-300">
+                            <FaWhatsapp color={"#7bf1a8e2"} size={18} />
+                            <span>WhatsApp on</span>
+                          </div>
+                        )}
+                        {con.status === "sync" && (
+                          <div className="flex text-xs items-center gap-x-1 px-1! bg-blue-300/20 text-blue-300">
+                            <MotionIcon
+                              size={18}
+                              color="#7bb4f1"
+                              animate={{ rotate: -360 }}
+                              transition={{
+                                repeat: Infinity,
+                                duration: 1.2,
+                                ease: "linear",
+                              }}
+                            />
+                            <span>WhatsApp sync</span>
+                          </div>
+                        )}
+                      </>
+                    )}
+                    {con.type === "ig" && (
+                      <>
+                        {con.status === "close" && (
+                          <div className="flex text-xs items-center gap-x-1 px-1! bg-red-300/20 text-red-300">
+                            <MdSignalWifiConnectedNoInternet0
+                              color={"#e96068"}
+                              size={18}
+                            />
+                            <span>Instagram off</span>
+                          </div>
+                        )}
+                        {con.status === "open" && (
+                          <div className="flex text-xs items-center gap-x-1 px-1! bg-green-300/20 text-green-300">
+                            <FaInstagram color={"#7bf1a8e2"} size={18} />
+                            <span>Instagram</span>
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </>
+                ))}
               </div>
             </div>
           );

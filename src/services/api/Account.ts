@@ -7,6 +7,7 @@ export async function getAccount(): Promise<{
   emailVerified: boolean;
   onboarded: boolean;
   isPremium: boolean;
+  hash: string;
   businessId: number;
 }> {
   const { data } = await api.get("/private/account");
@@ -27,4 +28,21 @@ export async function updateAccount(body?: {
 
 export async function closeAccount(body: { password: string }): Promise<void> {
   await api.post("/private/close-account", body);
+}
+
+export async function getAccountsIg(body: { access_token: string }): Promise<
+  {
+    used_by: {
+      id: number;
+      name: string;
+    }[];
+    page_id: string;
+    page_name: string;
+    ig_id: string;
+    ig_username: string;
+    ig_picture: string;
+  }[]
+> {
+  const { data } = await api.post("/private/accounts-for-ig", body);
+  return data.accounts;
 }

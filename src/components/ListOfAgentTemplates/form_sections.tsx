@@ -94,6 +94,7 @@ type DataSocketMapCreate =
       label: string;
       type: "error" | "success" | "wait" | "runner";
       id: string;
+      connectionId?: number;
     }
   | {
       type: "error-input";
@@ -155,6 +156,7 @@ export function FormSectionsComponent(props: Props) {
   const [mapCreate, setMapCreate] = useState<MapCreate[]>(mapCreateList);
   const [showLoader, setShowLoader] = useState(false);
   const [loadCreate, setLoadCreate] = useState(false);
+  const [connectionId, setConnectionId] = useState<null | number>(null);
 
   const modalHash = useMemo(() => {
     return v4();
@@ -272,6 +274,7 @@ export function FormSectionsComponent(props: Props) {
         );
         if (data.id === "6" && data.type === "success") {
           setShowLoader(true);
+          setConnectionId(data.connectionId!);
           setTimeout(() => {
             setShowLoader(false);
             setSucessCreate(true);
@@ -327,7 +330,7 @@ export function FormSectionsComponent(props: Props) {
           Conetar o WhatsApp
         </h3>
         <ConnectWAComponent
-          id={1}
+          id={connectionId!}
           onConnected={() => props.onCloseAndFetch()}
         />
       </div>

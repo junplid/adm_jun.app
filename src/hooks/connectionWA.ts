@@ -362,7 +362,7 @@ export function useDeleteConnectionIG(props?: {
   const { logout } = useContext(AuthContext);
 
   return useMutation({
-    mutationFn: (id: number) => ConnectionWAService.deleteConnectionWA(id),
+    mutationFn: (id: number) => ConnectionWAService.deleteConnectionIG(id),
     async onSuccess(_, id) {
       if (props?.onSuccess) await props.onSuccess();
       queryClient.removeQueries({ queryKey: ["connection-wa-details", id] });
