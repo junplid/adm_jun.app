@@ -58,6 +58,7 @@ import { ImConnection } from "react-icons/im";
 import { BiTimeFive } from "react-icons/bi";
 import { ModalChatPlayer } from "../inboxes/departments/modals/Player/modalChat";
 import { useRoomWebSocket } from "../../hooks/roomWebSocket";
+import { BsFillLockFill } from "react-icons/bs";
 
 export type ItemID = string;
 
@@ -206,6 +207,7 @@ export function SortableItem({
     isDragging,
   } = useSortable({
     id: order.id,
+    disabled: !order.isDragDisabled,
   });
 
   const [actionsLoad, setActionsLoad] = useState<string[]>([]);
@@ -254,7 +256,8 @@ export function SortableItem({
     .join(", ");
 
   return (
-    <div ref={setNodeRef} className="p-1">
+    <div ref={setNodeRef} className="p-1 relative">
+      <BsFillLockFill className="absolute right-2 -top-0.5 text-red-400 z-20" />
       <div
         className={clsx("select-none relative")}
         style={{
@@ -269,6 +272,7 @@ export function SortableItem({
             : "none",
           outline: isDragging ? "2px dashed #fff" : "2px dashed transparent",
           outlineOffset: "-2px",
+          opacity: !order.isDragDisabled ? 0.4 : 1,
         }}
         {...attributes}
         {...listeners}
@@ -290,7 +294,7 @@ export function SortableItem({
             </span>
           </div>
           {(order.name || order.description) && (
-            <div className="px-2 flex flex-col -space-y-1 w-full">
+            <div className="px-2 flex flex-col mb-1 -space-y-1 w-full">
               <span className="line-clamp-2 text-xs sm:text-sm font-medium w-full">
                 {order.name}
               </span>
@@ -448,7 +452,8 @@ const columns: {
   value: TypeStatusOrder;
   color: string;
 }[] = [
-  { label: "Aguardando", value: "confirmed", color: "#0EA5E933" },
+  { label: "A confirmar ...", value: "draft", color: "#f5f5f533" },
+  { label: "Fila de pedidos", value: "confirmed", color: "#0EA5E933" },
   { label: "Em preparo", value: "processing", color: "#F9731633" },
   { label: "Embalagem", value: "ready", color: "#22C55E33" },
   { label: "A caminho", value: "on_way", color: "#3B82F633" },
@@ -663,6 +668,7 @@ export const OrdersPage: React.FC = (): JSX.Element => {
     try {
       const { orders: oL } = await getOrders({
         status: [
+          "draft",
           "pending",
           "confirmed",
           "processing",

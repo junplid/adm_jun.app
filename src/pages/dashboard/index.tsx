@@ -236,7 +236,7 @@ export function DashboardPage(): JSX.Element {
         </div>
       </Skeleton>
 
-      <ListOfAgentTemplatesComponent />
+      {/* <ListOfAgentTemplatesComponent /> */}
       <InstallPWA />
     </div>
   );

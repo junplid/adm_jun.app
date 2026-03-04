@@ -435,7 +435,7 @@ export function FormSectionsComponent(props: Props) {
                   <Controller
                     control={control}
                     name={`fields.${section.name}.${input.name}`}
-                    render={({ field: { value, ...rest } }) => (
+                    render={({ field: { value, onChange, ...rest } }) => (
                       <Field
                         invalid={!!errors?.fields?.[section.name]?.[input.name]}
                         errorText={
@@ -449,6 +449,7 @@ export function FormSectionsComponent(props: Props) {
                           style={{ resize: "none" }}
                           minRows={3}
                           maxRows={6}
+                          onChange={({ target }) => onChange(target.value)}
                           className={clsx(
                             "p-3 py-2.5 rounded-sm w-full border-white/10 border",
                             value ? "bg-white/10" : "bg-white/4",

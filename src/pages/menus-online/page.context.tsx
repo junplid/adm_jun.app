@@ -58,10 +58,6 @@ export function LayoutSitesPageProvider(): JSX.Element {
               }
             />
           </div>
-          <p className="text-white/60 font-light">
-            Sua bancada de trabalho feita para otimizar e automatizar seus
-            processos.
-          </p>
         </div>
 
         {(isFetching || isPending) && (

@@ -41,6 +41,7 @@ import { BsStars } from "react-icons/bs";
 import clsx from "clsx";
 import { IoMdSettings } from "react-icons/io";
 import { BottomSheetComponent } from "@components/BottomSheet";
+import { CgWebsite } from "react-icons/cg";
 // import { CgWebsite } from "react-icons/cg";
 // import { QrCode } from "@components/ui/qr-code";
 
@@ -266,15 +267,13 @@ export function LayoutPrivateProvider(): JSX.Element {
               >
                 Projetos
               </MenuItem> */}
-              {/* <MenuItem
+              <MenuItem
                 icon={<CgWebsite size={22} />}
                 component={<Link to={"/auth/menus-online"} />}
                 active={pathname.includes("menus-online")}
-                disabled
               >
-                Cardápios on-line{" "}
-                <Badge colorPalette={"gray"}>DESCONTINUADO</Badge>
-              </MenuItem> */}
+                Cardápios on-line
+              </MenuItem>
               <MenuItem
                 icon={<LuNotepadText size={20} />}
                 component={<Link to={"/auth/orders"} />}

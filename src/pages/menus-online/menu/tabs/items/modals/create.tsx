@@ -11,7 +11,6 @@ import {
   DialogFooter,
   DialogCloseTrigger,
   DialogActionTrigger,
-  DialogDescription,
 } from "@components/ui/dialog";
 import { Field } from "@components/ui/field";
 import { ItemRow } from "..";
@@ -34,7 +33,7 @@ interface IProps {
 }
 
 const optionsCategory = [
-  { label: "Pizzas", value: "pizzas" },
+  { label: "Sabores de pizza", value: "pizzas" },
   { label: "Bebidas", value: "drinks" },
 ];
 
@@ -132,9 +131,6 @@ export function ModalCreateProduct({
       >
         <DialogHeader flexDirection={"column"} gap={0}>
           <DialogTitle>Criar item</DialogTitle>
-          <DialogDescription>
-            Guarde e personalize informações dos seus contatos.
-          </DialogDescription>
         </DialogHeader>
         <DialogBody>
           <VStack gap={4}>

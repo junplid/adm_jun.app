@@ -8,6 +8,11 @@ import { VitePWA } from "vite-plugin-pwa";
 
 // https://vite.dev/config/
 export default defineConfig({
+  // server: {
+  //   allowedHosts: [
+  //     "7188-2804-3894-961-5600-f0fa-345e-5934-32e3.ngrok-free.app",
+  //   ],
+  // },
   plugins: [
     react(),
     tsconfigPaths(),
