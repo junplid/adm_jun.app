@@ -1,22 +1,12 @@
 import { useDialogModal } from "../../../../../hooks/dialog.modal";
-import {
-  JSX,
-  memo,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { JSX, memo, useCallback, useEffect, useMemo, useRef } from "react";
 import { Field } from "@components/ui/field";
 import { Button, Input } from "@chakra-ui/react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useHookFormMask } from "use-mask-input";
 import { AxiosError } from "axios";
 import {
-  useCreateMenuOnlineSizePizza,
   useGetMenuOnline,
   useUpdateMenuOnline,
 } from "../../../../../hooks/menu-online";
@@ -24,161 +14,24 @@ import TextareaAutosize from "react-textarea-autosize";
 import { MdOutlineImage } from "react-icons/md";
 import { Avatar } from "@components/ui/avatar";
 import { api } from "../../../../../services/api";
-
-export type TypeCategory = "pizzas" | "drinks";
-
-export interface ItemRow {
-  uuid: string;
-  id: number;
-  name: string;
-  desc: string | null;
-  category: "pizzas" | "drinks";
-  qnt: number;
-  beforePrice: number | null;
-  afterPrice: number;
-}
-
-const FormSchema = z.object({
-  name: z.string().min(1, "Campo obrigatório."),
-  price: z.string().min(1, "Campo obrigatório."),
-  flavors: z
-    .number({ message: "Campo obrigatório." })
-    .min(0, "Valor minimo é 0"),
-  slices: z.number().optional(),
-});
-
-type Fields = z.infer<typeof FormSchema>;
-
-function SizePizzaComponent({ uuid }: { uuid: string }) {
-  const [isCreate, setIsCreate] = useState(false);
-  const {
-    handleSubmit,
-    register,
-    setError,
-    formState: { errors },
-    reset,
-  } = useForm<Fields>({
-    resolver: zodResolver(FormSchema),
-  });
-  const registerWithMask = useHookFormMask(register);
-  const { mutateAsync: createSize, isPending } = useCreateMenuOnlineSizePizza({
-    setError,
-  });
-
-  const create = useCallback(
-    async (fields: Fields): Promise<void> => {
-      try {
-        await createSize({
-          ...fields,
-          price: Number(fields.price),
-          menuUuid: uuid,
-        });
-        reset();
-        setIsCreate(false);
-      } catch (error) {
-        if (error instanceof AxiosError) {
-          console.log("Error-API", error);
-        } else {
-          console.log("Error-Client", error);
-        }
-      }
-    },
-    [uuid],
-  );
-
-  return (
-    <div className="px-3 pt-4 bg-zinc-800/15 flex flex-col gap-y-3 rounded-md">
-      <div className="flex flex-col gap-y-4 items-center justify-between">
-        <span className="block font-medium">Tamanhos de pizzas</span>
-        {!isCreate && (
-          <button onClick={() => setIsCreate(true)} className="text-green-300">
-            Adicionar
-          </button>
-        )}
-      </div>
-      <div>lista</div>
-      {isCreate && (
-        <form
-          onSubmit={handleSubmit(create)}
-          className="flex flex-col gap-x-1.5"
-        >
-          <div className="flex gap-x-2">
-            <Field
-              errorText={errors.name?.message}
-              invalid={!!errors.name}
-              label="Nome do tamanho"
-            >
-              <Input
-                autoComplete="off"
-                {...register("name")}
-                placeholder="Digite o nome"
-              />
-            </Field>
-            <Field
-              errorText={errors.price?.message}
-              invalid={!!errors.price}
-              label="Preço"
-            >
-              <Input
-                autoComplete="off"
-                placeholder="Digite o valor"
-                {...registerWithMask("price", [
-                  "9",
-                  "99",
-                  "9.99",
-                  "99.99",
-                  "999.99",
-                ])}
-              />
-            </Field>
-          </div>
-          <div className="flex gap-x-2">
-            <Field
-              errorText={errors.flavors?.message}
-              invalid={!!errors.flavors}
-              label="Sabores"
-            >
-              <Input
-                type="number"
-                {...register("flavors", { valueAsNumber: true })}
-              />
-            </Field>
-            <Field
-              errorText={errors.slices?.message}
-              invalid={!!errors.slices}
-              label="Fatias"
-            >
-              <Input
-                type="number"
-                {...register("slices", { valueAsNumber: true })}
-              />
-            </Field>
-          </div>
-          <div className="flex gap-x-1.5">
-            <Button type="button" disabled={isPending} variant="outline">
-              Cancelar
-            </Button>
-            <Button type="submit" loading={isPending}>
-              Criar
-            </Button>
-          </div>
-        </form>
-      )}
-    </div>
-  );
-}
+import { SectionCategoriesMenuOnlineConfig } from "./categories";
+import { ModalEditMenuStatus } from "./modals/update-status";
+import SelectConnectionsWA from "@components/SelectConnectionsWA";
+import { FormConfigInfoComponent } from "./info";
+import { FormConfigOperatingDaysComponent } from "./operating-days";
 
 const FormSchemaConfig = z.object({
-  identifier: z.string().optional(),
-  desc: z.string().optional(),
-  titlePage: z.string().optional(),
+  identifier: z
+    .string()
+    .min(4, { message: "Precisa conter no minimo 4 caracter" }),
   img: z.instanceof(File).optional(),
-  bg_primary: z.string().optional(),
-  bg_secondary: z.string().optional(),
-  bg_tertiary: z.string().optional(),
-  label1: z.string().optional(),
-  label: z.string().optional(),
-  status: z.boolean().optional(),
+  titlePage: z.string().nullable(),
+  desc: z.string().nullable(),
+  bg_primary: z.string().nullable(),
+  bg_secondary: z.string().nullable(),
+  bg_tertiary: z.string().nullable(),
+  bg_capa: z.string().nullable(),
+  connectionWAId: z.number().nullable(),
 });
 
 type ConfigFields = z.infer<typeof FormSchemaConfig>;
@@ -190,28 +43,22 @@ function FormConfigComponent({ uuid }: { uuid: string }) {
   const {
     handleSubmit,
     register,
-    formState: { errors, isDirty, dirtyFields },
+    formState: { errors, isDirty },
     reset,
     watch,
-    getValues,
     setError,
     setValue,
+    control,
   } = useForm<ConfigFields>({
     resolver: zodResolver(FormSchemaConfig),
   });
   const { mutateAsync: updateMenu, isPending } = useUpdateMenuOnline({
     setError,
   });
-  const edit = useCallback(async (): Promise<void> => {
+  const edit = useCallback(async (fields: ConfigFields): Promise<void> => {
     if (!data?.id) return;
     try {
-      const values = getValues();
-      const changedFields = Object.keys(dirtyFields).reduce((acc, key) => {
-        // @ts-expect-error
-        acc[key] = values[key];
-        return acc;
-      }, {} as Partial<ConfigFields>);
-      await updateMenu({ id: data.id, body: changedFields });
+      await updateMenu({ id: data.id, body: fields });
     } catch (error) {
       if (error instanceof AxiosError) {
         console.log("Error-API", error);
@@ -219,10 +66,21 @@ function FormConfigComponent({ uuid }: { uuid: string }) {
         console.log("Error-Client", error);
       }
     }
-  }, [dirtyFields]);
+  }, []);
 
   useEffect(() => {
-    if (data) reset({ ...data, bg_primary: "#111111" });
+    if (data) {
+      const {
+        helperTextOpening,
+        statusMenu,
+        info,
+        statusNow,
+        id,
+        uuid,
+        ...restD
+      } = data;
+      reset({ ...restD, bg_capa: "#e5e5e5" });
+    }
   }, [data]);
 
   const fileImage = watch("img");
@@ -230,13 +88,13 @@ function FormConfigComponent({ uuid }: { uuid: string }) {
 
   const imgPreviewUrl = useMemo(() => {
     if (fileImage) return URL.createObjectURL(fileImage);
-    if (data?.logoImg) return api.getUri() + `/public/storage/${data?.logoImg}`;
+    if (data?.logoImg) return api.getUri() + `/public/images/${data?.logoImg}`;
   }, [fileImage, data?.logoImg]);
 
   return (
     <form
       onSubmit={handleSubmit(edit)}
-      className="flex flex-col gap-y-2 px-1.5 pb-2 overflow-y-scroll pr-2 h-[calc(100svh-250px)]"
+      className="flex flex-col gap-y-2 px-1.5"
     >
       <Field
         errorText={errors.titlePage?.message}
@@ -262,7 +120,7 @@ function FormConfigComponent({ uuid }: { uuid: string }) {
             accept="image/jpeg, image/png, image/jpg"
             onChange={(e) => {
               const file = e.target.files?.[0];
-              if (file) setValue("img", file);
+              if (file) setValue("img", file, { shouldDirty: true });
             }}
           />
           <Avatar
@@ -309,12 +167,12 @@ function FormConfigComponent({ uuid }: { uuid: string }) {
         <Field
           errorText={errors.bg_primary?.message}
           invalid={!!errors.bg_primary}
-          label="Cor primária"
+          label="Cor da capa"
           disabled={isFetching || isLoading || isError}
         >
-          <Input {...register("bg_primary")} type="color" autoComplete="off" />
+          <Input {...register("bg_capa")} type="color" autoComplete="off" />
         </Field>
-        <Field
+        {/* <Field
           errorText={errors.bg_secondary?.message}
           invalid={!!errors.bg_secondary}
           label="Cor secundária"
@@ -329,9 +187,34 @@ function FormConfigComponent({ uuid }: { uuid: string }) {
           disabled
         >
           <Input {...register("bg_tertiary")} autoComplete="off" />
-        </Field>
+        </Field> */}
       </div>
 
+      <Controller
+        name="connectionWAId"
+        control={control}
+        render={({ field }) => (
+          <Field
+            errorText={errors.connectionWAId?.message}
+            invalid={!!errors.connectionWAId}
+            label="Conexão WhatsApp"
+            helperText={
+              field.value
+                ? 'Ao fazer o pedido, o servidor irá verificar se a conexão tem Chatbot Receptivo, caso tenha, será priorizado o número de contato dessa conexão e o usuário será redirecionado para o WhatsApp com a mensagem "Meu pedido é o #...". Você poderá capiturar o código do pedido na mensagem com sua automação. Caso não tenha Chatbot Receptivo, o usuário será redirecionado para o número de WhatsApp definido em "Informações da Loja > Contato WhatsApp" com a mensagem de texto contendo o pedido formatado.'
+                : 'Ao fazer o pedido, o usuário será redirecionado para o número de WhatsApp definido em "Informações da Loja > Contato WhatsApp" com a mensagem de texto contendo o pedido formatado.'
+            }
+          >
+            <SelectConnectionsWA
+              name={field.name}
+              isMulti={false}
+              isSearchable={false}
+              onBlur={field.onBlur}
+              onChange={(e: any) => field.onChange(e?.value || null)}
+              value={field.value}
+            />
+          </Field>
+        )}
+      />
       <div className="flex gap-x-1.5 ml-auto mt-3">
         <Button
           type="button"
@@ -349,16 +232,62 @@ function FormConfigComponent({ uuid }: { uuid: string }) {
 }
 
 const TabConfig_ = ({ uuid }: { uuid: string }): JSX.Element => {
+  const { data } = useGetMenuOnline({
+    uuid,
+  });
+
   const {
     dialog: DialogModal,
     close: _close,
-    onOpen: _onOpen,
+    onOpen: onOpen,
   } = useDialogModal({});
 
   return (
-    <div className="flex-1 !pt-0 grid grid-cols-[1fr_270px] gap-x-2 h-full">
-      <FormConfigComponent uuid={uuid} />
-      <SizePizzaComponent uuid={uuid} />
+    <div className="flex-1 pt-0! flex flex-col scroll-auto overflow-y-scroll h-[calc(100svh-250px)] gap-x-2">
+      <section className="space-y-3">
+        <h3 className="text-lg font-bold">Configurações de site</h3>
+        <FormConfigComponent uuid={uuid} />
+      </section>
+      <hr className="text-neutral-600 my-10" />
+
+      <section className="space-y-3">
+        <h3 className="text-lg font-bold">Informações da Loja</h3>
+        <FormConfigInfoComponent uuid={uuid} />
+      </section>
+      <hr className="text-neutral-600 my-10" />
+      <section className="space-y-3">
+        <h3 className="text-lg font-bold">Dias de funcionamento</h3>
+        <FormConfigOperatingDaysComponent uuid={uuid} />
+      </section>
+
+
+
+      <hr className="text-neutral-600 my-10" />
+      <SectionCategoriesMenuOnlineConfig bg_primary="" />
+      <hr className="text-neutral-600 my-10" />
+
+      <div className="flex flex-col items-baseline mb-1.5">
+        <Button
+          size={"2xs"}
+          px={4}
+          colorPalette={data?.statusMenu ? "red" : "green"}
+          onClick={() => {
+            onOpen({
+              size: "sm",
+              content: (
+                <ModalEditMenuStatus
+                  close={_close}
+                  status={!data?.statusMenu}
+                  uuid={uuid}
+                />
+              ),
+            });
+          }}
+        >
+          {data?.statusMenu ? "Desativar cardápio" : "Ativar cardápio"}
+        </Button>
+      </div>
+
       {DialogModal}
     </div>
   );

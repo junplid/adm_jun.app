@@ -10,7 +10,6 @@ import { toaster } from "@components/ui/toaster";
 import { AuthContext } from "@contexts/auth.context";
 import { Skeleton } from "@chakra-ui/react";
 import { useFiveMinuteClock } from "../../hooks/preciseFiveMinuteListener";
-import { ListOfAgentTemplatesComponent } from "@components/ListOfAgentTemplates";
 
 export function DashboardPage(): JSX.Element {
   const { logout } = useContext(AuthContext);

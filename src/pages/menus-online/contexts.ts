@@ -1,9 +1,7 @@
-import { ReactNode, createContext } from "react";
+import { createContext } from "react";
 
-interface IFlowContextProps {
-  ToggleMenu: ReactNode;
-}
+interface IFlowContextProps {}
 
 export const LayoutWorkbenchPageContext = createContext(
-  {} as IFlowContextProps
+  {} as IFlowContextProps,
 );

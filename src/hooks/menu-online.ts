@@ -154,7 +154,7 @@ export function useCreateMenuOnline(props?: {
           if (dataError.input.length) {
             dataError.input.forEach(({ text, path }) =>
               // @ts-expect-error
-              props?.setError?.(path, { message: text })
+              props?.setError?.(path, { message: text }),
             );
           }
         }
@@ -163,181 +163,30 @@ export function useCreateMenuOnline(props?: {
   });
 }
 
-export function useCreateMenuOnlineItem(props?: {
+export function useUpdateMenuOnlineStatus(props?: {
   setError?: UseFormSetError<{
-    name: string;
-    category: "pizzas" | "drinks";
-    desc?: string;
-    beforePrice?: number;
-    afterPrice?: number;
-    img: File;
-    qnt?: number;
+    status: boolean;
   }>;
   onSuccess?: () => Promise<void>;
 }) {
   const { logout } = useContext(AuthContext);
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({
-      menuUuid,
-      ...body
-    }: {
-      menuUuid: string;
-      name: string;
-      category: "pizzas" | "drinks";
-      desc?: string;
-      beforePrice?: number;
-      afterPrice?: number;
-      img: File;
-      qnt?: number;
-    }) => MenuOnlineService.createMenuOnlineItem(menuUuid, body),
-    async onSuccess(data, { name }) {
-      if (props?.onSuccess) await props.onSuccess();
-      // await queryClient.setQueryData(["menu-online", data.id], () => ({
-      //   name,
-      //   description,
-      // }));
-
-      if (queryClient.getQueryData<any>(["menus-online-items", null])) {
-        queryClient.setQueryData(["menus-online-items", null], (old: any) => {
-          if (!old) return old;
-          return [{ ...data, name }, ...old];
-        });
-      }
-
-      if (queryClient.getQueryData<any>(["menus-online-items-options", null])) {
-        queryClient.setQueryData(
-          ["menus-online-items-options", null],
-          (old: any) => [...(old || []), { id: data.id, name }]
-        );
-      }
-    },
-    onError(error: unknown) {
-      if (error instanceof AxiosError) {
-        if (error.response?.status === 401) logout();
-        if (error.response?.status === 400) {
-          const dataError = error.response?.data as ErrorResponse_I;
-          if (dataError.toast.length) dataError.toast.forEach(toaster.create);
-          if (dataError.input.length) {
-            dataError.input.forEach(({ text, path }) =>
-              // @ts-expect-error
-              props?.setError?.(path, { message: text })
-            );
-          }
-        }
-      }
-    },
-  });
-}
-
-export function useCreateMenuOnlineSizePizza(props?: {
-  setError?: UseFormSetError<{
-    name: string;
-    price: number;
-    flavors: number;
-    slices?: number;
-  }>;
-  onSuccess?: () => Promise<void>;
-}) {
-  const { logout } = useContext(AuthContext);
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({
-      menuUuid,
-      ...body
-    }: {
-      menuUuid: string;
-      name: string;
-      price: number;
-      flavors: number;
-      slices?: number;
-    }) => MenuOnlineService.createMenuOnlineSizePizza(menuUuid, body),
-    async onSuccess(data, { name }) {
-      if (props?.onSuccess) await props.onSuccess();
-      // await queryClient.setQueryData(["menu-online", data.id], () => ({
-      //   name,
-      //   description,
-      // }));
-
-      if (queryClient.getQueryData<any>(["menus-online-sizes-pizza", null])) {
-        queryClient.setQueryData(
-          ["menus-online-sizes-pizza", null],
-          (old: any) => {
-            if (!old) return old;
-            return [{ ...data, name }, ...old];
-          }
-        );
-      }
-    },
-    onError(error: unknown) {
-      if (error instanceof AxiosError) {
-        if (error.response?.status === 401) logout();
-        if (error.response?.status === 400) {
-          const dataError = error.response?.data as ErrorResponse_I;
-          if (dataError.toast.length) dataError.toast.forEach(toaster.create);
-          if (dataError.input.length) {
-            dataError.input.forEach(({ text, path }) =>
-              // @ts-expect-error
-              props?.setError?.(path, { message: text })
-            );
-          }
-        }
-      }
-    },
-  });
-}
-
-export function useUpdateMenuOnline(props?: {
-  setError?: UseFormSetError<{
-    identifier?: string;
-    desc?: string;
-    bg_primary?: string;
-    bg_secondary?: string;
-    bg_tertiary?: string;
-    label1?: string;
-    label?: string;
-    titlePage?: string;
-    status?: boolean;
-    img?: File;
-  }>;
-  onSuccess?: () => Promise<void>;
-}) {
-  const { logout } = useContext(AuthContext);
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({
-      id,
-      body,
-    }: {
-      id: number;
-      body: {
-        identifier?: string;
-        desc?: string;
-        bg_primary?: string;
-        bg_secondary?: string;
-        bg_tertiary?: string;
-        label1?: string;
-        label?: string;
-        titlePage?: string;
-        status?: boolean;
-        img?: File;
-      };
-    }) => MenuOnlineService.updateMenuOnline(id, body),
-    async onSuccess({ logoImg, uuid }, { id, body: { img, ...rest } }) {
+    mutationFn: ({ uuid, body }: { uuid: string; body: { status: boolean } }) =>
+      MenuOnlineService.updateMenuOnlineStatus(uuid, body),
+    async onSuccess(_, { uuid, body: { status } }) {
       if (props?.onSuccess) await props.onSuccess();
       queryClient.setQueryData(["menu-online", uuid], (old: any) => ({
         ...old,
-        ...rest,
-        logoImg: logoImg ? logoImg : old.logoImg,
+        statusMenu: status,
       }));
 
       if (queryClient.getQueryData<any>(["menus-online", null])) {
         queryClient.setQueryData(["menus-online", null], (old: any) =>
           old?.map((b: any) => {
-            if (b.id === id)
-              b = { ...b, identifier: rest.identifier || b.identifier };
+            if (b.uuid === uuid) b = { ...b, statusMenu: status };
             return b;
-          })
+          }),
         );
       }
       // if (queryClient.getQueryData<any>(["menus-online-options", null])) {
@@ -358,7 +207,201 @@ export function useUpdateMenuOnline(props?: {
           if (dataError.input.length) {
             dataError.input.forEach(({ text, path }) =>
               // @ts-expect-error
-              props?.setError?.(path, { message: text })
+              props?.setError?.(path, { message: text }),
+            );
+          }
+        }
+      }
+    },
+  });
+}
+
+export function useUpdateMenuOnline(props?: {
+  setError?: UseFormSetError<{
+    identifier: string;
+    titlePage: string | null;
+    desc: string | null;
+    bg_primary: string | null;
+    bg_secondary: string | null;
+    bg_tertiary: string | null;
+    bg_capa: string | null;
+    connectionWAId: number | null;
+    img?: File | undefined;
+  }>;
+  onSuccess?: () => Promise<void>;
+}) {
+  const { logout } = useContext(AuthContext);
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      id,
+      body,
+    }: {
+      id: number;
+      body: {
+        identifier: string;
+        titlePage: string | null;
+        desc: string | null;
+        bg_primary: string | null;
+        bg_secondary: string | null;
+        bg_tertiary: string | null;
+        bg_capa: string | null;
+        connectionWAId: number | null;
+        img?: File | undefined;
+      };
+    }) => MenuOnlineService.updateMenuOnline(id, body),
+    async onSuccess({ logoImg, uuid }, { id, body: { img, ...rest } }) {
+      if (props?.onSuccess) await props.onSuccess();
+      queryClient.setQueryData(["menu-online", uuid], (old: any) => ({
+        ...old,
+        ...rest,
+        logoImg: logoImg ? logoImg : old.logoImg,
+      }));
+
+      if (queryClient.getQueryData<any>(["menus-online", null])) {
+        queryClient.setQueryData(["menus-online", null], (old: any) =>
+          old?.map((b: any) => {
+            if (b.id === id)
+              b = { ...b, identifier: rest.identifier || b.identifier };
+            return b;
+          }),
+        );
+      }
+      // if (queryClient.getQueryData<any>(["menus-online-options", null])) {
+      //   queryClient.setQueryData(["menus-online-options", null], (old: any) =>
+      //     old?.map((b: any) => {
+      //       if (b.id === id) b = { ...b, name: body.name || b.name };
+      //       return b;
+      //     })
+      //   );
+      // }
+    },
+    onError(error: unknown) {
+      if (error instanceof AxiosError) {
+        if (error.response?.status === 401) logout();
+        if (error.response?.status === 400) {
+          const dataError = error.response?.data as ErrorResponse_I;
+          if (dataError.toast.length) dataError.toast.forEach(toaster.create);
+          if (dataError.input.length) {
+            dataError.input.forEach(({ text, path }) =>
+              // @ts-expect-error
+              props?.setError?.(path, { message: text }),
+            );
+          }
+        }
+      }
+    },
+  });
+}
+
+export function useUpdateMenuOnlineInfo(props?: {
+  setError?: UseFormSetError<{
+    payment_methods: (
+      | "Dinheiro"
+      | "Pix"
+      | "Cartao_Credito"
+      | "Cartao_Debito"
+    )[];
+    address?: string | null | undefined;
+    delivery_fee?: number | null | undefined;
+    state_uf?: string | null | undefined;
+    city?: string | null | undefined;
+    phone_contact?: string | null | undefined;
+    whatsapp_contact?: string | null | undefined;
+  }>;
+  onSuccess?: () => Promise<void>;
+}) {
+  const { logout } = useContext(AuthContext);
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      uuid,
+      body,
+    }: {
+      uuid: string;
+      body: {
+        payment_methods: (
+          | "Dinheiro"
+          | "Pix"
+          | "Cartao_Credito"
+          | "Cartao_Debito"
+        )[];
+        address?: string | null;
+        delivery_fee?: number | null;
+        state_uf?: string | null;
+        city?: string | null;
+        phone_contact?: string | null;
+        whatsapp_contact?: string | null;
+      };
+    }) => MenuOnlineService.updateMenuOnlineInfo(uuid, body),
+    async onSuccess(_, { uuid, body: { ...rest } }) {
+      if (props?.onSuccess) await props.onSuccess();
+      queryClient.setQueryData(["menu-online", uuid], (old: any) => ({
+        ...old,
+        info: rest,
+      }));
+    },
+    onError(error: unknown) {
+      if (error instanceof AxiosError) {
+        if (error.response?.status === 401) logout();
+        if (error.response?.status === 400) {
+          const dataError = error.response?.data as ErrorResponse_I;
+          if (dataError.toast.length) dataError.toast.forEach(toaster.create);
+          if (dataError.input.length) {
+            dataError.input.forEach(({ text, path }) =>
+              // @ts-expect-error
+              props?.setError?.(path, { message: text }),
+            );
+          }
+        }
+      }
+    },
+  });
+}
+
+export function useUpdateMenuOnlineOperatingDays(props?: {
+  setError?: UseFormSetError<{
+    days: {
+      dayOfWeek: number;
+      startHourAt: string;
+      endHourAt: string;
+    }[];
+  }>;
+  onSuccess?: () => Promise<void>;
+}) {
+  const { logout } = useContext(AuthContext);
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      uuid,
+      body,
+    }: {
+      uuid: string;
+      body: {
+        days: {
+          dayOfWeek: number;
+          startHourAt: string;
+          endHourAt: string;
+        }[];
+      };
+    }) => MenuOnlineService.updateMenuOnlineOperatingDays(uuid, body),
+    async onSuccess(_, { uuid, body: { ...rest } }) {
+      if (props?.onSuccess) await props.onSuccess();
+      queryClient.setQueryData(["menu-online", uuid], (old: any) => ({
+        ...old,
+        operatingDays: rest,
+      }));
+    },
+    onError(error: unknown) {
+      if (error instanceof AxiosError) {
+        if (error.response?.status === 401) logout();
+        if (error.response?.status === 400) {
+          const dataError = error.response?.data as ErrorResponse_I;
+          if (dataError.toast.length) dataError.toast.forEach(toaster.create);
+          if (dataError.input.length) {
+            dataError.input.forEach(({ text, path }) =>
+              // @ts-expect-error
+              props?.setError?.(path, { message: text }),
             );
           }
         }
@@ -383,10 +426,10 @@ export function useDeleteMenuOnline(props?: {
       });
       queryClient.removeQueries({ queryKey: ["menu-online", params.uuid] });
       queryClient.setQueryData(["menus-online", null], (old: any) =>
-        old?.filter((b: any) => b.uuid !== params.uuid)
+        old?.filter((b: any) => b.uuid !== params.uuid),
       );
       queryClient.setQueryData(["menus-online-options", null], (old: any) =>
-        old?.filter((b: any) => b.uuid !== params.uuid)
+        old?.filter((b: any) => b.uuid !== params.uuid),
       );
     },
     onError(error: unknown) {
@@ -419,11 +462,11 @@ export function useDeleteMenuOnlineItem(props?: {
         queryKey: ["menu-online-item", params.uuid],
       });
       queryClient.setQueryData(["menus-online-items", null], (old: any) =>
-        old?.filter((b: any) => b.uuid !== params.uuid)
+        old?.filter((b: any) => b.uuid !== params.uuid),
       );
       queryClient.setQueryData(
         ["menus-online-items-options", null],
-        (old: any) => old?.filter((b: any) => b.uuid !== params.uuid)
+        (old: any) => old?.filter((b: any) => b.uuid !== params.uuid),
       );
     },
     onError(error: unknown) {

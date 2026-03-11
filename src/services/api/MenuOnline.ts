@@ -29,64 +29,169 @@ export async function createMenuOnlineItem(
   menuUuid: string,
   body: {
     name: string;
-    category: "pizzas" | "drinks";
     desc?: string;
+    fileNameImage: string;
+    qnt?: number;
     beforePrice?: number;
     afterPrice?: number;
-    img: File;
-    qnt?: number;
-  }
+    categoriesUuid?: string[];
+    sections?: {
+      title?: string;
+      helpText?: string;
+      required?: boolean;
+      minOptions?: number;
+      maxOptions?: number;
+      subItems: {
+        image55x55png?: string;
+        name: string;
+        desc?: string;
+        before_additional_price?: number;
+        after_additional_price?: number;
+      }[];
+    }[];
+  },
 ): Promise<{
   id: number;
-  createAt: Date;
   uuid: string;
+  categories: {
+    days_in_the_week_label: string;
+    id: number;
+    name: string;
+    image45x45png: string;
+  }[];
 }> {
-  const formData = new FormData();
-  const { img, ...rest } = body;
-  Object.entries(rest).forEach(([key, value]) => {
-    if (value !== undefined) {
-      formData.append(key, String(value));
-    }
-  });
-  formData.append("fileImage", img);
-
   const { data } = await api.post(
     `/private/menus-online/${menuUuid}/items`,
-    formData,
-    {
-      headers: { "Content-Type": "multipart/form-data" },
-    }
+    body,
   );
 
   return data.item;
 }
 
-export async function createMenuOnlineSizePizza(
+export async function updateMenuOnlineItem(
   menuUuid: string,
-  body: { name: string; price: number; flavors: number; slices?: number }
-): Promise<{ id: number; createAt: Date }> {
-  const { data } = await api.post(
-    `/private/menus-online/${menuUuid}/sizes-pizza`,
-    body
+  uuid: string,
+  body: {
+    name?: string;
+    desc?: string;
+    fileNameImage?: string;
+    qnt?: number;
+    beforePrice?: number;
+    afterPrice?: number;
+    categoriesUuid?: string[];
+    sections?: {
+      title?: string;
+      helpText?: string;
+      required?: boolean;
+      minOptions?: number;
+      maxOptions?: number;
+      subItems: {
+        image55x55png?: string;
+        name: string;
+        desc?: string;
+        before_additional_price?: number;
+        after_additional_price?: number;
+      }[];
+    }[];
+  },
+): Promise<{
+  categories: {
+    days_in_the_week_label: string;
+    name: string;
+    id: number;
+    image45x45png: string;
+  }[];
+  uuid: string;
+  id: number;
+}> {
+  const { data } = await api.put(
+    `/private/menus-online/${menuUuid}/items/${uuid}`,
+    body,
   );
 
-  return data.size;
+  return data.item;
+}
+
+export async function createMenuOnlineCategory(
+  menuUuid: string,
+  body: {
+    name: string;
+    fileImage: File;
+    startAt?: string;
+    endAt?: string;
+    days_in_the_week?: number[];
+  },
+): Promise<{
+  image45x45png: string;
+  id: number;
+  uuid: string;
+  days_in_the_week_label: string;
+}> {
+  const formData = new FormData();
+  const { fileImage, ...rest } = body;
+  Object.entries(rest).forEach(([key, value]) => {
+    if (value !== undefined) {
+      formData.append(key, String(value));
+    }
+  });
+  formData.append("fileImage", fileImage);
+
+  const { data } = await api.post(
+    `/private/menus-online/${menuUuid}/categories`,
+    formData,
+    { headers: { "Content-Type": "multipart/form-data" } },
+  );
+
+  return data.category;
+}
+
+export async function updateMenuOnlineCategory(
+  menuUuid: string,
+  catUuid: string,
+  body: {
+    name?: string;
+    fileImage?: File;
+    startAt?: string;
+    endAt?: string;
+    days_in_the_week?: number[];
+  },
+): Promise<{ image45x45png?: string; days_in_the_week_label: string }> {
+  const formData = new FormData();
+  const { fileImage, days_in_the_week, ...rest } = body;
+  Object.entries(rest).forEach(([key, value]) => {
+    if (value !== undefined) {
+      formData.append(key, String(value));
+    }
+  });
+  if (days_in_the_week) {
+    formData.append("days_in_the_week", JSON.stringify(days_in_the_week));
+  }
+  if (fileImage) {
+    formData.append("fileImage", fileImage);
+  }
+
+  const { data } = await api.put(
+    `/private/menus-online/${menuUuid}/categories/${catUuid}`,
+    formData,
+    { headers: { "Content-Type": "multipart/form-data" } },
+  );
+
+  return data.category;
 }
 
 export async function updateMenuOnline(
   id: number,
   body: {
-    identifier?: string;
-    desc?: string;
-    bg_primary?: string;
-    bg_secondary?: string;
-    bg_tertiary?: string;
-    label1?: string;
-    label?: string;
-    titlePage?: string;
-    status?: boolean;
-    img?: File;
-  }
+    identifier: string;
+    titlePage: string | null;
+    desc: string | null;
+    bg_primary: string | null;
+    bg_secondary: string | null;
+    bg_tertiary: string | null;
+    bg_capa: string | null;
+    connectionWAId: number | null;
+    img?: File | undefined;
+  },
 ): Promise<{
   logoImg?: string;
   uuid: string;
@@ -104,6 +209,39 @@ export async function updateMenuOnline(
     headers: { "Content-Type": "multipart/form-data" },
   });
   return data.menu;
+}
+
+export async function updateMenuOnlineInfo(
+  uuid: string,
+  body: {
+    payment_methods: (
+      | "Dinheiro"
+      | "Pix"
+      | "Cartao_Credito"
+      | "Cartao_Debito"
+    )[];
+    delivery_fee?: number | null | undefined;
+    address?: string | null | undefined;
+    state_uf?: string | null | undefined;
+    city?: string | null | undefined;
+    phone_contact?: string | null | undefined;
+    whatsapp_contact?: string | null | undefined;
+  },
+): Promise<void> {
+  await api.put(`/private/menus-online/${uuid}/info`, body);
+}
+
+export async function updateMenuOnlineOperatingDays(
+  uuid: string,
+  body: {
+    days: {
+      dayOfWeek: number;
+      startHourAt: string;
+      endHourAt: string;
+    }[];
+  },
+): Promise<void> {
+  await api.put(`/private/menus-online/${uuid}/operating-days`, body);
 }
 
 export async function getMenuOnlineDetails(id: number): Promise<{
@@ -129,10 +267,42 @@ export async function getMenuOnline(params: { uuid: string }): Promise<{
   label1?: string;
   label?: string;
   titlePage?: string;
-  status?: boolean;
+  bg_capa: string | null;
+  connectionWAId: number | null;
+  statusMenu: boolean;
+  statusNow: boolean;
+  helperTextOpening: string;
+  operatingDays: {
+    dayOfWeek: number;
+    startHourAt: string;
+    endHourAt: string;
+  }[];
+  info: {
+    address: string | null;
+    state_uf: string | null;
+    city: string | null;
+    phone_contact: string | null;
+    whatsapp_contact: string | null;
+    delivery_fee?: number | null;
+    payment_methods: (
+      | "Dinheiro"
+      | "Pix"
+      | "Cartao_Credito"
+      | "Cartao_Debito"
+    )[];
+  } | null;
 }> {
   const { data } = await api.get(`/private/menus-online/${params.uuid}`);
   return data.menu;
+}
+
+export async function updateMenuOnlineStatus(
+  uuid: string,
+  body: {
+    status: boolean;
+  },
+): Promise<void> {
+  await api.put(`/private/menus-online/${uuid}/status`, body);
 }
 
 export async function getMenusOnline(params?: {
@@ -149,20 +319,156 @@ export async function getMenusOnline(params?: {
   return data.menus;
 }
 
+export async function getMenuOnlineItem(params: {
+  uuid: string;
+  itemUuid: string;
+}): Promise<{
+  categoriesUuid: string[];
+  sections: {
+    subItems: {
+      uuid: string;
+      name: string;
+      desc: string | null;
+      previewImage: string | null;
+      before_additional_price: string | null;
+      after_additional_price: string | null;
+    }[];
+    uuid: string;
+    title: string;
+    helpText: string | null;
+    required: boolean;
+    minOptions: number;
+    maxOptions: number | null;
+  }[];
+  name: string;
+  desc: string | null;
+  qnt: number;
+  beforePrice: string | null;
+  afterPrice: string | null;
+  fileNameImage: string;
+  date_validity: Date | null;
+} | null> {
+  const { data } = await api.get(
+    `/private/menus-online/${params.uuid}/items/${params.itemUuid}`,
+  );
+  return data.item;
+}
+
+export async function getMenuOnlineSectionsOfItem(params: {
+  uuid: string;
+  itemUuid: string;
+}): Promise<
+  {
+    uuid: string;
+    title?: string;
+    helpText?: string;
+    required: boolean;
+    minOptions: number;
+    maxOptions?: number;
+    subItems: {
+      uuid: string;
+      name: string;
+      desc: string | null;
+      previewImage: string | null;
+      maxLength: number;
+      before_additional_price: string | null;
+      after_additional_price: string | null;
+    }[];
+  }[]
+> {
+  const { data } = await api.get(
+    `/private/menus-online/${params.uuid}/sections-of/${params.itemUuid}`,
+  );
+  return data.sections;
+}
+
 export async function getMenuOnlineItems(params: { uuid: string }): Promise<
   {
+    categories: {
+      days_in_the_week_label: string;
+      id: number;
+      name: string;
+      image45x45png: string;
+    }[];
     uuid: string;
     id: number;
     name: string;
     desc: string | null;
-    category: "pizzas" | "drinks";
+    img: string;
     qnt: number;
-    beforePrice: number | null;
-    afterPrice: number;
+    beforePrice: string | null;
+    afterPrice: string | null;
   }[]
 > {
   const { data } = await api.get(`/private/menus-online/${params.uuid}/items`);
   return data.items;
+}
+
+export async function getMenuOnlineCategories(params: {
+  uuid: string;
+}): Promise<
+  {
+    id: number;
+    uuid: string;
+    name: string;
+    image45x45png: string;
+    items: number;
+    days_in_the_week_label: string;
+  }[]
+> {
+  const { data } = await api.get(
+    `/private/menus-online/${params.uuid}/categories`,
+  );
+  return data.categories;
+}
+
+export async function getOptionsMenuOnlineCategories(params: {
+  uuid: string;
+}): Promise<
+  {
+    days_in_the_week_label: string;
+    id: number;
+    uuid: string;
+    name: string;
+    image45x45png: string;
+  }[]
+> {
+  const { data } = await api.get(
+    `/private/menus-online/${params.uuid}/categories/options`,
+  );
+  return data.categories;
+}
+
+export async function getOptionsMenuOnlineItems(params: {
+  uuid: string;
+}): Promise<
+  {
+    uuid: string;
+    id: number;
+    name: string;
+    img: string;
+  }[]
+> {
+  const { data } = await api.get(
+    `/private/menus-online/${params.uuid}/items/options`,
+  );
+  return data.items;
+}
+
+export async function getMenuOnlineCategory(params: {
+  uuid: string;
+  catUuid: string;
+}): Promise<{
+  name: string;
+  image45x45png: string;
+  startAt: Date | null;
+  endAt: Date | null;
+  days_in_the_week: number[];
+}> {
+  const { data } = await api.get(
+    `/private/menus-online/${params.uuid}/categories/${params.catUuid}`,
+  );
+  return data.category;
 }
 
 export async function getOptionsMenusOnline({
@@ -182,6 +488,15 @@ export async function deleteMenuOnline(params: {
   uuid: string;
 }): Promise<void> {
   await api.delete(`/private/menus-online/${params.uuid}`);
+}
+
+export async function deleteMenuOnlineCategory(params: {
+  uuid: string;
+  catUuid: string;
+}): Promise<void> {
+  await api.delete(
+    `/private/menus-online/${params.uuid}/categories/${params.catUuid}`,
+  );
 }
 
 export async function deleteMenuOnlineItem(params: {

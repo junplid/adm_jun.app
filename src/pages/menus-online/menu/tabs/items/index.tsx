@@ -1,77 +1,155 @@
-import { Column, TableComponent } from "@components/Table";
+import { Column, TableComponent, TableMobileComponent } from "@components/Table";
 import { useDialogModal } from "../../../../../hooks/dialog.modal";
-import { JSX, memo, useMemo } from "react";
+import { JSX, memo, useContext, useEffect, useMemo, useState } from "react";
 import { Button } from "@chakra-ui/react";
-import { ModalEditVariable } from "./modals/edit";
+import { ModalEditProduct } from "./modals/edit";
 import { MdDeleteOutline, MdEdit } from "react-icons/md";
-import { ModalDeleteVariable } from "./modals/delete";
-import { Field } from "@components/ui/field";
-import SelectComponent from "@components/Select";
+import { ModalDeleteItem } from "./modals/delete";
 import { ModalCreateProduct } from "./modals/create";
 import { IoAdd } from "react-icons/io5";
-import { useGetMenuOnlineItems } from "../../../../../hooks/menu-online";
+import { AxiosError } from "axios";
+import { AuthContext } from "@contexts/auth.context";
+import { ErrorResponse_I } from "../../../../../services/api/ErrorResponse";
+import { toaster } from "@components/ui/toaster";
+import { getMenuOnlineItems } from "../../../../../services/api/MenuOnline";
+import { api } from "../../../../../services/api";
+import { formatToBRL } from "brazilian-values";
+import clsx from "clsx";
 
 export type TypeCategory = "pizzas" | "drinks";
 
 export interface ItemRow {
+  categories: {
+    days_in_the_week_label: string;
+    id: number;
+    name: string;
+    image45x45png: string;
+  }[];
   uuid: string;
   id: number;
   name: string;
   desc: string | null;
-  category: "pizzas" | "drinks";
+  img: string;
   qnt: number;
-  beforePrice: number | null;
-  afterPrice: number;
+  beforePrice: string | null;
+  afterPrice: string | null;
 }
 
-const translateType: {
-  [x in TypeCategory]: { label: string; cb: string; ct: string };
-} = {
-  pizzas: { label: "Pizza", cb: "#836e21", ct: "#dcf4ff" },
-  drinks: { label: "Bebida", cb: "#294d6e", ct: "#fff" },
-};
-
 const TabProducts_ = ({ uuid }: { uuid: string }): JSX.Element => {
-  const {
-    data: items,
-    isFetching,
-    isPending,
-  } = useGetMenuOnlineItems({ uuid });
+  const { logout, clientMeta } = useContext(AuthContext);
   const { dialog: DialogModal, close, onOpen } = useDialogModal({});
+  const [items, setItems] = useState<ItemRow[]>([]);
+  const [load, setLoad] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const data = await getMenuOnlineItems({ uuid });
+        setItems(data);
+        setLoad(false);
+      } catch (error) {
+        setLoad(false);
+        if (error instanceof AxiosError) {
+          if (error.response?.status === 401) logout();
+          if (error.response?.status === 400) {
+            const dataError = error.response?.data as ErrorResponse_I;
+            if (dataError.toast.length) dataError.toast.forEach(toaster.create);
+            if (dataError.input.length) {
+              dataError.input.forEach(({ text, path }) =>
+                // @ts-expect-error
+                setError?.(path, { message: text }),
+              );
+            }
+          }
+        }
+      }
+    })();
+  }, []);
 
   const renderColumns = useMemo(() => {
     const columns: Column[] = [
       {
         key: "name",
-        name: "Nome",
+        name: "",
+        styles: { width: 65 },
         render(row) {
           return (
-            <span
-              title={row.name}
-              className="text-blue-200 underline cursor-pointer"
-            >
-              {row.name}
-            </span>
+            <div>
+              <img
+                src={api.getUri() + "/public/images/" + row.img}
+                className="rounded-sm"
+                width={"35px"}
+                height={"35px"}
+              />
+            </div>
           );
         },
       },
       {
-        key: "category",
-        name: "Categoria",
+        key: "name",
+        name: "Nome",
+        render(row) {
+          return (
+            <div className="flex flex-col">
+              <span title={row.name}>{row.name}</span>
+              <span className="text-xs text-neutral-400">{row.desc}</span>
+            </div>
+          );
+        },
+      },
+      {
+        key: "qnt",
+        name: "Estoque",
+        styles: { width: 65 },
+        render(row) {
+          return <span>{row.qnt}</span>;
+        },
+      },
+      {
+        key: "qnt",
+        name: "Preço",
         styles: { width: 100 },
         render(row) {
-          const category = row.category as TypeCategory;
           return (
-            <div className="flex">
-              <span
-                style={{
-                  background: translateType[category].cb,
-                  color: translateType[category].ct,
-                }}
-                className="flex p-0.5 px-2 text-sm text-center select-none font-semibold rounded-sm"
-              >
-                {translateType[category].label}
+            <div className="flex flex-col w-full -space-y-1">
+              <span className="text-[11px] line-through text-neutral-400">
+                {row.beforePrice && formatToBRL(row.beforePrice)}
               </span>
+              <span className="font-semibold">
+                {row.afterPrice && formatToBRL(row.afterPrice)}
+              </span>
+            </div>
+          );
+        },
+      },
+      {
+        key: "categories",
+        name: "Categorias",
+        styles: { width: 200 },
+        render(row) {
+          return (
+            <div className="flex flex-col gap-y-1">
+              {row.categories.map((cat: ItemRow["categories"][0]) => (
+                <div
+                  className={clsx(
+                    "flex gap-x-1 bg-amber-50/5 p-1 rounded-md",
+                    cat.days_in_the_week_label ? "items-start" : "items-center",
+                  )}
+                >
+                  <img
+                    src={api.getUri() + "/public/images/" + cat.image45x45png}
+                    className="rounded-sm"
+                    width={"27px"}
+                    height={"27px"}
+                  />
+                  <div className="flex flex-col">
+                    <span className="text-xs font-medium">{cat.name}</span>
+                    <span className="text-xs font-light text-neutral-300">
+                      {cat.days_in_the_week_label}
+                    </span>
+                  </div>
+                </div>
+              ))}
             </div>
           );
         },
@@ -83,29 +161,24 @@ const TabProducts_ = ({ uuid }: { uuid: string }): JSX.Element => {
         render(row) {
           return (
             <div className="flex h-full items-center justify-end gap-x-1.5">
-              {/* <Button
-                onClick={() =>
-                  onOpen({
-                    content: (
-                      <ModalViewVariable
-                        isDelete={row.type !== "system"}
-                        close={close}
-                        id={row.id}
-                      />
-                    ),
-                  })
-                }
-                size={"sm"}
-                bg={"transparent"}
-                _hover={{ bg: "#ffffff21" }}
-                _icon={{ width: "20px", height: "20px" }}
-              >
-                <LuEye color={"#dbdbdb"} />
-              </Button> */}
               <Button
                 onClick={() => {
                   onOpen({
-                    content: <ModalEditVariable close={close} id={row.id} />,
+                    content: (
+                      <ModalEditProduct
+                        close={close}
+                        menuUuid={uuid}
+                        uuid={row.uuid}
+                        onUpdate={({ id, uuid: uuidUp, ...item }) => {
+                          setItems((state) =>
+                            state.map((s) => {
+                              if (s.id === id) s = { ...s, ...item };
+                              return s;
+                            }),
+                          );
+                        }}
+                      />
+                    ),
                   });
                 }}
                 size={"sm"}
@@ -127,9 +200,15 @@ const TabProducts_ = ({ uuid }: { uuid: string }): JSX.Element => {
                 onClick={() => {
                   onOpen({
                     content: (
-                      <ModalDeleteVariable
-                        data={{ id: row.id, name: row.name }}
+                      <ModalDeleteItem
+                        data={{ uuid: row.uuid, name: row.name }}
                         close={close}
+                        onDelete={() => {
+                          setItems((state) =>
+                            state.filter((s) => s.uuid !== row.uuid),
+                          );
+                          close();
+                        }}
                       />
                     ),
                   });
@@ -146,79 +225,136 @@ const TabProducts_ = ({ uuid }: { uuid: string }): JSX.Element => {
   }, []);
 
   return (
-    <div className="flex-1 !pt-0 grid grid-cols-[210px_1fr] gap-x-2 h-full">
-      <div className="px-3 pt-4 bg-zinc-800/15 flex flex-col gap-y-3 rounded-md">
-        <div className="flex flex-col gap-y-4 items-center justify-between">
-          <ModalCreateProduct
-            menuUuid={uuid}
-            trigger={
-              <Button variant="outline" size={"sm"}>
-                <IoAdd /> Adicionar item
-              </Button>
-            }
-          />
-          <span className="block font-medium">Filtrar</span>
-        </div>
-        <Field label={"Status do pedido"}>
-          <SelectComponent
-            options={[]}
-            placeholder="Todos"
-            // value={
-            //     filter.status
-            //     ? {
-            //         label:
-            //             optionsStatus.find((s) => s.value === filter.status)
-            //             ?.label || "",
-            //         value: filter.status,
-            //         }
-            //     : null
-            // }
-            // onChange={(vl: any) => {
-            //     if (!vl) {
-            //     setFilter({ ...filter, status: undefined });
-            //     return;
-            //     }
-            //     setFilter({ ...filter, status: vl.value });
-            // }}
-          />
-        </Field>
-        <Field label={"Prioridade"}>
-          <SelectComponent
-            options={[]}
-            placeholder="Todas"
-            // value={
-            //     filter.priority
-            //     ? {
-            //         label:
-            //             optionsPriority.find((s) => s.value === filter.priority)
-            //             ?.label || "",
-            //         value: filter.priority,
-            //         }
-            //     : null
-            // }
-            // onChange={(vl: any) => {
-            //     if (!vl) {
-            //     setFilter({ ...filter, priority: undefined });
-            //     return;
-            //     }
-            //     setFilter({ ...filter, priority: vl.value });
-            // }}
-          />
-        </Field>
-        {!!items?.length && (
-          <span className="text-white/50 mt-10 text-center">
-            {items.length > 1
-              ? `${[].length} pedidos encontrados*`
-              : `${[].length} pedido encontrado*`}
-          </span>
-        )}
+    <div className="flex-1 pt-0! grid grid-cols-[1fr] gap-x-2 h-full">
+      <div className="absolute top-2.5 right-5 z-40">
+        <ModalCreateProduct
+          onCreate={(newItem) => {
+            setItems(state => [newItem, ...state]);
+          }}
+          menuUuid={uuid}
+          trigger={
+            <Button className="" colorPalette={"green"} size={"xs"}>
+              <IoAdd />
+            </Button>
+          }
+        />
       </div>
-      <TableComponent
-        rows={items || []}
-        columns={renderColumns}
-        textEmpity="Seus items aparecerão aqui."
-        load={isFetching || isPending}
-      />
+      {clientMeta.isMobileLike ? (
+        <div className="h-full flex-1 pb-12.5 grid px-3">
+          <TableMobileComponent
+            totalCount={items?.length || 0}
+            renderItem={(index) => {
+              const row = items![index];
+              return (
+                <div className="flex flex-col my-1 bg-amber-50/5 p-3! py-2! rounded-md">
+                  <div className="flex items-center justify-between gap-x-1">
+                    <span className="text-sm truncate font-semibold">
+                      {row.name}
+                    </span>
+                    <div className="flex items-center space-x-1.5">
+                      <span className="text-sm line-through text-neutral-400">
+                        {row.beforePrice && formatToBRL(row.beforePrice)}
+                      </span>
+                      <span className="font-semibold">
+                        {row.afterPrice && formatToBRL(row.afterPrice)}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center mt-1 justify-between">
+                    <div className="flex flex-col items-baseline gap-y-1">
+                      {row.categories.map((cat: ItemRow["categories"][0]) => (
+                        <div
+                          className={clsx(
+                            "flex gap-x-1 bg-amber-50/5 p-1! pr-2! rounded-md",
+                            cat.days_in_the_week_label ? "items-start" : "items-center",
+                          )}
+                        >
+                          <img
+                            src={api.getUri() + "/public/images/" + cat.image45x45png}
+                            className="rounded-sm"
+                            width={"20px"}
+                            height={"20px"}
+                          />
+                          <div className="flex flex-col">
+                            <span className="text-sm font-medium">{cat.name}</span>
+                            <span className="text-xs font-light text-neutral-300">
+                              {cat.days_in_the_week_label}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="flex gap-x-1">
+                      <Button
+                        size={"xs"}
+                        bg={"#30c9e414"}
+                        _hover={{ bg: "#30c9e422" }}
+                        _icon={{ width: "16px", height: "16px" }}
+                        onClick={() => {
+                          onOpen({
+                            content: (
+                              <ModalEditProduct
+                                close={close}
+                                menuUuid={uuid}
+                                uuid={row.uuid}
+                                onUpdate={({ id, uuid: uuidUp, ...item }) => {
+                                  setItems((state) =>
+                                    state.map((s) => {
+                                      if (s.id === id) s = { ...s, ...item };
+                                      return s;
+                                    }),
+                                  );
+                                }}
+                              />
+                            ),
+                          });
+                        }}
+                      >
+                        <MdEdit color={"#9ec9fa"} />
+                      </Button>
+                      <Button
+                        size={"xs"}
+                        bg={"#cf5c5c24"}
+                        _hover={{ bg: "#eb606028" }}
+                        _icon={{ width: "16px", height: "16px" }}
+                        onClick={() => {
+                          onOpen({
+                            content: (
+                              <ModalDeleteItem
+                                data={{ uuid: row.uuid, name: row.name }}
+                                close={close}
+                                onDelete={() => {
+                                  setItems((state) =>
+                                    state.filter((s) => s.uuid !== row.uuid),
+                                  );
+                                  close();
+                                }}
+                              />
+                            ),
+                          });
+                        }}
+                      >
+                        <MdDeleteOutline color={"#f75050"} />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              );
+            }}
+            textEmpity="Seus items aparecerão aqui."
+            load={load}
+          />
+        </div>
+      ) : (
+        <TableComponent
+          rows={items || []}
+          columns={renderColumns}
+          textEmpity="Seus items aparecerão aqui."
+          load={load}
+        />
+      )}
+
       {/* <div className="px-3 pt-4 bg-zinc-800/15 flex flex-col gap-y-3 rounded-md">
         <div className="flex items-center justify-between">
           <span className="block font-medium">Categorias</span>

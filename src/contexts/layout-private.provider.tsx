@@ -272,7 +272,7 @@ export function LayoutPrivateProvider(): JSX.Element {
                 component={<Link to={"/auth/menus-online"} />}
                 active={pathname.includes("menus-online")}
               >
-                Cardápios on-line
+                Cardápio digital
               </MenuItem>
               <MenuItem
                 icon={<LuNotepadText size={20} />}

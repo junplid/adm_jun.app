@@ -14,6 +14,17 @@ export async function getAccount(): Promise<{
   return data.account;
 }
 
+export async function uploadImage(file: File): Promise<{
+  filename?: string;
+}> {
+  const formData = new FormData();
+  formData.append("fileImage", file);
+  const { data } = await api.post("/private/image", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return data;
+}
+
 export async function updateAccount(body?: {
   onboarded?: boolean;
   currentPassword?: string;
