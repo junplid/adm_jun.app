@@ -14,7 +14,7 @@ export function LayoutSitesPageProvider(): JSX.Element {
   const dataValue = useMemo(() => ({}), []);
 
   useEffect(() => {
-    if (menusOnline?.[0].uuid) {
+    if (menusOnline?.length && menusOnline[0].uuid) {
       navigate(menusOnline[0].uuid, { replace: true });
     }
   }, [menusOnline]);
