@@ -439,27 +439,27 @@ export function LayoutPrivateProvider(): JSX.Element {
                   </span>
                 </a>
                 <a
+                  style={{ touchAction: "manipulation" }}
                   onClick={() => {
                     api.stop();
                     setTimeout(() => {
-                      if (pathname !== "/auth/inboxes/departments") {
-                        navigate("/auth/inboxes/departments", {
+                      if (pathname !== "/auth/menus-online") {
+                        navigate("/auth/menus-online", {
                           replace: searchParams.get("bs") === "true",
                         });
                       }
-                    });
+                    }, 10);
                   }}
-                  style={{ touchAction: "manipulation" }}
                   className={clsx(
-                    pathname === "/auth/inboxes/departments"
+                    pathname === "/auth/menus-online"
                       ? "bg-neutral-800 shadow-sm shadow-black/20"
                       : "bg-transparent",
-                    "w-full select-none! h-full justify-center flex flex-col items-center gap-y-1 rounded-xl",
+                    "w-full h-full select-none! justify-center flex flex-col items-center gap-y-1 rounded-xl",
                   )}
                 >
-                  <FiInbox size={18} />
-                  <span className="text-xs select-none! w-full text-center font-medium px-2 truncate">
-                    Suporte
+                  <CgWebsite size={18} />
+                  <span className="text-xs select-none w-full text-center font-medium px-2 truncate">
+                    Cardápio digital
                   </span>
                 </a>
                 <a
@@ -532,6 +532,30 @@ export function LayoutPrivateProvider(): JSX.Element {
                   <LuChartNoAxesCombined size={18} />
                   <span className="text-xs select-none w-full text-center font-medium px-2 truncate">
                     Home
+                  </span>
+                </a>
+                <a
+                  onClick={() => {
+                    api.stop();
+                    setTimeout(() => {
+                      if (pathname !== "/auth/inboxes/departments") {
+                        navigate("/auth/inboxes/departments", {
+                          replace: searchParams.get("bs") === "true",
+                        });
+                      }
+                    });
+                  }}
+                  style={{ touchAction: "manipulation" }}
+                  className={clsx(
+                    pathname === "/auth/inboxes/departments"
+                      ? "bg-neutral-800 shadow-sm shadow-black/20"
+                      : "bg-transparent",
+                    "w-full select-none! h-full justify-center flex flex-col items-center gap-y-1 rounded-xl",
+                  )}
+                >
+                  <FiInbox size={18} />
+                  <span className="text-xs select-none! w-full text-center font-medium px-2 truncate">
+                    Suporte
                   </span>
                 </a>
                 <a
