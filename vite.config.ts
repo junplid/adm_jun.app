@@ -25,12 +25,12 @@ export default defineConfig({
         renameGlobals: true,
 
         /* ⚙️  ajustes de performance */
-        controlFlowFlattening: true,
+        controlFlowFlattening: false,
         controlFlowFlatteningThreshold: 0.25, // ~25 % das funções já confunde bastante
         deadCodeInjection: false, // desliga – é o pior vilão de CPU
         // string array faz papel parecido, mas é mais leve:
         stringArray: true,
-        stringArrayThreshold: 0.6, // mistura 60 % das strings
+        stringArrayThreshold: 0.4, // mistura 60 % das strings
         stringArrayEncoding: ["base64"],
 
         debugProtection: false, // laço freeze → OFF
@@ -76,6 +76,16 @@ export default defineConfig({
     target: "es2020",
     sourcemap: false,
     minify: "terser",
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes("node_modules")) {
+            return "vendor";
+          }
+        },
+      },
+    },
+
     terserOptions: {
       compress: {
         passes: 3,
