@@ -225,7 +225,7 @@ export function useUpdateMenuOnline(props?: {
     bg_secondary: string | null;
     bg_tertiary: string | null;
     bg_capa: string | null;
-    connectionWAId: number | null;
+    connectionWAId: number;
     img?: File | undefined;
   }>;
   onSuccess?: () => Promise<void>;
@@ -246,7 +246,7 @@ export function useUpdateMenuOnline(props?: {
         bg_secondary: string | null;
         bg_tertiary: string | null;
         bg_capa: string | null;
-        connectionWAId: number | null;
+        connectionWAId: number;
         img?: File | undefined;
       };
     }) => MenuOnlineService.updateMenuOnline(id, body),

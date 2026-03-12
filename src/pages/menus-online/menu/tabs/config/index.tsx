@@ -31,7 +31,7 @@ const FormSchemaConfig = z.object({
   bg_secondary: z.string().nullable(),
   bg_tertiary: z.string().nullable(),
   bg_capa: z.string().nullable(),
-  connectionWAId: z.number().nullable(),
+  connectionWAId: z.number({ message: "Conexão é obrigatória!" }),
 });
 
 type ConfigFields = z.infer<typeof FormSchemaConfig>;
@@ -170,7 +170,13 @@ function FormConfigComponent({ uuid }: { uuid: string }) {
           label="Cor da capa"
           disabled={isFetching || isLoading || isError}
         >
-          <Input {...register("bg_capa")} type="color" autoComplete="off" />
+          <Controller
+            name="bg_capa"
+            control={control}
+            render={({ field }) => (
+              <Input onChange={({ target }) => field.onChange(target.value)} value={field.value || "#fff"} ref={field.ref} onBlur={field.onBlur} name={field.name} type="color" autoComplete="off" />
+            )}
+          />
         </Field>
         {/* <Field
           errorText={errors.bg_secondary?.message}

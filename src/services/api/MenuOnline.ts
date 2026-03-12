@@ -189,7 +189,7 @@ export async function updateMenuOnline(
     bg_secondary: string | null;
     bg_tertiary: string | null;
     bg_capa: string | null;
-    connectionWAId: number | null;
+    connectionWAId: number;
     img?: File | undefined;
   },
 ): Promise<{
@@ -268,7 +268,7 @@ export async function getMenuOnline(params: { uuid: string }): Promise<{
   label?: string;
   titlePage?: string;
   bg_capa: string | null;
-  connectionWAId: number | null;
+  connectionWAId: number;
   statusMenu: boolean;
   statusNow: boolean;
   helperTextOpening: string;
