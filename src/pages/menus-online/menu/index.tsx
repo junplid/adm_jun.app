@@ -10,6 +10,7 @@ import { TabProducts } from "./tabs/items";
 import { useParams } from "react-router-dom";
 import { useGetMenuOnline } from "../../../hooks/menu-online";
 import { TabConfig } from "./tabs/config";
+import { FiExternalLink } from "react-icons/fi";
 
 export type TypeVariable = "dynamics" | "constant" | "system";
 
@@ -54,7 +55,10 @@ export const MenuOnlinePage: React.FC = (): JSX.Element => {
       <div className="flex flex-col gap-y-0.5">
         <div className="flex items-center w-full justify-between gap-x-5">
           <div className="flex items-center gap-x-3">
-            <h1 className="text-lg font-semibold">{data.identifier}</h1>
+            <a className="text-lg flex items-center gap-x-1 font-semibold text-blue-300 underline" href={`https://menu.junplid.com.br/${data.identifier}`} target="_blank">
+              <FiExternalLink />
+              {data.identifier}
+            </a>
             {data.statusMenu ? (
               <>
                 {data.statusNow ? (
