@@ -88,6 +88,7 @@ import { IoEye, IoEyeOff } from "react-icons/io5";
 import { AiFillCheckCircle, AiOutlineImport } from "react-icons/ai";
 import { useParams } from "react-router-dom";
 import SelectMenuOnlineItems from "@components/SelectMenuOnlineItems";
+import { ImageCropModal } from "./ImageCropModal";
 
 interface IProps {
   menuUuid: string;
@@ -252,6 +253,8 @@ type Fields = z.infer<typeof FormSchema>;
 function PreviewImage(props: {
   img: File | undefined | string;
   fallback: string;
+  width?: string;
+  height?: string;
 }) {
   const imgPreviewUrl = useMemo(() => {
     if (!props.img) return "";
@@ -268,8 +271,8 @@ function PreviewImage(props: {
       src={imgPreviewUrl}
       className="rounded-sm"
       alt="img"
-      width={"30px"}
-      height={"30px"}
+      width={props.width || "30px"}
+      height={props.height || "30px"}
     />
   );
 }
@@ -688,6 +691,7 @@ function SectionSubItems(props: {
   setValue: UseFormSetValue<Fields>;
   trigger: UseFormTrigger<Fields>;
 }) {
+  const [cropFile, setCropFile] = useState<{ file: File; index: number } | null>(null);
   const { fields, move, append, remove } = useFieldArray({
     control: props.control,
     name: `sections.${props.index}.subItems`,
@@ -743,6 +747,16 @@ function SectionSubItems(props: {
 
   return (
     <div className="flex flex-col gap-y-3 w-full">
+      {cropFile && (
+        <ImageCropModal
+          file={cropFile.file}
+          onFinish={(file: any) => {
+            props.setValue(`sections.${props.index}.subItems.${cropFile.index}.image55x55png`, [file], { shouldDirty: true })
+            setCropFile(null);
+          }}
+        />
+      )}
+
       <span className="text-center font-medium uppercase">- Opções -</span>
       {!!props.errors.sections?.[props.index]?.root && (
         <span className="text-red-400 text-center">
@@ -784,40 +798,40 @@ function SectionSubItems(props: {
                     />
                     <Collapsible.Content>
                       <div className="relative flex flex-1 mt-2 flex-col gap-y-2 px-2">
-                        <Controller
-                          control={props.control}
-                          name={`sections.${props.index}.subItems.${index}.image55x55png`}
-                          render={({ field }) => (
-                            <div className="flex gap-x-1">
-                              <WaitImageSubItem setValue={props.setValue} control={props.control} index={props.index} subIndex={index} />
-                              <Field
-                                invalid={
-                                  !!props.errors.sections?.[props.index]?.subItems?.[
-                                    index
-                                  ]?.image55x55png
-                                }
-                                errorText={
-                                  props.errors.sections?.[props.index]?.subItems?.[
-                                    index
-                                  ]?.image55x55png?.message
-                                }
-                                label="Imagem"
-                              >
-                                <input
-                                  className="bg-neutral-500/10 p-2 max-w-52 rounded-sm"
-                                  type="file"
-                                  accept="image/jpeg, image/png, image/jpg"
-                                  max={1}
-                                  onChange={(e) => {
-                                    const file = e.target.files?.[0];
-                                    if (!file) return;
-                                    field.onChange([file]);
-                                  }}
-                                />
-                              </Field>
-                            </div>
-                          )}
-                        />
+                        <div className="flex gap-x-1">
+                          <WaitImageSubItem setValue={props.setValue} control={props.control} index={props.index} subIndex={index} />
+                          <Field
+                            invalid={
+                              !!props.errors.sections?.[props.index]?.subItems?.[
+                                index
+                              ]?.image55x55png
+                            }
+                            errorText={
+                              props.errors.sections?.[props.index]?.subItems?.[
+                                index
+                              ]?.image55x55png?.message
+                            }
+                            label="Imagem"
+                            helperText="Recomendação: utilize uma imagem 55x55 px com fundo transparente (PNG) para melhor visualização."
+                          >
+                            <label>
+                              <span className="bg-neutral-500/10 p-2 rounded-sm max-w-52 block">Selecionar imagem</span>
+                              <input
+                                className="hidden"
+                                type="file"
+                                hidden
+                                max={1}
+                                accept="image/jpeg, image/png, image/jpg"
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (!file) return;
+
+                                  setCropFile({ file, index: index });
+                                }}
+                              />
+                            </label>
+                          </Field>
+                        </div>
 
                         <Field
                           invalid={
@@ -1343,6 +1357,7 @@ function Content(props: IProps): JSX.Element {
     mode: "onSubmit",
   });
   const [collapsibles, setCollapsibles] = useState<string[]>([]);
+  const [cropFile, setCropFile] = useState<File | null>(null);
 
   const registerWithMask = useHookFormMask(register);
   const imgProfileRef = useRef<HTMLInputElement>(null);
@@ -1415,17 +1430,13 @@ function Content(props: IProps): JSX.Element {
         props.close();
         setLoadEdit(false);
         props.onUpdate({
-          afterPrice: fields.afterPrice || null,
-          beforePrice: fields.beforePrice || null,
+          ...updateItem,
           desc: fields.desc || null,
-          uuid: updateItem.uuid,
-          id: updateItem.id,
           ...(nextFileNameImage && {
             img: nextFileNameImage,
           }),
           name: fields.name,
           qnt: fields.qnt || 0,
-          categories: updateItem.categories,
         });
       } catch (error) {
         setLoadEdit(false);
@@ -1601,20 +1612,32 @@ function Content(props: IProps): JSX.Element {
                 accept="image/jpeg, image/png, image/jpg"
                 onChange={(e) => {
                   const file = e.target.files?.[0];
-                  if (file)
-                    setValue("fileNameImage", file, { shouldDirty: true });
+                  if (!file) return;
+
+                  setCropFile(file);
                 }}
               />
               <Avatar
-                bg={imgPreviewUrl ? "#f7f7f7" : "#ffffff2c"}
+                bg={imgPreviewUrl ? "transparent" : "#ffffff2c"}
                 size={"2xl"}
                 width={"60px"}
                 height={"60px"}
                 src={imgPreviewUrl || undefined}
                 icon={<MdOutlineImage />}
-                rounded={"none"}
+                classImage="rounded-sm!"
               />
             </div>
+
+            {cropFile && (
+              <ImageCropModal
+                file={cropFile}
+                onFinish={(file: any) => {
+                  setValue("fileNameImage", file, { shouldDirty: true })
+                  setCropFile(null);
+                }}
+              />
+            )}
+
             <Field
               errorText={errors.name?.message}
               invalid={!!errors.name}
@@ -1628,6 +1651,8 @@ function Content(props: IProps): JSX.Element {
               />
             </Field>
           </div>
+          <span className="text-neutral-400 text-center">Boas práticas: utilize imagem 1:1 com fundo transparente (PNG) para melhor visualização</span>
+
           <Field
             errorText={errors.desc?.message}
             invalid={!!errors.desc}
@@ -1703,7 +1728,7 @@ function Content(props: IProps): JSX.Element {
           <Field
             errorText={errors.qnt?.message}
             invalid={!!errors.qnt}
-            label="Quantidade em estoque"
+            label="Estoque"
             required
           >
             <Input

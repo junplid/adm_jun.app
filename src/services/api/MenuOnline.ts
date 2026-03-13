@@ -101,6 +101,8 @@ export async function updateMenuOnlineItem(
     id: number;
     image45x45png: string;
   }[];
+  beforePrice: string | null;
+  afterPrice: string | null;
   uuid: string;
   id: number;
 }> {

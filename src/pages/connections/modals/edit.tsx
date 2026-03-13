@@ -352,7 +352,7 @@ function Content({
                         onBlur={field.onBlur}
                         placeholder="Ninguém"
                         onChange={(e: any) => field.onChange(e.value)}
-                        // options={optionsPrivacyValue}
+                      // options={optionsPrivacyValue}
                       />
                     )}
                   />
@@ -375,7 +375,7 @@ function Content({
                         placeholder={'Igual ao "visto por último"'}
                         options={optionsOnlinePrivacy}
                         onChange={(e: any) => field.onChange(e.value)}
-                        // value={field.value}
+                      // value={field.value}
                       />
                     )}
                   />
@@ -401,12 +401,12 @@ function Content({
                         value={
                           field.value
                             ? {
-                                label:
-                                  optionsPrivacyValue.find(
-                                    (s) => s.value === field.value,
-                                  )?.label || "",
-                                value: field.value,
-                              }
+                              label:
+                                optionsPrivacyValue.find(
+                                  (s) => s.value === field.value,
+                                )?.label || "",
+                              value: field.value,
+                            }
                             : null
                         }
                       />
@@ -455,12 +455,12 @@ function Content({
                         value={
                           field.value
                             ? {
-                                label:
-                                  optionsPrivacyGroupValue.find(
-                                    (s) => s.value === field.value,
-                                  )?.label || "",
-                                value: field.value,
-                              }
+                              label:
+                                optionsPrivacyGroupValue.find(
+                                  (s) => s.value === field.value,
+                                )?.label || "",
+                              value: field.value,
+                            }
                             : null
                         }
                       />
@@ -516,7 +516,7 @@ function Content({
 
 export function ModalEditConnectionWA({ id, ...props }: IProps): JSX.Element {
   return (
-    <DialogContent>
+    <DialogContent mx={2}>
       <DialogHeader flexDirection={"column"} gap={0}>
         <DialogTitle>Editar conexão</DialogTitle>
         <DialogDescription>

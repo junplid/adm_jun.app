@@ -75,6 +75,7 @@ import { NodeDeleteMessage } from "./nodes/DeleteMessage";
 import { NodeDistribute } from "./nodes/Distribute";
 import { NodeCreateAppointment } from "./nodes/CreateAppointment";
 import { NodeUpdateAppointment } from "./nodes/UpdateAppointment";
+import { NodeGetOrder } from "./nodes/GetOrder";
 
 type NodeTypesGeneric = {
   [x in TypesNodes]: any;
@@ -120,7 +121,8 @@ export type TypesNodes =
   | "NodeMoveTrelloCard"
   | "NodeWebhookTrelloCard"
   | "NodeDeleteMessage"
-  | "NodeDistribute";
+  | "NodeDistribute"
+  | "NodeGetOrder";
 
 const nodeTypes: NodeTypesGeneric = {
   NodeInitial: NodeInitial,
@@ -163,6 +165,7 @@ const nodeTypes: NodeTypesGeneric = {
   NodeWebhookTrelloCard: NodeWebhookTrelloCard,
   NodeDeleteMessage: NodeDeleteMessage,
   NodeDistribute: NodeDistribute,
+  NodeGetOrder: NodeGetOrder
 };
 
 const edgeTypes = {
@@ -595,7 +598,7 @@ function Body(props: IBody): JSX.Element {
           >
             <span
               className="text-sm text-white/60 cursor-pointer"
-              onClick={() => {}}
+              onClick={() => { }}
             >
               Pressione <strong className="text-white">CTRL</strong> +{" "}
               <strong className="text-white">S</strong> para salvar

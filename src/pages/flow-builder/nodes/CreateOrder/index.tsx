@@ -55,6 +55,7 @@ type DataNode = {
   payment_method?: string;
   actionChannels: { key: string; text: string }[];
   isDragDisabled: boolean;
+  sync_order_existing_code?: string;
 };
 
 function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
@@ -103,6 +104,18 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
         />
       </Field> */}
 
+      <Field label="Sync">
+        <AutocompleteTextField
+          // @ts-expect-error
+          trigger={["{{"]}
+          options={{ "{{": variables?.map((s) => s.name) || [] }}
+          spacer={"}} "}
+          placeholder="Digite o codigo ou {{code}} do pedido"
+          defaultValue={data.sync_order_existing_code || ""}
+          onChange={(value: string) => setDataMok({ ...data, sync_order_existing_code: value })}
+        />
+      </Field>
+
       <Field label="Nome do pedido">
         <AutocompleteTextField
           // @ts-expect-error
@@ -125,11 +138,11 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
             value={
               data.status
                 ? {
-                    value: data.status,
-                    label:
-                      optionsStatus.find((s) => s.value === data.status)
-                        ?.label || "",
-                  }
+                  value: data.status,
+                  label:
+                    optionsStatus.find((s) => s.value === data.status)
+                      ?.label || "",
+                }
                 : null
             }
             onChange={(vl: any) => {
@@ -150,11 +163,11 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
             value={
               data.priority
                 ? {
-                    value: data.priority,
-                    label:
-                      optionsPriority.find((s) => s.value === data.priority)
-                        ?.label || "",
-                  }
+                  value: data.priority,
+                  label:
+                    optionsPriority.find((s) => s.value === data.priority)
+                      ?.label || "",
+                }
                 : null
             }
             onChange={(vl: any) => {
@@ -506,6 +519,19 @@ export const NodeCreateOrder: React.FC<Node<DataNode>> = ({ id, data }) => {
       />
       <span className="font-semibold text-[#14b8a5] text-[8px] absolute -right-10.5 top-27">
         Finalizado
+      </span>
+
+      <CustomHandle
+        nodeId={id}
+        handleId={`#868686 not_found`}
+        position={Position.Right}
+        type="source"
+        style={{ right: -51, top: 44 + 84 }}
+        isConnectable={true}
+        className="border-[#868686]! bg-[#868686]/15!"
+      />
+      <span className="font-semibold text-[#868686] text-[8px] absolute -right-10.5 top-[124px]">
+        Não encontrado
       </span>
     </div>
   );

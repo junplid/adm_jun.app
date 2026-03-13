@@ -22,13 +22,13 @@ import { InViewComponent } from "@components/InView";
 import { JSX } from "@emotion/react/jsx-runtime";
 import { HiMenu } from "react-icons/hi";
 import { Tooltip } from "@components/ui/tooltip";
-import { TbDoorExit } from "react-icons/tb";
+import { TbDoorExit, TbLayoutKanban } from "react-icons/tb";
 import {
   LuBotMessageSquare,
   LuCalendarDays,
   LuChartNoAxesCombined,
-  LuNotepadText,
 } from "react-icons/lu";
+
 // import { Badge } from "@chakra-ui/react";
 import { AuthContext } from "./auth.context";
 import { ModalOnboarded } from "./ModalOnboarded";
@@ -275,7 +275,7 @@ export function LayoutPrivateProvider(): JSX.Element {
                 Cardápio digital
               </MenuItem>
               <MenuItem
-                icon={<LuNotepadText size={20} />}
+                icon={<TbLayoutKanban size={20} />}
                 component={<Link to={"/auth/orders"} />}
                 active={pathname === "/auth/orders"}
               >
@@ -433,7 +433,7 @@ export function LayoutPrivateProvider(): JSX.Element {
                     "w-full h-full select-none! justify-center flex flex-col items-center gap-y-1 rounded-xl",
                   )}
                 >
-                  <LuNotepadText size={18} />
+                  <TbLayoutKanban size={18} />
                   <span className="text-xs select-none w-full text-center font-medium px-2 truncate">
                     Pedidos
                   </span>
@@ -532,6 +532,30 @@ export function LayoutPrivateProvider(): JSX.Element {
                   <LuChartNoAxesCombined size={18} />
                   <span className="text-xs select-none w-full text-center font-medium px-2 truncate">
                     Home
+                  </span>
+                </a>
+                <a
+                  onClick={() => {
+                    api.stop();
+                    setTimeout(() => {
+                      if (pathname !== "/auth/connections") {
+                        navigate("/auth/connections", {
+                          replace: searchParams.get("bs") === "true",
+                        });
+                      }
+                    });
+                  }}
+                  style={{ touchAction: "manipulation" }}
+                  className={clsx(
+                    pathname === "/auth/connections"
+                      ? "bg-neutral-800 shadow-sm shadow-black/20"
+                      : "bg-transparent",
+                    "w-full select-none! h-full justify-center flex flex-col items-center gap-y-1 rounded-xl",
+                  )}
+                >
+                  <GrConnect size={18} />
+                  <span className="text-xs select-none! w-full text-center font-medium px-2 truncate">
+                    Conexões
                   </span>
                 </a>
                 <a

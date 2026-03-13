@@ -18,6 +18,8 @@ import { Field } from "@components/ui/field";
 import { PinInput } from "@components/ui/pin-input";
 import { SocketContext } from "@contexts/socket.context";
 import ReactQRCode from "react-qr-code";
+import { AuthContext } from "@contexts/auth.context";
+import clsx from "clsx";
 
 interface IProps {
   close: () => void;
@@ -39,6 +41,7 @@ function QRCode(props: {
   changeType: () => void;
   connectionId: number;
 }): JSX.Element {
+  const { clientMeta } = useContext(AuthContext)
   const { socket } = useContext(SocketContext);
   const [qrCode, setQrCode] = useState<{ v: string; valid: boolean } | null>(
     null,
@@ -64,7 +67,7 @@ function QRCode(props: {
   }, [socket]);
 
   return (
-    <div className="grid items-start grid-cols-[1fr_300px] gap-x-1.5">
+    <div className={clsx(clientMeta.isMobileLike ? "flex flex-col gap-y-3 items-center" : "grid gap-x-1.5 grid-cols-[1fr_300px] items-start")}>
       <div className="w-full flex items-baseline flex-col gap-y-5">
         <ul className="flex flex-col gap-y-3 text-white/75">
           <li className="flex items-baseline gap-x-3">
@@ -133,7 +136,7 @@ function QRCode(props: {
             <p>Aponte seu celular para esta tela para escanear o QR code.</p>
           </li>
         </ul>
-        <button
+        {/* <button
           onClick={props.changeType}
           className="flex select-none opacity-25 items-center gap-x-1"
         >
@@ -141,7 +144,7 @@ function QRCode(props: {
             Entrar com o número de telefone
           </a>
           <LuChevronRight size={20} />
-        </button>
+        </button> */}
       </div>
       <div className="mb-10">
         {!qrCode && (
@@ -154,7 +157,7 @@ function QRCode(props: {
           </div>
         )}
         {qrCode && (
-          <div className="relative p-1.5 bg-white">
+          <div className="relative p-2 bg-white">
             {!qrCode.valid && (
               <div
                 onClick={requestQRcode}
@@ -164,7 +167,7 @@ function QRCode(props: {
                 <span className="text-white/70">Clique para gerar um novo</span>
               </div>
             )}
-            <ReactQRCode value={qrCode.v} size={288} />
+            <ReactQRCode value={qrCode.v} />
           </div>
         )}
       </div>
@@ -405,7 +408,7 @@ export function ModalConnectConnectionWA({ ...props }: IProps): JSX.Element {
   }, [socket]);
 
   return (
-    <DialogContent backdrop>
+    <DialogContent backdrop mx={2}>
       <DialogHeader flexDirection={"column"} gap={0}>
         <DialogTitle>{props.name || "Conectar WhatsApp"}</DialogTitle>
         <DialogDescription>

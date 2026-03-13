@@ -87,6 +87,7 @@ import { AiFillCheckCircle, AiOutlineImport } from "react-icons/ai";
 import { useParams } from "react-router-dom";
 import SelectMenuOnlineItems from "@components/SelectMenuOnlineItems";
 import { api } from "../../../../../../services/api";
+import { ImageCropModal } from "./ImageCropModal";
 
 interface IProps {
   onCreate(business: ItemRow): void;
@@ -99,7 +100,7 @@ const SubItemSchema = z.object({
   uuid: z.string(),
   image55x55png: z
     .array(z.instanceof(File, { message: "Imagem é obrigatória." }))
-    .optional(),
+    .nullish(),
 
   previewImage: z.string().nullish(),
 
@@ -596,6 +597,40 @@ function PreviewSection(props: { control: Control<Fields>; index: number }) {
   );
 }
 
+function WaitImageSubItem(props: {
+  control: Control<Fields>;
+  index: number;
+  subIndex: number;
+  setValue: UseFormSetValue<Fields>;
+}) {
+  const previewImage = useWatch({
+    control: props.control,
+    name: `sections.${props.index}.subItems.${props.subIndex}.previewImage`,
+  });
+  const image55x55png = useWatch({
+    control: props.control,
+    name: `sections.${props.index}.subItems.${props.subIndex}.image55x55png`,
+  });
+  return (!!image55x55png?.length || previewImage) && (
+    <div className="flex flex-col items-center relative">
+      <PreviewImage
+        img={
+          image55x55png?.length
+            ? image55x55png?.[0]
+            : previewImage
+              ? previewImage
+              : undefined
+        }
+        fallback="55x55"
+      />
+      <span onClick={() => {
+        props.setValue(`sections.${props.index}.subItems.${props.subIndex}.image55x55png`, null, { shouldDirty: true });
+        props.setValue(`sections.${props.index}.subItems.${props.subIndex}.previewImage`, null, { shouldDirty: true });
+      }} className="text-red-400 text-xs text-center font-medium cursor-pointer hover:text-red-500 duration-200">remover</span>
+    </div>
+  );
+}
+
 function WaitCollapseTringer(props: {
   control: Control<Fields>;
   index: number;
@@ -651,6 +686,7 @@ function SectionSubItems(props: {
     control: props.control,
     name: `sections.${props.index}.subItems`,
   });
+  const [cropFile, setCropFile] = useState<{ file: File; index: number } | null>(null);
 
   const registerWithMask = useHookFormMask(props.register);
 
@@ -702,6 +738,16 @@ function SectionSubItems(props: {
 
   return (
     <div className="flex flex-col gap-y-3 w-full">
+      {cropFile && (
+        <ImageCropModal
+          file={cropFile.file}
+          onFinish={(file: any) => {
+            props.setValue(`sections.${props.index}.subItems.${cropFile.index}.image55x55png`, [file], { shouldDirty: true })
+            setCropFile(null);
+          }}
+        />
+      )}
+
       <span className="text-center font-medium uppercase">- Opções -</span>
       {!!props.errors.sections?.[props.index]?.root && (
         <span className="text-red-400 text-center">
@@ -743,37 +789,41 @@ function SectionSubItems(props: {
                     />
                     <Collapsible.Content>
                       <div className="relative flex flex-1 mt-2 flex-col gap-y-2 px-2">
-                        <Field
-                          invalid={
-                            !!props.errors.sections?.[props.index]?.subItems?.[
-                              index
-                            ]?.image55x55png
-                          }
-                          errorText={
-                            props.errors.sections?.[props.index]?.subItems?.[
-                              index
-                            ]?.image55x55png?.message
-                          }
-                          label="Imagem"
-                        >
-                          <Controller
-                            control={props.control}
-                            name={`sections.${props.index}.subItems.${index}.image55x55png`}
-                            render={({ field }) => (
+                        <div className="flex gap-x-1">
+                          <WaitImageSubItem setValue={props.setValue} control={props.control} index={props.index} subIndex={index} />
+
+                          <Field
+                            invalid={
+                              !!props.errors.sections?.[props.index]?.subItems?.[
+                                index
+                              ]?.image55x55png
+                            }
+                            errorText={
+                              props.errors.sections?.[props.index]?.subItems?.[
+                                index
+                              ]?.image55x55png?.message
+                            }
+                            label="Imagem"
+                          >
+                            <label>
+                              <span className="bg-neutral-500/10 p-2 rounded-sm max-w-52 block">Selecionar imagem</span>
                               <input
-                                className="bg-neutral-500/10 p-2 max-w-56 rounded-sm"
+                                className="bg-neutral-500/10 p-2 max-w-56 rounded-sm hidden"
                                 type="file"
-                                accept="image/jpeg, image/png, image/jpg"
+                                hidden
                                 max={1}
+                                accept="image/jpeg, image/png, image/jpg"
                                 onChange={(e) => {
                                   const file = e.target.files?.[0];
                                   if (!file) return;
-                                  field.onChange([file]);
+
+                                  setCropFile({ file, index: index });
                                 }}
                               />
-                            )}
-                          />
-                        </Field>
+                            </label>
+                          </Field>
+                        </div>
+
                         <Field
                           invalid={
                             !!props.errors.sections?.[props.index]?.subItems?.[
@@ -1291,6 +1341,7 @@ export function ModalCreateProduct({
     defaultValues: { categoriesUuid: [], sections: [] },
     mode: "onSubmit",
   });
+  const [cropFile, setCropFile] = useState<File | null>(null);
   const [collapsibles, setCollapsibles] = useState<string[]>([]);
 
   const registerWithMask = useHookFormMask(register);
@@ -1505,22 +1556,33 @@ export function ModalCreateProduct({
                     accept="image/jpeg, image/png, image/jpg"
                     onChange={(e) => {
                       const file = e.target.files?.[0];
-                      if (file)
-                        setValue("fileNameImage", file, {
-                          shouldValidate: true,
-                        });
+                      if (!file) return;
+
+                      setCropFile(file);
                     }}
                   />
                   <Avatar
-                    bg={imgPreviewUrl ? "#f7f7f7" : "#ffffff2c"}
+                    bg={imgPreviewUrl ? "transparent" : "#ffffff2c"}
                     size={"2xl"}
                     width={"60px"}
                     height={"60px"}
                     src={imgPreviewUrl}
                     icon={<MdOutlineImage />}
                     rounded={"none"}
+                    classImage="rounded-sm!"
                   />
                 </div>
+
+                {cropFile && (
+                  <ImageCropModal
+                    file={cropFile}
+                    onFinish={(file: any) => {
+                      setValue("fileNameImage", file, { shouldDirty: true })
+                      setCropFile(null);
+                    }}
+                  />
+                )}
+
                 <Field
                   errorText={errors.name?.message}
                   invalid={!!errors.name}

@@ -207,7 +207,7 @@ export function SortableItem({
     isDragging,
   } = useSortable({
     id: order.id,
-    disabled: !order.isDragDisabled,
+    disabled: order.isDragDisabled,
   });
 
   const [actionsLoad, setActionsLoad] = useState<string[]>([]);
@@ -257,7 +257,9 @@ export function SortableItem({
 
   return (
     <div ref={setNodeRef} className="p-1 relative">
-      <BsFillLockFill className="absolute right-2 -top-0.5 text-red-400 z-20" />
+      {order.isDragDisabled && (
+        <BsFillLockFill className="absolute right-2 -top-0.5 text-red-400 z-20" />
+      )}
       <div
         className={clsx("select-none relative")}
         style={{
@@ -272,7 +274,7 @@ export function SortableItem({
             : "none",
           outline: isDragging ? "2px dashed #fff" : "2px dashed transparent",
           outlineOffset: "-2px",
-          opacity: !order.isDragDisabled ? 0.4 : 1,
+          opacity: order.isDragDisabled ? 0.4 : 1,
         }}
         {...attributes}
         {...listeners}
@@ -452,13 +454,14 @@ const columns: {
   value: TypeStatusOrder;
   color: string;
 }[] = [
-  { label: "A confirmar ...", value: "draft", color: "#f5f5f533" },
-  { label: "Fila de pedidos", value: "confirmed", color: "#0EA5E933" },
-  { label: "Em preparo", value: "processing", color: "#F9731633" },
-  { label: "Embalagem", value: "ready", color: "#22C55E33" },
-  { label: "A caminho", value: "on_way", color: "#3B82F633" },
-  { label: "Finalizados", value: "completed", color: "#14B8A633" },
-];
+    // { label: "A confirmar ...", value: "draft", color: "#f5f5f533" },
+    { label: "Pendentes", value: "pending", color: "#f5f5f533" },
+    { label: "Confirmados", value: "confirmed", color: "#0EA5E933" },
+    { label: "Em preparo", value: "processing", color: "#F9731633" },
+    { label: "Embalagem", value: "ready", color: "#22C55E33" },
+    { label: "A caminho", value: "on_way", color: "#3B82F633" },
+    { label: "Finalizados", value: "completed", color: "#14B8A633" },
+  ];
 
 export const OrdersPage: React.FC = (): JSX.Element => {
   const { socket } = useContext(SocketContext);
@@ -668,7 +671,7 @@ export const OrdersPage: React.FC = (): JSX.Element => {
     try {
       const { orders: oL } = await getOrders({
         status: [
-          "draft",
+          // "draft",
           "pending",
           "confirmed",
           "processing",

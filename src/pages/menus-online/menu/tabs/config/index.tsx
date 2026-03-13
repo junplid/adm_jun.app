@@ -205,9 +205,7 @@ function FormConfigComponent({ uuid }: { uuid: string }) {
             invalid={!!errors.connectionWAId}
             label="Conexão WhatsApp"
             helperText={
-              field.value
-                ? 'Ao fazer o pedido, o servidor irá verificar se a conexão tem Chatbot Receptivo, caso tenha, será priorizado o número de contato dessa conexão e o usuário será redirecionado para o WhatsApp com a mensagem "Meu pedido é o #...". Você poderá capiturar o código do pedido na mensagem com sua automação. Caso não tenha Chatbot Receptivo, o usuário será redirecionado para o número de WhatsApp definido em "Informações da Loja > Contato WhatsApp" com a mensagem de texto contendo o pedido formatado.'
-                : 'Ao fazer o pedido, o usuário será redirecionado para o número de WhatsApp definido em "Informações da Loja > Contato WhatsApp" com a mensagem de texto contendo o pedido formatado.'
+              'Ao finalizar o pedido, o usuário será redirecionado para o número de WhatsApp configurado nesta conexão ou para o WhatsApp definido em “Informações da Loja > Contato WhatsApp”, com a mensagem automática: “Confirmando meu pedido #99999”. Você poderá capturar o código do pedido presente na mensagem para utilizá-lo em sua automação.'
             }
           >
             <SelectConnectionsWA

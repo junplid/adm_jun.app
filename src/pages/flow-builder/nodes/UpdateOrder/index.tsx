@@ -47,6 +47,7 @@ const optionsFields: { label: string; value: string }[] = [
   { label: "Conteúdo", value: "data" },
   { label: "Ações do pedido", value: "actionChannels" },
   { label: "Arrastar e soltar", value: "dragDrop" },
+  { label: "Conectar contato", value: "connect_contact" },
 ];
 
 type DataNode = {
@@ -132,11 +133,11 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
             value={
               data.status
                 ? {
-                    value: data.status,
-                    label:
-                      optionsStatus.find((s) => s.value === data.status)
-                        ?.label || "",
-                  }
+                  value: data.status,
+                  label:
+                    optionsStatus.find((s) => s.value === data.status)
+                      ?.label || "",
+                }
                 : null
             }
             onChange={(vl: any) => {
@@ -160,11 +161,11 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
             value={
               data.priority
                 ? {
-                    value: data.priority,
-                    label:
-                      optionsPriority.find((s) => s.value === data.priority)
-                        ?.label || "",
-                  }
+                  value: data.priority,
+                  label:
+                    optionsPriority.find((s) => s.value === data.priority)
+                      ?.label || "",
+                }
                 : null
             }
             onChange={(vl: any) => {
@@ -371,6 +372,10 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
             </Checkbox.Label>
           </Checkbox.Root>
         </Field>
+      )}
+
+      {data.fields?.includes("connect_contact") && (
+        <span>O contato será endereçado ao pedido</span>
       )}
 
       <Field label={"Selecione os campos"}>

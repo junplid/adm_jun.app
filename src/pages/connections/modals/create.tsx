@@ -153,7 +153,7 @@ export function ModalCreateConnectionWA({
       size={"sm"}
     >
       <DialogTrigger asChild>{props.trigger}</DialogTrigger>
-      <DialogContent backdrop as={"form"} onSubmit={handleSubmit(create)}>
+      <DialogContent mx={2} backdrop as={"form"} onSubmit={handleSubmit(create)}>
         <DialogHeader flexDirection={"column"} gap={0}>
           <DialogTitle>Criar conexão</DialogTitle>
           <DialogDescription>
@@ -327,7 +327,7 @@ export function ModalCreateConnectionWA({
                           onBlur={field.onBlur}
                           placeholder="Ninguém"
                           onChange={(e: any) => field.onChange(e.value)}
-                          // options={optionsPrivacyValue}
+                        // options={optionsPrivacyValue}
                         />
                       )}
                     />
@@ -350,7 +350,7 @@ export function ModalCreateConnectionWA({
                           placeholder={'Igual ao "visto por último"'}
                           options={optionsOnlinePrivacy}
                           onChange={(e: any) => field.onChange(e.value)}
-                          // value={field.value}
+                        // value={field.value}
                         />
                       )}
                     />
@@ -376,12 +376,12 @@ export function ModalCreateConnectionWA({
                           value={
                             field.value
                               ? {
-                                  label:
-                                    optionsPrivacyValue.find(
-                                      (s) => s.value === field.value,
-                                    )?.label || "",
-                                  value: field.value,
-                                }
+                                label:
+                                  optionsPrivacyValue.find(
+                                    (s) => s.value === field.value,
+                                  )?.label || "",
+                                value: field.value,
+                              }
                               : null
                           }
                         />
@@ -430,12 +430,12 @@ export function ModalCreateConnectionWA({
                           value={
                             field.value
                               ? {
-                                  label:
-                                    optionsPrivacyGroupValue.find(
-                                      (s) => s.value === field.value,
-                                    )?.label || "",
-                                  value: field.value,
-                                }
+                                label:
+                                  optionsPrivacyGroupValue.find(
+                                    (s) => s.value === field.value,
+                                  )?.label || "",
+                                value: field.value,
+                              }
                               : null
                           }
                         />
