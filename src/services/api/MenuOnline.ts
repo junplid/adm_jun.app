@@ -181,6 +181,15 @@ export async function updateMenuOnlineCategory(
   return data.category;
 }
 
+export async function updateMenuOnlineCategorySequence(
+  menuUuid: string,
+  body: {
+    items: string[];
+  },
+): Promise<void> {
+  await api.put(`/private/menus-online/${menuUuid}/categories/sequence`, body);
+}
+
 export async function updateMenuOnline(
   id: number,
   body: {

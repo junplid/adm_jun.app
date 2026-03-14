@@ -45,7 +45,7 @@ import autoAnimate from "@formkit/auto-animate";
 import { ErrorResponse_I } from "../../services/api/ErrorResponse";
 import { toaster } from "@components/ui/toaster";
 import { SocketContext } from "@contexts/socket.context";
-import { LuBriefcaseBusiness, LuMapPin } from "react-icons/lu";
+import { LuBriefcaseBusiness } from "react-icons/lu";
 import { format } from "@flasd/whatsapp-formatting";
 import parse from "html-react-parser";
 import { formatToBRL } from "brazilian-values";
@@ -78,7 +78,10 @@ interface Order {
   createAt: Date;
   delivery_address: string | null;
   payment_method: string | null;
+  payment_change_to: string | null;
   actionChannels: string[];
+  delivery_cep: string | null;
+  delivery_complement: string | null;
 
   channel: "baileys" | "instagram";
   contact?: string;
@@ -295,12 +298,15 @@ export function SortableItem({
               {previewDateLastMsg}
             </span>
           </div>
-          {(order.name || order.description) && (
-            <div className="px-2 flex flex-col mb-1 -space-y-1 w-full">
-              <span className="line-clamp-2 text-xs sm:text-sm font-medium w-full">
+          {(order.name || order.description || order.contact) && (
+            <div className="px-2 flex flex-col mb-2 -space-y-1 w-full">
+              <span className="text-xs sm:text-sm font-medium w-full">
                 {order.name}
               </span>
-              <span className="line-clamp-3 text-white/60 text-xs sm:text-sm w-full">
+              <span className="text-xs sm:text-sm font-medium w-full">
+                {order.contact}
+              </span>
+              <span className="text-white/60 text-xs sm:text-sm w-full">
                 {order.description}
               </span>
             </div>
@@ -316,11 +322,37 @@ export function SortableItem({
           ) : (
             <div className="border-b-2 my-2 w-full border-dashed border-zinc-600/40" />
           )}
+          {order.payment_method && (
+            <div className="px-2 flex-col items-start mt-1 gap-x-0.5 text-white/60">
+              <span className="line-clamp-3 text-xs w-full">
+                Pagar com: {order.payment_method}
+              </span>
+              {order.payment_change_to && order.payment_change_to !== "Não" && (
+                <span className="line-clamp-3 text-xs w-full">
+                  Troco para: {order.payment_change_to}
+                </span>
+              )}
+            </div>
+          )}
+          {order.delivery_cep && (
+            <div className="px-2 flex items-start mt-1 gap-x-0.5 text-white/60">
+              <span className="line-clamp-3 text-xs w-full">
+                CEP: {order.delivery_cep}
+              </span>
+            </div>
+          )}
           {order.delivery_address && (
             <div className="px-2 flex items-start mt-1 gap-x-0.5 text-white/60">
-              <LuMapPin />
+
               <span className="line-clamp-3 text-xs w-full">
-                {order.delivery_address}
+                Endereço: {order.delivery_address}
+              </span>
+            </div>
+          )}
+          {order.delivery_complement && (
+            <div className="px-2 flex items-start mt-1 gap-x-0.5 text-white/60">
+              <span className="line-clamp-3 text-xs w-full">
+                Complemento: {order.delivery_complement}
               </span>
             </div>
           )}

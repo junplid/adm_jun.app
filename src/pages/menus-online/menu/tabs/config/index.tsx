@@ -1,5 +1,5 @@
 import { useDialogModal } from "../../../../../hooks/dialog.modal";
-import { JSX, memo, useCallback, useEffect, useMemo, useRef } from "react";
+import { JSX, memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Field } from "@components/ui/field";
 import { Button, Input } from "@chakra-ui/react";
 import { Controller, useForm } from "react-hook-form";
@@ -19,6 +19,7 @@ import { ModalEditMenuStatus } from "./modals/update-status";
 import SelectConnectionsWA from "@components/SelectConnectionsWA";
 import { FormConfigInfoComponent } from "./info";
 import { FormConfigOperatingDaysComponent } from "./operating-days";
+import { ImageCropModal } from "../items/modals/ImageCropModal";
 
 const FormSchemaConfig = z.object({
   identifier: z
@@ -39,6 +40,7 @@ type ConfigFields = z.infer<typeof FormSchemaConfig>;
 function FormConfigComponent({ uuid }: { uuid: string }) {
   const { data, isError, isFetching, isLoading } = useGetMenuOnline({ uuid });
   const imgProfileRef = useRef<HTMLInputElement>(null);
+  const [cropFile, setCropFile] = useState<File | null>(null);
 
   const {
     handleSubmit,
@@ -96,6 +98,16 @@ function FormConfigComponent({ uuid }: { uuid: string }) {
       onSubmit={handleSubmit(edit)}
       className="flex flex-col gap-y-2 px-1.5"
     >
+      {cropFile && (
+        <ImageCropModal
+          file={cropFile}
+          onFinish={(file: any) => {
+            setValue(`img`, file, { shouldDirty: true })
+            setCropFile(null);
+          }}
+        />
+      )}
+
       <Field
         errorText={errors.titlePage?.message}
         invalid={!!errors.titlePage}
@@ -104,6 +116,7 @@ function FormConfigComponent({ uuid }: { uuid: string }) {
       >
         <Input {...register("titlePage")} autoComplete="off" />
       </Field>
+
       <div className="flex items-center w-full gap-x-2">
         <div
           className="relative cursor-pointer border-2 p-0.5"
@@ -117,11 +130,15 @@ function FormConfigComponent({ uuid }: { uuid: string }) {
             ref={imgProfileRef}
             hidden
             className="hidden"
+            max={1}
             accept="image/jpeg, image/png, image/jpg"
             onChange={(e) => {
               const file = e.target.files?.[0];
-              if (file) setValue("img", file, { shouldDirty: true });
+              if (!file) return;
+
+              setCropFile(file);
             }}
+
           />
           <Avatar
             bg={imgPreviewUrl ? bg_primary || "#fff" : "#ffffff2c"}
@@ -147,6 +164,9 @@ function FormConfigComponent({ uuid }: { uuid: string }) {
         </Field>
       </div>
 
+
+
+
       <Field
         errorText={errors.desc?.message}
         invalid={!!errors.desc}
@@ -165,35 +185,38 @@ function FormConfigComponent({ uuid }: { uuid: string }) {
 
       <div className="flex items-center w-full gap-x-2">
         <Field
-          errorText={errors.bg_primary?.message}
-          invalid={!!errors.bg_primary}
+          errorText={errors.bg_capa?.message}
+          invalid={!!errors.bg_capa}
           label="Cor da capa"
           disabled={isFetching || isLoading || isError}
         >
-          <Controller
-            name="bg_capa"
-            control={control}
-            render={({ field }) => (
-              <Input onChange={({ target }) => field.onChange(target.value)} value={field.value || "#fff"} ref={field.ref} onBlur={field.onBlur} name={field.name} type="color" autoComplete="off" />
-            )}
-          />
+          <Input  {...register("bg_capa")} autoComplete="off" />
         </Field>
-        {/* <Field
+        <Field
+          errorText={errors.bg_primary?.message}
+          invalid={!!errors.bg_primary}
+          label="BG Primária"
+          disabled={isFetching || isLoading || isError}
+        >
+          <Input {...register("bg_primary")} autoComplete="off" />
+        </Field>
+        <Field
           errorText={errors.bg_secondary?.message}
           invalid={!!errors.bg_secondary}
-          label="Cor secundária"
-          disabled
+          label="Cor Secundária"
+          disabled={isFetching || isLoading || isError}
         >
           <Input {...register("bg_secondary")} autoComplete="off" />
         </Field>
+
         <Field
           errorText={errors.bg_tertiary?.message}
           invalid={!!errors.bg_tertiary}
           label="Cor terciária"
-          disabled
+          disabled={isFetching || isLoading || isError}
         >
           <Input {...register("bg_tertiary")} autoComplete="off" />
-        </Field> */}
+        </Field>
       </div>
 
       <Controller
