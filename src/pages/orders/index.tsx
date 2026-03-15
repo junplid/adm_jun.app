@@ -977,7 +977,7 @@ export const OrdersPage: React.FC = (): JSX.Element => {
             <Spinner />
           </div>
         ) : (
-          <div className="md:h-[calc(100svh-110px)] sm:h-[calc(100svh-165px)] h-[calc(100svh-130px)] flex gap-x-2 overflow-x-auto">
+          <div className="md:h-[calc(100svh-110px)] sm:h-[calc(100svh-165px)] h-[calc(100svh-130px)] flex gap-x-2 overflow-x-auto touch-pan-x overscroll-x-contain">
             <DndContext
               sensors={sensors}
               // collisionDetection={closestCorners}
