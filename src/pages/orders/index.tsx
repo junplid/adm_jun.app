@@ -1,4 +1,4 @@
-import { Circle, Portal, Spinner } from "@chakra-ui/react";
+import { Circle, Collapsible, Portal, Spinner } from "@chakra-ui/react";
 import {
   defaultDropAnimationSideEffects,
   DndContext,
@@ -214,6 +214,7 @@ export function SortableItem({
   });
 
   const [actionsLoad, setActionsLoad] = useState<string[]>([]);
+  const [openData, setOpenData] = useState(false);
   const parent = useRef(null);
   const { logout } = useContext(AuthContext);
   const previewDateLastMsg = useMemo(() => {
@@ -313,11 +314,22 @@ export function SortableItem({
           )}
           {order.data ? (
             <div className="relative gap-y-1 duration-200 bg-zinc-700/15 w-full">
-              <div className="border-b-2 mb-1.5 w-full border-dashed border-zinc-600/40" />
-              <p className="leading-5 text-xs sm:text-sm p-1 px-2">
-                {parse(format(order.data))}
-              </p>
-              <div className="border-b-2 mt-1.5 w-full border-dashed border-zinc-600/40" />
+              <div className="border-b-2 w-full border-dashed border-zinc-600/40" />
+              <Collapsible.Root open={openData} collapsedHeight="75px">
+                <Collapsible.Content
+                  _closed={{
+                    shadow: "inset 0 -20px 12px -12px var(--shadow-color)",
+                    shadowColor: "blackAlpha.500",
+                  }}
+                  onClick={() => setOpenData(!openData)}
+                >
+                  <p className="leading-4 text-xs sm:text-sm p-1 px-2">
+                    {parse(format(order.data))}
+                  </p>
+                </Collapsible.Content>
+              </Collapsible.Root>
+
+              <div className="border-b-2 w-full border-dashed border-zinc-600/40" />
             </div>
           ) : (
             <div className="border-b-2 my-2 w-full border-dashed border-zinc-600/40" />
@@ -332,30 +344,36 @@ export function SortableItem({
                   Troco para: {order.payment_change_to}
                 </span>
               )}
+              {order.payment_change_to && order.payment_change_to === "Não" && (
+                <span className="line-clamp-3 text-xs w-full">
+                  [Não precisa de troco]
+                </span>
+              )}
             </div>
           )}
-          {order.delivery_cep && (
-            <div className="px-2 flex items-start mt-1 gap-x-0.5 text-white/60">
+          <div className="px-2 flex flex-col items-start mt-1 text-white/60">
+            {order.delivery_cep && (
               <span className="line-clamp-3 text-xs w-full">
                 CEP: {order.delivery_cep}
               </span>
-            </div>
-          )}
-          {order.delivery_address && (
-            <div className="px-2 flex items-start mt-1 gap-x-0.5 text-white/60">
-
+            )}
+            {order.delivery_address && (
               <span className="line-clamp-3 text-xs w-full">
                 Endereço: {order.delivery_address}
               </span>
-            </div>
-          )}
-          {order.delivery_complement && (
-            <div className="px-2 flex items-start mt-1 gap-x-0.5 text-white/60">
+            )}
+            {order.delivery_complement && (
               <span className="line-clamp-3 text-xs w-full">
                 Complemento: {order.delivery_complement}
               </span>
-            </div>
-          )}
+            )}
+            {order.delivery_complement && (
+              <span className="line-clamp-3 text-xs w-full">
+                Complemento: {order.delivery_complement}
+              </span>
+            )}
+          </div>
+
           {order.total && (
             <div className="px-2 flex font-bold text-xs sm:text-sm items-center justify-end w-full gap-x-1">
               <span>{formatToBRL(order.total)}</span>
@@ -944,9 +962,6 @@ export const OrdersPage: React.FC = (): JSX.Element => {
         <div className="flex items-center gap-x-2 sm:gap-x-5">
           <h1 className="text-base sm:text-lg font-semibold">Pedidos</h1>
         </div>
-        <p className="text-white/60 font-light sm:text-base text-sm">
-          Centralize seus pedidos em um único lugar.
-        </p>
       </div>
       <div className="flex-1 pt-0! grid gap-x-2 h-full">
         {load ? (
@@ -955,7 +970,7 @@ export const OrdersPage: React.FC = (): JSX.Element => {
             <Spinner />
           </div>
         ) : (
-          <div className="md:h-[calc(100svh-154px)] sm:h-[calc(100svh-165px)] h-[calc(100svh-130px)] flex gap-x-2 overflow-x-auto">
+          <div className="md:h-[calc(100svh-110px)] sm:h-[calc(100svh-165px)] h-[calc(100svh-130px)] flex gap-x-2 overflow-x-auto">
             <DndContext
               sensors={sensors}
               // collisionDetection={closestCorners}
