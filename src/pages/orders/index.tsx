@@ -9,6 +9,7 @@ import {
   DropAnimation,
   PointerSensor,
   pointerWithin,
+  TouchSensor,
   useDroppable,
   useSensor,
   useSensors,
@@ -260,7 +261,7 @@ export function SortableItem({
     .join(", ");
 
   return (
-    <div ref={setNodeRef} className="p-1 relative">
+    <div ref={setNodeRef} className="p-1 relative touch-none">
       {order.isDragDisabled && (
         <BsFillLockFill className="absolute right-2 -top-0.5 text-red-400 z-20" />
       )}
@@ -461,7 +462,7 @@ export function Container(props: ContainerProps) {
       </div>
 
       <div
-        className={clsx("pb-10 flex-1 py-2 scroll-custom overflow-y-scroll")}
+        className={clsx("pb-10 flex-1 py-2 scroll-custom overflow-y-auto overscroll-contain")}
       >
         <SortableContext
           id={props.column.id}
@@ -531,7 +532,13 @@ export const OrdersPage: React.FC = (): JSX.Element => {
   // const [overColumnId, setOverColumnId] = useState<string | null>(null);
 
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 3 } }),
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 200,
+        tolerance: 8
+      }
+    })
   );
 
   const findContainer = (id: string | number) => {
