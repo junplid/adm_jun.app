@@ -261,7 +261,8 @@ export function SortableItem({
     .join(", ");
 
   return (
-    <div ref={setNodeRef} className="p-1 relative touch-none">
+    <div ref={setNodeRef} {...attributes}
+      {...listeners} className="p-1 relative touch-none">
       {order.isDragDisabled && (
         <BsFillLockFill className="absolute right-2 -top-0.5 text-red-400 z-20" />
       )}
@@ -281,8 +282,7 @@ export function SortableItem({
           outlineOffset: "-2px",
           opacity: order.isDragDisabled ? 0.4 : 1,
         }}
-        {...attributes}
-        {...listeners}
+
       >
         <div
           className={clsx(
@@ -462,7 +462,7 @@ export function Container(props: ContainerProps) {
       </div>
 
       <div
-        className={clsx("pb-10 flex-1 py-2 scroll-custom overflow-y-auto overscroll-contain")}
+        className={clsx("pb-10 flex-1 py-2 scroll-custom overflow-y-auto")}
       >
         <SortableContext
           id={props.column.id}
@@ -977,7 +977,7 @@ export const OrdersPage: React.FC = (): JSX.Element => {
             <Spinner />
           </div>
         ) : (
-          <div className="md:h-[calc(100svh-110px)] sm:h-[calc(100svh-165px)] h-[calc(100svh-130px)] flex gap-x-2 overflow-x-auto touch-pan-x overscroll-x-contain">
+          <div className="md:h-[calc(100svh-110px)] sm:h-[calc(100svh-165px)] h-[calc(100svh-130px)] flex gap-x-2 overflow-x-auto touch-pan-x">
             <DndContext
               sensors={sensors}
               // collisionDetection={closestCorners}
