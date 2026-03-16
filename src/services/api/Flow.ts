@@ -19,7 +19,7 @@ export async function createFlow(body: {
 
 export async function updateFlow(
   id: string,
-  params: { name?: string; type?: FlowType; businessIds?: number[] }
+  params: { name?: string; type?: FlowType; businessIds?: number[] },
 ): Promise<{
   updateAt: Date;
   businesses: { id: number; name: string }[];
@@ -35,7 +35,7 @@ export async function updateFlowData(
   body: {
     nodes?: { type: "upset" | "delete"; node: any }[];
     edges?: { type: "upset" | "delete"; edge: any }[];
-  }
+  },
 ): Promise<{
   updateAt: Date;
   businesses: { id: number; name: string }[];
@@ -106,4 +106,16 @@ export async function getOptionsFlows(params?: {
 
 export async function deleteFlow(id: string): Promise<void> {
   await api.delete(`/private/flows/${id}`);
+}
+
+export async function importFlow(body: { flowId: string }): Promise<{
+  id: string;
+  name: string;
+  type: FlowType;
+  createAt: Date;
+  updateAt: Date;
+  businesses: { id: number; name: string }[];
+}> {
+  const { data } = await api.post("/private/import-flow", body);
+  return data.flow;
 }

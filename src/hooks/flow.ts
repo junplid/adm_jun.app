@@ -159,7 +159,53 @@ export function useCreateFlow(props?: {
           if (dataError.input.length) {
             dataError.input.forEach(({ text, path }) =>
               // @ts-expect-error
-              props?.setError?.(path, { message: text })
+              props?.setError?.(path, { message: text }),
+            );
+          }
+        }
+      }
+    },
+  });
+}
+
+export function useImportFlow(props?: {
+  setError?: UseFormSetError<{
+    flowId: string;
+  }>;
+  onSuccess?: (id: string) => Promise<void>;
+}) {
+  const { logout } = useContext(AuthContext);
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (body: { flowId: string }) => FlowService.importFlow(body),
+    async onSuccess(data, body) {
+      if (props?.onSuccess) await props.onSuccess(data.id);
+      await queryClient.setQueryData(["flow", data.id], () => body);
+
+      if (queryClient.getQueryData<any>(["flows", null])) {
+        queryClient.setQueryData(["flows", null], (old: any) => {
+          if (!old) return old;
+          return [...old, data];
+        });
+      }
+
+      if (queryClient.getQueryData<any>(["flows-options", null])) {
+        queryClient.setQueryData(["flows-options", null], (old: any) => [
+          ...(old || []),
+          { id: data.id, name: data.name },
+        ]);
+      }
+    },
+    onError(error: unknown) {
+      if (error instanceof AxiosError) {
+        if (error.response?.status === 401) logout();
+        if (error.response?.status === 400) {
+          const dataError = error.response?.data as ErrorResponse_I;
+          if (dataError.toast.length) dataError.toast.forEach(toaster.create);
+          if (dataError.input.length) {
+            dataError.input.forEach(({ text, path }) =>
+              // @ts-expect-error
+              props?.setError?.(path, { message: text }),
             );
           }
         }
@@ -208,7 +254,7 @@ export function useUpdateFlow(props?: {
           old?.map((b: any) => {
             if (b.id === id) b = { ...b, ...bodyData, businesses, updateAt };
             return b;
-          })
+          }),
         );
       }
       if (queryClient.getQueryData<any>(["flows-options", null])) {
@@ -216,7 +262,7 @@ export function useUpdateFlow(props?: {
           old?.map((b: any) => {
             if (b.id === id) b = { ...b, name: body.name || b.name };
             return b;
-          })
+          }),
         );
       }
     },
@@ -229,7 +275,7 @@ export function useUpdateFlow(props?: {
           if (dataError.input.length) {
             dataError.input.forEach(({ text, path }) =>
               // @ts-expect-error
-              props?.setError?.(path, { message: text })
+              props?.setError?.(path, { message: text }),
             );
           }
         }
@@ -272,7 +318,7 @@ export function useUpdateFlowData(props?: {
           if (dataError.input.length) {
             dataError.input.forEach(({ text, path }) =>
               // @ts-expect-error
-              props?.setError?.(path, { message: text })
+              props?.setError?.(path, { message: text }),
             );
           }
         }
@@ -292,10 +338,10 @@ export function useDeleteFlow(props?: { onSuccess?: () => Promise<void> }) {
       queryClient.removeQueries({ queryKey: ["flow-details", id] });
       queryClient.removeQueries({ queryKey: ["flow", id] });
       queryClient.setQueryData(["flows", null], (old: any) =>
-        old?.filter((b: any) => b.id !== id)
+        old?.filter((b: any) => b.id !== id),
       );
       queryClient.setQueryData(["flows-options", null], (old: any) =>
-        old?.filter((b: any) => b.id !== id)
+        old?.filter((b: any) => b.id !== id),
       );
     },
     onError(error: unknown) {

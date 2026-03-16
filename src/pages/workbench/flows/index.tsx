@@ -17,6 +17,8 @@ import { useDialogModal } from "../../../hooks/dialog.modal";
 import { LayoutWorkbenchPageContext } from "../contexts";
 import { BsStars } from "react-icons/bs";
 import { AuthContext } from "@contexts/auth.context";
+import { PiDownload } from "react-icons/pi";
+import { ModalImportFlow } from "./modals/import";
 
 export interface FlowRow {
   id: string;
@@ -159,14 +161,14 @@ export const FlowsPage: React.FC = (): JSX.Element => {
             </p> */}
           </div>
           <div className="flex gap-2">
-            {/* <Button
-              variant="outline"
-              size={"sm"}
-              borderColor={"#2e3a29ff"}
-              color="#aeeb92ff"
-            >
-              <TbFileUpload color="#8ee266ff" /> Importar
-            </Button> */}
+            <ModalImportFlow
+              trigger={
+                <Button borderColor={"#2e3a29ff"}
+                  color="#aeeb92ff" variant="outline" size={{ sm: "sm", base: "xs" }}>
+                  <PiDownload color="#8ee266ff" /> <span className="sm:block hidden">Importar</span>
+                </Button>
+              }
+            />
             <ModalCreateFlow
               trigger={
                 <Button variant="outline" size={{ sm: "sm", base: "xs" }}>
