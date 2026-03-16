@@ -15,7 +15,7 @@ import { CloseButton } from "@components/ui/close-button";
 import { useDeleteStorageFile } from "../../../../hooks/storage-file";
 
 interface PropsModalDelete {
-  data: { id: string; name: string } | null;
+  data: { id: number; name: string } | null;
   close: () => void;
 }
 

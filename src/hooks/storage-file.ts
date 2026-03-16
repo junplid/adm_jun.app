@@ -124,7 +124,7 @@ export function useCreateStorageFile(props?: {
               originalName: data.originalName,
               id: data.id,
             },
-          ]
+          ],
         );
       }
     },
@@ -137,7 +137,7 @@ export function useCreateStorageFile(props?: {
           if (dataError.input.length) {
             dataError.input.forEach(({ text, path }) =>
               // @ts-expect-error
-              props?.setError?.(path, { message: text })
+              props?.setError?.(path, { message: text }),
             );
           }
         }
@@ -179,7 +179,7 @@ export function useUpdateStorageFile(props?: {
           old?.map((b: any) => {
             if (b.id === id) b = { ...b, ...bodyData, businesses };
             return b;
-          })
+          }),
         );
       }
       if (queryClient.getQueryData<any>(["storage-files-options", null])) {
@@ -188,7 +188,7 @@ export function useUpdateStorageFile(props?: {
             if (b.id === id)
               b = { ...b, originalName: body.originalName || b.name };
             return b;
-          })
+          }),
         );
       }
     },
@@ -201,7 +201,7 @@ export function useUpdateStorageFile(props?: {
           if (dataError.input.length) {
             dataError.input.forEach(({ text, path }) =>
               // @ts-expect-error
-              props?.setError?.(path, { message: text })
+              props?.setError?.(path, { message: text }),
             );
           }
         }
@@ -217,15 +217,15 @@ export function useDeleteStorageFile(props?: {
   const { logout } = useContext(AuthContext);
 
   return useMutation({
-    mutationFn: (id: string) => StorageFileService.deleteStorageFile(id),
+    mutationFn: (id: number) => StorageFileService.deleteStorageFile(id),
     async onSuccess(_, id) {
       if (props?.onSuccess) await props.onSuccess();
       queryClient.removeQueries({ queryKey: ["storage-file", id] });
       queryClient.setQueryData(["storage-files", null], (old: any) =>
-        old?.filter((b: any) => b.id !== id)
+        old?.filter((b: any) => b.id !== id),
       );
       queryClient.setQueryData(["storage-files-options", null], (old: any) =>
-        old?.filter((b: any) => b.id !== id)
+        old?.filter((b: any) => b.id !== id),
       );
     },
     onError(error: unknown) {

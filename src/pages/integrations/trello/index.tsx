@@ -1,5 +1,5 @@
 import { JSX, useContext, useMemo } from "react";
-import { Column, TableComponent } from "@components/Table";
+import { Column, TableComponent, TableMobileComponent } from "@components/Table";
 import moment from "moment";
 import { useDialogModal } from "../../../hooks/dialog.modal";
 import { ModalTrello } from "./modals/create";
@@ -11,6 +11,7 @@ import { LuEye } from "react-icons/lu";
 import { ModalEditTrello } from "./modals/edit";
 import { LayoutIntegrationsPageContext } from "../contexts";
 import { useGetTrelloIntegrations } from "../../../hooks/trelloIntegration";
+import { AuthContext } from "@contexts/auth.context";
 
 export interface PaymentRow {
   name: string;
@@ -20,6 +21,7 @@ export interface PaymentRow {
 }
 
 export const TrelloPage: React.FC = (): JSX.Element => {
+  const { clientMeta } = useContext(AuthContext);
   const { ToggleMenu } = useContext(LayoutIntegrationsPageContext);
   const { dialog: DialogModal, close, onOpen } = useDialogModal({});
   const { data: trello, isFetching, isPending } = useGetTrelloIntegrations();
@@ -106,8 +108,8 @@ export const TrelloPage: React.FC = (): JSX.Element => {
       <div className="flex flex-col gap-y-0.5">
         <div className="flex items-center w-full justify-between gap-x-5">
           <div className="flex items-center gap-x-2">
-            {ToggleMenu}
-            <h1 className="text-lg font-semibold flex items-center gap-x-2">
+            <span className="hidden sm:flex">{ToggleMenu}</span>
+            <h1 className="text-base sm:text-lg font-semibold">
               {/* {!isPremium && (
                 <Tooltip
                   content="Disponível apenas para usuários Premium."
@@ -125,26 +127,80 @@ export const TrelloPage: React.FC = (): JSX.Element => {
               )} */}
               Trello
             </h1>
-            <p className="text-white/60 font-light">
+            {/* <p className="text-white/60 font-light">
               Centralize e controle seus quadros e cards do Trello.
-            </p>
+            </p> */}
           </div>
           <ModalTrello
             trigger={
-              <Button variant="outline" size={"sm"}>
-                <IoAdd /> Adicionar
+              <Button variant="outline" size={{ sm: "sm", base: "xs" }}>
+                <IoAdd /> <span className="sm:block hidden">Adicionar</span>
               </Button>
             }
           />
         </div>
       </div>
       <div className="flex-1 grid">
-        <TableComponent
-          rows={trello || []}
-          columns={renderColumns}
-          textEmpity="Suas integrações do trello aparecerão aqui."
-          load={isFetching || isPending}
-        />
+        {clientMeta.isMobileLike || clientMeta.isSmallScreen ? (
+          <TableMobileComponent
+            totalCount={(trello || []).length || 0}
+            renderItem={(index) => {
+              const row = (trello || [])![index];
+              return (
+                <div className="flex flex-col bg-amber-50/5 p-3! py-2! my-1 rounded-md">
+                  <span>{row.name}</span>
+                  <span className="text-blue-300">{row.name}</span>
+
+                  <div className="flex items-center mt-1 justify-end">
+                    <div className="flex gap-x-1">
+                      <Button
+                        onClick={() => {
+                          onOpen({
+                            size: "xl",
+                            content: <ModalEditTrello close={close} id={row.id} />,
+                          });
+                        }}
+                        size={"xs"}
+                        bg={"transparent"}
+                        _hover={{ bg: "#30c9e422" }}
+                        _icon={{ width: "16px", height: "16px" }}
+                      >
+                        <MdEdit color={"#9ec9fa"} />
+                      </Button>
+                      <Button
+                        size={"xs"}
+                        bg={"#cf5c5c24"}
+                        _hover={{ bg: "#eb606028" }}
+                        _icon={{ width: "16px", height: "16px" }}
+                        onClick={() => {
+                          onOpen({
+                            content: (
+                              <ModalDeleteAgentAI
+                                data={{ id: row.id, name: row.name }}
+                                close={close}
+                              />
+                            ),
+                          });
+                        }}
+                      >
+                        <MdDeleteOutline color={"#f75050"} />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              );
+            }}
+            textEmpity="Suas integrações do trello aparecerão aqui."
+            load={isFetching || isPending}
+          />
+        ) : (
+          <TableComponent
+            rows={trello || []}
+            columns={renderColumns}
+            textEmpity="Suas integrações do trello aparecerão aqui."
+            load={isFetching || isPending}
+          />
+        )}
       </div>
       {DialogModal}
     </div>

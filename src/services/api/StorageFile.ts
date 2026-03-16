@@ -27,7 +27,7 @@ export async function createStorageFile(body: {
 
 export async function updateStorageFile(
   id: number,
-  params: { originalName?: string; businessIds?: number[] }
+  params: { originalName?: string; businessIds?: number[] },
 ): Promise<{
   businesses: { id: number; name: string }[];
 }> {
@@ -79,6 +79,6 @@ export async function getOptionsStorageFiles(params?: {
   return data.files;
 }
 
-export async function deleteStorageFile(id: string): Promise<void> {
+export async function deleteStorageFile(id: number): Promise<void> {
   await api.delete(`/private/storage-files/${id}`);
 }

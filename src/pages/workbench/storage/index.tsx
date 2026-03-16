@@ -1,6 +1,6 @@
 import { JSX, useContext, useMemo } from "react";
 import moment from "moment";
-import { TableComponent } from "../../../components/Table";
+import { TableComponent, TableMobileComponent } from "../../../components/Table";
 import { Column } from "../../../components/Table";
 import { ModalCreateFlow } from "./modals/create";
 import { ModalDeleteFlow } from "./modals/delete";
@@ -21,6 +21,7 @@ import {
 import { Tooltip } from "@components/ui/tooltip";
 import { api } from "../../../services/api";
 import { LayoutWorkbenchPageContext } from "../contexts";
+import { AuthContext } from "@contexts/auth.context";
 
 export interface StorageFileRow {
   id: number;
@@ -32,6 +33,7 @@ export interface StorageFileRow {
 }
 
 export const StoragePage: React.FC = (): JSX.Element => {
+  const { clientMeta } = useContext(AuthContext);
   const { ToggleMenu } = useContext(LayoutWorkbenchPageContext);
   const { data: storageFiles, isFetching, isPending } = useGetStorageFiles();
   const { dialog: DialogModal, close, onOpen } = useDialogModal({});
@@ -160,17 +162,17 @@ export const StoragePage: React.FC = (): JSX.Element => {
       <div className="flex flex-col gap-y-0.5">
         <div className="flex items-center w-full justify-between gap-x-5">
           <div className="flex items-center gap-x-2">
-            {ToggleMenu}
-            <h1 className="text-lg font-semibold">Storage</h1>
-            <p className="text-white/60 font-light">
+            <span className="hidden sm:flex">{ToggleMenu}</span>
+            <h1 className="text-base sm:text-lg font-semibold">Storage</h1>
+            {/* <p className="text-white/60 font-light">
               Armazenar documentos, áudios e outros formatos para suas
               operações.
-            </p>
+            </p> */}
           </div>
           <ModalCreateFlow
             trigger={
-              <Button variant="outline" size={"sm"}>
-                <IoAdd /> Adicionar
+              <Button variant="outline" size={{ sm: "sm", base: "xs" }}>
+                <IoAdd /> <span className="sm:block hidden">Adicionar</span>
               </Button>
             }
           />
@@ -178,12 +180,68 @@ export const StoragePage: React.FC = (): JSX.Element => {
       </div>
 
       <div className="grid flex-1">
-        <TableComponent
-          rows={storageFiles || []}
-          columns={renderColumns}
-          textEmpity="Seus arquivos aparecerão aqui."
-          load={isFetching || isPending}
-        />
+        {clientMeta.isMobileLike || clientMeta.isSmallScreen ? (
+          <TableMobileComponent
+            totalCount={(storageFiles || []).length || 0}
+            renderItem={(index) => {
+              const row = (storageFiles || [])![index];
+              return (
+                <div className="flex flex-col bg-amber-50/5 p-3! py-2! my-1 rounded-md">
+                  {row.mimetype && /^image\//.test(row.mimetype) ? (
+                    <Tooltip
+                      content={
+                        <Image
+                          // @ts-expect-error
+                          src={api.getUri() + "/public/storage/" + row.fileName}
+                          alt="Imagem"
+                          maxW={200}
+                          h={"auto"}
+                        />
+                      }
+                    >
+                      <span>{row.originalName}</span>
+                    </Tooltip>
+                  ) : (
+                    <div className="flex items-center gap-x-2">
+                      <span>{row.originalName}</span>
+                    </div>
+                  )}
+                  <div className="flex items-center mt-1 justify-end">
+                    <div className="flex gap-x-1">
+                      <Button
+                        size={"xs"}
+                        bg={"#cf5c5c24"}
+                        _hover={{ bg: "#eb606028" }}
+                        _icon={{ width: "16px", height: "16px" }}
+                        onClick={() => {
+                          onOpen({
+                            content: (
+                              <ModalDeleteFlow
+                                data={{ id: row.id, name: row.originalName }}
+                                close={close}
+                              />
+                            ),
+                          });
+                        }}
+                      >
+                        <MdDeleteOutline color={"#f75050"} />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              );
+            }}
+            textEmpity="Seus arquivos aparecerão aqui."
+            load={isFetching || isPending}
+          />
+        ) : (
+          <TableComponent
+            rows={storageFiles || []}
+            columns={renderColumns}
+            textEmpity="Seus arquivos aparecerão aqui."
+            load={isFetching || isPending}
+          />
+        )}
       </div>
       {DialogModal}
     </div>

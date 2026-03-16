@@ -2,7 +2,6 @@ import {
   Dispatch,
   ReactNode,
   SetStateAction,
-  useContext,
   useMemo,
   useState,
 } from "react";
@@ -13,7 +12,6 @@ import { JSX } from "@emotion/react/jsx-runtime";
 import { HiMenu } from "react-icons/hi";
 import { LayoutIntegrationsPageContext } from "./contexts";
 import { RiMoneyDollarCircleLine, RiTrelloLine } from "react-icons/ri";
-import { AuthContext } from "@contexts/auth.context";
 
 interface IToggleMenuProps {
   toggledMenu: boolean;
@@ -39,9 +37,8 @@ const ToggleMenu = ({
 );
 
 export function LayoutIntegrationsPageProvider(): JSX.Element {
-  const [toggledMenu, setToggledMenu] = useState(true);
+  const [toggledMenu, setToggledMenu] = useState(false);
   const { pathname } = useLocation();
-  const { clientMeta } = useContext(AuthContext);
 
   const dataValue = useMemo(
     () => ({
@@ -52,97 +49,89 @@ export function LayoutIntegrationsPageProvider(): JSX.Element {
 
   return (
     <LayoutIntegrationsPageContext.Provider value={dataValue}>
-      <div className="h-full gap-y-2 flex flex-col">
+      <div className="h-full gap-y-2 flex flex-col sm:p-0 px-2">
         <div className="flex flex-col gap-y-0.5">
           <div className="flex items-center gap-x-5">
-            <h1 className="text-lg font-semibold">Integrações</h1>
+            <h1 className="text-base sm:text-lg font-semibold">Integrações</h1>
           </div>
-          <p className="text-white/60 font-light">
+          <p className="text-white/60 font-light sm:text-base text-sm">
             Configure e administre integrações com parceiros externos.
           </p>
         </div>
-        {clientMeta.isMobileLike || clientMeta.isSmallScreen ? (
-          <div className="flex items-center justify-center h-full">
-            <span className="text-sm px-2">
-              Disponível apenas para acesso via desktop. Para utilizá-la, acesse
-              o sistema por um computador.
-            </span>
-          </div>
-        ) : (
-          <div
-            style={{ maxHeight: "calc(100vh - 180px)" }}
-            className="flex flex-1 items-start gap-x-2"
+
+        <div
+          style={{ maxHeight: "calc(100vh - 180px)" }}
+          className="flex flex-1 items-start gap-x-2"
+        >
+          <Sidebar
+            collapsed={!toggledMenu}
+            backgroundColor={""}
+            collapsedWidth="65px"
+            width="190px"
+            style={{}}
+            rootStyles={{
+              borderRadius: "8px !important",
+              backgroundColor: toggledMenu ? "#1f1d1d73" : "#1E1E21", border: "none !important",
+              boxShadow: toggledMenu ? `4px 0 8px #12111149` : undefined,
+              zIndex: 9,
+              position: "relative",
+              marginLeft: -0,
+            }}
           >
-            <Sidebar
-              collapsed={!toggledMenu}
-              backgroundColor={""}
-              collapsedWidth="70px"
-              width="220px"
-              style={{}}
-              rootStyles={{
-                borderRadius: "8px !important",
-                backgroundColor: toggledMenu ? "#1f1d1d73" : "transparent",
-                border: "none !important",
-                boxShadow: toggledMenu ? `4px 0 8px #12111149` : undefined,
-                zIndex: 9,
-                position: "relative",
-                marginLeft: -15,
-              }}
+            <div
+              style={{ maxHeight: "calc(100vh - 180px)", minHeight: 370 }}
+              className="flex flex-col scroll-hidden overflow-y-scroll scroll-by"
             >
-              <div
-                style={{ maxHeight: "calc(100vh - 180px)", minHeight: 370 }}
-                className="flex flex-col scroll-hidden overflow-y-scroll scroll-by"
+              <Menu
+                className="relative font-semibold flex-1 pt-1"
+                menuItemStyles={{
+                  button(params) {
+                    return {
+                      ...params,
+                      color:
+                        params.open || params.active ? "#ffffff" : "#a7a7a7",
+                      fontWeight: params.active ? 500 : 300,
+                      fontSize: 15.3,
+                      ":hover": {
+                        background: "transparent",
+                        color: `#ffffff !important`,
+                      },
+                    };
+                  },
+                  subMenuContent: { background: "#2b2b2b42" },
+                  icon(params) {
+                    return {
+                      ...params,
+                      width: 23,
+                      height: 23,
+                      minWidth: 23,
+                      color:
+                        params.open || params.active ? "#ffffff" : "#a7a7a7",
+                      marginRight: 10,
+                    };
+                  },
+                }}
               >
-                <Menu
-                  className="relative font-semibold flex-1 pt-1"
-                  menuItemStyles={{
-                    button(params) {
-                      return {
-                        ...params,
-                        color:
-                          params.open || params.active ? "#ffffff" : "#a7a7a7",
-                        fontWeight: params.active ? 500 : 300,
-                        fontSize: 15.3,
-                        ":hover": {
-                          background: "transparent",
-                          color: `#ffffff !important`,
-                        },
-                      };
-                    },
-                    subMenuContent: { background: "#2b2b2b42" },
-                    icon(params) {
-                      return {
-                        ...params,
-                        width: 23,
-                        height: 23,
-                        minWidth: 23,
-                        color:
-                          params.open || params.active ? "#ffffff" : "#a7a7a7",
-                        marginRight: 10,
-                      };
-                    },
-                  }}
+                <MenuItem
+                  icon={<RiMoneyDollarCircleLine size={23} />}
+                  active={pathname === "/auth/integrations/payments"}
+                  component={<Link to={"integrations/payments"} />}
                 >
-                  <MenuItem
-                    icon={<RiMoneyDollarCircleLine size={23} />}
-                    active={pathname === "/auth/integrations/payments"}
-                    component={<Link to={"integrations/payments"} />}
-                  >
-                    Pagamentos
-                  </MenuItem>
-                  <MenuItem
-                    icon={<RiTrelloLine size={23} />}
-                    active={pathname === "/auth/integrations/trello"}
-                    component={<Link to={"integrations/trello"} />}
-                  >
-                    Trello
-                  </MenuItem>
-                </Menu>
-              </div>
-            </Sidebar>
-            <Outlet />
-          </div>
-        )}
+                  Pagamentos
+                </MenuItem>
+                <MenuItem
+                  icon={<RiTrelloLine size={23} />}
+                  active={pathname === "/auth/integrations/trello"}
+                  component={<Link to={"integrations/trello"} />}
+                >
+                  Trello
+                </MenuItem>
+              </Menu>
+            </div>
+          </Sidebar>
+          <Outlet />
+        </div>
+
       </div>
     </LayoutIntegrationsPageContext.Provider>
   );

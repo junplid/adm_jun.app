@@ -586,6 +586,54 @@ export function LayoutPrivateProvider(): JSX.Element {
                   onClick={() => {
                     api.stop();
                     setTimeout(() => {
+                      if (pathname !== "/auth/workbench/storage") {
+                        navigate("/auth/workbench/storage", {
+                          replace: searchParams.get("bs") === "true",
+                        });
+                      }
+                    });
+                  }}
+                  style={{ touchAction: "manipulation" }}
+                  className={clsx(
+                    pathname.includes("workbench")
+                      ? "bg-neutral-800 shadow-sm shadow-black/20"
+                      : "bg-transparent",
+                    "w-full select-none! h-full justify-center flex flex-col items-center gap-y-1 rounded-xl",
+                  )}
+                >
+                  <PiPicnicTableBold size={18} />
+                  <span className="text-xs select-none! w-full text-center font-medium px-2 truncate">
+                    Workbench
+                  </span>
+                </a>
+                <a
+                  onClick={() => {
+                    api.stop();
+                    setTimeout(() => {
+                      if (pathname !== "/auth/integrations/payments") {
+                        navigate("/auth/integrations/payments", {
+                          replace: searchParams.get("bs") === "true",
+                        });
+                      }
+                    });
+                  }}
+                  style={{ touchAction: "manipulation" }}
+                  className={clsx(
+                    pathname.includes("integrations")
+                      ? "bg-neutral-800 shadow-sm shadow-black/20"
+                      : "bg-transparent",
+                    "w-full select-none! h-full justify-center flex flex-col items-center gap-y-1 rounded-xl",
+                  )}
+                >
+                  <PiPuzzlePieceBold size={18} />
+                  <span className="text-xs select-none! w-full text-center font-medium px-2 truncate">
+                    Integrações
+                  </span>
+                </a>
+                <a
+                  onClick={() => {
+                    api.stop();
+                    setTimeout(() => {
                       if (pathname !== "/auth/settings/account") {
                         navigate("/auth/settings/account", {
                           replace: searchParams.get("bs") === "true",

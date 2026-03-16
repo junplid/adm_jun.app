@@ -1,5 +1,5 @@
 import { JSX, useContext, useMemo } from "react";
-import { TableComponent } from "@components/Table";
+import { TableComponent, TableMobileComponent } from "@components/Table";
 import { Column } from "@components/Table";
 import { ModalCreateTag } from "./modals/create";
 import { ModalDeleteTag } from "./modals/delete";
@@ -13,6 +13,7 @@ import { useDialogModal } from "../../../hooks/dialog.modal";
 import { useGetTags } from "../../../hooks/tag";
 import { TagType } from "../../../services/api/Tag";
 import { LayoutWorkbenchPageContext } from "../contexts";
+import { AuthContext } from "@contexts/auth.context";
 
 export interface TagRow {
   id: number;
@@ -30,6 +31,7 @@ export interface TagRow {
 // };
 
 export const TagsPage: React.FC = (): JSX.Element => {
+  const { clientMeta } = useContext(AuthContext);
   const { ToggleMenu } = useContext(LayoutWorkbenchPageContext);
   const { data: tags, isFetching, isPending } = useGetTags();
   const { dialog: DialogModal, close, onOpen } = useDialogModal({});
@@ -80,7 +82,6 @@ export const TagsPage: React.FC = (): JSX.Element => {
                 bg={"transparent"}
                 _hover={{ bg: "#30c9e422" }}
                 _icon={{ width: "20px", height: "20px" }}
-                disabled={row.type === "system"}
               >
                 <MdEdit size={18} color={"#9ec9fa"} />
               </Button>
@@ -89,7 +90,6 @@ export const TagsPage: React.FC = (): JSX.Element => {
                 bg={"transparent"}
                 _hover={{ bg: "#eb606028" }}
                 _icon={{ width: "20px", height: "20px" }}
-                disabled={row.type === "system"}
                 onClick={() => {
                   onOpen({
                     content: (
@@ -116,28 +116,80 @@ export const TagsPage: React.FC = (): JSX.Element => {
       <div className="flex flex-col gap-y-0.5">
         <div className="flex items-center w-full justify-between gap-x-5">
           <div className="flex items-center gap-x-2">
-            {ToggleMenu}
-            <h1 className="text-lg font-semibold">Etiquetas</h1>
-            <p className="text-white/60 font-light">
+            <span className="hidden sm:flex">{ToggleMenu}</span>
+            <h1 className="text-base sm:text-lg font-semibold">Etiquetas</h1>
+            {/* <p className="text-white/60 font-light">
               Classifique e organize seus contatos por interesses, ações, etc.
-            </p>
+            </p> */}
           </div>
           <ModalCreateTag
             trigger={
-              <Button variant="outline" size={"sm"}>
-                <IoAdd /> Adicionar
+              <Button variant="outline" size={{ sm: "sm", base: "xs" }}>
+                <IoAdd /> <span className="sm:block hidden">Adicionar</span>
               </Button>
             }
           />
         </div>
       </div>
       <div className="flex-1 grid">
-        <TableComponent
-          rows={tags || []}
-          columns={renderColumns}
-          textEmpity="Suas etiquetas aparecerão aqui."
-          load={isFetching || isPending}
-        />
+        {clientMeta.isMobileLike || clientMeta.isSmallScreen ? (
+          <TableMobileComponent
+            totalCount={(tags || []).length || 0}
+            renderItem={(index) => {
+              const row = (tags || [])![index];
+              return (
+                <div className="flex flex-col bg-amber-50/5 p-3! py-2! my-1 rounded-md">
+                  <span>{row.name}</span>
+
+                  <div className="flex items-center mt-1 justify-end">
+                    <div className="flex gap-x-1">
+                      <Button
+                        onClick={() => {
+                          onOpen({
+                            content: <ModalEditTag close={close} id={row.id} />,
+                          });
+                        }}
+                        size={"xs"}
+                        bg={"transparent"}
+                        _hover={{ bg: "#30c9e422" }}
+                        _icon={{ width: "16px", height: "16px" }}
+                      >
+                        <MdEdit color={"#9ec9fa"} />
+                      </Button>
+                      <Button
+                        size={"xs"}
+                        bg={"#cf5c5c24"}
+                        _hover={{ bg: "#eb606028" }}
+                        _icon={{ width: "16px", height: "16px" }}
+                        onClick={() => {
+                          onOpen({
+                            content: (
+                              <ModalDeleteTag
+                                data={{ id: row.id, name: row.name }}
+                                close={close}
+                              />
+                            ),
+                          });
+                        }}
+                      >
+                        <MdDeleteOutline color={"#f75050"} />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              );
+            }}
+            textEmpity="Suas etiquetas aparecerão aqui."
+            load={isFetching || isPending}
+          />
+        ) : (
+          <TableComponent
+            rows={tags || []}
+            columns={renderColumns}
+            textEmpity="Suas etiquetas aparecerão aqui."
+            load={isFetching || isPending}
+          />
+        )}
       </div>
       {DialogModal}
     </div>

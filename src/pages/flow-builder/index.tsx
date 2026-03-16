@@ -669,7 +669,7 @@ export function FlowBuilderPage() {
   }, [params.id]);
 
   const Toggle = useMemo(() => {
-    return <div className="absolute top-4 left-2 z-20">{ToggleMenu}</div>;
+    return <div className="absolute top-4 left-2 z-20 hidden sm:flex">{ToggleMenu}</div>;
   }, [ToggleMenu]);
 
   if (!params.id) {
