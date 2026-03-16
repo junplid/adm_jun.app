@@ -1,5 +1,5 @@
 import { JSX, useCallback, useContext, useEffect, useMemo } from "react";
-import { TableComponent } from "../../components/Table";
+import { TableComponent, TableMobileComponent } from "../../components/Table";
 import { Column } from "../../components/Table";
 import { ModalCreateChatbot } from "./modals/create";
 import { ModalDeleteChatbot } from "./modals/delete";
@@ -27,6 +27,7 @@ import { SocketContext } from "@contexts/socket.context";
 import { queryClient } from "../../main";
 import { motion } from "framer-motion";
 import { BsStars } from "react-icons/bs";
+import moment from "moment";
 
 export type TypeConnectionWA = "chatbot" | "marketing";
 
@@ -71,11 +72,11 @@ export const ChatbotsPage: React.FC = (): JSX.Element => {
       (data: {
         connectionId: number;
         connection?:
-          | "open"
-          | "close"
-          | "connecting"
-          | "sync"
-          | "connectionLost";
+        | "open"
+        | "close"
+        | "connecting"
+        | "sync"
+        | "connectionLost";
       }) => {
         if (data.connection) {
           queryClient.setQueryData(["connections-wa", null], (oldData: any) => {
@@ -284,7 +285,6 @@ export const ChatbotsPage: React.FC = (): JSX.Element => {
           <ModalCreateChatbot
             trigger={
               <Button
-                disabled={clientMeta.isMobileLike || clientMeta.isSmallScreen}
                 variant="outline"
                 size={"sm"}
               >
@@ -299,11 +299,162 @@ export const ChatbotsPage: React.FC = (): JSX.Element => {
         </p>
       </div>
       {clientMeta.isMobileLike || clientMeta.isSmallScreen ? (
-        <div className="flex items-center justify-center h-full">
-          <span className="text-sm px-2">
-            Disponível apenas para acesso via desktop. Para utilizá-la, acesse o
-            sistema por um computador.
-          </span>
+        <div className="h-full flex-1 grid px-2">
+          <TableMobileComponent
+            totalCount={(chatbots || []).length}
+            renderItem={(index) => {
+              const row = (chatbots || [])[index];
+              return (
+                <div className="flex flex-col my-1 bg-amber-50/5 p-3! py-2! rounded-md">
+                  <div className="flex items-center justify-between gap-x-1">
+                    <div className="flex items-center gap-x-1.5 w-full">
+                      <div className="flex items-center justify-center">
+                        {!row.status && (
+                          <IoMdRadioButtonOff color={"#f17b7b"} size={16} />
+                        )}
+                        {row.status && (
+                          <IoMdRadioButtonOn color={"#7bf1a8e2"} size={20} />
+                        )}
+                      </div>
+
+                      <span className="text-sm truncate font-semibold">
+                        {row.name}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-end text-xs gap-x-1">
+                      <span>{moment(row.createAt).format("D/M/YY")}</span>
+                      <span className="text-white/50 text-[11px]">
+                        {moment(row.createAt).format("HH:mm")}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center mt-1 justify-between">
+                    <div className="flex items-center">
+                      {row.AgentAI && (
+                        <div className="flex items-center gap-x-1 px-1! bg-blue-300/20 text-blue-300">
+                          <BsStars />
+                          <span>{row.AgentAI.name}</span>
+                        </div>
+                      )}
+                      {row.connStt === "close" && (
+                        <div className="flex text-xs items-center gap-x-1 px-1! bg-red-300/20 text-red-300">
+                          <MdSignalWifiConnectedNoInternet0
+                            color={"#e96068"}
+                            size={18}
+                          />
+                          <span>Conexão off</span>
+                        </div>
+                      )}
+                      {row.connStt === "open" && (
+                        <div className="flex text-xs items-center gap-x-1 px-1! bg-green-300/20 text-green-300">
+                          <ImConnection color={"#7bf1a8e2"} size={18} />
+                          <span>Conexão on</span>
+                        </div>
+                      )}
+                      {row.status === "sync" && (
+                        <div className="flex text-xs items-center gap-x-1 px-1! bg-blue-300/20 text-blue-300">
+                          <MotionIcon
+                            size={18}
+                            color="#7bb4f1"
+                            animate={{ rotate: -360 }}
+                            transition={{
+                              repeat: Infinity,
+                              duration: 1.2,
+                              ease: "linear",
+                            }}
+                          />
+                          <span>Conexão sync</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex gap-x-1">
+                      {/* @ts-expect-error */}
+                      {row.connectionWAId !== undefined && row.connStt === "close" && (
+                        <Button
+                          onClick={() =>
+                            onOpen({
+                              size: "lg",
+                              content: (
+                                <ModalConnectConnectionWA
+                                  close={close}
+                                  // @ts-expect-error
+                                  id={row.connectionWAId}
+                                />
+                              ),
+                            })
+                          }
+                          size={"sm"}
+                          bg={"transparent"}
+                          color={"#9cc989"}
+                          _hover={{ bg: "#def5cf2b" }}
+                          _icon={{ width: "20px", height: "22px" }}
+                        >
+                          <TbPlugConnected size={30} />
+                        </Button>
+                      )}
+
+                      {/* @ts-expect-error */}
+                      {row.connectionWAId !== undefined &&
+                        (row.connStt === "open" || row.status === "sync") && (
+                          <Button
+                            // @ts-expect-error
+                            onClick={() => disconnectWhatsapp(row.connectionWAId)}
+                            size={"sm"}
+                            bg={"transparent"}
+                            disabled={row.status === "sync"}
+                            color={"#d77474"}
+                            _hover={{ bg: "#f5cfcf2b" }}
+                            _icon={{ width: "20px", height: "22px" }}
+                          >
+                            <AiOutlinePoweroff size={30} />
+                          </Button>
+                        )}
+                      <Button
+                        size={"xs"}
+                        bg={"#30c9e414"}
+                        _hover={{ bg: "#30c9e422" }}
+                        _icon={{ width: "16px", height: "16px" }}
+                        onClick={() => {
+                          onOpen({
+                            size: "sm",
+                            content: (
+                              <ModalEditChatbot
+                                isAgent={!!row.AgentAI}
+                                close={close}
+                                id={row.id}
+                              />
+                            ),
+                          });
+                        }}
+                      >
+                        <MdEdit color={"#9ec9fa"} />
+                      </Button>
+                      <Button
+                        size={"xs"}
+                        bg={"#cf5c5c24"}
+                        _hover={{ bg: "#eb606028" }}
+                        _icon={{ width: "16px", height: "16px" }}
+                        onClick={() => {
+                          onOpen({
+                            content: (
+                              <ModalDeleteChatbot
+                                data={{ id: row.id, name: row.name }}
+                                close={close}
+                              />
+                            ),
+                          });
+                        }}
+                      >
+                        <MdDeleteOutline color={"#f75050"} />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              );
+            }}
+            textEmpity="Seus bots de recepção aparecerão aqui."
+            load={isFetching || isPending}
+          />
         </div>
       ) : (
         <div

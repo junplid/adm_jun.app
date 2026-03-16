@@ -562,6 +562,30 @@ export function LayoutPrivateProvider(): JSX.Element {
                   onClick={() => {
                     api.stop();
                     setTimeout(() => {
+                      if (pathname !== "/auth/chatbots") {
+                        navigate("/auth/chatbots", {
+                          replace: searchParams.get("bs") === "true",
+                        });
+                      }
+                    });
+                  }}
+                  style={{ touchAction: "manipulation" }}
+                  className={clsx(
+                    pathname === "/auth/chatbots"
+                      ? "bg-neutral-800 shadow-sm shadow-black/20"
+                      : "bg-transparent",
+                    "w-full select-none! h-full justify-center flex flex-col items-center gap-y-1 rounded-xl",
+                  )}
+                >
+                  <LuBotMessageSquare size={18} />
+                  <span className="text-xs select-none! w-full text-center font-medium px-2 truncate">
+                    Chatbots
+                  </span>
+                </a>
+                <a
+                  onClick={() => {
+                    api.stop();
+                    setTimeout(() => {
                       if (pathname !== "/auth/inboxes/departments") {
                         navigate("/auth/inboxes/departments", {
                           replace: searchParams.get("bs") === "true",
