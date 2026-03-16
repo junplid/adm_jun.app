@@ -10,7 +10,12 @@ export async function getAccount(): Promise<{
   hash: string;
   businessId: number;
 }> {
-  const { data } = await api.get("/private/account");
+  const { data, status } = await api.get("/private/account");
+  if (status === 200) {
+    if (data.csrfToken) {
+      api.defaults.headers.common["X-XSRF-TOKEN"] = data.csrfToken;
+    }
+  }
   return data.account;
 }
 

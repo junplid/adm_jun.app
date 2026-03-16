@@ -75,8 +75,8 @@ export const LoginPage: React.FC = (): JSX.Element => {
   useEffect(() => {
     (async () => {
       await api.post("/private/logout");
+      api.defaults.headers.common["X-XSRF-TOKEN"] = null;
       queryClient.clear();
-      navigate("/login", { replace: true });
     })();
   }, []);
 
