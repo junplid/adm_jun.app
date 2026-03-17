@@ -944,7 +944,7 @@ function SectionSubItems(props: {
                                 setValueAs: (v) =>
                                   v === ""
                                     ? undefined
-                                    : Number(v) <= 0
+                                    : Number(v) < 0
                                       ? 0
                                       : Number(v),
 
@@ -953,7 +953,7 @@ function SectionSubItems(props: {
 
                                   props.setValue(
                                     `sections.${props.index}.subItems.${index}.maxLength`,
-                                    Number(value) <= 0
+                                    Number(value) < 0
                                       ? undefined
                                       : Number(value),
                                   );
