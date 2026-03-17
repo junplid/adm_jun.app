@@ -13,7 +13,7 @@ import { AuthContext } from "@contexts/auth.context";
 import { IoAdd } from "react-icons/io5";
 import { FormCreateCategoriesMenuOnlineConfig } from "./create";
 import { FormEditCategoryMenuOnlineConfig } from "./edit";
-import { closestCenter, DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
+import { closestCenter, DndContext, DragEndEvent, PointerSensor, TouchSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { SortableContext, arrayMove, rectSortingStrategy } from "@dnd-kit/sortable";
 import { SortableItem } from "./SortableItems";
 
@@ -43,6 +43,12 @@ export function SectionCategoriesMenuOnlineConfig(props: Props) {
         distance: 5,
       },
     }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 200,
+        tolerance: 8
+      }
+    })
   );
 
   useEffect(() => {
