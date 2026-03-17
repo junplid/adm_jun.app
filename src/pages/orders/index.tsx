@@ -884,7 +884,7 @@ export const OrdersPage: React.FC = (): JSX.Element => {
     );
 
     socket.on(
-      "order:update_rank",
+      "update_rank",
       (props: {
         rank: number;
         orderId: number;
@@ -915,7 +915,7 @@ export const OrdersPage: React.FC = (): JSX.Element => {
     );
 
     socket.on(
-      "order:update_status",
+      "update_status",
       (props: {
         rank: number;
         orderId: number;
@@ -923,6 +923,7 @@ export const OrdersPage: React.FC = (): JSX.Element => {
         sourceStatus: TypeStatusOrder;
         nextStatus: TypeStatusOrder;
       }) => {
+        console.log(props);
         setOrders((state) => {
           const copyState = structuredClone(state);
           const ordersStart = copyState[props.sourceStatus];
@@ -954,8 +955,8 @@ export const OrdersPage: React.FC = (): JSX.Element => {
 
     return () => {
       socket.off("new_order");
-      socket.off("order:update_status");
-      socket.off("order:update_rank");
+      socket.off("update_status");
+      socket.off("update_rank");
       socket.off("new_ticket");
       socket.off("remove_ticket");
       socket.off("return_ticket");
