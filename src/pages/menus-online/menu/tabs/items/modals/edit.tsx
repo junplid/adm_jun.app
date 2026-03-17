@@ -958,13 +958,15 @@ function SectionSubItems(props: {
                                       : Number(v),
 
                                 onChange(e) {
-                                  const value = e.target.value;
+                                  const v = e.target.value;
 
                                   props.setValue(
                                     `sections.${props.index}.subItems.${index}.maxLength`,
-                                    Number(value) < 0
+                                    v === ""
                                       ? undefined
-                                      : Number(value),
+                                      : Number(v) < 0
+                                        ? 0
+                                        : Number(v),
                                     { shouldDirty: true },
                                   );
                                 },
