@@ -53,6 +53,8 @@ export async function createMenuOnlineItem(
 ): Promise<{
   id: number;
   uuid: string;
+  view: boolean;
+  stateWarn: string[];
   categories: {
     days_in_the_week_label: string;
     id: number;
@@ -66,6 +68,16 @@ export async function createMenuOnlineItem(
   );
 
   return data.item;
+}
+
+export async function updateMenuOnlineSubItemsStatus(
+  menuUuid: string,
+  body: {
+    subItemsUuid: string[];
+    action: "true" | "false";
+  },
+): Promise<void> {
+  await api.put(`/private/menus-online/${menuUuid}/subItems/status`, body);
 }
 
 export async function updateMenuOnlineItem(
@@ -101,6 +113,8 @@ export async function updateMenuOnlineItem(
     id: number;
     image45x45png: string;
   }[];
+  view: boolean;
+  stateWarn: string[];
   beforePrice: string | null;
   afterPrice: string | null;
   uuid: string;
@@ -343,6 +357,7 @@ export async function getMenuOnlineItem(params: {
       previewImage: string | null;
       before_additional_price: string | null;
       after_additional_price: string | null;
+      status: boolean | null;
     }[];
     uuid: string;
     title: string;
@@ -406,6 +421,8 @@ export async function getMenuOnlineItems(params: { uuid: string }): Promise<
     name: string;
     desc: string | null;
     img: string;
+    view: boolean;
+    stateWarn: string[];
     qnt: number;
     beforePrice: string | null;
     afterPrice: string | null;
@@ -448,6 +465,20 @@ export async function getOptionsMenuOnlineCategories(params: {
     `/private/menus-online/${params.uuid}/categories/options`,
   );
   return data.categories;
+}
+
+export async function getOptionsMenuOnlineSubItems(params: {
+  uuid: string;
+}): Promise<
+  {
+    name: string;
+    uuids: string[];
+  }[]
+> {
+  const { data } = await api.get(
+    `/private/menus-online/${params.uuid}/subitems/options`,
+  );
+  return data.subitems;
 }
 
 export async function getOptionsMenuOnlineItems(params: {

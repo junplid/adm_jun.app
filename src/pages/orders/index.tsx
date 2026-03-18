@@ -60,6 +60,7 @@ import { BiTimeFive } from "react-icons/bi";
 import { ModalChatPlayer } from "../inboxes/departments/modals/Player/modalChat";
 import { useRoomWebSocket } from "../../hooks/roomWebSocket";
 import { BsFillLockFill } from "react-icons/bs";
+import { VscMove } from "react-icons/vsc";
 
 export type ItemID = string;
 
@@ -206,6 +207,7 @@ export function SortableItem({
     attributes,
     listeners,
     setNodeRef,
+    setActivatorNodeRef,
     transform,
     transition,
     isDragging,
@@ -213,7 +215,6 @@ export function SortableItem({
     id: order.id,
     disabled: order.isDragDisabled,
   });
-
   const [actionsLoad, setActionsLoad] = useState<string[]>([]);
   const [openData, setOpenData] = useState(false);
   const parent = useRef(null);
@@ -256,30 +257,41 @@ export function SortableItem({
     [actionsLoad],
   );
 
-  const composedTransition = [transition, "outline 400ms"]
+  const composedTransition = [transition, "transform 150ms cubic-bezier(0.2, 0, 0, 1)"]
     .filter(Boolean)
     .join(", ");
 
+  const liftOffset = !isDragging && isOverlay
+    ? { scale: 0.89 }
+    : { scale: 1 };
+
+  const base = transform ?? { x: 0, y: 0, scaleX: 1, scaleY: 1 };
+
+  const composedTransform = {
+    x: base.x,
+    y: base.y,
+    scaleX: base.scaleX * liftOffset.scale,
+    scaleY: base.scaleY * liftOffset.scale,
+  };
+
   return (
-    <div ref={setNodeRef} {...attributes}
-      {...listeners} className="p-1 relative touch-none">
+    <div ref={setNodeRef}
+      className="relative touch-none text-black"
+    >
       {order.isDragDisabled && (
         <BsFillLockFill className="absolute right-2 -top-0.5 text-red-400 z-20" />
       )}
       <div
-        className={clsx("select-none relative")}
+        className={clsx("select-none relative rounded-sm")}
         style={{
-          transform: CSS.Translate.toString(transform),
+          transform: CSS.Transform.toString(composedTransform),
           transition: composedTransition,
-          backgroundColor: isOverlay ? "#2E2E2E" : "#1e1e1e",
-          // marginBottom: "6px",
-          cursor: isOverlay ? "grabbing" : "grab",
+          backgroundColor: !isDragging ? "#ececec" : "#ececec15",
+          // marginBottom: "6px", 
           zIndex: !isDragging ? 1 : "auto",
-          boxShadow: isOverlay
+          boxShadow: !isDragging && isOverlay
             ? "0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.3)"
             : "none",
-          outline: isDragging ? "2px dashed #fff" : "2px dashed transparent",
-          outlineOffset: "-2px",
           opacity: order.isDragDisabled ? 0.4 : 1,
         }}
 
@@ -291,14 +303,31 @@ export function SortableItem({
             // isOver && "opacity-0",
           )}
         >
-          <div className="px-2 pt-2 flex w-full mb-0 items-center gap-x-1 justify-between">
-            <span className="text-white/55 text-xs sm:text-sm">
+          <div className="px-2 pt-0 pr-0 flex w-full mb-0 items-center gap-x-1 justify-between">
+            <span className="text-black/55 text-xs sm:text-sm">
               #{order.n_order}
             </span>
 
-            <span className="text-white/35 text-xs sm:text-sm">
-              {previewDateLastMsg}
-            </span>
+            <div className="flex items-center">
+              <span className="text-black/35 text-xs sm:text-sm">
+                {previewDateLastMsg}
+              </span>
+              <button
+                type="button"
+                ref={setActivatorNodeRef}
+                style={{
+                  cursor: "grab",
+                  border: "none",
+                  fontSize: 18,
+                }}
+                {...attributes}
+                {...listeners}
+                className="h-full! bg-white/5 p-2 py-1.5"
+              >
+                <VscMove />
+              </button>
+
+            </div>
           </div>
           {(order.name || order.description || order.contact) && (
             <div className="px-2 flex flex-col mb-2 -space-y-1 w-full">
@@ -308,19 +337,19 @@ export function SortableItem({
               <span className="text-xs sm:text-sm font-medium w-full">
                 {order.contact}
               </span>
-              <span className="text-white/60 text-xs sm:text-sm w-full">
+              <span className="text-black/60 text-xs sm:text-sm w-full">
                 {order.description}
               </span>
             </div>
           )}
           {order.data ? (
-            <div className="relative gap-y-1 duration-200 bg-zinc-700/15 w-full">
-              <div className="border-b-2 w-full border-dashed border-zinc-600/40" />
-              <Collapsible.Root open={openData} collapsedHeight="75px">
+            <div className="relative gap-y-1 cursor-pointer duration-200 bg-zinc-700/15 w-full">
+              <div className="border-b-2 w-full border-dashed border-zinc-600" />
+              <Collapsible.Root open={openData} collapsedHeight="69px">
                 <Collapsible.Content
                   _closed={{
                     shadow: "inset 0 -20px 12px -12px var(--shadow-color)",
-                    shadowColor: "blackAlpha.500",
+                    shadowColor: "blackAlpha.300",
                   }}
                   onClick={() => setOpenData(!openData)}
                 >
@@ -330,13 +359,13 @@ export function SortableItem({
                 </Collapsible.Content>
               </Collapsible.Root>
 
-              <div className="border-b-2 w-full border-dashed border-zinc-600/40" />
+              <div className="border-b-2 w-full border-dashed border-zinc-600" />
             </div>
           ) : (
             <div className="border-b-2 my-2 w-full border-dashed border-zinc-600/40" />
           )}
           {order.payment_method && (
-            <div className="px-2 flex-col items-start mt-1 gap-x-0.5 text-white/60">
+            <div className="px-2 flex-col items-start mt-1 gap-x-0.5 text-black/60">
               <span className="line-clamp-3 text-xs w-full">
                 Pagar com: {order.payment_method}
               </span>
@@ -352,7 +381,7 @@ export function SortableItem({
               )}
             </div>
           )}
-          <div className="px-2 flex flex-col items-start mt-1 text-white/60">
+          <div className="px-2 flex flex-col items-start mt-1 text-black/60">
             {order.delivery_cep && (
               <span className="line-clamp-3 text-xs w-full">
                 CEP: {order.delivery_cep}
@@ -361,11 +390,6 @@ export function SortableItem({
             {order.delivery_address && (
               <span className="line-clamp-3 text-xs w-full">
                 Endereço: {order.delivery_address}
-              </span>
-            )}
-            {order.delivery_complement && (
-              <span className="line-clamp-3 text-xs w-full">
-                Complemento: {order.delivery_complement}
               </span>
             )}
             {order.delivery_complement && (
@@ -532,11 +556,11 @@ export const OrdersPage: React.FC = (): JSX.Element => {
   // const [overColumnId, setOverColumnId] = useState<string | null>(null);
 
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(PointerSensor, { activationConstraint: { distance: 1, tolerance: 1000 } }),
     useSensor(TouchSensor, {
       activationConstraint: {
-        delay: 200,
-        tolerance: 8
+        delay: 10000,
+        tolerance: 100,
       }
     })
   );

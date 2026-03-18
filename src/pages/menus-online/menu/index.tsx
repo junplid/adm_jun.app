@@ -99,7 +99,7 @@ export const MenuOnlinePage: React.FC = (): JSX.Element => {
         <Center mb={2}>
           <TabsList
             bg="#1c1c1c"
-            className="w-full justify-center"
+            className="w-full justify-start sm:justify-center"
             rounded="l3"
             p="1.5"
             mx={2}

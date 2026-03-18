@@ -6,7 +6,6 @@ import { ModalEditProduct } from "./modals/edit";
 import { MdDeleteOutline, MdEdit } from "react-icons/md";
 import { ModalDeleteItem } from "./modals/delete";
 import { ModalCreateProduct } from "./modals/create";
-import { IoAdd } from "react-icons/io5";
 import { AxiosError } from "axios";
 import { AuthContext } from "@contexts/auth.context";
 import { ErrorResponse_I } from "../../../../../services/api/ErrorResponse";
@@ -15,6 +14,10 @@ import { getMenuOnlineItems } from "../../../../../services/api/MenuOnline";
 import { api } from "../../../../../services/api";
 import { formatToBRL } from "brazilian-values";
 import clsx from "clsx";
+import { GrUpdate } from "react-icons/gr";
+import { RiAddLargeLine } from "react-icons/ri";
+import { ModalUpdateBulk } from "./modals/update-bulk";
+import { IoWarningSharp } from "react-icons/io5";
 
 export type TypeCategory = "pizzas" | "drinks";
 
@@ -32,6 +35,8 @@ export interface ItemRow {
   img: string;
   qnt: number;
   beforePrice: string | null;
+  view: boolean
+  stateWarn: string[]
   afterPrice: string | null;
 }
 
@@ -74,7 +79,7 @@ const TabProducts_ = ({ uuid }: { uuid: string }): JSX.Element => {
         styles: { width: 65 },
         render(row) {
           return (
-            <div>
+            <div style={{ opacity: row.view ? 1 : 0.4 }}>
               <img
                 src={api.getUri() + "/public/images/" + row.img}
                 className="rounded-sm"
@@ -91,8 +96,17 @@ const TabProducts_ = ({ uuid }: { uuid: string }): JSX.Element => {
         render(row) {
           return (
             <div className="flex flex-col">
-              <span title={row.name}>{row.name}</span>
-              <span className="text-xs text-neutral-400">{row.desc}</span>
+              <span style={{ opacity: row.view ? 1 : 0.4 }} title={row.name}>{row.name}</span>
+              {!!row.stateWarn.length && (
+                <div className="flex items-start gap-x-1 mt-1">
+                  <IoWarningSharp className="text-orange-400 mt-0.5" />
+                  <div className="flex flex-col">
+                    {row.stateWarn.map((w: string) => (
+                      <p className="text-orange-300 text-sm" key={w}>{w}</p>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           );
         },
@@ -226,7 +240,19 @@ const TabProducts_ = ({ uuid }: { uuid: string }): JSX.Element => {
 
   return (
     <div className="flex-1 pt-0! grid grid-cols-[1fr] gap-x-2 h-full">
-      <div className="absolute top-2.5 right-5 z-40">
+      <div className="absolute top-2.5 right-5 z-40 flex gap-x-2">
+        <ModalUpdateBulk
+          onCreate={(newItem) => {
+            setItems(state => [newItem, ...state]);
+          }}
+          menuUuid={uuid}
+          trigger={
+            <Button className="flex gap-x-1" colorPalette={"yellow"} size={"xs"}>
+              <GrUpdate />
+              Opções
+            </Button>
+          }
+        />
         <ModalCreateProduct
           onCreate={(newItem) => {
             setItems(state => [newItem, ...state]);
@@ -234,10 +260,12 @@ const TabProducts_ = ({ uuid }: { uuid: string }): JSX.Element => {
           menuUuid={uuid}
           trigger={
             <Button className="" colorPalette={"green"} size={"xs"}>
-              <IoAdd />
+              <RiAddLargeLine />
             </Button>
           }
         />
+
+
       </div>
       {clientMeta.isMobileLike ? (
         <div className="h-full flex-1 pb-12.5 grid px-3">
@@ -246,23 +274,40 @@ const TabProducts_ = ({ uuid }: { uuid: string }): JSX.Element => {
             renderItem={(index) => {
               const row = items![index];
               return (
-                <div className="flex flex-col my-1 bg-amber-50/5 p-3! py-2! rounded-md">
-                  <div className="flex items-center justify-between gap-x-1">
-                    <span className="text-sm truncate font-semibold">
-                      {row.name}
-                    </span>
-                    <div className="flex items-center space-x-1.5">
-                      <span className="text-sm line-through text-neutral-400">
-                        {row.beforePrice && formatToBRL(row.beforePrice)}
+                <div
+                  className="flex flex-col my-2 bg-amber-50/5 p-3! py-2! rounded-md"
+                >
+                  <div
+                    style={{
+                      opacity: row.view ? 1 : 0.4,
+                    }}
+                    className="flex w-full gap-x-1 items-start"
+                  >
+                    <img
+                      src={api.getUri() + "/public/images/" + row.img}
+                      className="rounded-sm"
+                      width={"40px"}
+                      height={"40px"}
+                    />
+                    <div className="flex flex-col items-start gap-x-1">
+                      <span className="text-sm line-clamp-2 font-semibold">
+                        {row.name}
                       </span>
-                      <span className="font-semibold">
-                        {row.afterPrice && formatToBRL(row.afterPrice)}
-                      </span>
+                      <div className="flex items-center space-x-1.5">
+                        {row.beforePrice && (
+                          <span className="text-sm line-through text-neutral-400">
+                            {row.beforePrice && formatToBRL(row.beforePrice)}
+                          </span>
+                        )}
+                        <span className="font-semibold">
+                          {row.afterPrice && formatToBRL(row.afterPrice)}
+                        </span>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center mt-1 justify-between">
-                    <div className="flex flex-col items-baseline gap-y-1">
+                  <div className="flex items-center mt-1 w-full gap-x-1.5 justify-between">
+                    <div className="flex flex-wrap gap-1 w-full">
                       {row.categories.map((cat: ItemRow["categories"][0]) => (
                         <div
                           className={clsx(
@@ -339,6 +384,16 @@ const TabProducts_ = ({ uuid }: { uuid: string }): JSX.Element => {
                       </Button>
                     </div>
                   </div>
+                  {!!row.stateWarn.length && (
+                    <div className="flex items-start gap-x-1 mt-1">
+                      <IoWarningSharp className="text-orange-400 mt-0.5" />
+                      <div className="flex flex-col">
+                        {row.stateWarn.map(w => (
+                          <p className="text-orange-300 text-sm" key={w}>{w}</p>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               );
             }}

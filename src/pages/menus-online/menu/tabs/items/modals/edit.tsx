@@ -51,6 +51,7 @@ import {
   VStack,
   RadioGroup,
   Checkbox,
+  Switch,
 } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -114,6 +115,7 @@ const SubItemSchema = z.object({
   before_additional_price: z.string().nullish(),
   after_additional_price: z.string().nullish(),
   maxLength: z.number().nullish(),
+  status: z.boolean().nullish(),
 });
 
 const SectionSchema = z
@@ -724,7 +726,7 @@ function SectionSubItems(props: {
         onClick={() => {
           const kk = v4();
           props.setCollapsibles((state) => [state[0]]);
-          append({ image55x55png: [], name: "", uuid: kk });
+          append({ image55x55png: [], name: "", uuid: kk, status: true });
           setTimeout(
             () => props.setCollapsibles((state) => [state[0], kk]),
             300,
@@ -930,53 +932,67 @@ function SectionSubItems(props: {
                             />
                           </Field>
                         </div>
-                        <Field
-                          errorText={
-                            props.errors.sections?.[props.index]?.subItems?.[
-                              index
-                            ]?.maxLength?.message
-                          }
-                          invalid={
-                            !!props.errors.sections?.[props.index]?.subItems?.[
-                              index
-                            ]?.maxLength
-                          }
-                          label="Qnt. máxima"
-                          helperText={
-                            "0 = indisponível ou não permite seleção."
-                          }
-                        >
-                          <Input
-                            {...props.register(
-                              `sections.${props.index}.subItems.${index}.maxLength`,
-                              {
-                                setValueAs: (v) =>
-                                  v === ""
-                                    ? undefined
-                                    : Number(v) < 0
-                                      ? 0
-                                      : Number(v),
-
-                                onChange(e) {
-                                  const v = e.target.value;
-
-                                  props.setValue(
-                                    `sections.${props.index}.subItems.${index}.maxLength`,
+                        <div className="flex gap-x-2 items-center">
+                          <Field
+                            errorText={
+                              props.errors.sections?.[props.index]?.subItems?.[
+                                index
+                              ]?.maxLength?.message
+                            }
+                            invalid={
+                              !!props.errors.sections?.[props.index]?.subItems?.[
+                                index
+                              ]?.maxLength
+                            }
+                            label="Qnt. máxima"
+                          >
+                            <Input
+                              {...props.register(
+                                `sections.${props.index}.subItems.${index}.maxLength`,
+                                {
+                                  setValueAs: (v) =>
                                     v === ""
                                       ? undefined
                                       : Number(v) < 0
                                         ? 0
                                         : Number(v),
-                                    { shouldDirty: true },
-                                  );
+
+                                  onChange(e) {
+                                    const v = e.target.value;
+
+                                    props.setValue(
+                                      `sections.${props.index}.subItems.${index}.maxLength`,
+                                      v === ""
+                                        ? undefined
+                                        : Number(v) < 0
+                                          ? 0
+                                          : Number(v),
+                                      { shouldDirty: true },
+                                    );
+                                  },
                                 },
-                              },
+                              )}
+                              type="number"
+                              size={"xs"}
+                              autoComplete="off"
+                            />
+                          </Field>
+                          <Controller
+                            name={`sections.${props.index}.subItems.${index}.status`}
+                            render={({ field }) => (
+                              <Switch.Root
+                                checked={!!field.value}
+                                onCheckedChange={(e) => field.onChange(e.checked)}
+                                className="flex flex-col"
+                              >
+                                <Switch.Label>Status</Switch.Label>
+                                <Switch.HiddenInput />
+                                <Switch.Control />
+                              </Switch.Root>
                             )}
-                            type="number"
-                            size={"xs"}
-                            autoComplete="off"
                           />
-                        </Field>
+                        </div>
+                        <span className="-mt-1 text-neutral-400">0 = indisponível ou não permite seleção.</span>
                       </div>
                     </Collapsible.Content>
                   </Collapsible.Root>
@@ -991,7 +1007,7 @@ function SectionSubItems(props: {
         onClick={() => {
           const kk = v4();
           props.setCollapsibles((state) => [state[0]]);
-          append({ image55x55png: [], name: "", uuid: kk });
+          append({ image55x55png: [], name: "", uuid: kk, status: true });
           setTimeout(
             () => props.setCollapsibles((state) => [state[0], kk]),
             300,
@@ -1282,7 +1298,7 @@ function Sections(props: {
           append({
             uuid: sectionUuid,
             title: "",
-            subItems: [{ name: "", uuid: subUuid }],
+            subItems: [{ name: "", uuid: subUuid, status: true }],
           });
           props.setCollapsibles([sectionUuid, subUuid]);
         }}

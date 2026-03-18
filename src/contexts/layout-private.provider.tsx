@@ -153,7 +153,7 @@ export function LayoutPrivateProvider(): JSX.Element {
         className={clsx(
           "items-start duration-500 h-svh w-full",
           clientMeta.isMobileLike || clientMeta.isSmallScreen
-            ? "flex flex-col"
+            ? "flex flex-col select-none"
             : "flex",
         )}
         style={{ overflowX: "hidden", overflowY: "hidden" }}
@@ -269,7 +269,7 @@ export function LayoutPrivateProvider(): JSX.Element {
               </MenuItem> */}
               <MenuItem
                 icon={<CgWebsite size={22} />}
-                component={<Link to={"/auth/menus-online"} />}
+                component={<Link to={!pathname.includes("menus-online") ? "/auth/menus-online" : "#"} />}
                 active={pathname.includes("menus-online")}
               >
                 Cardápio digital
@@ -443,7 +443,7 @@ export function LayoutPrivateProvider(): JSX.Element {
                   onClick={() => {
                     api.stop();
                     setTimeout(() => {
-                      if (pathname !== "/auth/menus-online") {
+                      if (!pathname.includes("menus-online")) {
                         navigate("/auth/menus-online", {
                           replace: searchParams.get("bs") === "true",
                         });
@@ -451,7 +451,7 @@ export function LayoutPrivateProvider(): JSX.Element {
                     }, 10);
                   }}
                   className={clsx(
-                    pathname === "/auth/menus-online"
+                    pathname.includes("menus-online")
                       ? "bg-neutral-800 shadow-sm shadow-black/20"
                       : "bg-transparent",
                     "w-full h-full select-none! justify-center flex flex-col items-center gap-y-1 rounded-xl",
