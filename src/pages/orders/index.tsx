@@ -7,6 +7,7 @@ import {
   DragOverlay,
   DragStartEvent,
   DropAnimation,
+  PointerSensor,
   pointerWithin,
   TouchSensor,
   useDroppable,
@@ -302,41 +303,28 @@ export function SortableItem({
             // isOver && "opacity-0",
           )}
         >
-          <div className="px-2 py-1 flex w-full mb-0 items-center gap-x-1 justify-between">
-            <span className="text-black/55 text-xs sm:text-sm">
+          <div className="px-2 py-2 pb-0.5 flex w-full mb-0 items-center gap-x-1 justify-between">
+            <span className="text-black/55 text-sm">
               #{order.n_order}
             </span>
 
-            <div className="flex items-center">
-              <span className="text-black/35 text-xs sm:text-sm">
-                {previewDateLastMsg}
-              </span>
-              {/* <button
-                type="button" 
-                style={{
-                  cursor: "grab",
-                  border: "none",
-                  fontSize: 18,
-                }}
-               
-                className="h-full! bg-white/5 p-2 py-1.5 touch-none"
-              >
-                <VscMove />
-              </button> */}
-
-            </div>
+            <span className="text-black/35 text-xs sm:text-sm">
+              {previewDateLastMsg}
+            </span>
           </div>
           {(order.name || order.description || order.contact) && (
-            <div className="px-2 flex flex-col mb-2 -space-y-1 w-full">
-              <span className="text-xs sm:text-sm font-medium w-full">
+            <div className="px-2 flex flex-col mb-2 w-full">
+              <span className="text-sm font-normal w-full">
                 {order.name}
               </span>
-              <span className="text-xs sm:text-sm font-medium w-full">
+              <span className="text-sm font-light text-neutral-600 w-full">
                 {order.contact}
               </span>
-              <span className="text-black/60 text-xs sm:text-sm w-full">
-                {order.description}
-              </span>
+              {order.description && (
+                <span className="text-black/60 text-xs sm:text-sm w-full">
+                  {order.description}
+                </span>
+              )}
             </div>
           )}
           {order.data ? (
@@ -350,7 +338,7 @@ export function SortableItem({
                   }}
                   onClick={() => setOpenData(!openData)}
                 >
-                  <p className="leading-4 text-xs sm:text-sm p-1 px-2">
+                  <p className="leading-4 text-[13px] sm:text-sm p-1 px-2">
                     {parse(format(order.data))}
                   </p>
                 </Collapsible.Content>
@@ -361,17 +349,17 @@ export function SortableItem({
             <div className="border-b-2 my-2 w-full border-dashed border-zinc-600/40" />
           )}
           {order.payment_method && (
-            <div className="px-2 flex-col items-start mt-1 gap-x-0.5 text-black/60">
-              <span className="line-clamp-3 text-xs w-full">
-                Pagar com: {order.payment_method}
+            <div className="px-2 flex-col flex items-start mt-1 gap-x-0.5 text-black/60">
+              <span className="text-sm w-full">
+                Pagar com: <span className="font-medium">{order.payment_method}</span>
               </span>
-              {order.payment_change_to && order.payment_change_to !== "Não" && (
-                <span className="line-clamp-3 text-xs w-full">
-                  Troco para: {order.payment_change_to}
+              {order.payment_change_to && order.payment_change_to === "Não" && (
+                <span className="text-sm w-full">
+                  Troco para: <span className="font-medium">{order.payment_change_to}</span>
                 </span>
               )}
               {order.payment_change_to && order.payment_change_to === "Não" && (
-                <span className="line-clamp-3 text-xs w-full">
+                <span className="text-xs bg-red-200/70 px-0.5 font-medium">
                   [Não precisa de troco]
                 </span>
               )}
@@ -379,17 +367,17 @@ export function SortableItem({
           )}
           <div className="px-2 flex flex-col items-start mt-1 text-black/60">
             {order.delivery_cep && (
-              <span className="line-clamp-3 text-xs w-full">
-                CEP: {order.delivery_cep}
+              <span className="text-sm w-full">
+                CEP: <span className="font-medium">{order.delivery_cep}</span>
               </span>
             )}
             {order.delivery_address && (
-              <span className="line-clamp-3 text-xs w-full">
-                Endereço: {order.delivery_address}
+              <span className="text-sm w-full">
+                Endereço: <span className="font-medium bg-amber-200/50">{order.delivery_address}</span>
               </span>
             )}
             {order.delivery_complement && (
-              <span className="line-clamp-3 text-xs w-full">
+              <span className="text-sm w-full">
                 Complemento: {order.delivery_complement}
               </span>
             )}
@@ -470,12 +458,12 @@ export function Container(props: ContainerProps) {
           className="gap-1.5 p-2 sticky top-0 z-50 sm:p-3 rounded-sm flex items-center sm:rounded-md justify-between"
         >
           <span
-            className="text-sm sm:text-base"
+            className="text-base"
             style={{ color: fontColorContrast(props.column.color + "72") }}
           >
             {props.column.name}
           </span>
-          <Circle p={"1px"} px={"13px"} fontSize={"14px"} bg={"#6d6d6d2c"}>
+          <Circle p={"1px"} px={"13px"} fontSize={"13px"} bg={"#6d6d6d2c"}>
             {props.rows?.length || 0}
           </Circle>
         </div>
@@ -536,7 +524,7 @@ const columns: {
 
 export const OrdersPage: React.FC = (): JSX.Element => {
   const { socket } = useContext(SocketContext);
-  const { logout } = useContext(AuthContext);
+  const { logout, clientMeta } = useContext(AuthContext);
   const { dialog: DialogModal, close, onOpen } = useDialogModal({});
   const [orders, setOrders] = useState<{ [x: string]: Order[] }>(
     {} as { [x: string]: Order[] },
@@ -552,13 +540,13 @@ export const OrdersPage: React.FC = (): JSX.Element => {
   // const [overColumnId, setOverColumnId] = useState<string | null>(null);
 
   const sensors = useSensors(
-    // useSensor(PointerSensor, { activationConstraint: { distance: 1 } }),
-    useSensor(TouchSensor, {
+    useSensor(clientMeta.isMobileLike ? TouchSensor : PointerSensor, clientMeta.isMobileLike ? {
       activationConstraint: {
-        delay: 300,
-        tolerance: 100,
+        delay: 250,
+        tolerance: 8,
+        distance: 5
       }
-    })
+    } : { activationConstraint: { distance: 1 } }),
   );
 
   const findContainer = (id: string | number) => {

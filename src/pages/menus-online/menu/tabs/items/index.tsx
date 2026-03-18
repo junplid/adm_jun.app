@@ -242,8 +242,9 @@ const TabProducts_ = ({ uuid }: { uuid: string }): JSX.Element => {
     <div className="flex-1 pt-0! grid grid-cols-[1fr] gap-x-2 h-full">
       <div className="absolute top-2.5 right-5 z-40 flex gap-x-2">
         <ModalUpdateBulk
-          onCreate={(newItem) => {
-            setItems(state => [newItem, ...state]);
+          onCreate={async () => {
+            const data = await getMenuOnlineItems({ uuid });
+            setItems(data);
           }}
           menuUuid={uuid}
           trigger={

@@ -979,6 +979,7 @@ function SectionSubItems(props: {
                           </Field>
                           <Controller
                             name={`sections.${props.index}.subItems.${index}.status`}
+                            control={props.control}
                             render={({ field }) => (
                               <Switch.Root
                                 checked={!!field.value}

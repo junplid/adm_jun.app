@@ -22,7 +22,6 @@ import {
   DialogActionTrigger,
 } from "@components/ui/dialog";
 import { Field } from "@components/ui/field";
-import { ItemRow } from "..";
 import { AxiosError } from "axios";
 import {
   Controller,
@@ -39,7 +38,7 @@ import { toaster } from "@components/ui/toaster";
 import SelectMenuOnlineSubItems from "@components/SelectMenuOnlineSubItems";
 
 interface IProps {
-  onCreate(business: ItemRow): void;
+  onCreate(): void;
   trigger: JSX.Element;
   placement?: "top" | "bottom" | "center";
   menuUuid: string;
@@ -82,6 +81,7 @@ export function ModalUpdateBulk({
         await updateMenuOnlineSubItemsStatus(props.menuUuid, fields);
         setLoad(false);
         reset({});
+        props.onCreate();
         setOpen(false);
       } catch (error) {
         setLoad(false);
