@@ -59,7 +59,6 @@ import { BiTimeFive } from "react-icons/bi";
 import { ModalChatPlayer } from "../inboxes/departments/modals/Player/modalChat";
 import { useRoomWebSocket } from "../../hooks/roomWebSocket";
 import { BsFillLockFill } from "react-icons/bs";
-import { VscMove } from "react-icons/vsc";
 
 export type ItemID = string;
 
@@ -206,7 +205,6 @@ export function SortableItem({
     attributes,
     listeners,
     setNodeRef,
-    setActivatorNodeRef,
     transform,
     transition,
     isDragging,
@@ -276,6 +274,8 @@ export function SortableItem({
   return (
     <div ref={setNodeRef}
       className="relative text-black"
+      {...attributes}
+      {...listeners}
     >
       {order.isDragDisabled && (
         <BsFillLockFill className="absolute right-2 -top-0.5 text-red-400 z-20" />
@@ -302,7 +302,7 @@ export function SortableItem({
             // isOver && "opacity-0",
           )}
         >
-          <div className="px-2 pt-0 pr-0 flex w-full mb-0 items-center gap-x-1 justify-between">
+          <div className="px-2 py-1 flex w-full mb-0 items-center gap-x-1 justify-between">
             <span className="text-black/55 text-xs sm:text-sm">
               #{order.n_order}
             </span>
@@ -311,20 +311,18 @@ export function SortableItem({
               <span className="text-black/35 text-xs sm:text-sm">
                 {previewDateLastMsg}
               </span>
-              <button
-                type="button"
-                ref={setActivatorNodeRef}
+              {/* <button
+                type="button" 
                 style={{
                   cursor: "grab",
                   border: "none",
                   fontSize: 18,
                 }}
-                {...attributes}
-                {...listeners}
+               
                 className="h-full! bg-white/5 p-2 py-1.5 touch-none"
               >
                 <VscMove />
-              </button>
+              </button> */}
 
             </div>
           </div>
@@ -357,7 +355,6 @@ export function SortableItem({
                   </p>
                 </Collapsible.Content>
               </Collapsible.Root>
-
               <div className="border-b-2 w-full border-dashed border-zinc-600" />
             </div>
           ) : (
@@ -558,7 +555,7 @@ export const OrdersPage: React.FC = (): JSX.Element => {
     // useSensor(PointerSensor, { activationConstraint: { distance: 1 } }),
     useSensor(TouchSensor, {
       activationConstraint: {
-        delay: 10000,
+        delay: 300,
         tolerance: 100,
       }
     })
