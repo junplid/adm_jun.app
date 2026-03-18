@@ -270,7 +270,7 @@ const TabConfig_ = ({ uuid }: { uuid: string }): JSX.Element => {
   } = useDialogModal({});
 
   return (
-    <div className="flex-1 pt-0! flex flex-col scroll-auto overflow-y-scroll h-[calc(100svh-250px)] gap-x-2">
+    <div className="flex-1 pt-0! px-2 flex flex-col scroll-auto overflow-y-scroll h-[calc(100svh-250px)] gap-x-2">
       <section className="space-y-3">
         <h3 className="text-lg font-bold">Configurações de site</h3>
         <FormConfigComponent uuid={uuid} />

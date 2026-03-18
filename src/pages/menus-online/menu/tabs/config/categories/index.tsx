@@ -30,7 +30,7 @@ interface Props {
   bg_primary?: string;
 }
 export function SectionCategoriesMenuOnlineConfig(props: Props) {
-  const { logout } = useContext(AuthContext);
+  const { logout, clientMeta } = useContext(AuthContext);
   const { uuid } = useParams<{ uuid: string }>();
   const [categories, setCategories] = useState<Category[]>([]);
   const [isCreate, setIsCreate] = useState<boolean>(false);
@@ -38,17 +38,13 @@ export function SectionCategoriesMenuOnlineConfig(props: Props) {
   const [edit, setEdit] = useState<string | null>(null);
 
   const sensors = useSensors(
-    useSensor(PointerSensor, {
+    useSensor(clientMeta.isMobileLike ? TouchSensor : PointerSensor, clientMeta.isMobileLike ? {
       activationConstraint: {
-        distance: 5,
-      },
-    }),
-    useSensor(TouchSensor, {
-      activationConstraint: {
-        delay: 200,
-        tolerance: 8
+        delay: 250,
+        tolerance: 8,
+        distance: 5
       }
-    })
+    } : { activationConstraint: { distance: 1 } }),
   );
 
   useEffect(() => {

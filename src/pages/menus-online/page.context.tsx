@@ -21,7 +21,7 @@ export function LayoutSitesPageProvider(): JSX.Element {
 
   return (
     <LayoutWorkbenchPageContext.Provider value={dataValue}>
-      <div className="h-full -space-y-1 flex flex-col">
+      <div className="h-full -space-y-1 px-2 flex flex-col">
         <div className="flex flex-col">
           <div className="flex items-center gap-x-5">
             <h1 className="text-lg font-semibold">Cardápio digital</h1>

@@ -64,6 +64,7 @@ import {
   DndContext,
   DragEndEvent,
   PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
@@ -684,6 +685,7 @@ function SectionSubItems(props: {
   setValue: UseFormSetValue<Fields>;
   trigger: UseFormTrigger<Fields>;
 }) {
+  const { clientMeta } = useContext(AuthContext)
   const { fields, move, append, remove } = useFieldArray({
     control: props.control,
     name: `sections.${props.index}.subItems`,
@@ -693,11 +695,13 @@ function SectionSubItems(props: {
   const registerWithMask = useHookFormMask(props.register);
 
   const sensors = useSensors(
-    useSensor(PointerSensor, {
+    useSensor(clientMeta.isMobileLike ? TouchSensor : PointerSensor, clientMeta.isMobileLike ? {
       activationConstraint: {
-        distance: 5,
-      },
-    }),
+        delay: 250,
+        tolerance: 8,
+        distance: 5
+      }
+    } : { activationConstraint: { distance: 1 } }),
   );
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -1037,7 +1041,7 @@ function Sections(props: {
   setValue: UseFormSetValue<Fields>;
   reset: UseFormReset<Fields>;
 }) {
-  const { logout } = useContext(AuthContext);
+  const { logout, clientMeta } = useContext(AuthContext);
   const params = useParams<{ uuid: string }>();
   const [message, setMessage] = useState("");
 
@@ -1061,11 +1065,13 @@ function Sections(props: {
   } = useFieldArray({ name: "sections", control: props.control });
 
   const sensors = useSensors(
-    useSensor(PointerSensor, {
+    useSensor(clientMeta.isMobileLike ? TouchSensor : PointerSensor, clientMeta.isMobileLike ? {
       activationConstraint: {
-        distance: 5,
-      },
-    }),
+        delay: 250,
+        tolerance: 8,
+        distance: 5
+      }
+    } : { activationConstraint: { distance: 1 } }),
   );
 
   const handleDragEnd = (event: DragEndEvent) => {
