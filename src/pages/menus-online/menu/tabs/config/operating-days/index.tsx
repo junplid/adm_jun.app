@@ -155,13 +155,20 @@ export function FormConfigOperatingDaysComponent({ uuid }: { uuid: string }) {
               ref={field.ref}
               placeholder="Selecione os dias da semana"
               onChange={(e: any) => {
-                if (!operatingDays?.length) {
+                if (!field.value?.length) {
                   field.onChange([
                     { dayOfWeek: e.value, startHourAt: "", endHourAt: "" },
                   ]);
-                } else {
-                  field.onChange([...field.value, { dayOfWeek: e.value, startHourAt: field.value[field.value.length - 1].startHourAt || "", endHourAt: field.value[field.value.length - 1].endHourAt || "" }]);
+                  return;
                 }
+                field.onChange([
+                  ...field.value,
+                  {
+                    dayOfWeek: e.value,
+                    startHourAt: operatingDays[field.value.length - 1].startHourAt || "",
+                    endHourAt: operatingDays[field.value.length - 1].endHourAt || ""
+                  }
+                ]);
               }}
               options={optionsOpertaingDaysMemo}
               value={null}

@@ -5,7 +5,6 @@ import {
   useCallback,
   useContext,
   useMemo,
-  useRef,
   useState,
 } from "react";
 import {
@@ -1370,7 +1369,6 @@ export function ModalCreateProduct({
   const [collapsibles, setCollapsibles] = useState<string[]>([]);
 
   const registerWithMask = useHookFormMask(register);
-  const imgProfileRef = useRef<HTMLInputElement>(null);
 
   const [open, setOpen] = useState(false);
   const [load, setLoad] = useState(false);
@@ -1570,35 +1568,37 @@ export function ModalCreateProduct({
             />
             <div className="flex flex-col w-full gap-y-1">
               <div className="flex items-center w-full gap-x-4">
-                <div
-                  className="relative cursor-pointer"
-                  onClick={() => imgProfileRef.current?.click()}
-                >
-                  <input
-                    type="file"
-                    ref={imgProfileRef}
-                    hidden
-                    max={1}
-                    className="hidden"
-                    accept="image/jpeg, image/png, image/jpg"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (!file) return;
+                <Controller control={control} name="fileNameImage" render={({ field }) => {
+                  return (
+                    <label
+                      className="relative cursor-pointer"
+                    >
+                      <input
+                        ref={field.ref}
+                        className="sr-only"
+                        type="file"
+                        max={1}
+                        accept="image/jpeg, image/png, image/jpg"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
 
-                      setCropFile(file);
-                    }}
-                  />
-                  <Avatar
-                    bg={imgPreviewUrl ? "transparent" : "#ffffff2c"}
-                    size={"2xl"}
-                    width={"60px"}
-                    height={"60px"}
-                    src={imgPreviewUrl}
-                    icon={<MdOutlineImage />}
-                    rounded={"none"}
-                    classImage="rounded-sm!"
-                  />
-                </div>
+                          setCropFile(file);
+                        }}
+                      />
+                      <Avatar
+                        bg={imgPreviewUrl ? "transparent" : "#ffffff2c"}
+                        size={"2xl"}
+                        width={"60px"}
+                        height={"60px"}
+                        src={imgPreviewUrl}
+                        icon={<MdOutlineImage />}
+                        rounded={"none"}
+                        classImage="rounded-sm!"
+                      />
+                    </label>
+                  )
+                }} />
 
                 {cropFile && (
                   <ImageCropModal
@@ -1650,11 +1650,7 @@ export function ModalCreateProduct({
             <Field
               errorText={errors.categoriesUuid?.message}
               invalid={!!errors.categoriesUuid}
-              label={
-                <span>
-                  Categorias <span className="text-red-300">*</span>
-                </span>
-              }
+              label={"Categorias"}
             >
               <Controller
                 name="categoriesUuid"
@@ -1718,6 +1714,7 @@ export function ModalCreateProduct({
               errorText={errors.qnt?.message}
               invalid={!!errors.qnt}
               label={"Qnt. em estoque"}
+              helperText="Por enquanto use 1 ou 0(zero), onde 0(zero) é indisponível e 1 está disponível."
             >
               <Input
                 {...registerWithMask("qnt", ["9", "99", "999", "9999"], {
@@ -1725,7 +1722,6 @@ export function ModalCreateProduct({
                 })}
                 size={"sm"}
                 autoComplete="off"
-                placeholder="9999"
               />
             </Field>
             <Sections

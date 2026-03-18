@@ -6,7 +6,6 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useRef,
   useState,
 } from "react";
 import { CloseButton } from "@components/ui/close-button";
@@ -113,8 +112,8 @@ const SubItemSchema = z.object({
 
   desc: z.string().nullish(),
 
-  before_additional_price: z.string().nullish(),
-  after_additional_price: z.string().nullish(),
+  before_additional_price: z.string().nullable(),
+  after_additional_price: z.string().nullable(),
   maxLength: z.number().nullish(),
   status: z.boolean().nullish(),
 });
@@ -244,7 +243,7 @@ const FormSchema = z
         }
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: `Produtos sem preço atual precisam de ao menos um adicional obrigatório ("Qnt. mínima") com preço definido em todas as opções.`,
+          message: `Produtos sem preço atual precisam de ao menos 1 Adicional obrigatório ("Qnt. mínima") com preço definido em todas as opções.`,
           path: ["sections", "root"],
         });
       }
@@ -730,7 +729,7 @@ function SectionSubItems(props: {
         onClick={() => {
           const kk = v4();
           props.setCollapsibles((state) => [state[0]]);
-          append({ image55x55png: [], name: "", uuid: kk, status: true });
+          append({ image55x55png: [], name: "", uuid: kk, status: true, after_additional_price: null, before_additional_price: null });
           setTimeout(
             () => props.setCollapsibles((state) => [state[0], kk]),
             300,
@@ -902,7 +901,7 @@ function SectionSubItems(props: {
                             <Input
                               {...registerWithMask(`sections.${props.index}.subItems.${index}.before_additional_price`, ["9", "99", "9,99", "99,99", "999,99", "9.999,99"])}
                               onInput={(e) => {
-                                props.setValue(`sections.${props.index}.subItems.${index}.before_additional_price`, e.currentTarget.value.replace(/\D/g, ""), {
+                                props.setValue(`sections.${props.index}.subItems.${index}.before_additional_price`, e.currentTarget.value.replace(/\D/g, "") || null, {
                                   shouldDirty: true,
                                 });
                               }}
@@ -926,7 +925,7 @@ function SectionSubItems(props: {
                             <Input
                               {...registerWithMask(`sections.${props.index}.subItems.${index}.after_additional_price`, ["9", "99", "9,99", "99,99", "999,99", "9.999,99"])}
                               onInput={(e) => {
-                                props.setValue(`sections.${props.index}.subItems.${index}.after_additional_price`, e.currentTarget.value.replace(/\D/g, ""), {
+                                props.setValue(`sections.${props.index}.subItems.${index}.after_additional_price`, e.currentTarget.value.replace(/\D/g, "") || null, {
                                   shouldDirty: true,
                                 });
                               }}
@@ -1012,7 +1011,7 @@ function SectionSubItems(props: {
         onClick={() => {
           const kk = v4();
           props.setCollapsibles((state) => [state[0]]);
-          append({ image55x55png: [], name: "", uuid: kk, status: true });
+          append({ image55x55png: [], name: "", uuid: kk, status: true, after_additional_price: null, before_additional_price: null });
           setTimeout(
             () => props.setCollapsibles((state) => [state[0], kk]),
             300,
@@ -1305,7 +1304,7 @@ function Sections(props: {
           append({
             uuid: sectionUuid,
             title: "",
-            subItems: [{ name: "", uuid: subUuid, status: true }],
+            subItems: [{ name: "", uuid: subUuid, status: true, after_additional_price: null, before_additional_price: null }],
           });
           props.setCollapsibles([sectionUuid, subUuid]);
         }}
@@ -1385,7 +1384,6 @@ function Content(props: IProps): JSX.Element {
   const [cropFile, setCropFile] = useState<File | null>(null);
 
   const registerWithMask = useHookFormMask(register);
-  const imgProfileRef = useRef<HTMLInputElement>(null);
 
   const edit = useCallback(
     async (fields: Fields): Promise<void> => {
@@ -1417,7 +1415,7 @@ function Content(props: IProps): JSX.Element {
 
         if (changedFields.sections?.length) {
           const sectionsResolved = await Promise.all(
-            changedFields.sections.map(async ({ ...section }) => {
+            changedFields.sections.map(async (section) => {
               section.subItems = await Promise.all(
                 section.subItems.map(async ({ previewImage, ...item }: any) => {
                   let nextFileNameImage: string | null = null;
@@ -1429,6 +1427,8 @@ function Content(props: IProps): JSX.Element {
                       nextFileNameImage = imgUp.filename || null;
                     }
                   }
+                  if (!item.after_additional_price) item.after_additional_price = null;
+                  if (!item.before_additional_price) item.before_additional_price = null;
                   item.image55x55png = nextFileNameImage;
                   return item;
                 }),
@@ -1442,6 +1442,9 @@ function Content(props: IProps): JSX.Element {
             setError("afterPrice", { message: "O preço é obrigatório" });
           }
         }
+
+        console.log("1", changedFields);
+        console.log("2", { ...changedFields });
 
         const updateItem = await updateMenuOnlineItem(
           props.menuUuid,
@@ -1503,9 +1506,9 @@ function Content(props: IProps): JSX.Element {
         if (!getItem) {
           setStateItem("not_found");
         } else {
-          const { fileNameImage, ...rest } = getItem;
+          const { fileNameImage, date_validity, ...rest } = getItem;
           setImgPreviewUrl(api.getUri() + "/public/images/" + fileNameImage);
-          reset(rest);
+          reset({ ...rest, date_validity: date_validity ? new Date(date_validity) : null });
           setStateItem("sucess");
         }
         setLoad(false);
@@ -1624,34 +1627,35 @@ function Content(props: IProps): JSX.Element {
             )}
           />
           <div className="flex items-center w-full gap-x-4">
-            <div
-              className="relative cursor-pointer"
-              onClick={() => imgProfileRef.current?.click()}
-            >
-              <input
-                type="file"
-                ref={imgProfileRef}
-                hidden
-                max={1}
-                className="hidden"
-                accept="image/jpeg, image/png, image/jpg"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (!file) return;
-
-                  setCropFile(file);
-                }}
-              />
-              <Avatar
-                bg={imgPreviewUrl ? "transparent" : "#ffffff2c"}
-                size={"2xl"}
-                width={"60px"}
-                height={"60px"}
-                src={imgPreviewUrl || undefined}
-                icon={<MdOutlineImage />}
-                classImage="rounded-sm!"
-              />
-            </div>
+            <Controller control={control} name="fileNameImage" render={({ field }) => {
+              return (
+                <label
+                  className="relative cursor-pointer"
+                >
+                  <input
+                    type="file"
+                    ref={field.ref}
+                    max={1}
+                    className="sr-only"
+                    accept="image/jpeg, image/png, image/jpg"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      setCropFile(file);
+                    }}
+                  />
+                  <Avatar
+                    bg={imgPreviewUrl ? "transparent" : "#ffffff2c"}
+                    size={"2xl"}
+                    width={"60px"}
+                    height={"60px"}
+                    src={imgPreviewUrl || undefined}
+                    icon={<MdOutlineImage />}
+                    classImage="rounded-sm!"
+                  />
+                </label>
+              )
+            }} />
 
             {cropFile && (
               <ImageCropModal
@@ -1725,7 +1729,7 @@ function Content(props: IProps): JSX.Element {
               <Input
                 {...registerWithMask("beforePrice", ["9", "99", "9,99", "99,99", "999,99", "9.999,99"])}
                 onInput={(e) => {
-                  setValue("beforePrice", e.currentTarget.value.replace(/\D/g, ""), {
+                  setValue("beforePrice", e.currentTarget.value.replace(/\D/g, "") || null, {
                     shouldDirty: true,
                   });
                 }}
@@ -1741,7 +1745,7 @@ function Content(props: IProps): JSX.Element {
               <Input
                 {...registerWithMask("afterPrice", ["9", "99", "9,99", "99,99", "999,99", "9.999,99"])}
                 onInput={(e) => {
-                  setValue("afterPrice", e.currentTarget.value.replace(/\D/g, ""), {
+                  setValue("afterPrice", e.currentTarget.value.replace(/\D/g, "") || null, {
                     shouldDirty: true,
                   });
                 }}
@@ -1753,8 +1757,8 @@ function Content(props: IProps): JSX.Element {
           <Field
             errorText={errors.qnt?.message}
             invalid={!!errors.qnt}
-            label="Estoque"
-            required
+            label={"Qnt. em estoque"}
+            helperText="Por enquanto use 1 ou 0(zero), onde 0(zero) é indisponível e 1 está disponível."
           >
             <Input
               {...registerWithMask("qnt", ["9", "99", "999", "9999"], {
@@ -1762,7 +1766,6 @@ function Content(props: IProps): JSX.Element {
               })}
               size={"sm"}
               autoComplete="off"
-              placeholder="0"
             />
           </Field>
           <Sections

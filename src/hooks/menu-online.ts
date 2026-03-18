@@ -385,11 +385,10 @@ export function useUpdateMenuOnlineOperatingDays(props?: {
         }[];
       };
     }) => MenuOnlineService.updateMenuOnlineOperatingDays(uuid, body),
-    async onSuccess(_, { uuid, body: { ...rest } }) {
+    async onSuccess(_, { uuid, body: { days } }) {
       if (props?.onSuccess) await props.onSuccess();
-      queryClient.setQueryData(["menu-online", uuid], (old: any) => ({
-        ...old,
-        operatingDays: rest,
+      queryClient.setQueryData(["menu-online", uuid], () => ({
+        operatingDays: days,
       }));
     },
     onError(error: unknown) {
