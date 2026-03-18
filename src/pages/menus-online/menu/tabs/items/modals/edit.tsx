@@ -298,7 +298,7 @@ function PreviewSection(props: { control: Control<Fields>; index: number }) {
   return (
     <div className="max-h-64 overflow-y-scroll">
       <Collapsible.Root className="w-full! bg-white">
-        <Collapsible.Trigger className="w-full sticky top-0 z-50 bg-neutral-100 ">
+        <Collapsible.Trigger className="w-full sticky top-0 z-10 bg-neutral-100 ">
           <div className="flexjustify-between w-full items-center">
             <div className="sticky min-h-10 w-full px-3 py-2 top-0 z-20 border-y border-neutral-200">
               {section.title && (
