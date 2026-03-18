@@ -7,7 +7,6 @@ import {
   DragOverlay,
   DragStartEvent,
   DropAnimation,
-  PointerSensor,
   pointerWithin,
   TouchSensor,
   useDroppable,
