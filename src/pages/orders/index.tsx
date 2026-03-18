@@ -276,7 +276,7 @@ export function SortableItem({
 
   return (
     <div ref={setNodeRef}
-      className="relative touch-none text-black"
+      className="relative text-black"
     >
       {order.isDragDisabled && (
         <BsFillLockFill className="absolute right-2 -top-0.5 text-red-400 z-20" />
@@ -287,7 +287,7 @@ export function SortableItem({
           transform: CSS.Transform.toString(composedTransform),
           transition: composedTransition,
           backgroundColor: !isDragging ? "#ececec" : "#ececec15",
-          // marginBottom: "6px", 
+          marginBottom: "6px",
           zIndex: !isDragging ? 1 : "auto",
           boxShadow: !isDragging && isOverlay
             ? "0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.3)"
@@ -322,7 +322,7 @@ export function SortableItem({
                 }}
                 {...attributes}
                 {...listeners}
-                className="h-full! bg-white/5 p-2 py-1.5"
+                className="h-full! bg-white/5 p-2 py-1.5 touch-none"
               >
                 <VscMove />
               </button>
@@ -556,7 +556,7 @@ export const OrdersPage: React.FC = (): JSX.Element => {
   // const [overColumnId, setOverColumnId] = useState<string | null>(null);
 
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 1, tolerance: 1000 } }),
+    // useSensor(PointerSensor, { activationConstraint: { distance: 1 } }),
     useSensor(TouchSensor, {
       activationConstraint: {
         delay: 10000,
@@ -989,7 +989,7 @@ export const OrdersPage: React.FC = (): JSX.Element => {
   }, []);
 
   return (
-    <div className="h-full gap-y-2 flex flex-col">
+    <div className="h-full gap-y-2 flex flex-col px-2">
       <div className="flex flex-col sm:pl-0 pl-2">
         <div className="flex items-center gap-x-2 sm:gap-x-5">
           <h1 className="text-base sm:text-lg font-semibold">Pedidos</h1>
