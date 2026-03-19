@@ -16,8 +16,6 @@ import {
   parseDate,
   Input,
   VStack,
-  RadioGroup,
-  Checkbox,
   Switch,
 } from "@chakra-ui/react";
 import { CloseButton } from "@components/ui/close-button";
@@ -53,7 +51,7 @@ import { z } from "zod";
 import TextareaAutosize from "react-textarea-autosize";
 import { useHookFormMask } from "use-mask-input";
 import { Avatar } from "@components/ui/avatar";
-import { MdDelete, MdOutlineImage } from "react-icons/md";
+import { MdDelete, MdOutlineCheckBoxOutlineBlank, MdOutlineImage, MdRadioButtonChecked, MdRadioButtonUnchecked } from "react-icons/md";
 import {
   SortableContext,
   verticalListSortingStrategy,
@@ -82,7 +80,7 @@ import { ErrorResponse_I } from "../../../../../../services/api/ErrorResponse";
 import { toaster } from "@components/ui/toaster";
 import SelectMenuOnlineCategories from "@components/SelectMenuOnlineCategories";
 import moment from "moment-timezone";
-import { IoMdAdd } from "react-icons/io";
+import { IoMdAdd, IoMdCheckbox } from "react-icons/io";
 import { IoEye, IoEyeOff } from "react-icons/io5";
 import { AiFillCheckCircle, AiOutlineImport } from "react-icons/ai";
 import { useParams } from "react-router-dom";
@@ -292,10 +290,10 @@ function PreviewSection(props: { control: Control<Fields>; index: number }) {
 
   return (
     <div className="max-h-64 overflow-y-scroll">
-      <Collapsible.Root className="w-full! bg-white">
-        <Collapsible.Trigger className="w-full sticky top-0 z-10 bg-neutral-100 ">
-          <div className="flexjustify-between w-full items-center">
-            <div className="sticky min-h-10 w-full px-3 py-2 top-0 z-20 border-y border-neutral-200">
+      <Collapsible.Root unmountOnExit={true} lazyMount={true} className="w-full! bg-white">
+        <Collapsible.Trigger className="w-full bg-neutral-100 ">
+          <div className="flex justify-between w-full items-center">
+            <div className="sticky min-h-10 w-full px-3 py-2 top-0 border-y border-neutral-200">
               {section.title && (
                 <p className="pl-1 line-clamp-2 font-semibold text-start text-sm text-neutral-700">
                   {section.title}
@@ -393,19 +391,19 @@ function PreviewSection(props: { control: Control<Fields>; index: number }) {
 
                       // pode escolher mais de 1
                       if ((section.maxOptions || Infinity) > 1) {
-                        if (!sub.maxLength) {
+                        if (sub.maxLength === 0) {
                           // mas item não pode ser escolhido;
-                        } else if (sub.maxLength > 1) {
+                        } else if (sub.maxLength === null || (sub.maxLength || Infinity) > 1) {
                           // o item pode ser escolhido +1 vez;
                           if (total < (section.maxOptions || Infinity)) {
                             const next = Math.min(
                               v + 1,
-                              sub.maxLength,
+                              sub.maxLength || Infinity,
                               section.maxOptions || Infinity,
                             );
                             newState[sub.uuid] = next;
                           }
-                        } else {
+                        } else if (sub.maxLength === 1) {
                           // o item pode ser escolhido 1 vez;
                           if (v === 1) {
                             newState[sub.uuid] = 0;
@@ -416,17 +414,9 @@ function PreviewSection(props: { control: Control<Fields>; index: number }) {
                           }
                         }
                       } else {
-                        // pode apenas 1 item
-                        if (!sub.maxLength) {
+                        // pode apenas 1 item por vez
+                        if (sub.maxLength === 0) {
                           // o item não pode ser escolhido;
-                        } else if (sub.maxLength > 1) {
-                          // o item pode ser escolhido +1 vez;
-                          const next = Math.min(
-                            v + 1,
-                            sub.maxLength,
-                            section.maxOptions || Infinity,
-                          );
-                          newState[sub.uuid] = next;
                         } else {
                           if (v === 1) {
                             newState[sub.uuid] = 0;
@@ -501,92 +491,93 @@ function PreviewSection(props: { control: Control<Fields>; index: number }) {
                           </div>
                         </div>
                       </div>
-                      {(section.maxOptions === undefined ||
-                        section.maxOptions > 1) &&
-                        (sub.maxLength === undefined || sub.maxLength > 1) && (
-                          <div className="flex gap-x-1">
-                            <a
-                              className={clsx(
-                                "bg-green-200 z-10 duration-100 scale-100 active:scale-95 text-green-600 text-lg leading-0 w-6 h-6 flex items-center justify-center rounded-md",
-                                (sub.maxLength || section.maxOptions) ===
-                                  value || total === section.maxOptions
-                                  ? "opacity-40 cursor-not-allowed"
-                                  : "hover:bg-green-300 duration-200 cursor-pointer",
-                              )}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setStateSub((state) => {
-                                  let newState = { ...(state ?? {}) };
-                                  const v = stateSub[sub.uuid] || 0;
+                      {((section.maxOptions === null && sub.maxLength === null) || (section.maxOptions && section.maxOptions > 1 && (sub.maxLength === null || sub.maxLength === undefined || sub.maxLength > 1)) || (section.maxOptions === null && sub.maxLength && sub.maxLength > 1)) && (
+                        <div className="flex gap-x-1">
+                          <a
+                            className={clsx(
+                              "bg-green-200 z-10 duration-100 scale-100 active:scale-95 text-green-600 text-lg leading-0 w-6 h-6 flex items-center justify-center rounded-md",
+                              (sub.maxLength || section.maxOptions) ===
+                                value || total === section.maxOptions
+                                ? "opacity-40 cursor-not-allowed"
+                                : "hover:bg-green-300 duration-200 cursor-pointer",
+                            )}
+                            onClick={(e) => {
+                              if (!sub.status) return;
+                              e.stopPropagation();
+                              setStateSub((state) => {
+                                let newState = { ...(state ?? {}) };
+                                const v = stateSub[sub.uuid] || 0;
 
-                                  if (
-                                    section.maxOptions === undefined ||
-                                    total < section.maxOptions
-                                  ) {
-                                    const next = Math.min(
-                                      v + 1,
-                                      sub.maxLength || Infinity,
-                                      section.maxOptions || Infinity,
-                                    );
-                                    newState[sub.uuid] = next;
-                                  }
-                                  return newState;
-                                });
-                              }}
-                            >
-                              +
-                            </a>
-                            <span className="bg-white text-neutral-800 border border-zinc-100 text-sm w-6 h-6 flex items-center justify-center rounded-md">
-                              {value}
-                            </span>
-                            <a
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setStateSub((state) => {
-                                  let newState = { ...(state ?? {}) };
-                                  const v = stateSub[sub.uuid] || 0;
-                                  const next = Math.max(v - 1, 0);
+                                if (
+                                  section.maxOptions === undefined ||
+                                  section.maxOptions === null ||
+                                  total < (section.maxOptions || Infinity)
+                                ) {
+                                  const next = Math.min(
+                                    v + 1,
+                                    sub.maxLength || Infinity,
+                                    section.maxOptions || Infinity,
+                                  );
                                   newState[sub.uuid] = next;
-                                  return newState;
-                                });
-                              }}
-                              className={clsx(
-                                "bg-red-200 duration-100 active:scale-95 transition-all text-red-600 w-6 h-6 text-lg leading-0 flex items-center justify-center rounded-md",
-                                value == 0
-                                  ? "opacity-40 cursor-not-allowed"
-                                  : "hover:bg-red-300 cursor-pointer",
-                              )}
-                            >
-                              -
-                            </a>
-                          </div>
-                        )}
-                      {(section.maxOptions === undefined ||
-                        section.maxOptions > 1) &&
-                        sub.maxLength === 1 && (
-                          <Checkbox.Root
-                            size={"sm"}
-                            colorPalette={"teal"}
-                            variant={"solid"}
-                            checked={!!stateSub[sub.uuid]}
+                                }
+                                return newState;
+                              });
+                            }}
                           >
-                            <Checkbox.HiddenInput />
-                            <Checkbox.Control />
-                          </Checkbox.Root>
-                        )}
-                      {section.maxOptions !== undefined &&
-                        section.maxOptions === 1 && (
-                          <RadioGroup.Root
-                            value={value ? "check" : null}
-                            colorPalette={"teal"}
-                            size={"sm"}
+                            +
+                          </a>
+                          <span className="bg-white text-neutral-800 border border-zinc-100 text-sm w-6 h-6 flex items-center justify-center rounded-md">
+                            {value}
+                          </span>
+                          <a
+                            onClick={(e) => {
+                              if (!sub.status) return;
+                              e.stopPropagation();
+                              setStateSub((state) => {
+                                let newState = { ...(state ?? {}) };
+                                const v = stateSub[sub.uuid] || 0;
+                                const next = Math.max(v - 1, 0);
+                                newState[sub.uuid] = next;
+                                return newState;
+                              });
+                            }}
+                            className={clsx(
+                              "bg-red-200 duration-100 active:scale-95 transition-all text-red-600 w-6 h-6 text-lg leading-0 flex items-center justify-center rounded-md",
+                              value == 0
+                                ? "opacity-40 cursor-not-allowed"
+                                : "hover:bg-red-300 cursor-pointer",
+                            )}
                           >
-                            <RadioGroup.Item value={"check"}>
-                              <RadioGroup.ItemHiddenInput />
-                              <RadioGroup.ItemIndicator />
-                            </RadioGroup.Item>
-                          </RadioGroup.Root>
-                        )}
+                            -
+                          </a>
+                        </div>
+                      )}
+                      {((section.maxOptions === null && sub.maxLength === 1) || (section.maxOptions && section.maxOptions > 1 && sub.maxLength === 1)) && (
+                        <button
+                          type="button"
+                          style={{ color: "teal" }}
+                          className="flex items-center justify-center"
+                        >
+                          {!!stateSub[sub.uuid] ? (
+                            <IoMdCheckbox size={22} />
+                          ) : (
+                            <MdOutlineCheckBoxOutlineBlank size={22} />
+                          )}
+                        </button>
+                      )}
+                      {((section.maxOptions === 1 && sub.maxLength === null) || (section.maxOptions === 1 && sub.maxLength && sub.maxLength >= 1)) && (
+                        <button
+                          type="button"
+                          style={{ color: "teal" }}
+                          className="flex items-center justify-center"
+                        >
+                          {value ? (
+                            <MdRadioButtonChecked size={22} />
+                          ) : (
+                            <MdRadioButtonUnchecked size={22} />
+                          )}
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -944,25 +935,15 @@ function SectionSubItems(props: {
                               {...props.register(
                                 `sections.${props.index}.subItems.${index}.maxLength`,
                                 {
-                                  setValueAs: (v) =>
-                                    v === ""
-                                      ? undefined
-                                      : Number(v) < 0
-                                        ? 0
-                                        : Number(v),
+                                  setValueAs: (v) => {
+                                    if (v === "" || v === null) return null;
 
-                                  onChange(e) {
-                                    const v = e.target.value;
+                                    const num = Number(v);
 
-                                    props.setValue(
-                                      `sections.${props.index}.subItems.${index}.maxLength`,
-                                      v === ""
-                                        ? undefined
-                                        : Number(v) < 0
-                                          ? 0
-                                          : Number(v),
-                                    );
-                                  },
+                                    if (Number.isNaN(num)) return null;
+
+                                    return num < 0 ? 0 : num;
+                                  }
                                 },
                               )}
                               type="number"
@@ -1200,18 +1181,15 @@ function Sections(props: {
                               {...props.register(
                                 `sections.${index}.minOptions`,
                                 {
-                                  setValueAs: (v) =>
-                                    v === "" ? undefined : Number(v),
-                                  onChange(e) {
-                                    const value = e.target.value;
+                                  setValueAs: (v) => {
+                                    if (v === "" || v === null) return null;
 
-                                    props.setValue(
-                                      `sections.${index}.minOptions`,
-                                      Number(value) <= 0
-                                        ? undefined
-                                        : Number(value),
-                                    );
-                                  },
+                                    const num = Number(v);
+
+                                    if (Number.isNaN(num)) return null;
+
+                                    return num < 0 ? 0 : num;
+                                  }
                                 },
                               )}
                               size={"xs"}
@@ -1236,18 +1214,15 @@ function Sections(props: {
                               {...props.register(
                                 `sections.${index}.maxOptions`,
                                 {
-                                  setValueAs: (v) =>
-                                    v === "" ? undefined : Number(v),
-                                  onChange(e) {
-                                    const value = e.target.value;
+                                  setValueAs: (v) => {
+                                    if (v === "" || v === null) return null;
 
-                                    props.setValue(
-                                      `sections.${index}.maxOptions`,
-                                      Number(value) <= 0
-                                        ? undefined
-                                        : Number(value),
-                                    );
-                                  },
+                                    const num = Number(v);
+
+                                    if (Number.isNaN(num)) return null;
+
+                                    return num < 0 ? 0 : num;
+                                  }
                                 },
                               )}
                               size={"xs"}
@@ -1718,7 +1693,7 @@ export function ModalCreateProduct({
             >
               <Input
                 {...registerWithMask("qnt", ["9", "99", "999", "9999"], {
-                  setValueAs: (v) => (v === "" ? undefined : Number(v)),
+                  valueAsNumber: true
                 })}
                 size={"sm"}
                 autoComplete="off"

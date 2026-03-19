@@ -36,7 +36,7 @@ import {
 import { ErrorResponse_I } from "../../../../../../services/api/ErrorResponse";
 import { toaster } from "@components/ui/toaster";
 import { AuthContext } from "@contexts/auth.context";
-import { MdOutlineImage, MdDelete } from "react-icons/md";
+import { MdOutlineImage, MdDelete, MdRadioButtonChecked, MdRadioButtonUnchecked, MdOutlineCheckBoxOutlineBlank } from "react-icons/md";
 import SelectMenuOnlineCategories from "@components/SelectMenuOnlineCategories";
 import {
   Button,
@@ -48,8 +48,6 @@ import {
   Input,
   Spinner,
   VStack,
-  RadioGroup,
-  Checkbox,
   Switch,
 } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -84,7 +82,7 @@ import { uploadImage } from "../../../../../../services/api/Account";
 import { api } from "../../../../../../services/api";
 import { ItemRow } from "..";
 import moment from "moment-timezone";
-import { IoMdAdd } from "react-icons/io";
+import { IoMdAdd, IoMdCheckbox } from "react-icons/io";
 import { IoEye, IoEyeOff } from "react-icons/io5";
 import { AiFillCheckCircle, AiOutlineImport } from "react-icons/ai";
 import { useParams } from "react-router-dom";
@@ -114,8 +112,8 @@ const SubItemSchema = z.object({
 
   before_additional_price: z.string().nullable(),
   after_additional_price: z.string().nullable(),
-  maxLength: z.number().nullish(),
-  status: z.boolean().nullish(),
+  maxLength: z.number().nullable(),
+  status: z.boolean().nullable(),
 });
 
 const SectionSchema = z
@@ -128,15 +126,13 @@ const SectionSchema = z
 
     required: z.boolean().nullish(),
 
-    minOptions: z.number().nullish(),
-    maxOptions: z.number().nullish(),
+    minOptions: z.number().nullable(),
+    maxOptions: z.number().nullable(),
 
     subItems: z.array(SubItemSchema).min(1, "Adicione pelo menos uma opção"),
   })
   .refine(
     (data) =>
-      data.maxOptions === undefined ||
-      data.minOptions === undefined ||
       data.maxOptions === null ||
       data.minOptions === null ||
       data.maxOptions >= data.minOptions,
@@ -296,11 +292,11 @@ function PreviewSection(props: { control: Control<Fields>; index: number }) {
   if (!section) return null;
 
   return (
-    <div className="max-h-64 overflow-y-scroll">
-      <Collapsible.Root className="w-full! bg-white">
-        <Collapsible.Trigger className="w-full sticky top-0 z-10 bg-neutral-100 ">
+    <div className="max-h-64 relative overflow-y-scroll">
+      <Collapsible.Root unmountOnExit={true} lazyMount={true} className="w-full! bg-white">
+        <Collapsible.Trigger className="w-full bg-neutral-100 ">
           <div className="flexjustify-between w-full items-center">
-            <div className="sticky min-h-10 w-full px-3 py-2 top-0 z-20 border-y border-neutral-200">
+            <div className="sticky min-h-10 w-full px-3 py-2 top-0 border-y border-neutral-200">
               {section.title && (
                 <p className="pl-1 line-clamp-2 font-semibold text-start text-sm text-neutral-700">
                   {section.title}
@@ -318,12 +314,16 @@ function PreviewSection(props: { control: Control<Fields>; index: number }) {
                         <span
                           className={clsx(
                             `px-1 py-0.5 text-xs rounded-sm font-medium`,
-                            false
-                              ? "bg-green-400 text-green-800"
+                            total >= (section.minOptions || 0)
+                              ? "bg-green-600 text-green-100"
                               : "bg-neutral-700 text-neutral-100",
                           )}
                         >
-                          {total}/{section.minOptions || section.maxOptions}
+                          {section.maxOptions ? (
+                            `${total}/${section.maxOptions}`
+                          ) : (
+                            `${total} (mín. ${section.minOptions})`
+                          )}
                         </span>
                         {(section.minOptions || 0) > 0 ? (
                           <div className="flex">
@@ -398,19 +398,19 @@ function PreviewSection(props: { control: Control<Fields>; index: number }) {
 
                       // pode escolher mais de 1
                       if ((section.maxOptions || Infinity) > 1) {
-                        if (!sub.maxLength) {
+                        if (sub.maxLength === 0) {
                           // mas item não pode ser escolhido;
-                        } else if (sub.maxLength > 1) {
+                        } else if (sub.maxLength === null || (sub.maxLength || Infinity) > 1) {
                           // o item pode ser escolhido +1 vez;
                           if (total < (section.maxOptions || Infinity)) {
                             const next = Math.min(
                               v + 1,
-                              sub.maxLength,
+                              sub.maxLength || Infinity,
                               section.maxOptions || Infinity,
                             );
                             newState[sub.uuid] = next;
                           }
-                        } else {
+                        } else if (sub.maxLength === 1) {
                           // o item pode ser escolhido 1 vez;
                           if (v === 1) {
                             newState[sub.uuid] = 0;
@@ -421,17 +421,9 @@ function PreviewSection(props: { control: Control<Fields>; index: number }) {
                           }
                         }
                       } else {
-                        // pode apenas 1 item
-                        if (!sub.maxLength) {
+                        // pode apenas 1 item por vez
+                        if (sub.maxLength === 0) {
                           // o item não pode ser escolhido;
-                        } else if (sub.maxLength > 1) {
-                          // o item pode ser escolhido +1 vez;
-                          const next = Math.min(
-                            v + 1,
-                            sub.maxLength,
-                            section.maxOptions || Infinity,
-                          );
-                          newState[sub.uuid] = next;
                         } else {
                           if (v === 1) {
                             newState[sub.uuid] = 0;
@@ -506,96 +498,93 @@ function PreviewSection(props: { control: Control<Fields>; index: number }) {
                           </div>
                         </div>
                       </div>
-                      {(section.maxOptions === undefined ||
-                        section.maxOptions === null ||
-                        section.maxOptions > 1) &&
-                        (sub.maxLength === undefined ||
-                          sub.maxLength === null ||
-                          sub.maxLength > 1) && (
-                          <div className="flex gap-x-1">
-                            <a
-                              className={clsx(
-                                "bg-green-200 z-10 duration-100 scale-100 active:scale-95 text-green-600 text-lg leading-0 w-6 h-6 flex items-center justify-center rounded-md",
-                                (sub.maxLength || section.maxOptions) ===
-                                  value || total === section.maxOptions
-                                  ? "opacity-40 cursor-not-allowed"
-                                  : "hover:bg-green-300 duration-200 cursor-pointer",
-                              )}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setStateSub((state) => {
-                                  let newState = { ...(state ?? {}) };
-                                  const v = stateSub[sub.uuid] || 0;
+                      {((section.maxOptions === null && sub.maxLength === null) || (section.maxOptions && section.maxOptions > 1 && (sub.maxLength === null || (sub.maxLength || Infinity) > 1)) || (section.maxOptions === null && (sub.maxLength || Infinity) > 1)) && (
+                        <div className="flex gap-x-1">
+                          <a
+                            className={clsx(
+                              "bg-green-200 z-10 duration-100 scale-100 active:scale-95 text-green-600 text-lg leading-0 w-6 h-6 flex items-center justify-center rounded-md",
+                              (sub.maxLength || section.maxOptions) ===
+                                value || total === section.maxOptions
+                                ? "opacity-40 cursor-not-allowed"
+                                : "hover:bg-green-300 duration-200 cursor-pointer",
+                            )}
+                            onClick={(e) => {
+                              if (!sub.status) return;
+                              e.stopPropagation();
+                              setStateSub((state) => {
+                                let newState = { ...(state ?? {}) };
+                                const v = stateSub[sub.uuid] || 0;
 
-                                  if (
-                                    section.maxOptions === undefined ||
-                                    total < section.maxOptions!
-                                  ) {
-                                    const next = Math.min(
-                                      v + 1,
-                                      sub.maxLength || Infinity,
-                                      section.maxOptions || Infinity,
-                                    );
-                                    newState[sub.uuid] = next;
-                                  }
-                                  return newState;
-                                });
-                              }}
-                            >
-                              +
-                            </a>
-                            <span className="bg-white text-neutral-800 border border-zinc-100 text-sm w-6 h-6 flex items-center justify-center rounded-md">
-                              {value}
-                            </span>
-                            <a
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setStateSub((state) => {
-                                  let newState = { ...(state ?? {}) };
-                                  const v = stateSub[sub.uuid] || 0;
-                                  const next = Math.max(v - 1, 0);
+                                if (
+                                  section.maxOptions === undefined ||
+                                  (section.maxOptions === null || section.maxOptions === undefined) ||
+                                  total < (section.maxOptions || Infinity)
+                                ) {
+                                  const next = Math.min(
+                                    v + 1,
+                                    sub.maxLength || Infinity,
+                                    section.maxOptions || Infinity,
+                                  );
                                   newState[sub.uuid] = next;
-                                  return newState;
-                                });
-                              }}
-                              className={clsx(
-                                "bg-red-200 duration-100 active:scale-95 transition-all text-red-600 w-6 h-6 text-lg leading-0 flex items-center justify-center rounded-md",
-                                value == 0
-                                  ? "opacity-40 cursor-not-allowed"
-                                  : "hover:bg-red-300 cursor-pointer",
-                              )}
-                            >
-                              -
-                            </a>
-                          </div>
-                        )}
-                      {(section.maxOptions === undefined ||
-                        section.maxOptions === null ||
-                        section.maxOptions > 1) &&
-                        sub.maxLength === 1 && (
-                          <Checkbox.Root
-                            size={"sm"}
-                            colorPalette={"teal"}
-                            variant={"solid"}
-                            checked={!!stateSub[sub.uuid]}
+                                }
+                                return newState;
+                              });
+                            }}
                           >
-                            <Checkbox.HiddenInput />
-                            <Checkbox.Control />
-                          </Checkbox.Root>
-                        )}
-                      {section.maxOptions !== undefined &&
-                        section.maxOptions === 1 && (
-                          <RadioGroup.Root
-                            value={value ? "check" : null}
-                            colorPalette={"teal"}
-                            size={"sm"}
+                            +
+                          </a>
+                          <span className="bg-white text-neutral-800 border border-zinc-100 text-sm w-6 h-6 flex items-center justify-center rounded-md">
+                            {value}
+                          </span>
+                          <a
+                            onClick={(e) => {
+                              if (!sub.status) return;
+                              e.stopPropagation();
+                              setStateSub((state) => {
+                                let newState = { ...(state ?? {}) };
+                                const v = stateSub[sub.uuid] || 0;
+                                const next = Math.max(v - 1, 0);
+                                newState[sub.uuid] = next;
+                                return newState;
+                              });
+                            }}
+                            className={clsx(
+                              "bg-red-200 duration-100 active:scale-95 transition-all text-red-600 w-6 h-6 text-lg leading-0 flex items-center justify-center rounded-md",
+                              value == 0
+                                ? "opacity-40 cursor-not-allowed"
+                                : "hover:bg-red-300 cursor-pointer",
+                            )}
                           >
-                            <RadioGroup.Item value={"check"}>
-                              <RadioGroup.ItemHiddenInput />
-                              <RadioGroup.ItemIndicator />
-                            </RadioGroup.Item>
-                          </RadioGroup.Root>
-                        )}
+                            -
+                          </a>
+                        </div>
+                      )}
+                      {((section.maxOptions === null && sub.maxLength === 1) || (section.maxOptions && section.maxOptions > 1 && sub.maxLength === 1)) && (
+                        <button
+                          type="button"
+                          style={{ color: "teal" }}
+                          className="flex items-center justify-center"
+                        >
+                          {!!stateSub[sub.uuid] ? (
+                            <IoMdCheckbox size={22} />
+                          ) : (
+                            <MdOutlineCheckBoxOutlineBlank size={22} />
+                          )}
+                        </button>
+                      )}
+                      {((section.maxOptions === 1 && sub.maxLength === null) || (section.maxOptions === 1 && sub.maxLength && sub.maxLength >= 1)) && (
+                        <button
+                          type="button"
+                          style={{ color: "teal" }}
+                          className="flex items-center justify-center"
+                        >
+                          {value ? (
+                            <MdRadioButtonChecked size={22} />
+                          ) : (
+                            <MdRadioButtonUnchecked size={22} />
+                          )}
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -729,7 +718,7 @@ function SectionSubItems(props: {
         onClick={() => {
           const kk = v4();
           props.setCollapsibles((state) => [state[0]]);
-          append({ image55x55png: [], name: "", uuid: kk, status: true, after_additional_price: null, before_additional_price: null });
+          append({ image55x55png: [], name: "", uuid: kk, status: true, after_additional_price: null, before_additional_price: null, maxLength: null });
           setTimeout(
             () => props.setCollapsibles((state) => [state[0], kk]),
             300,
@@ -953,26 +942,15 @@ function SectionSubItems(props: {
                               {...props.register(
                                 `sections.${props.index}.subItems.${index}.maxLength`,
                                 {
-                                  setValueAs: (v) =>
-                                    v === ""
-                                      ? undefined
-                                      : Number(v) < 0
-                                        ? 0
-                                        : Number(v),
+                                  setValueAs: (v) => {
+                                    if (v === "" || v === null) return null;
 
-                                  onChange(e) {
-                                    const v = e.target.value;
+                                    const num = Number(v);
 
-                                    props.setValue(
-                                      `sections.${props.index}.subItems.${index}.maxLength`,
-                                      v === ""
-                                        ? undefined
-                                        : Number(v) < 0
-                                          ? 0
-                                          : Number(v),
-                                      { shouldDirty: true },
-                                    );
-                                  },
+                                    if (Number.isNaN(num)) return null;
+
+                                    return num < 0 ? 0 : num;
+                                  }
                                 },
                               )}
                               type="number"
@@ -1011,7 +989,7 @@ function SectionSubItems(props: {
         onClick={() => {
           const kk = v4();
           props.setCollapsibles((state) => [state[0]]);
-          append({ image55x55png: [], name: "", uuid: kk, status: true, after_additional_price: null, before_additional_price: null });
+          append({ image55x55png: [], name: "", uuid: kk, status: true, after_additional_price: null, before_additional_price: null, maxLength: null });
           setTimeout(
             () => props.setCollapsibles((state) => [state[0], kk]),
             300,
@@ -1152,8 +1130,6 @@ function Sections(props: {
                             : [item.uuid],
                         );
                       }}
-                      unmountOnExit={true}
-                      lazyMount={true}
                     >
                       <Collapsible.Trigger
                         className={clsx(
@@ -1210,19 +1186,15 @@ function Sections(props: {
                               {...props.register(
                                 `sections.${index}.minOptions`,
                                 {
-                                  setValueAs: (v) =>
-                                    v === "" ? undefined : Number(v),
-                                  onChange(e) {
-                                    const value = e.target.value;
+                                  setValueAs: (v) => {
+                                    if (v === "" || v === null) return null;
 
-                                    props.setValue(
-                                      `sections.${index}.minOptions`,
-                                      Number(value) <= 0
-                                        ? undefined
-                                        : Number(value),
-                                      { shouldDirty: true },
-                                    );
-                                  },
+                                    const num = Number(v);
+
+                                    if (Number.isNaN(num)) return null;
+
+                                    return num < 0 ? 0 : num;
+                                  }
                                 },
                               )}
                               size={"xs"}
@@ -1247,19 +1219,15 @@ function Sections(props: {
                               {...props.register(
                                 `sections.${index}.maxOptions`,
                                 {
-                                  setValueAs: (v) =>
-                                    v === "" ? undefined : Number(v),
-                                  onChange(e) {
-                                    const value = e.target.value;
+                                  setValueAs: (v) => {
+                                    if (v === "" || v === null) return null;
 
-                                    props.setValue(
-                                      `sections.${index}.maxOptions`,
-                                      Number(value) <= 0
-                                        ? undefined
-                                        : Number(value),
-                                      { shouldDirty: true },
-                                    );
-                                  },
+                                    const num = Number(v);
+
+                                    if (Number.isNaN(num)) return null;
+
+                                    return num < 0 ? 0 : num;
+                                  }
                                 },
                               )}
                               size={"xs"}
@@ -1304,7 +1272,9 @@ function Sections(props: {
           append({
             uuid: sectionUuid,
             title: "",
-            subItems: [{ name: "", uuid: subUuid, status: true, after_additional_price: null, before_additional_price: null }],
+            maxOptions: null,
+            minOptions: null,
+            subItems: [{ name: "", uuid: subUuid, status: true, after_additional_price: null, before_additional_price: null, maxLength: null }],
           });
           props.setCollapsibles([sectionUuid, subUuid]);
         }}
@@ -1380,6 +1350,7 @@ function Content(props: IProps): JSX.Element {
     resolver: zodResolver(FormSchema),
     mode: "onSubmit",
   });
+  console.log(watch("sections"))
   const [collapsibles, setCollapsibles] = useState<string[]>([]);
   const [cropFile, setCropFile] = useState<File | null>(null);
 
@@ -1443,9 +1414,6 @@ function Content(props: IProps): JSX.Element {
           }
         }
 
-        console.log("1", changedFields);
-        console.log("2", { ...changedFields });
-
         const updateItem = await updateMenuOnlineItem(
           props.menuUuid,
           props.uuid,
@@ -1508,6 +1476,7 @@ function Content(props: IProps): JSX.Element {
         } else {
           const { fileNameImage, date_validity, ...rest } = getItem;
           setImgPreviewUrl(api.getUri() + "/public/images/" + fileNameImage);
+          console.log({ ...rest })
           reset({ ...rest, date_validity: date_validity ? new Date(date_validity) : null });
           setStateItem("sucess");
         }
