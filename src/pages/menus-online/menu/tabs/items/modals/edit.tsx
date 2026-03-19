@@ -188,10 +188,8 @@ const FormSchema = z
       const existeSectionObrigatoriaOndeTodasOpcoesTemPreco =
         requiredSections.some((section) => {
           const todosAsOpcoesComPreco = section.subItems.every((sub) => {
-            if (!sub.after_additional_price) {
-              return !!sub.after_additional_price;
-            }
-            const price = Number(sub.after_additional_price.replace(/_/g, ""));
+            if (!sub.after_additional_price || sub.after_additional_price === null) return false;
+            const price = Number(sub.after_additional_price.replace(/\D/g, ""));
             return price > 0;
           });
           return todosAsOpcoesComPreco;
@@ -1080,7 +1078,7 @@ function Sections(props: {
       });
       if (sections.length) {
         // @ts-expect-error
-        props.setValue("sections", sections);
+        props.setValue("sections", sections, { shouldDirty: true });
       } else {
         setMessage("O item importado não tinha adicionais.");
       }

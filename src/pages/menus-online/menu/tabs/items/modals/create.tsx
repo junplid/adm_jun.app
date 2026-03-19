@@ -111,7 +111,7 @@ const SubItemSchema = z.object({
 
   before_additional_price: z.string().nullish(),
   after_additional_price: z.string().nullish(),
-  maxLength: z.number().optional(),
+  maxLength: z.number().nullable(),
   status: z.boolean(),
 });
 
@@ -125,15 +125,15 @@ const SectionSchema = z
 
     required: z.boolean().optional(),
 
-    minOptions: z.number().optional(),
-    maxOptions: z.number().optional(),
+    minOptions: z.number().nullable(),
+    maxOptions: z.number().nullable(),
 
     subItems: z.array(SubItemSchema).min(1, "Adicione pelo menos uma opção"),
   })
   .refine(
     (data) =>
-      data.maxOptions === undefined ||
-      data.minOptions === undefined ||
+      data.maxOptions === null ||
+      data.minOptions === null ||
       data.maxOptions >= data.minOptions,
     {
       message: '"Qnt. máxima" não pode ser menor que "Qnt. mínima"',
@@ -184,60 +184,59 @@ const FormSchema = z
         return;
       }
 
-      for (let index = 0; index < sections.length; index++) {
-        const section = sections[index];
+      const existeSectionObrigatoriaOndeTodasOpcoesTemPreco =
+        requiredSections.some((section) => {
+          const todosAsOpcoesComPreco = section.subItems.every((sub) => {
+            if (!sub.after_additional_price || sub.after_additional_price === null) return false;
+            const price = Number(sub.after_additional_price.replace(/\D/g, ""));
+            return price > 0;
+          });
+          return todosAsOpcoesComPreco;
+        });
 
-        if ((section.minOptions || 0) > 0) {
-          for (let indexS = 0; indexS < section.subItems.length; indexS++) {
-            const element = section.subItems[indexS];
+      if (!existeSectionObrigatoriaOndeTodasOpcoesTemPreco) {
+        for (let index = 0; index < sections.length; index++) {
+          const section = sections[index];
+
+          if ((section.minOptions || 0) > 0) {
+            for (let indexS = 0; indexS < section.subItems.length; indexS++) {
+              const element = section.subItems[indexS];
+              if (
+                !element.after_additional_price ||
+                Number(element.after_additional_price.replace(/\D/g, "")) === 0
+              ) {
+                ctx.addIssue({
+                  code: z.ZodIssueCode.custom,
+                  message: `Defina o preço.`,
+                  path: [
+                    "sections",
+                    index,
+                    "subItems",
+                    indexS,
+                    "after_additional_price",
+                  ],
+                });
+              }
+            }
+
             if (
-              !element.after_additional_price ||
-              Number(element.after_additional_price.replace(/\D/g, "")) === 0
+              section.subItems.some(
+                (d) =>
+                  !d.after_additional_price ||
+                  Number(d.after_additional_price.replace(/\D/g, "")) === 0,
+              )
             ) {
               ctx.addIssue({
                 code: z.ZodIssueCode.custom,
-                message: `Defina o preço.`,
-                path: [
-                  "sections",
-                  index,
-                  "subItems",
-                  indexS,
-                  "after_additional_price",
-                ],
+                message: `Todas as opções abaixo devem ter preço atual definido.`,
+                path: ["sections", index, "root"],
               });
             }
           }
-
-          if (
-            section.subItems.some(
-              (d) =>
-                !d.after_additional_price ||
-                Number(d.after_additional_price.replace(/\D/g, "")) === 0,
-            )
-          ) {
-            ctx.addIssue({
-              code: z.ZodIssueCode.custom,
-              message: `Todas as opções abaixo devem ter preço atual definido.`,
-              path: ["sections", index, "root"],
-            });
-          }
         }
-      }
-
-      if (
-        requiredSections.some(
-          (section) =>
-            (section.minOptions || 0) > 0 &&
-            section.subItems.every(
-              (sub) =>
-                !sub.after_additional_price ||
-                Number(sub.after_additional_price.replace(/\D/g, "")) === 0,
-            ),
-        )
-      ) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: `Produtos sem preço atual precisam de ao menos um adicional obrigatório ("Qnt. mínima") com preço definido em todas as opções.`,
+          message: `Produtos sem preço atual precisam de ao menos 1 Adicional obrigatório ("Qnt. mínima") com preço definido em todas as opções.`,
           path: ["sections", "root"],
         });
       }
@@ -711,7 +710,7 @@ function SectionSubItems(props: {
         onClick={() => {
           const kk = v4();
           props.setCollapsibles((state) => [state[0]]);
-          append({ image55x55png: [], status: true, name: "", uuid: kk });
+          append({ image55x55png: [], status: true, name: "", uuid: kk, maxLength: null });
           setTimeout(
             () => props.setCollapsibles((state) => [state[0], kk]),
             300,
@@ -982,7 +981,7 @@ function SectionSubItems(props: {
         onClick={() => {
           const kk = v4();
           props.setCollapsibles((state) => [state[0]]);
-          append({ image55x55png: [], name: "", status: true, uuid: kk });
+          append({ image55x55png: [], name: "", status: true, uuid: kk, maxLength: null });
           setTimeout(
             () => props.setCollapsibles((state) => [state[0], kk]),
             300,
@@ -1073,7 +1072,7 @@ function Sections(props: {
       });
       if (sections.length) {
         // @ts-expect-error
-        props.setValue("sections", sections);
+        props.setValue("sections", sections, { shouldDirty: true });
       } else {
         setMessage("O item importado não tinha adicionais.");
       }
@@ -1267,7 +1266,9 @@ function Sections(props: {
           append({
             uuid: sectionUuid,
             title: "",
-            subItems: [{ name: "", uuid: subUuid, status: true }],
+            maxOptions: null,
+            minOptions: null,
+            subItems: [{ name: "", uuid: subUuid, status: true, maxLength: null }],
           });
           props.setCollapsibles([sectionUuid, subUuid]);
         }}
