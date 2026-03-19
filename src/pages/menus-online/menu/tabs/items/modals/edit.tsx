@@ -1527,7 +1527,7 @@ function Content(props: IProps): JSX.Element {
     <form onSubmit={handleSubmit(edit)}>
       <DialogBody
         mt={clientMeta.isMobileLike ? "-15px" : "-5px"}
-        px={clientMeta.isMobileLike ? 2 : undefined}
+        px={clientMeta.isMobileLike ? 5 : undefined}
       >
         <VStack gap={4}>
           <Controller

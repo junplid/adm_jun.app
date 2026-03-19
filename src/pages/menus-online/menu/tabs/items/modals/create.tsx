@@ -1438,8 +1438,7 @@ export function ModalCreateProduct({
     }
   }, [fileImage]);
 
-  const handleErrors = (err: FieldErrors<Fields>) => {
-    console.log(err);
+  const handleErrors = (_: FieldErrors<Fields>) => {
     // if (err.name) {
     //   setError("name", { message: err.name.message }, { shouldFocus: true });
     //   return;
@@ -1476,7 +1475,7 @@ export function ModalCreateProduct({
         </DialogHeader>
         <DialogBody
           mt={clientMeta.isMobileLike ? "-15px" : "-5px"}
-          px={clientMeta.isMobileLike ? 2 : undefined}
+          px={clientMeta.isMobileLike ? 5 : undefined}
         >
           <VStack gap={4}>
             <Controller
