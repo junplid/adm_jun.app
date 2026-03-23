@@ -373,6 +373,7 @@ export async function getMenuOnlineItem(params: {
   afterPrice: string | null;
   fileNameImage: string;
   date_validity: Date | null;
+  send_to_category_uuid: string | null;
 } | null> {
   const { data } = await api.get(
     `/private/menus-online/${params.uuid}/items/${params.itemUuid}`,

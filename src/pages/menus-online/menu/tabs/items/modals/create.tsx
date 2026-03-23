@@ -17,6 +17,7 @@ import {
   Input,
   VStack,
   Switch,
+  Badge,
 } from "@chakra-ui/react";
 import { CloseButton } from "@components/ui/close-button";
 import {
@@ -154,6 +155,7 @@ const FormSchema = z
     categoriesUuid: z.array(z.string()).optional(),
     date_validity: z.date().optional(),
     sections: z.array(SectionSchema).optional(),
+    send_to_category_uuid: z.string().nullish(),
   })
   .superRefine((data, ctx) => {
     const hasBasePrice = !!data.afterPrice?.trim();
@@ -1280,6 +1282,39 @@ function Sections(props: {
         </IconButton>
       </div>
 
+      {!!sections.length && (
+        <Field
+          errorText={props.errors.send_to_category_uuid?.message}
+          invalid={!!props.errors.send_to_category_uuid}
+          label={(
+            <div className="flex items-center gap-x-1.5">
+              <span>Mover para a categoria</span>
+              <Badge colorPalette={"green"}>New</Badge>
+            </div>
+          )}
+          helperText="Direcionado o cliente para a categoria após o produto ser adicionado no carrinho."
+        >
+          <Controller
+            name="send_to_category_uuid"
+            control={props.control}
+            render={({ field }) => (
+              <SelectMenuOnlineCategories
+                uuid={params.uuid || ""}
+                name={field.name}
+                isMulti={false}
+                ref={field.ref}
+                isSearchable={false}
+                onBlur={field.onBlur}
+                onChange={(e: any) => {
+                  field.onChange(e.value || null);
+                }}
+                value={field.value}
+              />
+            )}
+          />
+        </Field>
+      )}
+
       <div className="rounded-md px-2 grid grid-cols-[1fr_40px] gap-x-2 duration-200 py-2 gap-y-1">
         <Field
           errorText={errors.itemUuid?.message || message}
@@ -1471,7 +1506,7 @@ export function ModalCreateProduct({
         mx={2}
       >
         <DialogHeader flexDirection={"column"} gap={0}>
-          <DialogTitle>Criar item</DialogTitle>
+          <DialogTitle>Criar produto</DialogTitle>
         </DialogHeader>
         <DialogBody
           mt={clientMeta.isMobileLike ? "-15px" : "-5px"}

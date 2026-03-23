@@ -49,6 +49,7 @@ import {
   Spinner,
   VStack,
   Switch,
+  Badge,
 } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -155,6 +156,7 @@ const FormSchema = z
     categoriesUuid: z.array(z.string()),
     date_validity: z.date().nullish(),
     sections: z.array(SectionSchema).nullish(),
+    send_to_category_uuid: z.string().nullable(),
   })
   .superRefine((data, ctx) => {
     const hasBasePrice = !!data.afterPrice?.trim();
@@ -1284,6 +1286,39 @@ function Sections(props: {
         </IconButton>
       </div>
 
+      {!!sections.length && (
+        <Field
+          errorText={props.errors.send_to_category_uuid?.message}
+          invalid={!!props.errors.send_to_category_uuid}
+          label={(
+            <div className="flex items-center gap-x-1.5">
+              <span>Mover para a categoria</span>
+              <Badge colorPalette={"green"}>New</Badge>
+            </div>
+          )}
+          helperText="Direcionado o cliente para a categoria após o produto ser adicionado no carrinho."
+        >
+          <Controller
+            name="send_to_category_uuid"
+            control={props.control}
+            render={({ field }) => (
+              <SelectMenuOnlineCategories
+                uuid={params.uuid || ""}
+                name={field.name}
+                isMulti={false}
+                ref={field.ref}
+                isSearchable={false}
+                onBlur={field.onBlur}
+                onChange={(e: any) => {
+                  field.onChange(e.value || null);
+                }}
+                value={field.value}
+              />
+            )}
+          />
+        </Field>
+      )}
+
       <div className="rounded-md px-2 grid grid-cols-[1fr_40px] gap-x-2 duration-200 py-2 gap-y-1">
         <Field
           errorText={errors.itemUuid?.message || message}
@@ -1348,7 +1383,6 @@ function Content(props: IProps): JSX.Element {
     resolver: zodResolver(FormSchema),
     mode: "onSubmit",
   });
-  console.log(watch("sections"))
   const [collapsibles, setCollapsibles] = useState<string[]>([]);
   const [cropFile, setCropFile] = useState<File | null>(null);
 
@@ -1474,7 +1508,6 @@ function Content(props: IProps): JSX.Element {
         } else {
           const { fileNameImage, date_validity, ...rest } = getItem;
           setImgPreviewUrl(api.getUri() + "/public/images/" + fileNameImage);
-          console.log({ ...rest })
           reset({ ...rest, date_validity: date_validity ? new Date(date_validity) : null });
           setStateItem("sucess");
         }
@@ -1777,7 +1810,7 @@ export function ModalEditProduct(props: IProps): JSX.Element {
   return (
     <DialogContent w={clientMeta.isMobileLike ? undefined : "398px"} mx={2}>
       <DialogHeader flexDirection={"column"} gap={0}>
-        <DialogTitle>Editar item</DialogTitle>
+        <DialogTitle>Editar produto</DialogTitle>
       </DialogHeader>
       <Content {...props} />
       <DialogCloseTrigger asChild>

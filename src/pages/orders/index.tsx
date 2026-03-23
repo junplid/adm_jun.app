@@ -354,13 +354,13 @@ export function SortableItem({
                 Pagar com: <span className="font-medium">{order.payment_method}</span>
               </span>
               {order.payment_change_to && order.payment_change_to === "Não" && (
-                <span className="text-sm w-full">
-                  Troco para: <span className="font-medium">{order.payment_change_to}</span>
-                </span>
-              )}
-              {order.payment_change_to && order.payment_change_to === "Não" && (
                 <span className="text-xs bg-red-200/70 px-0.5 font-medium">
                   [Não precisa de troco]
+                </span>
+              )}
+              {order.payment_change_to && order.payment_change_to !== "Não" && (
+                <span className="text-xs bg-red-200/70 px-0.5 font-medium">
+                  Troco para: {order.payment_change_to}
                 </span>
               )}
             </div>
