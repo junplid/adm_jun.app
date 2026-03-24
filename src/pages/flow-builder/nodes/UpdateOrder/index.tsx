@@ -48,6 +48,8 @@ const optionsFields: { label: string; value: string }[] = [
   { label: "Ações do pedido", value: "actionChannels" },
   { label: "Arrastar e soltar", value: "dragDrop" },
   { label: "Conectar contato", value: "connect_contact" },
+  { label: "Não mudar de coluna", value: "not_change_status" },
+  { label: "Pagamento realizado", value: "payment_made" },
 ];
 
 type DataNode = {
@@ -377,6 +379,14 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
       {data.fields?.includes("connect_contact") && (
         <span>O contato será endereçado ao pedido</span>
       )}
+
+      {data.fields?.includes("not_change_status") && (
+        <span>Não mudará de coluna</span>
+      )}
+      {data.fields?.includes("payment_made") && (
+        <span>Atualiza para pagamento realizado</span>
+      )}
+
 
       <Field label={"Selecione os campos"}>
         <SelectComponent

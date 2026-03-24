@@ -60,6 +60,7 @@ import { BiTimeFive } from "react-icons/bi";
 import { ModalChatPlayer } from "../inboxes/departments/modals/Player/modalChat";
 import { useRoomWebSocket } from "../../hooks/roomWebSocket";
 import { BsFillLockFill } from "react-icons/bs";
+import { RxEyeClosed, RxEyeOpen } from "react-icons/rx";
 
 export type ItemID = string;
 
@@ -83,13 +84,19 @@ interface Order {
   actionChannels: string[];
   delivery_cep: string | null;
   delivery_complement: string | null;
-
+  delivery_reference_point: string | null;
   channel: "baileys" | "instagram";
   contact?: string;
-
+  adjustments: {
+    type: "in" | "out";
+    label: string;
+    amount: string;
+  }[]
   status: TypeStatusOrder;
   priority: TypePriorityOrder | null;
   data: string | null;
+  sub_total: number | null;
+  net_total: number | null;
   total: string | null;
   sequence: number;
   isDragDisabled: boolean;
@@ -215,6 +222,7 @@ export function SortableItem({
   });
   const [actionsLoad, setActionsLoad] = useState<string[]>([]);
   const [openData, setOpenData] = useState(false);
+  const [openInfo, setOpenInfo] = useState(false);
   const parent = useRef(null);
   const { logout } = useContext(AuthContext);
   const previewDateLastMsg = useMemo(() => {
@@ -260,7 +268,7 @@ export function SortableItem({
     .join(", ");
 
   const liftOffset = !isDragging && isOverlay
-    ? { scale: 0.89 }
+    ? { scale: 0.98 }
     : { scale: 1 };
 
   const base = transform ?? { x: 0, y: 0, scaleX: 1, scaleY: 1 };
@@ -286,13 +294,14 @@ export function SortableItem({
         style={{
           transform: CSS.Transform.toString(composedTransform),
           transition: composedTransition,
-          backgroundColor: !isDragging ? "#ececec" : "#ececec15",
+          backgroundColor: !isDragging ? "#fff" : "#ececec15",
           marginBottom: "6px",
           zIndex: !isDragging ? 1 : "auto",
           boxShadow: !isDragging && isOverlay
             ? "0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.3)"
             : "none",
           opacity: order.isDragDisabled ? 0.4 : 1,
+          overflow: "hidden"
         }}
 
       >
@@ -303,7 +312,7 @@ export function SortableItem({
             // isOver && "opacity-0",
           )}
         >
-          <div className="px-2 py-2 pb-0.5 flex w-full mb-0 items-center gap-x-1 justify-between">
+          <div className="bg-neutral-200 px-2 py-2 pb-0.5 flex w-full mb-0 items-center gap-x-1 justify-between">
             <span className="text-black/55 text-sm">
               #{order.n_order}
             </span>
@@ -312,29 +321,14 @@ export function SortableItem({
               {previewDateLastMsg}
             </span>
           </div>
-          {(order.name || order.description || order.contact) && (
-            <div className="px-2 flex flex-col mb-2 w-full">
-              <span className="text-sm font-normal w-full">
-                {order.name}
-              </span>
-              <span className="text-sm font-light text-neutral-600 w-full">
-                {order.contact}
-              </span>
-              {order.description && (
-                <span className="text-black/60 text-xs sm:text-sm w-full">
-                  {order.description}
-                </span>
-              )}
-            </div>
-          )}
           {order.data ? (
-            <div className="relative gap-y-1 cursor-pointer duration-200 bg-zinc-700/15 w-full">
-              <div className="border-b-2 w-full border-dashed border-zinc-600" />
-              <Collapsible.Root open={openData} collapsedHeight="69px">
+            <div className="bg-neutral-200 relative gap-y-1 cursor-pointer duration-200 w-full">
+              <div className="w-full border-dashed border-zinc-600" />
+              <Collapsible.Root open={openData} collapsedHeight="60px">
                 <Collapsible.Content
                   _closed={{
                     shadow: "inset 0 -20px 12px -12px var(--shadow-color)",
-                    shadowColor: "blackAlpha.300",
+                    shadowColor: "blackAlpha.50",
                   }}
                   onClick={() => setOpenData(!openData)}
                 >
@@ -343,49 +337,143 @@ export function SortableItem({
                   </p>
                 </Collapsible.Content>
               </Collapsible.Root>
-              <div className="border-b-2 w-full border-dashed border-zinc-600" />
+              <div className="border-b w-full border-neutral-200" />
             </div>
           ) : (
             <div className="border-b-2 my-2 w-full border-dashed border-zinc-600/40" />
           )}
-          {order.payment_method && (
-            <div className="px-2 flex-col flex items-start mt-1 gap-x-0.5 text-black/60">
-              <span className="text-sm w-full">
-                Pagar com: <span className="font-medium">{order.payment_method}</span>
-              </span>
-              {order.payment_change_to && order.payment_change_to === "Não" && (
-                <span className="text-xs bg-red-200/70 px-0.5 font-medium">
-                  [Não precisa de troco]
-                </span>
+
+          <Collapsible.Root open={openInfo} collapsedHeight="45px">
+            <Collapsible.Content
+
+              className="pb-2 bg-neutral-50"
+              onClick={() => setOpenInfo(!openInfo)}
+            >
+              <div className="flex gap-x-1 mt-1 justify-center items-center mb-1 text-neutral-400">
+                <span className="text-xs text-center">ficha técnica</span>
+                {openInfo ? (
+                  <RxEyeOpen size={12} />
+                ) : (
+                  <RxEyeClosed size={12} />
+                )}
+              </div>
+              {(order.name || order.description || order.contact) && (
+                <div className="px-2 flex flex-col mb-2 w-full">
+                  <span className="text-sm font-normal w-full">
+                    {order.name}
+                  </span>
+                  <span className="text-sm font-light text-neutral-600 w-full">
+                    {order.contact}
+                  </span>
+                  {order.description && (
+                    <span className="text-black/60 text-xs sm:text-sm w-full">
+                      {order.description}
+                    </span>
+                  )}
+                </div>
               )}
-              {order.payment_change_to && order.payment_change_to !== "Não" && (
-                <span className="text-xs bg-red-200/70 px-0.5 font-medium">
-                  Troco para: {order.payment_change_to}
-                </span>
+
+              {order.payment_method && (
+                <div className="px-2 flex-col flex items-start mt-1 gap-x-0.5 text-black/60">
+                  <div className="text-sm flex items-center space-x-0.5">
+                    <span className="text-xs text-neutral-400">Pagar com</span> <span className="font-medium">{order.payment_method}</span>
+                  </div>
+                  {order.payment_change_to && order.payment_change_to === "Não" && (
+                    <span className="text-xs bg-red-200 px-0.5 font-medium">
+                      Não precisa de troco
+                    </span>
+                  )}
+                  {order.payment_change_to && order.payment_change_to !== "Não" && (
+                    <span className="text-xs bg-red-200/70 px-0.5 font-medium">
+                      Troco para: {order.payment_change_to}
+                    </span>
+                  )}
+                </div>
               )}
-            </div>
-          )}
-          <div className="px-2 flex flex-col items-start mt-1 text-black/60">
-            {order.delivery_cep && (
-              <span className="text-sm w-full">
-                CEP: <span className="font-medium">{order.delivery_cep}</span>
-              </span>
-            )}
-            {order.delivery_address && (
-              <span className="text-sm w-full">
-                Endereço: <span className="font-medium bg-amber-200/50">{order.delivery_address}</span>
-              </span>
-            )}
-            {order.delivery_complement && (
-              <span className="text-sm w-full">
-                Complemento: {order.delivery_complement}
-              </span>
-            )}
-          </div>
+              <div className="px-2 flex flex-col gap-y-0.5 mt-2 items-start">
+                {order.delivery_cep && (
+                  <div className="text-sm flex items-center space-x-0.5">
+                    <span className="text-xs text-neutral-400">Cep</span>
+                    <span className="w-full leading-3.5 text-neutral-600">
+                      {order.delivery_cep}
+                    </span>
+                  </div>
+                )}
+                {order.delivery_address && (
+                  <div className="text-sm flex flex-col -space-y-0.5">
+                    <span className="text-xs text-neutral-400">Endereço</span>
+                    <span className="w-full leading-3.5 text-neutral-600">
+                      {order.delivery_address}
+                    </span>
+                  </div>
+                )}
+
+                {order.delivery_reference_point && (
+                  <span className="text-xs bg-amber-300/50 mt-1">
+                    "{order.delivery_reference_point}"
+                  </span>
+                )}
+                <div className="text-sm flex flex-col -space-y-0.5">
+                  <span className="text-xs text-neutral-400">Complemento</span>
+                  <span className="w-full leading-3.5 text-neutral-600">
+                    Rua ai kadi
+                  </span>
+                </div>
+
+              </div>
+
+              <div className="px-2 flex flex-col w-full mt-2 text-xs sm:text-sm">
+                {/* TOTAL ORIGINAL */}
+                {order.sub_total && (
+                  <div className="flex text-xs text-black/70 justify-between font-medium">
+                    <span>Subtotal</span>
+                    <span>{formatToBRL(order.sub_total)}</span>
+                  </div>
+                )}
+
+                {/* AJUSTES */}
+                {order.adjustments?.length > 0 && (
+                  <div className="text-xs -space-y-0.5">
+                    {order.adjustments.map((adj, index) => {
+                      const isOut = adj.type === "out";
+
+                      return (
+                        <div
+                          key={index}
+                          className="flex justify-between text-black/70"
+                        >
+                          <span>{adj.label}</span>
+                          <span
+                            className={
+                              isOut ? "text-red-700" : "text-green-700"
+                            }
+                          >
+                            {isOut ? "-" : "+"} {formatToBRL(Number(adj.amount))}
+                          </span>
+                        </div>
+                      );
+                    })}
+                    <div
+                      className="flex justify-between mt-1 text-black/70"
+                    >
+                      <span>Total líquido</span>
+                      <span className="text-yellow-700"
+                      >
+                        {formatToBRL(Number(order.net_total))}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </Collapsible.Content>
+          </Collapsible.Root>
 
           {order.total && (
-            <div className="px-2 flex font-bold text-xs sm:text-sm items-center justify-end w-full gap-x-1">
-              <span>{formatToBRL(order.total)}</span>
+            <div className="flex text-sm bg-neutral-50 px-2 justify-between font-medium pt-2 border-t border-t-neutral-200">
+              <span>Total a pagar</span>
+              <span className="text-green-700">
+                {formatToBRL(order.total)}
+              </span>
             </div>
           )}
 
@@ -414,7 +502,14 @@ export function SortableItem({
                   <button
                     key={index}
                     className="w-full font-medium py-1 px-1 text-xs bg-slate-400/20 mb-2 cursor-pointer rounded-sm shadow"
-                    onClick={() => !actionsLoad.includes(a) && run(a)}
+                    onClick={() => {
+                      if (!actionsLoad.includes(a)) {
+                        const state = confirm(`Deseja executar "${a}" para o pedido #${order.n_order}?`);
+                        if (state) {
+                          run(a);
+                        }
+                      }
+                    }}
                     disabled={actionsLoad.includes(a)}
                   >
                     {actionsLoad.includes(a) ? <Spinner size={"xs"} /> : a}
@@ -777,6 +872,7 @@ export const OrdersPage: React.FC = (): JSX.Element => {
     });
 
     socket.on("update_order", (order: Order) => {
+      console.log(order);
       setOrders((state) => {
         const stateClone = structuredClone(state);
         const nextListStatus = stateClone[order.status].map((o) => {

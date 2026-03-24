@@ -6,6 +6,7 @@ import { LayoutWorkbenchPageContext } from "./contexts";
 import { ModalCreateMenuOnline } from "./modals/create";
 import { Button, Spinner } from "@chakra-ui/react";
 import { useGetMenusOnline } from "../../hooks/menu-online";
+import { ModalGenerateReportMenuOnline } from "./modals/generateReport";
 
 export function LayoutSitesPageProvider(): JSX.Element {
   const { data: menusOnline, isFetching, isPending } = useGetMenusOnline();
@@ -30,6 +31,15 @@ export function LayoutSitesPageProvider(): JSX.Element {
                 trigger={
                   <Button variant="outline" size={"sm"}>
                     <IoAdd /> Adicionar
+                  </Button>
+                }
+              />
+            )}
+            {!!menusOnline?.length && (
+              <ModalGenerateReportMenuOnline
+                trigger={
+                  <Button variant="outline" size={"sm"}>
+                    Gerar relatório
                   </Button>
                 }
               />
