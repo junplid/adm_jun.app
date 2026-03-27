@@ -363,9 +363,17 @@ const nodesList: {
     },
     {
       icon: <LuNotepadText className="text-gray-400 w-8" size={31} />,
-      name: "Atualizar pedido",
+      name: "Buscar pedido",
       description: "Buscar pedido/ordem",
       type: "NodeGetOrder",
+      new: false,
+      premium: true,
+    },
+    {
+      icon: <LuNotepadText className="text-red-400 w-8" size={31} />,
+      name: "Deletar pedido",
+      description: "Deletar pedido/ordem",
+      type: "NodeDeleteOrder",
       new: false,
       premium: true,
     },

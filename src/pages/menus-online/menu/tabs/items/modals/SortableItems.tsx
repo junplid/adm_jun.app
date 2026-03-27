@@ -30,7 +30,7 @@ export function SortableItem({ id, children }: SortableItemProps) {
   return (
     <div ref={setNodeRef} style={style}>
       {/* Drag Handle */}
-      <div>
+      <div className="py-2">
         <button
           type="button"
           ref={setActivatorNodeRef}
@@ -42,7 +42,7 @@ export function SortableItem({ id, children }: SortableItemProps) {
             padding: 4,
             fontSize: 18,
           }}
-          className="h-full! bg-white/5 rounded-sm"
+          className="h-full! bg-neutral-100 text-neutral-500 rounded-sm"
         >
           ⠿
         </button>

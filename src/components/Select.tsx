@@ -1,16 +1,18 @@
 import { forwardRef } from "react";
-import Select, { Props as SelectProps } from "react-select";
+import Select, { MenuPlacement, Props as SelectProps } from "react-select";
 
 interface SelectInputProps extends SelectProps {
   isFlow?: boolean;
+  menuPlacement?: MenuPlacement;
+  singleValueColor?: string;
 }
 
 const SelectComponent = forwardRef<any, SelectInputProps>(
-  ({ isFlow, ...props }, ref) => {
+  ({ isFlow, menuPlacement, singleValueColor, ...props }, ref) => {
     return (
       <Select
         isClearable
-        menuPlacement="auto"
+        menuPlacement={menuPlacement || "auto"}
         // menuPortalTarget={document.body}
         styles={{
           indicatorSeparator: (base) => ({ ...base, display: "none" }),
@@ -51,7 +53,7 @@ const SelectComponent = forwardRef<any, SelectInputProps>(
           }),
           singleValue: (base) => ({
             ...base,
-            color: "#ffffff",
+            color: singleValueColor || "#ffffff",
             fontWeight: 500,
           }),
           multiValueRemove: (base) => ({

@@ -141,8 +141,8 @@ function TicketCard({
       style={{
         background:
           tk.status === "OPEN"
-            ? "linear-gradient(143deg,rgba(88, 172, 245, 0.04) 0%, rgba(52, 126, 191, 0.12) 100%)"
-            : "linear-gradient(143deg,rgba(235, 203, 175, 0.07) 0%, rgba(219, 155, 99, 0.09) 100%)",
+            ? "linear-gradient(143deg,rgba(80, 168, 244, 0.97) 0%, rgba(170, 195, 255, 0.73) 100%)"
+            : "linear-gradient(143deg, rgba(227, 255, 91, 0.74) 0%, rgba(2, 137, 30, 0.87) 100%)",
       }}
       className="relative cursor-pointer p-2 pr-2.5 rounded-md flex items-center justify-between w-full gap-x-1.5"
       onClick={() =>
@@ -170,12 +170,12 @@ function TicketCard({
         </div>
         <div className="flex gap-x-1 text-xs items-center">
           {tk.connection.s ? (
-            <ImConnection color={"#7bf1a8e2"} size={12} />
+            <ImConnection color={"#044c09"} size={12} />
           ) : (
             <MdSignalWifiConnectedNoInternet0 color={"#f17b7b"} size={12} />
           )}
           <span
-            className={tk.connection.s ? "text-[#7bf1a892]" : "text-[#f18686]"}
+            className={tk.connection.s ? "text-[#044c09]" : "text-[#aa2727]"}
           >
             {tk.connection.name}
           </span>
@@ -186,9 +186,9 @@ function TicketCard({
                         <div className="absolute -top-0.5 -right-0.5 w-1.5 rounded-full h-1.5 bg-[#22b512]" />
                       )} */}
         {tk.status === "OPEN" ? (
-          <MdSupportAgent size={20} color="#58ACF5" />
+          <MdSupportAgent size={20} color="#0969BC" />
         ) : (
-          <BiTimeFive size={20} color="#EDA058" />
+          <BiTimeFive size={20} color="#ed560c" />
         )}
       </div>
     </div>
@@ -312,7 +312,7 @@ export function SortableItem({
             // isOver && "opacity-0",
           )}
         >
-          <div className="bg-neutral-200 px-2 py-2 pb-0.5 flex w-full mb-0 items-center gap-x-1 justify-between">
+          <div onClick={() => setOpenData(!openData)} className="bg-neutral-100 px-2 py-2 pb-0.5 flex w-full mb-0 items-center gap-x-1 justify-between">
             <span className="text-black/55 text-sm">
               #{order.n_order}
             </span>
@@ -322,9 +322,9 @@ export function SortableItem({
             </span>
           </div>
           {order.data ? (
-            <div className="bg-neutral-200 relative gap-y-1 cursor-pointer duration-200 w-full">
+            <div className="bg-neutral-100 relative gap-y-1 cursor-pointer duration-200 w-full">
               <div className="w-full border-dashed border-zinc-600" />
-              <Collapsible.Root open={openData} collapsedHeight="60px">
+              <Collapsible.Root open={openData} collapsedHeight="52px">
                 <Collapsible.Content
                   _closed={{
                     shadow: "inset 0 -20px 12px -12px var(--shadow-color)",
@@ -343,7 +343,7 @@ export function SortableItem({
             <div className="border-b-2 my-2 w-full border-dashed border-zinc-600/40" />
           )}
 
-          <Collapsible.Root open={openInfo} collapsedHeight="45px">
+          <Collapsible.Root open={openInfo} collapsedHeight="43px">
             <Collapsible.Content
 
               className="pb-2 bg-neutral-50"
@@ -469,7 +469,9 @@ export function SortableItem({
           </Collapsible.Root>
 
           {order.total && (
-            <div className="flex text-sm bg-neutral-50 px-2 justify-between font-medium pt-2 border-t border-t-neutral-200">
+            <div onClick={() => {
+              setOpenInfo(!openInfo)
+            }} className="flex text-sm bg-neutral-50 px-2 justify-between font-medium pt-1">
               <span>Total a pagar</span>
               <span className="text-green-700">
                 {formatToBRL(order.total)}
@@ -493,7 +495,7 @@ export function SortableItem({
           </div>
 
           {!!order.actionChannels?.length && (
-            <div className="flex flex-col items-center w-full">
+            <div className="flex flex-col items-center mt-1 w-full">
               {/* <span className="text-xs text-center font-semibold text-white/70">
                         - Ações do pedido -
                       </span> */}
@@ -872,15 +874,27 @@ export const OrdersPage: React.FC = (): JSX.Element => {
     });
 
     socket.on("update_order", (order: Order) => {
-      console.log(order);
       setOrders((state) => {
         const stateClone = structuredClone(state);
-        const nextListStatus = stateClone[order.status].map((o) => {
-          if (o.id === order.id) o = { ...o, ...order };
-          return o;
-        });
-        stateClone[order.status] = nextListStatus;
-        return stateClone;
+
+        const nextListStatus = Object.fromEntries(Object.entries(stateClone).map(([status, ordersList]) => {
+          return [status, ordersList.map(or => {
+            if (order.id === or.id) or = { ...or, ...order };
+            return or;
+          })]
+        }));
+
+        return nextListStatus;
+      });
+    });
+
+    socket.on("delete_order", (order: Pick<Order, "id" | "status">) => {
+      setOrders((state) => {
+        const stateClone = structuredClone(state);
+        const nextListStatus = Object.fromEntries(Object.entries(stateClone).map(([status, ordersList]) => {
+          return [status, ordersList.filter(or => or.id !== order.id)]
+        }));
+        return nextListStatus;
       });
     });
 
@@ -1065,6 +1079,7 @@ export const OrdersPage: React.FC = (): JSX.Element => {
       socket.off("remove_ticket");
       socket.off("return_ticket");
       socket.off("open_ticket");
+      socket.off("delete_order");
     };
   }, []);
 

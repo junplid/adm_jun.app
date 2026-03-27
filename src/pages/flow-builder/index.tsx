@@ -76,6 +76,7 @@ import { NodeDistribute } from "./nodes/Distribute";
 import { NodeCreateAppointment } from "./nodes/CreateAppointment";
 import { NodeUpdateAppointment } from "./nodes/UpdateAppointment";
 import { NodeGetOrder } from "./nodes/GetOrder";
+import { NodeDeleteOrder } from "./nodes/DeleteOrder";
 
 type NodeTypesGeneric = {
   [x in TypesNodes]: any;
@@ -122,6 +123,7 @@ export type TypesNodes =
   | "NodeWebhookTrelloCard"
   | "NodeDeleteMessage"
   | "NodeDistribute"
+  | "NodeDeleteOrder"
   | "NodeGetOrder";
 
 const nodeTypes: NodeTypesGeneric = {
@@ -165,7 +167,8 @@ const nodeTypes: NodeTypesGeneric = {
   NodeWebhookTrelloCard: NodeWebhookTrelloCard,
   NodeDeleteMessage: NodeDeleteMessage,
   NodeDistribute: NodeDistribute,
-  NodeGetOrder: NodeGetOrder
+  NodeGetOrder: NodeGetOrder,
+  NodeDeleteOrder: NodeDeleteOrder
 };
 
 const edgeTypes = {

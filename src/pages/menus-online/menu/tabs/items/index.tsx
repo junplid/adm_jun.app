@@ -1,4 +1,8 @@
-import { Column, TableComponent, TableMobileComponent } from "@components/Table";
+import {
+  Column,
+  TableComponent,
+  TableMobileComponent,
+} from "@components/Table";
 import { useDialogModal } from "../../../../../hooks/dialog.modal";
 import { JSX, memo, useContext, useEffect, useMemo, useState } from "react";
 import { Button } from "@chakra-ui/react";
@@ -35,14 +39,22 @@ export interface ItemRow {
   img: string;
   qnt: number;
   beforePrice: string | null;
-  view: boolean
-  stateWarn: string[]
+  view: boolean;
+  stateWarn: string[];
   afterPrice: string | null;
 }
 
 const TabProducts_ = ({ uuid }: { uuid: string }): JSX.Element => {
   const { logout, clientMeta } = useContext(AuthContext);
-  const { dialog: DialogModal, close, onOpen } = useDialogModal({});
+  const {
+    dialog: DialogModal,
+    close,
+    onOpen,
+  } = useDialogModal({
+    closeOnEscape: false,
+    closeOnInteractOutside: false,
+    trapFocus: false,
+  });
   const [items, setItems] = useState<ItemRow[]>([]);
   const [load, setLoad] = useState(true);
 
@@ -96,13 +108,17 @@ const TabProducts_ = ({ uuid }: { uuid: string }): JSX.Element => {
         render(row) {
           return (
             <div className="flex flex-col">
-              <span style={{ opacity: row.view ? 1 : 0.4 }} title={row.name}>{row.name}</span>
+              <span style={{ opacity: row.view ? 1 : 0.4 }} title={row.name}>
+                {row.name}
+              </span>
               {!!row.stateWarn.length && (
                 <div className="flex items-start gap-x-1 mt-1">
                   <IoWarningSharp className="text-orange-400 mt-0.5" />
                   <div className="flex flex-col">
                     {row.stateWarn.map((w: string) => (
-                      <p className="text-orange-300 text-sm" key={w}>{w}</p>
+                      <p className="text-orange-300 text-sm" key={w}>
+                        {w}
+                      </p>
                     ))}
                   </div>
                 </div>
@@ -248,7 +264,11 @@ const TabProducts_ = ({ uuid }: { uuid: string }): JSX.Element => {
           }}
           menuUuid={uuid}
           trigger={
-            <Button className="flex gap-x-1" colorPalette={"yellow"} size={"xs"}>
+            <Button
+              className="flex gap-x-1"
+              colorPalette={"yellow"}
+              size={"xs"}
+            >
               <GrUpdate />
               Opções
             </Button>
@@ -256,7 +276,7 @@ const TabProducts_ = ({ uuid }: { uuid: string }): JSX.Element => {
         />
         <ModalCreateProduct
           onCreate={(newItem) => {
-            setItems(state => [newItem, ...state]);
+            setItems((state) => [newItem, ...state]);
           }}
           menuUuid={uuid}
           trigger={
@@ -265,8 +285,6 @@ const TabProducts_ = ({ uuid }: { uuid: string }): JSX.Element => {
             </Button>
           }
         />
-
-
       </div>
       {clientMeta.isMobileLike ? (
         <div className="h-full flex-1 pb-12.5 grid px-3">
@@ -275,9 +293,7 @@ const TabProducts_ = ({ uuid }: { uuid: string }): JSX.Element => {
             renderItem={(index) => {
               const row = items![index];
               return (
-                <div
-                  className="flex flex-col my-2 bg-amber-50/5 p-3! py-2! rounded-md"
-                >
+                <div className="flex flex-col my-2 bg-amber-50/5 p-3! py-2! rounded-md">
                   <div
                     style={{
                       opacity: row.view ? 1 : 0.4,
@@ -313,17 +329,25 @@ const TabProducts_ = ({ uuid }: { uuid: string }): JSX.Element => {
                         <div
                           className={clsx(
                             "flex gap-x-1 bg-amber-50/5 p-1! pr-2! rounded-md",
-                            cat.days_in_the_week_label ? "items-start" : "items-center",
+                            cat.days_in_the_week_label
+                              ? "items-start"
+                              : "items-center",
                           )}
                         >
                           <img
-                            src={api.getUri() + "/public/images/" + cat.image45x45png}
+                            src={
+                              api.getUri() +
+                              "/public/images/" +
+                              cat.image45x45png
+                            }
                             className="rounded-sm"
                             width={"20px"}
                             height={"20px"}
                           />
                           <div className="flex flex-col">
-                            <span className="text-sm font-medium">{cat.name}</span>
+                            <span className="text-sm font-medium">
+                              {cat.name}
+                            </span>
                             <span className="text-xs font-light text-neutral-300">
                               {cat.days_in_the_week_label}
                             </span>
@@ -389,8 +413,10 @@ const TabProducts_ = ({ uuid }: { uuid: string }): JSX.Element => {
                     <div className="flex items-start gap-x-1 mt-1">
                       <IoWarningSharp className="text-orange-400 mt-0.5" />
                       <div className="flex flex-col">
-                        {row.stateWarn.map(w => (
-                          <p className="text-orange-300 text-sm" key={w}>{w}</p>
+                        {row.stateWarn.map((w) => (
+                          <p className="text-orange-300 text-sm" key={w}>
+                            {w}
+                          </p>
                         ))}
                       </div>
                     </div>

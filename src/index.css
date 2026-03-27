@@ -6,7 +6,7 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  --rsbs-bg: #1a1c1c;
+  /* --rsbs-bg: #1a1c1c; */
 }
 
 @custom-variant dark (&:where(.dark, .dark *));
@@ -167,4 +167,9 @@ body {
 
 .animate-typing {
   animation: animate_typing infinite 900ms;
+}
+
+[data-rsbs-overlay="true"] {
+  z-index: 9999999 !important;
+  pointer-events: auto !important;
 }

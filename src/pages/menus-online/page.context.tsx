@@ -38,7 +38,7 @@ export function LayoutSitesPageProvider(): JSX.Element {
             {!!menusOnline?.length && (
               <ModalGenerateReportMenuOnline
                 trigger={
-                  <Button variant="outline" size={"sm"}>
+                  <Button disabled variant="outline" size={"sm"}>
                     Gerar relatório
                   </Button>
                 }

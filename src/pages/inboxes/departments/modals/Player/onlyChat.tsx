@@ -340,39 +340,38 @@ export const OnlyChatPlayer: FC<Props> = ({ id, closeModal, ...props }) => {
           }
         }
       }
-      socket.on("message", (data: PropsSocketMessage) => {
-        if (data.by === "user") {
-          requestAnimationFrame(() => {
-            textareaRef.current?.focus();
-          });
-          textareaRef.current?.focus();
-          setText("");
-        }
-        setDataTicket((prev) => {
-          if (!prev) return null;
-          return {
-            ...prev,
-            messages: [
-              ...prev.messages,
-              { by: data.by, content: data.content },
-            ],
-          };
-        });
-      });
-      socket.on("message_eco", (data: { id: number }) => {
-        console.log("message_eco", data);
-        setDataTicket((prev) => {
-          if (!prev) return null;
-          return {
-            ...prev,
-            messages: prev.messages.map((m) => {
-              if (m.content.id === data.id) m.content.status = "DELIVERED";
-              return m;
-            }),
-          };
-        });
-      });
     })();
+    socket.on("message", (data: PropsSocketMessage) => {
+      if (data.by === "user") {
+        requestAnimationFrame(() => {
+          textareaRef.current?.focus();
+        });
+        textareaRef.current?.focus();
+        setText("");
+      }
+      setDataTicket((prev) => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          messages: [
+            ...prev.messages,
+            { by: data.by, content: data.content },
+          ],
+        };
+      });
+    });
+    socket.on("message_eco", (data: { id: number }) => {
+      setDataTicket((prev) => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          messages: prev.messages.map((m) => {
+            if (m.content.id === data.id) m.content.status = "DELIVERED";
+            return m;
+          }),
+        };
+      });
+    });
 
     return () => {
       socket.off("message_eco");
@@ -1098,90 +1097,89 @@ const TextBubbleComponent: FC<{
   status,
   error,
 }): JSX.Element => {
-  const time = useMemo(() => {
-    if (Math.abs(moment(createAt).diff(moment(), "day")) > 0) {
-      return moment(createAt).format("DD/MM/YYYY HH:mm");
-    }
-    return moment(createAt).format("HH:mm");
-  }, [createAt]);
+    const time = useMemo(() => {
+      if (Math.abs(moment(createAt).diff(moment(), "day")) > 0) {
+        return moment(createAt).format("DD/MM/YYYY HH:mm");
+      }
+      return moment(createAt).format("HH:mm");
+    }, [createAt]);
 
-  return (
-    <div className="w-full flex flex-col">
-      <div
-        className={`fade-in w-full flex ${
-          sentBy === "contact" ? "justify-start" : "justify-end"
-        }`}
-        style={{ paddingTop: isArrow ? 15 : 3 }}
-      >
-        {sentBy === "contact" && isArrow && (
-          <div
-            style={{
-              width: 0,
-              height: 0,
-              borderTop: "0px solid transparent",
-              borderBottom: "8px solid transparent",
-              borderRight: `6px solid ${background[sentBy]}`,
-            }}
-          />
-        )}
+    return (
+      <div className="w-full flex flex-col">
         <div
-          className="shadow-md shadow-black/25 max-w-1/2"
-          style={{
-            background: background[sentBy],
-            padding: "4px 8px",
-            ...(sentBy === "contact"
-              ? {
+          className={`fade-in w-full flex ${sentBy === "contact" ? "justify-start" : "justify-end"
+            }`}
+          style={{ paddingTop: isArrow ? 15 : 3 }}
+        >
+          {sentBy === "contact" && isArrow && (
+            <div
+              style={{
+                width: 0,
+                height: 0,
+                borderTop: "0px solid transparent",
+                borderBottom: "8px solid transparent",
+                borderRight: `6px solid ${background[sentBy]}`,
+              }}
+            />
+          )}
+          <div
+            className="shadow-md shadow-black/25 max-w-1/2"
+            style={{
+              background: background[sentBy],
+              padding: "4px 8px",
+              ...(sentBy === "contact"
+                ? {
                   borderRadius: `${isArrow ? "0px" : "5px"} 5px 5px`,
                   marginLeft: !isArrow ? 6 : 0,
                 }
-              : {
+                : {
                   borderRadius: `5px ${isArrow ? "0px" : "5px"} 5px 5px`,
                   marginRight: !isArrow ? 6 : 0,
                 }),
-          }}
-        >
-          <div className="flex flex-col">
-            {sentBy === "system" && (
-              <i className="text-xs font-semibold mb-1">
-                Mensagem automática do sistema
-              </i>
-            )}
-            <p>{parse(format(message))}</p>
-            <small
-              className={`pl-5 mt-1 text-white/70 leading-none block text-xs text-end`}
-            >
-              {time}
-            </small>
-          </div>
-        </div>
-        {sentBy !== "contact" && isArrow && (
-          <div
-            style={{
-              width: 0,
-              height: 0,
-              borderTop: "0px solid transparent",
-              borderBottom: "8px solid transparent",
-              borderLeft: `6px solid ${background[sentBy]}`,
             }}
-          />
+          >
+            <div className="flex flex-col">
+              {sentBy === "system" && (
+                <i className="text-xs font-semibold mb-1">
+                  Mensagem automática do sistema
+                </i>
+              )}
+              <p>{parse(format(message))}</p>
+              <small
+                className={`pl-5 mt-1 text-white/70 leading-none block text-xs text-end`}
+              >
+                {time}
+              </small>
+            </div>
+          </div>
+          {sentBy !== "contact" && isArrow && (
+            <div
+              style={{
+                width: 0,
+                height: 0,
+                borderTop: "0px solid transparent",
+                borderBottom: "8px solid transparent",
+                borderLeft: `6px solid ${background[sentBy]}`,
+              }}
+            />
+          )}
+        </div>
+        {sentBy === "user" && (
+          <div className="w-full flex justify-end">
+            {error && (
+              <span className="text-red-400 text-xs font-medium">{error}</span>
+            )}
+            {load && (
+              <div className="w-4">
+                <Spinner size={"xs"} />
+              </div>
+            )}
+            {status === "SENT" && <IoCheckmarkSharp />}
+          </div>
         )}
       </div>
-      {sentBy === "user" && (
-        <div className="w-full flex justify-end">
-          {error && (
-            <span className="text-red-400 text-xs font-medium">{error}</span>
-          )}
-          {load && (
-            <div className="w-4">
-              <Spinner size={"xs"} />
-            </div>
-          )}
-          {status === "SENT" && <IoCheckmarkSharp />}
-        </div>
-      )}
-    </div>
-  );
-};
+    );
+  };
 
 const ImageBubbleComponent: FC<{
   fileName: string;
@@ -1200,103 +1198,102 @@ const ImageBubbleComponent: FC<{
   caption,
   ...rest
 }): JSX.Element => {
-  const time = useMemo(() => {
-    if (Math.abs(moment(createAt).diff(moment(), "day")) > 0) {
-      return moment(createAt).format("DD/MM/YYYY HH:mm");
-    }
-    return moment(createAt).format("HH:mm");
-  }, [createAt]);
+    const time = useMemo(() => {
+      if (Math.abs(moment(createAt).diff(moment(), "day")) > 0) {
+        return moment(createAt).format("DD/MM/YYYY HH:mm");
+      }
+      return moment(createAt).format("HH:mm");
+    }, [createAt]);
 
-  return (
-    <div className="w-full flex flex-col">
-      <div
-        className={`fade-in w-full flex ${
-          sentBy === "contact" ? "justify-start" : "justify-end"
-        }`}
-        style={{ paddingTop: isArrow ? 15 : 3 }}
-      >
-        {sentBy === "contact" && isArrow && (
-          <div
-            style={{
-              width: 0,
-              height: 0,
-              borderTop: "0px solid transparent",
-              borderBottom: "8px solid transparent",
-              borderRight: `6px solid ${background[sentBy]}`,
-            }}
-          />
-        )}
+    return (
+      <div className="w-full flex flex-col">
         <div
-          className="shadow-md shadow-black/25 max-w-1/2"
-          style={{
-            background: background[sentBy],
-            padding: "4px 4px 4px",
-            ...(sentBy === "contact"
-              ? {
+          className={`fade-in w-full flex ${sentBy === "contact" ? "justify-start" : "justify-end"
+            }`}
+          style={{ paddingTop: isArrow ? 15 : 3 }}
+        >
+          {sentBy === "contact" && isArrow && (
+            <div
+              style={{
+                width: 0,
+                height: 0,
+                borderTop: "0px solid transparent",
+                borderBottom: "8px solid transparent",
+                borderRight: `6px solid ${background[sentBy]}`,
+              }}
+            />
+          )}
+          <div
+            className="shadow-md shadow-black/25 max-w-1/2"
+            style={{
+              background: background[sentBy],
+              padding: "4px 4px 4px",
+              ...(sentBy === "contact"
+                ? {
                   borderRadius: `${isArrow ? "0px" : "6px"} 6px 6px`,
                   marginLeft: !isArrow ? 6 : 0,
                 }
-              : {
+                : {
                   borderRadius: `6px ${isArrow ? "0px" : "6px"} 6px 6px`,
                   marginRight: !isArrow ? 6 : 0,
                 }),
-          }}
-        >
-          <div className="flex flex-col">
-            {sentBy === "system" && (
-              <i className="text-xs font-semibold mb-1">
-                Mensagem automática do sistema
-              </i>
-            )}
-            <Image
-              fetchPriority="low"
-              loading="lazy"
-              className="max-w-72.5 rounded-md"
-              src={`${api.getUri()}/public/storage/${fileName}`}
-              alt="Imagem"
-            />
-            <div className="pt-1">
-              {caption && (
-                <p className="text-xs px-1 pb-1">{parse(format(caption))}</p>
+            }}
+          >
+            <div className="flex flex-col">
+              {sentBy === "system" && (
+                <i className="text-xs font-semibold mb-1">
+                  Mensagem automática do sistema
+                </i>
               )}
-              <small
-                className={`pl-5 pr-1 text-white/70 leading-none block text-xs text-end`}
-              >
-                {time}
-              </small>
+              <Image
+                fetchPriority="low"
+                loading="lazy"
+                className="max-w-72.5 rounded-md"
+                src={`${api.getUri()}/public/storage/${fileName}`}
+                alt="Imagem"
+              />
+              <div className="pt-1">
+                {caption && (
+                  <p className="text-xs px-1 pb-1">{parse(format(caption))}</p>
+                )}
+                <small
+                  className={`pl-5 pr-1 text-white/70 leading-none block text-xs text-end`}
+                >
+                  {time}
+                </small>
+              </div>
             </div>
           </div>
+          {sentBy !== "contact" && isArrow && (
+            <div
+              style={{
+                width: 0,
+                height: 0,
+                borderTop: "0px solid transparent",
+                borderBottom: "8px solid transparent",
+                borderLeft: `6px solid ${background[sentBy]}`,
+              }}
+            />
+          )}
         </div>
-        {sentBy !== "contact" && isArrow && (
-          <div
-            style={{
-              width: 0,
-              height: 0,
-              borderTop: "0px solid transparent",
-              borderBottom: "8px solid transparent",
-              borderLeft: `6px solid ${background[sentBy]}`,
-            }}
-          />
+        {sentBy === "user" && (
+          <div className="w-full flex justify-end">
+            {rest.error && (
+              <span className="text-red-400 text-xs font-medium">
+                {rest.error}
+              </span>
+            )}
+            {rest.load && (
+              <div className="w-4">
+                <Spinner size={"xs"} />
+              </div>
+            )}
+            {rest.status === "SENT" && <IoCheckmarkSharp />}
+          </div>
         )}
       </div>
-      {sentBy === "user" && (
-        <div className="w-full flex justify-end">
-          {rest.error && (
-            <span className="text-red-400 text-xs font-medium">
-              {rest.error}
-            </span>
-          )}
-          {rest.load && (
-            <div className="w-4">
-              <Spinner size={"xs"} />
-            </div>
-          )}
-          {rest.status === "SENT" && <IoCheckmarkSharp />}
-        </div>
-      )}
-    </div>
-  );
-};
+    );
+  };
 
 const AudioBubbleComponent: FC<{
   fileName: string;
@@ -1318,9 +1315,8 @@ const AudioBubbleComponent: FC<{
   return (
     <div className="w-full flex flex-col">
       <div
-        className={`fade-in w-full flex ${
-          sentBy === "contact" ? "justify-start" : "justify-end"
-        }`}
+        className={`fade-in w-full flex ${sentBy === "contact" ? "justify-start" : "justify-end"
+          }`}
         style={{ paddingTop: isArrow ? 15 : 5 }}
       >
         <div className="max-w-72 w-full">
@@ -1379,131 +1375,130 @@ const FileBubbleComponent: FC<{
   isArrow,
   ...rest
 }): JSX.Element => {
-  const { download, error, isInProgress } = useDownloader();
+    const { download, error, isInProgress } = useDownloader();
 
-  useEffect(() => {
-    if (error) {
-      // toast("Não foi possível fazer o download!", {
-      //   position: "top-right",
-      //   autoClose: 4000,
-      //   hideProgressBar: false,
-      //   closeOnClick: true,
-      //   pauseOnHover: false,
-      //   draggable: true,
-      //   progress: undefined,
-      //   type: "error",
-      //   theme: "dark",
-      // });
-    }
-  }, [error]);
+    useEffect(() => {
+      if (error) {
+        // toast("Não foi possível fazer o download!", {
+        //   position: "top-right",
+        //   autoClose: 4000,
+        //   hideProgressBar: false,
+        //   closeOnClick: true,
+        //   pauseOnHover: false,
+        //   draggable: true,
+        //   progress: undefined,
+        //   type: "error",
+        //   theme: "dark",
+        // });
+      }
+    }, [error]);
 
-  const time = useMemo(() => {
-    if (Math.abs(moment(createAt).diff(moment(), "day")) > 0) {
-      return moment(createAt).format("DD/MM/YYYY HH:mm");
-    }
-    return moment(createAt).format("HH:mm");
-  }, [createAt]);
+    const time = useMemo(() => {
+      if (Math.abs(moment(createAt).diff(moment(), "day")) > 0) {
+        return moment(createAt).format("DD/MM/YYYY HH:mm");
+      }
+      return moment(createAt).format("HH:mm");
+    }, [createAt]);
 
-  return (
-    <div className="w-full flex flex-col">
-      <div
-        className={`fade-in w-full flex ${
-          sentBy === "contact" ? "justify-start" : "justify-end"
-        }`}
-        style={{ paddingTop: isArrow ? 15 : 3 }}
-      >
-        {sentBy === "contact" && isArrow && (
-          <div
-            style={{
-              width: 0,
-              height: 0,
-              borderTop: "0px solid transparent",
-              borderBottom: "8px solid transparent",
-              borderRight: `6px solid ${background[sentBy]}`,
-            }}
-          />
-        )}
+    return (
+      <div className="w-full flex flex-col">
         <div
-          className="shadow-md shadow-black/25 max-w-1/2"
-          style={{
-            background: background[sentBy],
-            padding: "4px 4px",
-            ...(sentBy === "contact"
-              ? {
+          className={`fade-in w-full flex ${sentBy === "contact" ? "justify-start" : "justify-end"
+            }`}
+          style={{ paddingTop: isArrow ? 15 : 3 }}
+        >
+          {sentBy === "contact" && isArrow && (
+            <div
+              style={{
+                width: 0,
+                height: 0,
+                borderTop: "0px solid transparent",
+                borderBottom: "8px solid transparent",
+                borderRight: `6px solid ${background[sentBy]}`,
+              }}
+            />
+          )}
+          <div
+            className="shadow-md shadow-black/25 max-w-1/2"
+            style={{
+              background: background[sentBy],
+              padding: "4px 4px",
+              ...(sentBy === "contact"
+                ? {
                   borderRadius: `${isArrow ? "0px" : "5px"} 5px 5px`,
                   marginLeft: !isArrow ? 6 : 0,
                 }
-              : {
+                : {
                   borderRadius: `5px ${isArrow ? "0px" : "5px"} 5px 5px`,
                   marginRight: !isArrow ? 6 : 0,
                 }),
-          }}
-        >
-          <div className="flex flex-col min-w-52">
-            {sentBy === "system" && (
-              <i className="text-xs font-semibold mb-1">
-                Mensagem automática do sistema
-              </i>
-            )}
-            <button
-              onClick={() =>
-                !isInProgress &&
-                download(
-                  `${api.getUri()}/public/storage/${fileName}`,
-                  fileNameOriginal || fileName,
-                )
-              }
-              title="Baixar arquivo"
-              className="bg-white/5 hover:bg-white/10 cursor-pointer duration-200 rounded-sm p-2 flex items-center gap-2"
-            >
-              <p className="line-clamp-2 text-xs text-start w-full">
-                {fileNameOriginal || fileName}
-              </p>
-              {isInProgress ? (
-                <Spinner />
-              ) : (
-                <a className="p-1">
-                  <RiDownload2Line size={20} />
-                </a>
-              )}
-            </button>
-            {caption && (
-              <p className="p-1 pb-0 text-xs">{parse(format(caption))}</p>
-            )}
-            <small
-              className={`pl-5 px-1 leading-none text-white/70 mt-1 block text-xs text-end`}
-            >
-              {time}
-            </small>
-          </div>
-        </div>
-        {sentBy !== "contact" && isArrow && (
-          <div
-            style={{
-              width: 0,
-              height: 0,
-              borderTop: "0px solid transparent",
-              borderBottom: "8px solid transparent",
-              borderLeft: `6px solid ${background[sentBy]}`,
             }}
-          />
+          >
+            <div className="flex flex-col min-w-52">
+              {sentBy === "system" && (
+                <i className="text-xs font-semibold mb-1">
+                  Mensagem automática do sistema
+                </i>
+              )}
+              <button
+                onClick={() =>
+                  !isInProgress &&
+                  download(
+                    `${api.getUri()}/public/storage/${fileName}`,
+                    fileNameOriginal || fileName,
+                  )
+                }
+                title="Baixar arquivo"
+                className="bg-white/5 hover:bg-white/10 cursor-pointer duration-200 rounded-sm p-2 flex items-center gap-2"
+              >
+                <p className="line-clamp-2 text-xs text-start w-full">
+                  {fileNameOriginal || fileName}
+                </p>
+                {isInProgress ? (
+                  <Spinner />
+                ) : (
+                  <a className="p-1">
+                    <RiDownload2Line size={20} />
+                  </a>
+                )}
+              </button>
+              {caption && (
+                <p className="p-1 pb-0 text-xs">{parse(format(caption))}</p>
+              )}
+              <small
+                className={`pl-5 px-1 leading-none text-white/70 mt-1 block text-xs text-end`}
+              >
+                {time}
+              </small>
+            </div>
+          </div>
+          {sentBy !== "contact" && isArrow && (
+            <div
+              style={{
+                width: 0,
+                height: 0,
+                borderTop: "0px solid transparent",
+                borderBottom: "8px solid transparent",
+                borderLeft: `6px solid ${background[sentBy]}`,
+              }}
+            />
+          )}
+        </div>
+        {sentBy === "user" && (
+          <div className="w-full flex justify-end">
+            {rest.error && (
+              <span className="text-red-400 text-xs font-medium">
+                {rest.error}
+              </span>
+            )}
+            {rest.load && (
+              <div className="w-4">
+                <Spinner size={"xs"} />
+              </div>
+            )}
+            {rest.status === "SENT" && <IoCheckmarkSharp />}
+          </div>
         )}
       </div>
-      {sentBy === "user" && (
-        <div className="w-full flex justify-end">
-          {rest.error && (
-            <span className="text-red-400 text-xs font-medium">
-              {rest.error}
-            </span>
-          )}
-          {rest.load && (
-            <div className="w-4">
-              <Spinner size={"xs"} />
-            </div>
-          )}
-          {rest.status === "SENT" && <IoCheckmarkSharp />}
-        </div>
-      )}
-    </div>
-  );
-};
+    );
+  };

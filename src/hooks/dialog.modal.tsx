@@ -10,11 +10,17 @@ interface IDialogModal {
     | "slide-in-left"
     | "slide-in-right"
     | "none";
+  closeOnInteractOutside?: boolean;
+  closeOnEscape?: boolean;
+  trapFocus?: boolean;
 }
 
 export const useDialogModal = ({
   motionPreset = "slide-in-bottom",
   placement = "top",
+  closeOnEscape,
+  closeOnInteractOutside,
+  trapFocus,
 }: IDialogModal) => {
   const [dialog, setDialog] = useState<{
     content: ReactNode;
@@ -48,6 +54,9 @@ export const useDialogModal = ({
         lazyMount={true}
         unmountOnExit={true}
         size={dialog?.size}
+        closeOnInteractOutside={closeOnInteractOutside}
+        closeOnEscape={closeOnEscape}
+        trapFocus={trapFocus}
       >
         {dialog?.content}
       </DialogRoot>
