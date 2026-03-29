@@ -17,6 +17,7 @@ type DataNode = {
   numbers: { key: string; number: string }[];
   text: string;
   tagIds: number[];
+  numbersWithTagIds: number[];
 };
 
 function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
@@ -132,6 +133,32 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
           onCreate={(tag) => {
             data.tagIds.push(tag.id);
             updateNode(id, { data: { ...data, tagIds: data.tagIds } });
+          }}
+        />
+      </Field>
+
+      <Field
+        label="Enviar para contatos que tem as etiquetas"
+        helperText={"use a variavel: JUN_NUMERO_LEAD_WHATSAPP_NOTIFY"}
+        className="mt-2"
+      >
+        <SelectTags
+          isMulti={true}
+          isClearable
+          menuPlacement="bottom"
+          isFlow
+          value={data.numbersWithTagIds}
+          onChange={(e: any) => {
+            data.numbersWithTagIds = e.map((item: any) => item.value);
+            updateNode(id, {
+              data: { ...data, numbersWithTagIds: data.numbersWithTagIds },
+            });
+          }}
+          onCreate={(tag) => {
+            data.numbersWithTagIds.push(tag.id);
+            updateNode(id, {
+              data: { ...data, numbersWithTagIds: data.numbersWithTagIds },
+            });
           }}
         />
       </Field>

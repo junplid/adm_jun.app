@@ -28,16 +28,16 @@ type DataNode = {
   nOrder_deliveryCode: string;
   fields?: string[];
 
-  varId_save_name?: number;
-  varId_save_router_code?: number;
-  varId_save_status?: number;
-  varId_save_payment_method?: number;
-  varId_save_delivery_address?: number;
-  varId_save_total?: number;
-  varId_save_data?: number;
-  varId_save_number_contact?: number;
-  varId_save_delivery_code?: number;
-  varId_save_nOrder?: number;
+  varId_save_name?: number; //
+  varId_save_router_code?: number; //
+  varId_save_status?: number; //
+  varId_save_payment_method?: number; //
+  varId_save_delivery_address?: number; //
+  varId_save_total?: number; //
+  varId_save_data?: number; //
+  varId_save_number_contact?: number; //
+  varId_save_delivery_code?: number; //
+  varId_save_nOrder?: number; //
 };
 
 function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {

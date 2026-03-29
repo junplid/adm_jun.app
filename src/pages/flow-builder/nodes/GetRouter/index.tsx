@@ -19,20 +19,22 @@ const optionsFields: { label: string; value: string }[] = [
   { label: "Link Rota atualizada", value: "link_router_updated" },
   { label: "Data text", value: "data_text" }, // texto tentendo todos os pedidos(status_router_pedido\n#code_pedido\nEndereço\nNome\nPedido\n\n)
   { label: "Número do contato atribuido", value: "number_contact" }, // texto tentendo todos os pedidos(status_router_pedido\n#code_pedido\nEndereço\nNome\nPedido\n\n)
+  { label: "Link de aceitar rota", value: "link_join_router" }, // texto tentendo todos os pedidos(status_router_pedido\n#code_pedido\nEndereço\nNome\nPedido\n\n)
 ];
 
 type DataNode = {
   nRouter: string;
   fields?: string[];
 
-  order_status_of?: string;
-  varId_save_status?: number;
-  varId_save_count_total_orders?: number;
-  varId_save_count_order_status_of?: number;
-  varId_save_link_router?: number;
-  varId_save_link_router_updated?: number;
-  varId_save_data_text?: number;
-  varId_save_number_contact?: number;
+  varId_save_status?: number; //
+  varId_save_count_total_orders?: number; //
+  varId_save_count_order_status_of?: number; //
+  order_status_of?: string; //
+  varId_save_link_router?: number; //
+  varId_save_link_router_updated?: number; //
+  varId_save_data_text?: number; //
+  varId_save_number_contact?: number; //
+  varId_save_link_join_router?: number;
 };
 
 function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
@@ -239,6 +241,29 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
             onChange={(e: any) => {
               updateNode(id, {
                 data: { ...data, varId_save_number_contact: e.value },
+              });
+            }}
+          />
+        </Field>
+      )}
+
+      {data.fields?.includes("link_join_router") && (
+        <Field label="Link de aceitar rota">
+          <SelectVariables
+            isMulti={false}
+            isClearable={false}
+            isFlow
+            menuPlacement="bottom"
+            filter={(opt) => opt.filter((s) => s.type === "dynamics")}
+            onCreate={(tag) => {
+              updateNode(id, {
+                data: { ...data, varId_save_link_join_router: tag.id },
+              });
+            }}
+            value={data.varId_save_link_join_router}
+            onChange={(e: any) => {
+              updateNode(id, {
+                data: { ...data, varId_save_link_join_router: e.value },
               });
             }}
           />

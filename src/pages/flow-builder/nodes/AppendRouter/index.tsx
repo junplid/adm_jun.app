@@ -169,6 +169,21 @@ export const NodeAppendRouter: React.FC<Node<DataNode>> = ({ id, data }) => {
           style={{ left: -14, top: -1, position: "absolute" }}
         />
       </CustomHandle>
+
+      <CustomHandle
+        nodeId={id}
+        handleId={`not_found`}
+        position={Position.Right}
+        type="source"
+        style={{ right: -20, bottom: -36, top: "initial" }}
+        isConnectable={true}
+        className="relative border-neutral-400/60! text-neutral-400 bg-neutral-400/15!"
+      >
+        <MdHourglassEmpty
+          size={11}
+          style={{ left: -14, top: -1, position: "absolute" }}
+        />
+      </CustomHandle>
     </div>
   );
 };

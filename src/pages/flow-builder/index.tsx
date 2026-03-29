@@ -334,7 +334,7 @@ function Body(props: IBody): JSX.Element {
           preview: [],
         };
       } else if (typeN === "NodeNotifyWA") {
-        newNode.data = { numbers: [], tagsIds: [] };
+        newNode.data = { numbers: [], tagsIds: [], numbersWithTagIds: [] };
       } else if (typeN === "NodeRemoveVariables") {
         newNode.data = { list: [] };
       } else if (typeN === "NodeReply") {
