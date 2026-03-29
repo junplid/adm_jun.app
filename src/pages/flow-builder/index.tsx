@@ -77,6 +77,10 @@ import { NodeCreateAppointment } from "./nodes/CreateAppointment";
 import { NodeUpdateAppointment } from "./nodes/UpdateAppointment";
 import { NodeGetOrder } from "./nodes/GetOrder";
 import { NodeDeleteOrder } from "./nodes/DeleteOrder";
+import { NodeAppendRouter } from "./nodes/AppendRouter";
+import { NodeGetRouter } from "./nodes/GetRouter";
+import { NodeUpdateRouter } from "./nodes/UpdateRouter";
+import { NodeDeleteRouterOrder } from "./nodes/DeleteRouterOrder";
 
 type NodeTypesGeneric = {
   [x in TypesNodes]: any;
@@ -124,7 +128,11 @@ export type TypesNodes =
   | "NodeDeleteMessage"
   | "NodeDistribute"
   | "NodeDeleteOrder"
-  | "NodeGetOrder";
+  | "NodeGetOrder"
+  | "NodeAppendRouter"
+  | "NodeGetRouter"
+  | "NodeUpdateRouter"
+  | "NodeDeleteRouterOrder";
 
 const nodeTypes: NodeTypesGeneric = {
   NodeInitial: NodeInitial,
@@ -168,7 +176,11 @@ const nodeTypes: NodeTypesGeneric = {
   NodeDeleteMessage: NodeDeleteMessage,
   NodeDistribute: NodeDistribute,
   NodeGetOrder: NodeGetOrder,
-  NodeDeleteOrder: NodeDeleteOrder
+  NodeDeleteOrder: NodeDeleteOrder,
+  NodeAppendRouter: NodeAppendRouter,
+  NodeGetRouter: NodeGetRouter,
+  NodeUpdateRouter: NodeUpdateRouter,
+  NodeDeleteRouterOrder: NodeDeleteRouterOrder,
 };
 
 const edgeTypes = {
@@ -601,7 +613,7 @@ function Body(props: IBody): JSX.Element {
           >
             <span
               className="text-sm text-white/60 cursor-pointer"
-              onClick={() => { }}
+              onClick={() => {}}
             >
               Pressione <strong className="text-white">CTRL</strong> +{" "}
               <strong className="text-white">S</strong> para salvar
@@ -672,7 +684,11 @@ export function FlowBuilderPage() {
   }, [params.id]);
 
   const Toggle = useMemo(() => {
-    return <div className="absolute top-4 left-2 z-20 hidden sm:flex">{ToggleMenu}</div>;
+    return (
+      <div className="absolute top-4 left-2 z-20 hidden sm:flex">
+        {ToggleMenu}
+      </div>
+    );
   }, [ToggleMenu]);
 
   if (!params.id) {

@@ -305,6 +305,8 @@ export function useUpdateMenuOnlineInfo(props?: {
     address?: string | null | undefined;
     delivery_fee?: number | null | undefined;
     state_uf?: string | null | undefined;
+    lat?: number | null | undefined;
+    lng?: number | null | undefined;
     city?: string | null | undefined;
     phone_contact?: string | null | undefined;
     whatsapp_contact?: string | null | undefined;
@@ -329,6 +331,8 @@ export function useUpdateMenuOnlineInfo(props?: {
         address?: string | null;
         delivery_fee?: number | null;
         state_uf?: string | null;
+        lat?: number | null | undefined;
+        lng?: number | null | undefined;
         city?: string | null;
         phone_contact?: string | null;
         whatsapp_contact?: string | null;

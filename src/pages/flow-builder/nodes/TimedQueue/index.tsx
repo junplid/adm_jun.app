@@ -36,21 +36,21 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
 
   return (
     <div className="-mt-3 flex flex-col gap-2">
-      <div className="grid grid-cols-[1fr_43px] gap-x-1 w-full justify-between">
+      <div className="grid grid-cols-[1fr_50px] gap-x-1 w-full justify-between">
         <div className="flex flex-col">
           <span className="font-medium">Segundos de debounce</span>
           <span className="text-white/70 font-light">Para seguir o fluxo</span>
         </div>
         <NumberInput.Root
           min={0}
-          max={60}
+          max={301}
           size={"md"}
           value={data?.value ? String(data.value) : "0"}
           defaultValue="0"
         >
           <NumberInput.Input
             style={{ borderColor: data.value ? "transparent" : "" }}
-            maxW={"43px"}
+            maxW={"80px"}
             onChange={({ target }) => {
               setDataMok({ ...data, value: Number(target.value) });
             }}

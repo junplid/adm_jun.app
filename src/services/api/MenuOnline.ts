@@ -249,6 +249,8 @@ export async function updateMenuOnlineInfo(
     address?: string | null | undefined;
     state_uf?: string | null | undefined;
     city?: string | null | undefined;
+    lat?: number | null | undefined;
+    lng?: number | null | undefined;
     phone_contact?: string | null | undefined;
     whatsapp_contact?: string | null | undefined;
   },

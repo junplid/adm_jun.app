@@ -61,6 +61,7 @@ import { ModalChatPlayer } from "../inboxes/departments/modals/Player/modalChat"
 import { useRoomWebSocket } from "../../hooks/roomWebSocket";
 import { BsFillLockFill } from "react-icons/bs";
 import { RxEyeClosed, RxEyeOpen } from "react-icons/rx";
+import { TbMapShare } from "react-icons/tb";
 
 export type ItemID = string;
 
@@ -85,13 +86,15 @@ interface Order {
   delivery_cep: string | null;
   delivery_complement: string | null;
   delivery_reference_point: string | null;
+  delivery_number: string | null;
+  link_map?: string;
   channel: "baileys" | "instagram";
   contact?: string;
   adjustments: {
     type: "in" | "out";
     label: string;
     amount: string;
-  }[]
+  }[];
   status: TypeStatusOrder;
   priority: TypePriorityOrder | null;
   data: string | null;
@@ -263,13 +266,14 @@ export function SortableItem({
     [actionsLoad],
   );
 
-  const composedTransition = [transition, "transform 150ms cubic-bezier(0.2, 0, 0, 1)"]
+  const composedTransition = [
+    transition,
+    "transform 150ms cubic-bezier(0.2, 0, 0, 1)",
+  ]
     .filter(Boolean)
     .join(", ");
 
-  const liftOffset = !isDragging && isOverlay
-    ? { scale: 0.98 }
-    : { scale: 1 };
+  const liftOffset = !isDragging && isOverlay ? { scale: 0.98 } : { scale: 1 };
 
   const base = transform ?? { x: 0, y: 0, scaleX: 1, scaleY: 1 };
 
@@ -281,7 +285,8 @@ export function SortableItem({
   };
 
   return (
-    <div ref={setNodeRef}
+    <div
+      ref={setNodeRef}
       className="relative text-black"
       {...attributes}
       {...listeners}
@@ -297,13 +302,13 @@ export function SortableItem({
           backgroundColor: !isDragging ? "#fff" : "#ececec15",
           marginBottom: "6px",
           zIndex: !isDragging ? 1 : "auto",
-          boxShadow: !isDragging && isOverlay
-            ? "0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.3)"
-            : "none",
+          boxShadow:
+            !isDragging && isOverlay
+              ? "0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.3)"
+              : "none",
           opacity: order.isDragDisabled ? 0.4 : 1,
-          overflow: "hidden"
+          overflow: "hidden",
         }}
-
       >
         <div
           className={clsx(
@@ -312,10 +317,22 @@ export function SortableItem({
             // isOver && "opacity-0",
           )}
         >
-          <div onClick={() => setOpenData(!openData)} className="bg-neutral-100 px-2 py-2 pb-0.5 flex w-full mb-0 items-center gap-x-1 justify-between">
-            <span className="text-black/55 text-sm">
-              #{order.n_order}
-            </span>
+          <div
+            onClick={() => setOpenData(!openData)}
+            className="bg-neutral-100 px-2 py-2 pb-0.5 flex w-full mb-0 items-center gap-x-1 justify-between"
+          >
+            <div className="flex items-center gap-x-1.5">
+              {order.link_map && (
+                <a
+                  href={order.link_map}
+                  target="_blank"
+                  className="text-blue-400"
+                >
+                  <TbMapShare size={20} />
+                </a>
+              )}
+              <span className="text-black/55 text-sm">#{order.n_order}</span>
+            </div>
 
             <span className="text-black/35 text-xs sm:text-sm">
               {previewDateLastMsg}
@@ -345,17 +362,12 @@ export function SortableItem({
 
           <Collapsible.Root open={openInfo} collapsedHeight="43px">
             <Collapsible.Content
-
               className="pb-2 bg-neutral-50"
               onClick={() => setOpenInfo(!openInfo)}
             >
               <div className="flex gap-x-1 mt-1 justify-center items-center mb-1 text-neutral-400">
                 <span className="text-xs text-center">ficha técnica</span>
-                {openInfo ? (
-                  <RxEyeOpen size={12} />
-                ) : (
-                  <RxEyeClosed size={12} />
-                )}
+                {openInfo ? <RxEyeOpen size={12} /> : <RxEyeClosed size={12} />}
               </div>
               {(order.name || order.description || order.contact) && (
                 <div className="px-2 flex flex-col mb-2 w-full">
@@ -376,18 +388,21 @@ export function SortableItem({
               {order.payment_method && (
                 <div className="px-2 flex-col flex items-start mt-1 gap-x-0.5 text-black/60">
                   <div className="text-sm flex items-center space-x-0.5">
-                    <span className="text-xs text-neutral-400">Pagar com</span> <span className="font-medium">{order.payment_method}</span>
+                    <span className="text-xs text-neutral-400">Pagar com</span>{" "}
+                    <span className="font-medium">{order.payment_method}</span>
                   </div>
-                  {order.payment_change_to && order.payment_change_to === "Não" && (
-                    <span className="text-xs bg-red-200 px-0.5 font-medium">
-                      Não precisa de troco
-                    </span>
-                  )}
-                  {order.payment_change_to && order.payment_change_to !== "Não" && (
-                    <span className="text-xs bg-red-200/70 px-0.5 font-medium">
-                      Troco para: {order.payment_change_to}
-                    </span>
-                  )}
+                  {order.payment_change_to &&
+                    order.payment_change_to === "Não" && (
+                      <span className="text-xs bg-red-200 px-0.5 font-medium">
+                        Não precisa de troco
+                      </span>
+                    )}
+                  {order.payment_change_to &&
+                    order.payment_change_to !== "Não" && (
+                      <span className="text-xs bg-red-200/70 px-0.5 font-medium">
+                        Troco para: {order.payment_change_to}
+                      </span>
+                    )}
                 </div>
               )}
               <div className="px-2 flex flex-col gap-y-0.5 mt-2 items-start">
@@ -419,7 +434,6 @@ export function SortableItem({
                     Rua ai kadi
                   </span>
                 </div>
-
               </div>
 
               <div className="px-2 flex flex-col w-full mt-2 text-xs sm:text-sm">
@@ -448,17 +462,15 @@ export function SortableItem({
                               isOut ? "text-red-700" : "text-green-700"
                             }
                           >
-                            {isOut ? "-" : "+"} {formatToBRL(Number(adj.amount))}
+                            {isOut ? "-" : "+"}{" "}
+                            {formatToBRL(Number(adj.amount))}
                           </span>
                         </div>
                       );
                     })}
-                    <div
-                      className="flex justify-between mt-1 text-black/70"
-                    >
+                    <div className="flex justify-between mt-1 text-black/70">
                       <span>Total líquido</span>
-                      <span className="text-yellow-700"
-                      >
+                      <span className="text-yellow-700">
                         {formatToBRL(Number(order.net_total))}
                       </span>
                     </div>
@@ -469,13 +481,14 @@ export function SortableItem({
           </Collapsible.Root>
 
           {order.total && (
-            <div onClick={() => {
-              setOpenInfo(!openInfo)
-            }} className="flex text-sm bg-neutral-50 px-2 justify-between font-medium pt-1">
+            <div
+              onClick={() => {
+                setOpenInfo(!openInfo);
+              }}
+              className="flex text-sm bg-neutral-50 px-2 justify-between font-medium pt-1"
+            >
               <span>Total a pagar</span>
-              <span className="text-green-700">
-                {formatToBRL(order.total)}
-              </span>
+              <span className="text-green-700">{formatToBRL(order.total)}</span>
             </div>
           )}
 
@@ -506,7 +519,9 @@ export function SortableItem({
                     className="w-full font-medium py-1 px-1 text-xs bg-slate-400/20 mb-2 cursor-pointer rounded-sm shadow"
                     onClick={() => {
                       if (!actionsLoad.includes(a)) {
-                        const state = confirm(`Deseja executar "${a}" para o pedido #${order.n_order}?`);
+                        const state = confirm(
+                          `Deseja executar "${a}" para o pedido #${order.n_order}?`,
+                        );
                         if (state) {
                           run(a);
                         }
@@ -566,9 +581,7 @@ export function Container(props: ContainerProps) {
         </div>
       </div>
 
-      <div
-        className={clsx("pb-10 flex-1 py-2 scroll-custom overflow-y-auto")}
-      >
+      <div className={clsx("pb-10 flex-1 py-2 scroll-custom overflow-y-auto")}>
         <SortableContext
           id={props.column.id}
           items={props.rows}
@@ -610,14 +623,14 @@ const columns: {
   value: TypeStatusOrder;
   color: string;
 }[] = [
-    // { label: "A confirmar ...", value: "draft", color: "#f5f5f533" },
-    { label: "Pendentes", value: "pending", color: "#f5f5f533" },
-    { label: "Confirmados", value: "confirmed", color: "#0EA5E933" },
-    { label: "Em preparo", value: "processing", color: "#F9731633" },
-    { label: "Embalagem", value: "ready", color: "#22C55E33" },
-    { label: "A caminho", value: "on_way", color: "#3B82F633" },
-    { label: "Finalizados", value: "completed", color: "#14B8A633" },
-  ];
+  // { label: "A confirmar ...", value: "draft", color: "#f5f5f533" },
+  { label: "Pendentes", value: "pending", color: "#f5f5f533" },
+  { label: "Confirmados", value: "confirmed", color: "#0EA5E933" },
+  { label: "Em preparo", value: "processing", color: "#F9731633" },
+  { label: "Embalagem", value: "ready", color: "#22C55E33" },
+  { label: "A caminho", value: "on_way", color: "#3B82F633" },
+  { label: "Finalizados", value: "completed", color: "#14B8A633" },
+];
 
 export const OrdersPage: React.FC = (): JSX.Element => {
   const { socket } = useContext(SocketContext);
@@ -637,13 +650,18 @@ export const OrdersPage: React.FC = (): JSX.Element => {
   // const [overColumnId, setOverColumnId] = useState<string | null>(null);
 
   const sensors = useSensors(
-    useSensor(clientMeta.isMobileLike ? TouchSensor : PointerSensor, clientMeta.isMobileLike ? {
-      activationConstraint: {
-        delay: 250,
-        tolerance: 8,
-        distance: 5
-      }
-    } : { activationConstraint: { distance: 1 } }),
+    useSensor(
+      clientMeta.isMobileLike ? TouchSensor : PointerSensor,
+      clientMeta.isMobileLike
+        ? {
+            activationConstraint: {
+              delay: 250,
+              tolerance: 8,
+              distance: 5,
+            },
+          }
+        : { activationConstraint: { distance: 1 } },
+    ),
   );
 
   const findContainer = (id: string | number) => {
@@ -877,12 +895,17 @@ export const OrdersPage: React.FC = (): JSX.Element => {
       setOrders((state) => {
         const stateClone = structuredClone(state);
 
-        const nextListStatus = Object.fromEntries(Object.entries(stateClone).map(([status, ordersList]) => {
-          return [status, ordersList.map(or => {
-            if (order.id === or.id) or = { ...or, ...order };
-            return or;
-          })]
-        }));
+        const nextListStatus = Object.fromEntries(
+          Object.entries(stateClone).map(([status, ordersList]) => {
+            return [
+              status,
+              ordersList.map((or) => {
+                if (order.id === or.id) or = { ...or, ...order };
+                return or;
+              }),
+            ];
+          }),
+        );
 
         return nextListStatus;
       });
@@ -891,9 +914,11 @@ export const OrdersPage: React.FC = (): JSX.Element => {
     socket.on("delete_order", (order: Pick<Order, "id" | "status">) => {
       setOrders((state) => {
         const stateClone = structuredClone(state);
-        const nextListStatus = Object.fromEntries(Object.entries(stateClone).map(([status, ordersList]) => {
-          return [status, ordersList.filter(or => or.id !== order.id)]
-        }));
+        const nextListStatus = Object.fromEntries(
+          Object.entries(stateClone).map(([status, ordersList]) => {
+            return [status, ordersList.filter((or) => or.id !== order.id)];
+          }),
+        );
         return nextListStatus;
       });
     });

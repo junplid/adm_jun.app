@@ -5,39 +5,34 @@ import { JSX, useEffect, useState } from "react";
 import AutocompleteTextField from "@components/Autocomplete";
 import { CustomHandle } from "../../customs/node";
 import { useGetVariablesOptions } from "../../../../hooks/variable";
-import { LuNotepadText } from "react-icons/lu";
 import { Field } from "@components/ui/field";
 import SelectComponent from "@components/Select";
 import SelectVariables from "@components/SelectVariables";
 import { TiFlash } from "react-icons/ti";
+import { FaRoute } from "react-icons/fa";
 
 const optionsFields: { label: string; value: string }[] = [
-  { label: "Nome", value: "name" },
   { label: "Status", value: "status" },
-  { label: "Método de pagamento", value: "payment_method" },
-  { label: "Endereço de entrega", value: "delivery_address" },
-  { label: "Total", value: "total" },
-  { label: "Conteúdo", value: "data" },
-  { label: "Número do contato", value: "number_contact" },
-  { label: "Código da rota", value: "router_code" },
-  { label: "Código de entrega", value: "delivery_code" },
-  { label: "Código do pedido", value: "nOrder" },
+  { label: "QNT total de pedidos", value: "count_total_orders" },
+  { label: "QNT de pedidos com status:", value: "count_order_status_of" },
+  { label: "Link Rota", value: "link_router" },
+  { label: "Link Rota atualizada", value: "link_router_updated" },
+  { label: "Data text", value: "data_text" }, // texto tentendo todos os pedidos(status_router_pedido\n#code_pedido\nEndereço\nNome\nPedido\n\n)
+  { label: "Número do contato atribuido", value: "number_contact" }, // texto tentendo todos os pedidos(status_router_pedido\n#code_pedido\nEndereço\nNome\nPedido\n\n)
 ];
 
 type DataNode = {
-  nOrder_deliveryCode: string;
+  nRouter: string;
   fields?: string[];
 
-  varId_save_name?: number;
-  varId_save_router_code?: number;
+  order_status_of?: string;
   varId_save_status?: number;
-  varId_save_payment_method?: number;
-  varId_save_delivery_address?: number;
-  varId_save_total?: number;
-  varId_save_data?: number;
+  varId_save_count_total_orders?: number;
+  varId_save_count_order_status_of?: number;
+  varId_save_link_router?: number;
+  varId_save_link_router_updated?: number;
+  varId_save_data_text?: number;
   varId_save_number_contact?: number;
-  varId_save_delivery_code?: number;
-  varId_save_nOrder?: number;
 };
 
 function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
@@ -66,41 +61,17 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
 
   return (
     <div className="flex flex-col gap-y-3 -mt-3">
-      <Field
-        label="Código"
-        helperText={"Código do pedido ou Código de entrega"}
-      >
+      <Field label="Código da rota">
         <AutocompleteTextField
           // @ts-expect-error
           trigger={["{{"]}
           options={{ "{{": variables?.map((s) => s.name) || [] }}
           spacer={"}}"}
-          placeholder="Digite o código"
-          defaultValue={data.nOrder_deliveryCode || ""}
-          onChange={(value: string) =>
-            setDataMok({ ...data, nOrder_deliveryCode: value })
-          }
+          placeholder="Digite o código do pedido"
+          defaultValue={data.nRouter || ""}
+          onChange={(value: string) => setDataMok({ ...data, nRouter: value })}
         />
       </Field>
-
-      {data.fields?.includes("name") && (
-        <Field label="Salvar NOME">
-          <SelectVariables
-            isMulti={false}
-            isClearable={false}
-            isFlow
-            menuPlacement="bottom"
-            filter={(opt) => opt.filter((s) => s.type === "dynamics")}
-            onCreate={(tag) => {
-              updateNode(id, { data: { ...data, varId_save_name: tag.id } });
-            }}
-            value={data.varId_save_name}
-            onChange={(e: any) => {
-              updateNode(id, { data: { ...data, varId_save_name: e.value } });
-            }}
-          />
-        </Field>
-      )}
 
       {data.fields?.includes("status") && (
         <Field label="Salvar STATUS">
@@ -121,8 +92,8 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
         </Field>
       )}
 
-      {data.fields?.includes("payment_method") && (
-        <Field label="Salvar METODO DE PAGAMENTO">
+      {data.fields?.includes("count_total_orders") && (
+        <Field label="Salvar QNT de pontos">
           <SelectVariables
             isMulti={false}
             isClearable={false}
@@ -131,21 +102,59 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
             filter={(opt) => opt.filter((s) => s.type === "dynamics")}
             onCreate={(tag) => {
               updateNode(id, {
-                data: { ...data, varId_save_payment_method: tag.id },
+                data: { ...data, varId_save_count_total_orders: tag.id },
               });
             }}
-            value={data.varId_save_payment_method}
+            value={data.varId_save_count_total_orders}
             onChange={(e: any) => {
               updateNode(id, {
-                data: { ...data, varId_save_payment_method: e.value },
+                data: { ...data, varId_save_count_total_orders: e.value },
               });
             }}
           />
         </Field>
       )}
 
-      {data.fields?.includes("router_code") && (
-        <Field label="Salvar código da rota">
+      {data.fields?.includes("count_order_status_of") && (
+        <div className="p-2 bg-neutral-600/10 flex flex-col gap-y-2">
+          <Field label="Quantidade de pedidos com status:">
+            <AutocompleteTextField
+              // @ts-expect-error
+              trigger={["{{"]}
+              options={{ "{{": variables?.map((s) => s.name) || [] }}
+              spacer={"}}"}
+              placeholder="Digite o status do pedido"
+              defaultValue={data.order_status_of || ""}
+              onChange={(value: string) =>
+                setDataMok({ ...data, order_status_of: value })
+              }
+            />
+          </Field>
+          <Field label="Salvar valor na variável">
+            <SelectVariables
+              isMulti={false}
+              isClearable={false}
+              isFlow
+              menuPlacement="bottom"
+              filter={(opt) => opt.filter((s) => s.type === "dynamics")}
+              onCreate={(tag) => {
+                updateNode(id, {
+                  data: { ...data, varId_save_count_order_status_of: tag.id },
+                });
+              }}
+              value={data.varId_save_count_order_status_of}
+              onChange={(e: any) => {
+                updateNode(id, {
+                  data: { ...data, varId_save_count_order_status_of: e.value },
+                });
+              }}
+            />
+          </Field>
+        </div>
+      )}
+
+      {data.fields?.includes("link_router") && (
+        <Field label="Salvar Link da rota">
           <SelectVariables
             isMulti={false}
             isClearable={false}
@@ -154,21 +163,21 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
             filter={(opt) => opt.filter((s) => s.type === "dynamics")}
             onCreate={(tag) => {
               updateNode(id, {
-                data: { ...data, varId_save_router_code: tag.id },
+                data: { ...data, varId_save_link_router: tag.id },
               });
             }}
-            value={data.varId_save_router_code}
+            value={data.varId_save_link_router}
             onChange={(e: any) => {
               updateNode(id, {
-                data: { ...data, varId_save_router_code: e.value },
+                data: { ...data, varId_save_link_router: e.value },
               });
             }}
           />
         </Field>
       )}
 
-      {data.fields?.includes("delivery_address") && (
-        <Field label="Salvar ENDEREÇO DE ENTREGA">
+      {data.fields?.includes("link_router_updated") && (
+        <Field label="Salvar Link da rota atualizada">
           <SelectVariables
             isMulti={false}
             isClearable={false}
@@ -177,21 +186,21 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
             filter={(opt) => opt.filter((s) => s.type === "dynamics")}
             onCreate={(tag) => {
               updateNode(id, {
-                data: { ...data, varId_save_delivery_address: tag.id },
+                data: { ...data, varId_save_link_router_updated: tag.id },
               });
             }}
-            value={data.varId_save_delivery_address}
+            value={data.varId_save_link_router_updated}
             onChange={(e: any) => {
               updateNode(id, {
-                data: { ...data, varId_save_delivery_address: e.value },
+                data: { ...data, varId_save_link_router_updated: e.value },
               });
             }}
           />
         </Field>
       )}
 
-      {data.fields?.includes("total") && (
-        <Field label="Salvar TOTAL">
+      {data.fields?.includes("data_text") && (
+        <Field label="Salvar Link da rota atualizada">
           <SelectVariables
             isMulti={false}
             isClearable={false}
@@ -199,37 +208,22 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
             menuPlacement="bottom"
             filter={(opt) => opt.filter((s) => s.type === "dynamics")}
             onCreate={(tag) => {
-              updateNode(id, { data: { ...data, varId_save_total: tag.id } });
+              updateNode(id, {
+                data: { ...data, varId_save_data_text: tag.id },
+              });
             }}
-            value={data.varId_save_total}
+            value={data.varId_save_data_text}
             onChange={(e: any) => {
-              updateNode(id, { data: { ...data, varId_save_total: e.value } });
-            }}
-          />
-        </Field>
-      )}
-
-      {data.fields?.includes("data") && (
-        <Field label="Salvar CONTEÚDO">
-          <SelectVariables
-            isMulti={false}
-            isClearable={false}
-            isFlow
-            menuPlacement="bottom"
-            filter={(opt) => opt.filter((s) => s.type === "dynamics")}
-            onCreate={(tag) => {
-              updateNode(id, { data: { ...data, varId_save_data: tag.id } });
-            }}
-            value={data.varId_save_data}
-            onChange={(e: any) => {
-              updateNode(id, { data: { ...data, varId_save_data: e.value } });
+              updateNode(id, {
+                data: { ...data, varId_save_data_text: e.value },
+              });
             }}
           />
         </Field>
       )}
 
       {data.fields?.includes("number_contact") && (
-        <Field label="Salvar NUMERO DO LEAD">
+        <Field label="Número do contato atribuido">
           <SelectVariables
             isMulti={false}
             isClearable={false}
@@ -245,52 +239,6 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
             onChange={(e: any) => {
               updateNode(id, {
                 data: { ...data, varId_save_number_contact: e.value },
-              });
-            }}
-          />
-        </Field>
-      )}
-
-      {data.fields?.includes("nOrder") && (
-        <Field label="Salvar codigo do pedido">
-          <SelectVariables
-            isMulti={false}
-            isClearable={false}
-            isFlow
-            menuPlacement="bottom"
-            filter={(opt) => opt.filter((s) => s.type === "dynamics")}
-            onCreate={(tag) => {
-              updateNode(id, {
-                data: { ...data, varId_save_nOrder: tag.id },
-              });
-            }}
-            value={data.varId_save_nOrder}
-            onChange={(e: any) => {
-              updateNode(id, {
-                data: { ...data, varId_save_nOrder: e.value },
-              });
-            }}
-          />
-        </Field>
-      )}
-
-      {data.fields?.includes("delivery_code") && (
-        <Field label="Salvar codigo de entrega">
-          <SelectVariables
-            isMulti={false}
-            isClearable={false}
-            isFlow
-            menuPlacement="bottom"
-            filter={(opt) => opt.filter((s) => s.type === "dynamics")}
-            onCreate={(tag) => {
-              updateNode(id, {
-                data: { ...data, varId_save_delivery_code: tag.id },
-              });
-            }}
-            value={data.varId_save_delivery_code}
-            onChange={(e: any) => {
-              updateNode(id, {
-                data: { ...data, varId_save_delivery_code: e.value },
               });
             }}
           />
@@ -318,24 +266,24 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
   );
 }
 
-export const NodeGetOrder: React.FC<Node<DataNode>> = ({ id, data }) => {
+export const NodeGetRouter: React.FC<Node<DataNode>> = ({ id, data }) => {
   return (
     <div>
       <PatternNode.PatternPopover
-        title="Node de buscar pedido"
-        description="Busca um pedido existente"
+        title="Node de buscar rota"
+        description="Busca uma rota existente"
         positioning={{ flip: ["left", "right"], placement: "left" }}
         size="330px"
         node={{
           children: (
-            <div className="p-0.5 relative">
+            <div className="p-1.5 relative">
               <div className="flex justify-end absolute -top-1 -right-1 opacity-10 group-hover:opacity-100 duration-200">
                 <PatternNode.Actions id={id} />
               </div>
-              <LuNotepadText className="text-gray-400" size={31} />
+              <FaRoute className="text-gray-400" size={23} />
             </div>
           ),
-          name: "Pedido",
+          name: "Rota",
           description: "Buscar",
         }}
       >

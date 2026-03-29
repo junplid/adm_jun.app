@@ -13,6 +13,8 @@ import SelectComponent from "@components/Select";
 
 const FormSchema = z.object({
   delivery_fee: z.number().nullish(),
+  lat: z.number().nullish(),
+  lng: z.number().nullish(),
   address: z.string().nullish(),
   state_uf: z.string().nullish(),
   city: z.string().nullish(),
@@ -30,7 +32,7 @@ const optionsPayment = [
   { label: "Pix", value: "Pix" },
   { label: "Cartao_Credito", value: "Cartao_Credito" },
   { label: "Cartao_Debito", value: "Cartao_Debito" },
-]
+];
 
 export function FormConfigInfoComponent({ uuid }: { uuid: string }) {
   const { data, isError, isFetching, isLoading } = useGetMenuOnline({ uuid });
@@ -98,6 +100,24 @@ export function FormConfigInfoComponent({ uuid }: { uuid: string }) {
       >
         <Input {...register("address")} autoComplete="off" />
       </Field>
+      <div className="flex gap-x-2">
+        <Field
+          errorText={errors.address?.message}
+          invalid={!!errors.address}
+          label="Lat"
+          disabled={isFetching || isLoading || isError}
+        >
+          <Input {...register("lat")} autoComplete="off" />
+        </Field>
+        <Field
+          errorText={errors.address?.message}
+          invalid={!!errors.address}
+          label="Lng"
+          disabled={isFetching || isLoading || isError}
+        >
+          <Input {...register("lng")} autoComplete="off" />
+        </Field>
+      </div>
       <Field
         errorText={errors.whatsapp_contact?.message}
         invalid={!!errors.whatsapp_contact}
@@ -130,8 +150,10 @@ export function FormConfigInfoComponent({ uuid }: { uuid: string }) {
               isSearchable={false}
               options={optionsPayment}
               isMulti
-              // @ts-expect-error
-              value={optionsPayment.filter(s => field.value?.includes(s.value))}
+              value={optionsPayment.filter((s) =>
+                // @ts-expect-error
+                field.value?.includes(s.value),
+              )}
               ref={field.ref}
               onChange={(e: any) => {
                 field.onChange(e.map((s: any) => s.value));
@@ -146,14 +168,13 @@ export function FormConfigInfoComponent({ uuid }: { uuid: string }) {
         label="Taxa/Valor de entrega"
         disabled={isFetching || isLoading || isError}
       >
-        <Input {...register("delivery_fee", {
-          setValueAs: (v) =>
-            v === ""
-              ? null
-              : Number(v) <= 0
-                ? 0
-                : Number(v),
-        })} autoComplete="off" />
+        <Input
+          {...register("delivery_fee", {
+            setValueAs: (v) =>
+              v === "" ? null : Number(v) <= 0 ? 0 : Number(v),
+          })}
+          autoComplete="off"
+        />
       </Field>
       <div className="flex gap-x-1.5 ml-auto mt-3">
         <Button
