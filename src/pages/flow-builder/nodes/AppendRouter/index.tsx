@@ -10,6 +10,7 @@ import SelectVariables from "@components/SelectVariables";
 import { FaRoute } from "react-icons/fa";
 import { NumberInput } from "@chakra-ui/react";
 import { MdHourglassEmpty } from "react-icons/md";
+import { IoCloseCircleOutline } from "react-icons/io5";
 
 type DataNode = {
   nOrder: string;
@@ -179,7 +180,7 @@ export const NodeAppendRouter: React.FC<Node<DataNode>> = ({ id, data }) => {
         isConnectable={true}
         className="relative border-neutral-400/60! text-neutral-400 bg-neutral-400/15!"
       >
-        <MdHourglassEmpty
+        <IoCloseCircleOutline
           size={11}
           style={{ left: -14, top: -1, position: "absolute" }}
         />

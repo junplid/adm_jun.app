@@ -81,6 +81,8 @@ import { NodeAppendRouter } from "./nodes/AppendRouter";
 import { NodeGetRouter } from "./nodes/GetRouter";
 import { NodeUpdateRouter } from "./nodes/UpdateRouter";
 import { NodeDeleteRouterOrder } from "./nodes/DeleteRouterOrder";
+import { NodeRouterAcceptance } from "./nodes/RouteAcceptance";
+import { NodeNearestOrder } from "./nodes/NearestOrder";
 
 type NodeTypesGeneric = {
   [x in TypesNodes]: any;
@@ -132,7 +134,9 @@ export type TypesNodes =
   | "NodeAppendRouter"
   | "NodeGetRouter"
   | "NodeUpdateRouter"
-  | "NodeDeleteRouterOrder";
+  | "NodeDeleteRouterOrder"
+  | "NodeRouterAcceptance"
+  | "NodeNearestOrder";
 
 const nodeTypes: NodeTypesGeneric = {
   NodeInitial: NodeInitial,
@@ -181,6 +185,8 @@ const nodeTypes: NodeTypesGeneric = {
   NodeGetRouter: NodeGetRouter,
   NodeUpdateRouter: NodeUpdateRouter,
   NodeDeleteRouterOrder: NodeDeleteRouterOrder,
+  NodeRouterAcceptance: NodeRouterAcceptance,
+  NodeNearestOrder: NodeNearestOrder,
 };
 
 const edgeTypes = {
@@ -334,7 +340,12 @@ function Body(props: IBody): JSX.Element {
           preview: [],
         };
       } else if (typeN === "NodeNotifyWA") {
-        newNode.data = { numbers: [], tagsIds: [], numbersWithTagIds: [] };
+        newNode.data = {
+          numbers: [],
+          tagsIds: [],
+          numbersWithTagIds: [],
+          ignoreTagIds: [],
+        };
       } else if (typeN === "NodeRemoveVariables") {
         newNode.data = { list: [] };
       } else if (typeN === "NodeReply") {

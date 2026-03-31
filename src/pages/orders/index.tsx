@@ -428,12 +428,16 @@ export function SortableItem({
                     "{order.delivery_reference_point}"
                   </span>
                 )}
-                <div className="text-sm flex flex-col -space-y-0.5">
-                  <span className="text-xs text-neutral-400">Complemento</span>
-                  <span className="w-full leading-3.5 text-neutral-600">
-                    Rua ai kadi
-                  </span>
-                </div>
+                {order.delivery_complement && (
+                  <div className="text-sm flex flex-col -space-y-0.5">
+                    <span className="text-xs text-neutral-400">
+                      Complemento
+                    </span>
+                    <span className="w-full leading-3.5 text-neutral-600">
+                      {order.delivery_complement}
+                    </span>
+                  </div>
+                )}
               </div>
 
               <div className="px-2 flex flex-col w-full mt-2 text-xs sm:text-sm">
@@ -559,7 +563,7 @@ export function Container(props: ContainerProps) {
   return (
     <div
       ref={setNodeRef}
-      style={{ width: "203px" }}
+      style={{ width: "100%", minWidth: "208px" }}
       className="grid grid-rows-[40px_1fr] sm:grid-rows-[50px_1fr] select-none sm:w-52 sm:min-w-52 min-w-44 w-44"
     >
       <div className="">
@@ -624,7 +628,7 @@ const columns: {
   color: string;
 }[] = [
   // { label: "A confirmar ...", value: "draft", color: "#f5f5f533" },
-  { label: "Pendentes", value: "pending", color: "#f5f5f533" },
+  // { label: "Pendentes", value: "pending", color: "#f5f5f533" },
   { label: "Confirmados", value: "confirmed", color: "#0EA5E933" },
   { label: "Em preparo", value: "processing", color: "#F9731633" },
   { label: "Embalagem", value: "ready", color: "#22C55E33" },
@@ -852,7 +856,7 @@ export const OrdersPage: React.FC = (): JSX.Element => {
       const { orders: oL } = await getOrders({
         status: [
           // "draft",
-          "pending",
+          // "pending",
           "confirmed",
           "processing",
           "ready",

@@ -15,16 +15,18 @@ import {
 } from "../../../../services/api/Orders";
 import { Field } from "@components/ui/field";
 import SelectComponent from "@components/Select";
+import { IoCloseCircleOutline } from "react-icons/io5";
 
 const optionsStatus: { label: string; value: TypeStatusOrder }[] = [
   { label: "Rascunho", value: "draft" },
   { label: "Pendente", value: "pending" },
   { label: "Em processamento", value: "processing" },
   { label: "Confirmado", value: "confirmed" },
-  { label: "Enviado", value: "shipped" },
+  { label: "A caminho", value: "on_way" },
   { label: "Entregue", value: "delivered" },
   { label: "Cancelado", value: "cancelled" },
   { label: "Devolvido", value: "returned" },
+  { label: "Finalizado", value: "completed" },
 ];
 
 const optionsPriority: { label: string; value: TypePriorityOrder }[] = [
@@ -135,11 +137,11 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
             value={
               data.status
                 ? {
-                  value: data.status,
-                  label:
-                    optionsStatus.find((s) => s.value === data.status)
-                      ?.label || "",
-                }
+                    value: data.status,
+                    label:
+                      optionsStatus.find((s) => s.value === data.status)
+                        ?.label || "",
+                  }
                 : null
             }
             onChange={(vl: any) => {
@@ -163,11 +165,11 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
             value={
               data.priority
                 ? {
-                  value: data.priority,
-                  label:
-                    optionsPriority.find((s) => s.value === data.priority)
-                      ?.label || "",
-                }
+                    value: data.priority,
+                    label:
+                      optionsPriority.find((s) => s.value === data.priority)
+                        ?.label || "",
+                  }
                 : null
             }
             onChange={(vl: any) => {
@@ -387,7 +389,6 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
         <span>Atualiza para pagamento realizado</span>
       )}
 
-
       <Field label={"Selecione os campos"}>
         <SelectComponent
           options={optionsFields}
@@ -455,6 +456,21 @@ export const NodeUpdateOrder: React.FC<Node<DataNode>> = ({ id, data }) => {
         style={{ right: -8 }}
         isConnectable={true}
       />
+
+      <CustomHandle
+        nodeId={id}
+        handleId={`not_found`}
+        position={Position.Right}
+        type="source"
+        style={{ right: -20, bottom: -36, top: "initial" }}
+        isConnectable={true}
+        className="relative border-neutral-400/60! text-neutral-400 bg-neutral-400/15!"
+      >
+        <IoCloseCircleOutline
+          size={11}
+          style={{ left: -14, top: -1, position: "absolute" }}
+        />
+      </CustomHandle>
     </div>
   );
 };

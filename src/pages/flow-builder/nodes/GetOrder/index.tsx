@@ -22,6 +22,7 @@ const optionsFields: { label: string; value: string }[] = [
   { label: "Código da rota", value: "router_code" },
   { label: "Código de entrega", value: "delivery_code" },
   { label: "Código do pedido", value: "nOrder" },
+  { label: "Tipo do código", value: "type_code" },
 ];
 
 type DataNode = {
@@ -38,6 +39,7 @@ type DataNode = {
   varId_save_number_contact?: number; //
   varId_save_delivery_code?: number; //
   varId_save_nOrder?: number; //
+  varId_save_type_code?: number; //
 };
 
 function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
@@ -82,6 +84,32 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
           }
         />
       </Field>
+
+      {data.fields?.includes("type_code") && (
+        <Field
+          label="Salvar tipo do codigo"
+          helperText={'"code_delivery" ou "code_order"'}
+        >
+          <SelectVariables
+            isMulti={false}
+            isClearable={false}
+            isFlow
+            menuPlacement="bottom"
+            filter={(opt) => opt.filter((s) => s.type === "dynamics")}
+            onCreate={(tag) => {
+              updateNode(id, {
+                data: { ...data, varId_save_type_code: tag.id },
+              });
+            }}
+            value={data.varId_save_type_code}
+            onChange={(e: any) => {
+              updateNode(id, {
+                data: { ...data, varId_save_type_code: e.value },
+              });
+            }}
+          />
+        </Field>
+      )}
 
       {data.fields?.includes("name") && (
         <Field label="Salvar NOME">

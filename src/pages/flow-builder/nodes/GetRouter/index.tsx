@@ -15,6 +15,7 @@ const optionsFields: { label: string; value: string }[] = [
   { label: "Status", value: "status" },
   { label: "QNT total de pedidos", value: "count_total_orders" },
   { label: "QNT de pedidos com status:", value: "count_order_status_of" },
+  { label: "Ganho total", value: "gain_total" },
   { label: "Link Rota", value: "link_router" },
   { label: "Link Rota atualizada", value: "link_router_updated" },
   { label: "Data text", value: "data_text" }, // texto tentendo todos os pedidos(status_router_pedido\n#code_pedido\nEndereço\nNome\nPedido\n\n)
@@ -35,6 +36,7 @@ type DataNode = {
   varId_save_data_text?: number; //
   varId_save_number_contact?: number; //
   varId_save_link_join_router?: number;
+  varId_save_gain_total?: number;
 };
 
 function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
@@ -153,6 +155,29 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
             />
           </Field>
         </div>
+      )}
+
+      {data.fields?.includes("gain_total") && (
+        <Field label="Salvar Ganho total">
+          <SelectVariables
+            isMulti={false}
+            isClearable={false}
+            isFlow
+            menuPlacement="bottom"
+            filter={(opt) => opt.filter((s) => s.type === "dynamics")}
+            onCreate={(tag) => {
+              updateNode(id, {
+                data: { ...data, varId_save_gain_total: tag.id },
+              });
+            }}
+            value={data.varId_save_gain_total}
+            onChange={(e: any) => {
+              updateNode(id, {
+                data: { ...data, varId_save_gain_total: e.value },
+              });
+            }}
+          />
+        </Field>
       )}
 
       {data.fields?.includes("link_router") && (

@@ -309,6 +309,32 @@ const nodesList: {
     premium: true,
   },
   {
+    icon: (
+      <div className="relative">
+        <PiEarBold className="translate-x-1 text-white" size={26.8} />
+        <FaRoute className="absolute top-4 left-px text-red-300" size={13} />
+      </div>
+    ),
+    name: "Escutar rota",
+    description: "Escuta rotas aceitas.",
+    type: "NodeRouterAcceptance",
+    new: false,
+    premium: true,
+  },
+  {
+    icon: (
+      <div className="relative">
+        <PiEarBold className="translate-x-1 text-white" size={26.8} />
+        <FaRoute className="absolute top-4 left-px text-red-300" size={13} />
+      </div>
+    ),
+    name: "Pedido mais proximo",
+    description: "Busca o pedido mais proximo.",
+    type: "NodeNearestOrder",
+    new: false,
+    premium: false,
+  },
+  {
     icon: <PiBracketsCurlyBold className="text-red-300 w-8" size={29} />,
     name: "Remover variáveis",
     description: "Remova várias variáveis",

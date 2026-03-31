@@ -3,8 +3,6 @@ import { Handle, Node, Position } from "@xyflow/react";
 import { PatternNode } from "../Pattern";
 import useStore from "../../flowStore";
 import AutocompleteTextField from "@components/Autocomplete";
-import { Input, InputGroup } from "@chakra-ui/react";
-import { withMask } from "use-mask-input";
 import { MdOutlineNotificationsActive } from "react-icons/md";
 import { GrClose } from "react-icons/gr";
 import { nanoid } from "nanoid";
@@ -18,6 +16,7 @@ type DataNode = {
   text: string;
   tagIds: number[];
   numbersWithTagIds: number[];
+  ignoreTagIds: number[];
 };
 
 function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
@@ -84,20 +83,22 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
           ))}
         </div>
       )}
-      <InputGroup startElement="+55">
-        <Input
-          ref={withMask(["(99) 9999-9999", "(99) 99999-9999"])}
-          autoComplete="nope"
-          type="text"
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              handleAddition(e.currentTarget.value);
-              e.currentTarget.value = "";
-            }
-          }}
-        />
-      </InputGroup>
+
+      <AutocompleteTextField
+        // @ts-expect-error
+        trigger={["{{"]}
+        options={{ "{{": variables?.map((s) => s.name) || [] }}
+        spacer={"}}"}
+        type="text"
+        placeholder="99999999999 ou {{whatsapp}}"
+        onKeyDown={(e: any) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            handleAddition(e.currentTarget.value);
+            e.currentTarget.value = "";
+          }
+        }}
+      />
       <span className="text-xs text-white/50">
         <strong>!</strong> Números inválidos ou sem WhatsApp serão descartados
         automaticamente.
@@ -158,6 +159,28 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
             data.numbersWithTagIds.push(tag.id);
             updateNode(id, {
               data: { ...data, numbersWithTagIds: data.numbersWithTagIds },
+            });
+          }}
+        />
+      </Field>
+
+      <Field label="Ignorar contatos que tem as etiquetas" className="mt-2">
+        <SelectTags
+          isMulti={true}
+          isClearable
+          menuPlacement="bottom"
+          isFlow
+          value={data.ignoreTagIds || []}
+          onChange={(e: any) => {
+            data.ignoreTagIds = e.map((item: any) => item.value);
+            updateNode(id, {
+              data: { ...data, ignoreTagIds: data.ignoreTagIds },
+            });
+          }}
+          onCreate={(tag) => {
+            data.ignoreTagIds.push(tag.id);
+            updateNode(id, {
+              data: { ...data, ignoreTagIds: data.ignoreTagIds },
             });
           }}
         />

@@ -6,11 +6,13 @@ import AutocompleteTextField from "@components/Autocomplete";
 import { CustomHandle } from "../../customs/node";
 import { useGetVariablesOptions } from "../../../../hooks/variable";
 import { Field } from "@components/ui/field";
+import SelectVariables from "@components/SelectVariables";
+import { TiFlash } from "react-icons/ti";
 import { FaRoute } from "react-icons/fa";
-import { IoCloseCircleOutline } from "react-icons/io5";
 
 type DataNode = {
-  nOrder: string;
+  geo_string: string; // -99,99999|99,99999
+  varId_save_code_order?: number;
 };
 
 function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
@@ -39,30 +41,49 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
 
   return (
     <div className="flex flex-col gap-y-3 -mt-3">
-      <Field label="Código do pedido">
+      <Field label="Geolocalização">
         <AutocompleteTextField
           // @ts-expect-error
           trigger={["{{"]}
           options={{ "{{": variables?.map((s) => s.name) || [] }}
           spacer={"}}"}
-          placeholder="Digite o código do pedido"
-          defaultValue={data.nOrder || ""}
-          onChange={(value: string) => setDataMok({ ...data, nOrder: value })}
+          defaultValue={data.geo_string || ""}
+          onChange={(value: string) =>
+            setDataMok({ ...data, geo_string: value })
+          }
+        />
+      </Field>
+
+      <Field label="Salvar codigo do pedido">
+        <SelectVariables
+          isMulti={false}
+          isClearable={false}
+          isFlow
+          menuPlacement="bottom"
+          filter={(opt) => opt.filter((s) => s.type === "dynamics")}
+          onCreate={(tag) => {
+            updateNode(id, {
+              data: { ...data, varId_save_code_order: tag.id },
+            });
+          }}
+          value={data.varId_save_code_order}
+          onChange={(e: any) => {
+            updateNode(id, {
+              data: { ...data, varId_save_code_order: e.value },
+            });
+          }}
         />
       </Field>
     </div>
   );
 }
 
-export const NodeDeleteRouterOrder: React.FC<Node<DataNode>> = ({
-  id,
-  data,
-}) => {
+export const NodeNearestOrder: React.FC<Node<DataNode>> = ({ id, data }) => {
   return (
     <div>
       <PatternNode.PatternPopover
-        title="Node remover pedido da rota"
-        description="Remove pedido da rota"
+        title="Node de buscar pedido mais proximo"
+        description="Busca um pedido mais proximo"
         positioning={{ flip: ["left", "right"], placement: "left" }}
         size="330px"
         node={{
@@ -71,11 +92,11 @@ export const NodeDeleteRouterOrder: React.FC<Node<DataNode>> = ({
               <div className="flex justify-end absolute -top-1 -right-1 opacity-10 group-hover:opacity-100 duration-200">
                 <PatternNode.Actions id={id} />
               </div>
-              <FaRoute className="text-red-400" size={23} />
+              <FaRoute className="text-gray-400" size={23} />
             </div>
           ),
-          name: "Pedido",
-          description: "Remover",
+          name: "Proximo",
+          description: "Pedido",
         }}
       >
         <BodyNode data={data} id={id} />
@@ -87,24 +108,21 @@ export const NodeDeleteRouterOrder: React.FC<Node<DataNode>> = ({
         handleId="main"
         position={Position.Right}
         type="source"
-        style={{ right: -8 }}
+        style={{ right: -9, top: 11 }}
         isConnectable={true}
       />
-
+      <span className="absolute -right-3.75 top-6 text-yellow-400">
+        <TiFlash size={13} />
+      </span>
       <CustomHandle
         nodeId={id}
-        handleId={`not_found`}
+        handleId={`#b99909 not_found`}
         position={Position.Right}
         type="source"
-        style={{ right: -20, bottom: -36, top: "initial" }}
+        style={{ right: -20, top: 30 }}
         isConnectable={true}
-        className="relative border-neutral-400/60! text-neutral-400 bg-neutral-400/15!"
-      >
-        <IoCloseCircleOutline
-          size={11}
-          style={{ left: -14, top: -1, position: "absolute" }}
-        />
-      </CustomHandle>
+        className="border-yellow-400/60! bg-yellow-400/15!"
+      />
     </div>
   );
 };
