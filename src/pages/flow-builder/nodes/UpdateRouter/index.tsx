@@ -23,11 +23,13 @@ const optionsFields: { label: string; value: string }[] = [
   { label: "Status", value: "status" },
   { label: "QNT máxima de locais", value: "qnt_max" },
   { label: "Atribuir ao contato", value: "assign_to_contact" },
+  { label: "Adicionar pedido a rota", value: "add_order" },
 ];
 
 type DataNode = {
   nRouter: string;
   max?: string;
+  nOrder?: string;
   status?: "open" | "awaiting_assignment" | "in_progress" | "finished";
   fields?: string[];
 };
@@ -108,6 +110,20 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
               }
               updateNode(id, { data: { ...data, status: vl.value } });
             }}
+          />
+        </Field>
+      )}
+
+      {data.fields?.includes("add_order") && (
+        <Field label="Adicionar pedido a rota">
+          <AutocompleteTextField
+            // @ts-expect-error
+            trigger={["{{"]}
+            options={{ "{{": variables?.map((s) => s.name) || [] }}
+            spacer={"}}"}
+            placeholder="Digite o status do pedido"
+            defaultValue={data.nOrder || ""}
+            onChange={(value: string) => setDataMok({ ...data, nOrder: value })}
           />
         </Field>
       )}
