@@ -258,6 +258,21 @@ export async function updateMenuOnlineInfo(
   await api.put(`/private/menus-online/${uuid}/info`, body);
 }
 
+export async function pairMenuOnlineCodeDevice(
+  uuid: string,
+  body: {
+    code: string;
+  },
+): Promise<void> {
+  await api.post(`/private/menus-online/${uuid}/pair-code-device`, undefined, {
+    params: body,
+  });
+}
+
+export async function unpairMenuOnlineCodeDevice(uuid: string): Promise<void> {
+  await api.post(`/private/menus-online/${uuid}/unpair-code-device`);
+}
+
 export async function updateMenuOnlineOperatingDays(
   uuid: string,
   body: {
@@ -299,6 +314,7 @@ export async function getMenuOnline(params: { uuid: string }): Promise<{
   statusMenu: boolean;
   statusNow: boolean;
   helperTextOpening: string;
+  status_device: boolean;
   operatingDays: {
     dayOfWeek: number;
     startHourAt: string;

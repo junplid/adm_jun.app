@@ -1,5 +1,13 @@
 import { useDialogModal } from "../../../../../hooks/dialog.modal";
-import { JSX, memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  JSX,
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { Field } from "@components/ui/field";
 import { Button, Input } from "@chakra-ui/react";
 import { Controller, useForm } from "react-hook-form";
@@ -20,6 +28,7 @@ import SelectConnectionsWA from "@components/SelectConnectionsWA";
 import { FormConfigInfoComponent } from "./info";
 import { FormConfigOperatingDaysComponent } from "./operating-days";
 import { ImageCropModal } from "../items/modals/ImageCropModal";
+import { SectionPairCodeAgentMenuOnlineConfig } from "./pair-code-app";
 
 const FormSchemaConfig = z.object({
   identifier: z
@@ -102,7 +111,7 @@ function FormConfigComponent({ uuid }: { uuid: string }) {
         <ImageCropModal
           file={cropFile}
           onFinish={(file: any) => {
-            setValue(`img`, file, { shouldDirty: true })
+            setValue(`img`, file, { shouldDirty: true });
             setCropFile(null);
           }}
         />
@@ -138,7 +147,6 @@ function FormConfigComponent({ uuid }: { uuid: string }) {
 
               setCropFile(file);
             }}
-
           />
           <Avatar
             bg={imgPreviewUrl ? bg_primary || "#fff" : "#ffffff2c"}
@@ -164,9 +172,6 @@ function FormConfigComponent({ uuid }: { uuid: string }) {
         </Field>
       </div>
 
-
-
-
       <Field
         errorText={errors.desc?.message}
         invalid={!!errors.desc}
@@ -190,7 +195,7 @@ function FormConfigComponent({ uuid }: { uuid: string }) {
           label="Cor da capa"
           disabled={isFetching || isLoading || isError}
         >
-          <Input  {...register("bg_capa")} autoComplete="off" />
+          <Input {...register("bg_capa")} autoComplete="off" />
         </Field>
         <Field
           errorText={errors.bg_primary?.message}
@@ -228,7 +233,7 @@ function FormConfigComponent({ uuid }: { uuid: string }) {
             invalid={!!errors.connectionWAId}
             label="Conexão WhatsApp"
             helperText={
-              'Ao finalizar o pedido, o usuário será redirecionado para o número de WhatsApp configurado nesta conexão ou para o WhatsApp definido em “Informações da Loja > Contato WhatsApp”, com a mensagem automática: “Confirmando meu pedido #99999”. Você poderá capturar o código do pedido presente na mensagem para utilizá-lo em sua automação.'
+              "Ao finalizar o pedido, o usuário será redirecionado para o número de WhatsApp configurado nesta conexão ou para o WhatsApp definido em “Informações da Loja > Contato WhatsApp”, com a mensagem automática: “Confirmando meu pedido #99999”. Você poderá capturar o código do pedido presente na mensagem para utilizá-lo em sua automação."
             }
           >
             <SelectConnectionsWA
@@ -287,10 +292,13 @@ const TabConfig_ = ({ uuid }: { uuid: string }): JSX.Element => {
         <FormConfigOperatingDaysComponent uuid={uuid} />
       </section>
 
-
-
       <hr className="text-neutral-600 my-10" />
       <SectionCategoriesMenuOnlineConfig bg_primary="" />
+
+      <hr className="text-neutral-600 my-10" />
+      <SectionPairCodeAgentMenuOnlineConfig
+        status_device={!!data?.status_device}
+      />
       <hr className="text-neutral-600 my-10" />
 
       <div className="flex flex-col items-baseline mb-1.5">
