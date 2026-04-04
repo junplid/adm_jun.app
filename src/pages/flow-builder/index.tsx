@@ -83,6 +83,7 @@ import { NodeUpdateRouter } from "./nodes/UpdateRouter";
 import { NodeDeleteRouterOrder } from "./nodes/DeleteRouterOrder";
 import { NodeRouterAcceptance } from "./nodes/RouteAcceptance";
 import { NodeNearestOrder } from "./nodes/NearestOrder";
+import { NodeGetMenuOnline } from "./nodes/GetMenuOnline";
 
 type NodeTypesGeneric = {
   [x in TypesNodes]: any;
@@ -136,7 +137,8 @@ export type TypesNodes =
   | "NodeUpdateRouter"
   | "NodeDeleteRouterOrder"
   | "NodeRouterAcceptance"
-  | "NodeNearestOrder";
+  | "NodeNearestOrder"
+  | "NodeGetMenuOnline";
 
 const nodeTypes: NodeTypesGeneric = {
   NodeInitial: NodeInitial,
@@ -187,6 +189,7 @@ const nodeTypes: NodeTypesGeneric = {
   NodeDeleteRouterOrder: NodeDeleteRouterOrder,
   NodeRouterAcceptance: NodeRouterAcceptance,
   NodeNearestOrder: NodeNearestOrder,
+  NodeGetMenuOnline: NodeGetMenuOnline,
 };
 
 const edgeTypes = {

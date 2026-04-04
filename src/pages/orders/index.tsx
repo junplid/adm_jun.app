@@ -61,7 +61,8 @@ import { ModalChatPlayer } from "../inboxes/departments/modals/Player/modalChat"
 import { useRoomWebSocket } from "../../hooks/roomWebSocket";
 import { BsFillLockFill } from "react-icons/bs";
 import { RxEyeClosed, RxEyeOpen } from "react-icons/rx";
-import { TbMapShare } from "react-icons/tb";
+import { TbMapShare, TbPlayerTrackNext } from "react-icons/tb";
+import opacity from "hex-color-opacity";
 
 export type ItemID = string;
 
@@ -203,6 +204,8 @@ export function SortableItem({
   order,
   onCloseDialog,
   onOpenDialog,
+  isNext,
+  onNext,
 }: {
   order: Order;
   isOverlay?: boolean;
@@ -211,6 +214,8 @@ export function SortableItem({
     size?: "sm" | "md" | "lg" | "xl";
   }) => void;
   onCloseDialog: () => void;
+  onNext?(id: number): void;
+  isNext?: boolean;
 }) {
   const {
     attributes,
@@ -539,6 +544,19 @@ export function SortableItem({
               </div>
             </div>
           )}
+
+          {isNext && (
+            <div className="flex flex-col items-center mt-1 w-full">
+              <div className="w-full gap-x-1 px-1 flex justify-end">
+                <button
+                  className="font-medium py-1 px-1 text-sm flex items-center gap-x-1 justify-center bg-green-500 text-white cursor-pointer rounded-sm shadow"
+                  onClick={() => onNext?.(order.id)}
+                >
+                  <span>Avançar</span> <TbPlayerTrackNext size={20} />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -555,6 +573,8 @@ interface ContainerProps {
     size?: "sm" | "md" | "lg" | "xl";
   }) => void;
   onCloseDialog(): void;
+  onNext?(id: number): void;
+  isNext?: boolean;
 }
 
 export function Container(props: ContainerProps) {
@@ -563,15 +583,19 @@ export function Container(props: ContainerProps) {
   return (
     <div
       ref={setNodeRef}
-      style={{ width: "100%", minWidth: "208px" }}
-      className="grid grid-rows-[40px_1fr] sm:grid-rows-[50px_1fr] select-none sm:w-52 sm:min-w-52 min-w-44 w-44"
+      style={{
+        width: "100%",
+        minWidth: "220px",
+        background: opacity(props.column.color, 0.06),
+      }}
+      className="grid grid-rows-[40px_1fr] sm:grid-rows-[50px_1fr] px-1.5 pt-1.5 select-none sm:w-52 sm:min-w-52 min-w-44 w-44"
     >
       <div className="">
         <div
           style={{
             background: props.column.color,
           }}
-          className="gap-1.5 p-2 sticky top-0 z-50 sm:p-3 rounded-sm flex items-center sm:rounded-md justify-between"
+          className="gap-1 p-2 sticky top-0 z-50 sm:p-3 rounded-sm flex items-center sm:rounded-md justify-between"
         >
           <span
             className="text-base"
@@ -579,7 +603,7 @@ export function Container(props: ContainerProps) {
           >
             {props.column.name}
           </span>
-          <Circle p={"1px"} px={"13px"} fontSize={"13px"} bg={"#6d6d6d2c"}>
+          <Circle p={"1px"} px={"7px"} fontSize={"13px"} bg={"#6d6d6d2c"}>
             {props.rows?.length || 0}
           </Circle>
         </div>
@@ -597,6 +621,8 @@ export function Container(props: ContainerProps) {
               onCloseDialog={props.onCloseDialog}
               onOpenDialog={props.onOpenDialog}
               key={row.id}
+              isNext={props.isNext}
+              onNext={props.onNext}
             />
           ))}
         </SortableContext>
@@ -629,11 +655,11 @@ const columns: {
 }[] = [
   // { label: "A confirmar ...", value: "draft", color: "#f5f5f533" },
   // { label: "Pendentes", value: "pending", color: "#f5f5f533" },
-  { label: "Confirmados", value: "confirmed", color: "#0EA5E933" },
-  { label: "Em preparo", value: "processing", color: "#F9731633" },
-  { label: "Embalagem", value: "ready", color: "#22C55E33" },
+  { label: "Em espera", value: "confirmed", color: "#0EA5E933" },
+  { label: "PREPARANDO", value: "processing", color: "#F9731633" },
+  { label: "Prontos pra entrega", value: "ready", color: "#22C55E33" },
   { label: "A caminho", value: "on_way", color: "#3B82F633" },
-  { label: "Finalizados", value: "completed", color: "#14B8A633" },
+  { label: "Concluídos", value: "completed", color: "#14B8A633" },
 ];
 
 export const OrdersPage: React.FC = (): JSX.Element => {
@@ -841,6 +867,49 @@ export const OrdersPage: React.FC = (): JSX.Element => {
       }
     }
     setActiveOrder(null);
+  };
+
+  const handleNext = (
+    columnStart: string,
+    columnEnd: string,
+    itemId: number,
+  ) => {
+    setOrders((prev) => {
+      const activeItems = prev[columnStart];
+      const activeIndex = activeItems.findIndex((s) => s.id === itemId);
+      const overItems = prev[columnEnd];
+      let overIndex = overItems.length;
+
+      const itemRemoved = activeItems.splice(activeIndex, 1);
+      overItems.splice(overIndex, 0, itemRemoved[0]);
+
+      const prevRank = overItems[overIndex - 1]
+        ? { sequence: overItems[overIndex - 1].sequence }
+        : undefined;
+      const nextRank = overItems[overIndex + 1]
+        ? { sequence: overItems[overIndex + 1].sequence }
+        : undefined;
+
+      const newRank = calcRank(prevRank, nextRank);
+      const nextOrdersDest = overItems.map((c) => {
+        if (c.id === itemId) c.sequence = newRank;
+        return c;
+      });
+
+      socket.emit("order:update_status", {
+        rank: newRank,
+        orderId: itemId,
+        nextIndex: overIndex,
+        sourceStatus: columnStart,
+        nextStatus: columnEnd,
+      });
+
+      return {
+        ...prev,
+        [columnStart]: activeItems.filter((item) => item.id !== itemId),
+        [columnEnd]: nextOrdersDest,
+      };
+    });
   };
 
   const dropAnimation: DropAnimation = {
@@ -1070,7 +1139,6 @@ export const OrdersPage: React.FC = (): JSX.Element => {
         sourceStatus: TypeStatusOrder;
         nextStatus: TypeStatusOrder;
       }) => {
-        console.log(props);
         setOrders((state) => {
           const copyState = structuredClone(state);
           const ordersStart = copyState[props.sourceStatus];
@@ -1126,7 +1194,7 @@ export const OrdersPage: React.FC = (): JSX.Element => {
             <Spinner />
           </div>
         ) : (
-          <div className="md:h-[calc(100svh-110px)] sm:h-[calc(100svh-165px)] h-[calc(100svh-130px)] flex gap-x-2 overflow-x-auto touch-pan-x">
+          <div className="md:h-[calc(100svh-110px)] sm:h-[calc(100svh-165px)] h-[calc(100svh-130px)] flex overflow-x-auto touch-pan-x">
             <DndContext
               sensors={sensors}
               // collisionDetection={closestCorners}
@@ -1135,7 +1203,7 @@ export const OrdersPage: React.FC = (): JSX.Element => {
               onDragOver={handleDragOver}
               onDragEnd={handleDragEnd}
             >
-              {columns?.map((column) => {
+              {columns?.map((column, index) => {
                 return (
                   <Container
                     isHighlighted={false}
@@ -1149,6 +1217,12 @@ export const OrdersPage: React.FC = (): JSX.Element => {
                       color: column.color,
                     }}
                     rows={orders[column.value]}
+                    isNext={!(columns.length - 1 === index)}
+                    onNext={(id) =>
+                      columns[index + 1]?.value
+                        ? handleNext(column.value, columns[index + 1].value, id)
+                        : undefined
+                    }
                   />
                 );
               })}

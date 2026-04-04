@@ -39,7 +39,7 @@ import { RiMoneyDollarCircleLine, RiTrelloLine } from "react-icons/ri";
 import { HiOutlineUserGroup } from "react-icons/hi";
 import useStore from "../flowStore";
 import { HiOutlineQueueList } from "react-icons/hi2";
-import { CgCalculator } from "react-icons/cg";
+import { CgCalculator, CgWebsite } from "react-icons/cg";
 
 export function SearchNodesComponents(): JSX.Element {
   const [open, setOpen] = useState(false);
@@ -392,6 +392,14 @@ const nodesList: {
     name: "Append rota",
     description: "Cria ou acrescenta pedido a uma rota",
     type: "NodeAppendRouter",
+    new: false,
+    premium: true,
+  },
+  {
+    icon: <CgWebsite className="text-gray-400 w-8" size={31} />,
+    name: "Buscar cardápio",
+    description: "Buscar cardápio digital",
+    type: "NodeGetMenuOnline",
     new: false,
     premium: true,
   },
