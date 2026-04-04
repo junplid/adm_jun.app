@@ -4,8 +4,16 @@ import {
   TableMobileComponent,
 } from "@components/Table";
 import { useDialogModal } from "../../../../../hooks/dialog.modal";
-import { JSX, memo, useContext, useEffect, useMemo, useState } from "react";
-import { Button } from "@chakra-ui/react";
+import {
+  JSX,
+  memo,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import { Button, Spinner, Switch } from "@chakra-ui/react";
 import { ModalEditProduct } from "./modals/edit";
 import { MdDeleteOutline, MdEdit } from "react-icons/md";
 import { ModalDeleteItem } from "./modals/delete";
@@ -14,7 +22,10 @@ import { AxiosError } from "axios";
 import { AuthContext } from "@contexts/auth.context";
 import { ErrorResponse_I } from "../../../../../services/api/ErrorResponse";
 import { toaster } from "@components/ui/toaster";
-import { getMenuOnlineItems } from "../../../../../services/api/MenuOnline";
+import {
+  getMenuOnlineItems,
+  updateMenuOnlineItem,
+} from "../../../../../services/api/MenuOnline";
 import { api } from "../../../../../services/api";
 import { formatToBRL } from "brazilian-values";
 import clsx from "clsx";
@@ -57,6 +68,7 @@ const TabProducts_ = ({ uuid }: { uuid: string }): JSX.Element => {
   });
   const [items, setItems] = useState<ItemRow[]>([]);
   const [load, setLoad] = useState(true);
+  const [loadItems, setLoadItems] = useState<string[]>([]);
 
   useEffect(() => {
     (async () => {
@@ -254,6 +266,41 @@ const TabProducts_ = ({ uuid }: { uuid: string }): JSX.Element => {
     return columns;
   }, []);
 
+  const edit = useCallback(
+    async (itemUuid: string, status: boolean): Promise<void> => {
+      try {
+        setLoadItems((s) => [...s, itemUuid]);
+        const { stateWarn, view } = await updateMenuOnlineItem(uuid, itemUuid, {
+          qnt: Number(status),
+        });
+        setItems((state) =>
+          state.map((s) => {
+            if (s.uuid === itemUuid)
+              s = { ...s, view, qnt: Number(status), stateWarn };
+            return s;
+          }),
+        );
+        setLoadItems((s) => s.filter((d) => d !== itemUuid));
+      } catch (error) {
+        setLoadItems((s) => s.filter((d) => d !== itemUuid));
+        if (error instanceof AxiosError) {
+          if (error.response?.status === 401) logout();
+          if (error.response?.status === 400) {
+            const dataError = error.response?.data as ErrorResponse_I;
+            if (dataError.toast.length) dataError.toast.forEach(toaster.create);
+            if (dataError.input.length) {
+              dataError.input.forEach(({ text, path }) =>
+                // @ts-expect-error
+                setError?.(path, { message: text }),
+              );
+            }
+          }
+        }
+      }
+    },
+    [uuid],
+  );
+
   return (
     <div className="flex-1 pt-0! grid grid-cols-[1fr] gap-x-2 h-full">
       <div className="absolute top-2.5 right-5 z-40 flex gap-x-2">
@@ -293,19 +340,47 @@ const TabProducts_ = ({ uuid }: { uuid: string }): JSX.Element => {
             renderItem={(index) => {
               const row = items![index];
               return (
-                <div className="flex flex-col my-2 bg-amber-50/5 p-3! py-2! rounded-md">
+                <div
+                  onClick={() => {
+                    onOpen({
+                      content: (
+                        <ModalEditProduct
+                          close={close}
+                          menuUuid={uuid}
+                          uuid={row.uuid}
+                          onUpdate={({ id, uuid: uuidUp, ...item }) => {
+                            setItems((state) =>
+                              state.map((s) => {
+                                if (s.id === id) s = { ...s, ...item };
+                                return s;
+                              }),
+                            );
+                          }}
+                        />
+                      ),
+                    });
+                  }}
+                  className="flex flex-col my-2 bg-amber-50/5 p-3! py-2! rounded-md"
+                >
                   <div
                     style={{
                       opacity: row.view ? 1 : 0.4,
                     }}
                     className="flex w-full gap-x-1 items-start"
                   >
-                    <img
-                      src={api.getUri() + "/public/images/" + row.img}
-                      className="rounded-sm"
-                      width={"40px"}
-                      height={"40px"}
-                    />
+                    <div className="relative">
+                      <img
+                        src={api.getUri() + "/public/images/" + row.img}
+                        className="rounded-sm"
+                        width={"40px"}
+                        height={"40px"}
+                      />
+                      {loadItems.includes(row.uuid) && (
+                        <div className="bg-neutral-700/45 backdrop-blur-sm rounded-sm flex items-center justify-center absolute left-0 top-0 w-full h-full">
+                          <Spinner />
+                        </div>
+                      )}
+                    </div>
                     <div className="flex flex-col items-start gap-x-1">
                       <span className="text-sm line-clamp-2 font-semibold">
                         {row.name}
@@ -355,40 +430,29 @@ const TabProducts_ = ({ uuid }: { uuid: string }): JSX.Element => {
                         </div>
                       ))}
                     </div>
-                    <div className="flex gap-x-1">
-                      <Button
-                        size={"xs"}
-                        bg={"#30c9e414"}
-                        _hover={{ bg: "#30c9e422" }}
-                        _icon={{ width: "16px", height: "16px" }}
-                        onClick={() => {
-                          onOpen({
-                            content: (
-                              <ModalEditProduct
-                                close={close}
-                                menuUuid={uuid}
-                                uuid={row.uuid}
-                                onUpdate={({ id, uuid: uuidUp, ...item }) => {
-                                  setItems((state) =>
-                                    state.map((s) => {
-                                      if (s.id === id) s = { ...s, ...item };
-                                      return s;
-                                    }),
-                                  );
-                                }}
-                              />
-                            ),
-                          });
+                    <div className="flex gap-x-2 items-center">
+                      <Switch.Root
+                        checked={!!row.qnt}
+                        onCheckedChange={(e) => edit(row.uuid, e.checked)}
+                        className="flex flex-col space-y-2.5"
+                        onClick={(e) => {
+                          e.stopPropagation();
                         }}
                       >
-                        <MdEdit color={"#9ec9fa"} />
-                      </Button>
+                        <Switch.HiddenInput />
+                        <Switch.Control
+                          className={clsx(
+                            !!row.qnt ? "bg-blue-300!" : "bg-red-400!",
+                          )}
+                        />
+                      </Switch.Root>
                       <Button
                         size={"xs"}
                         bg={"#cf5c5c24"}
                         _hover={{ bg: "#eb606028" }}
                         _icon={{ width: "16px", height: "16px" }}
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.stopPropagation();
                           onOpen({
                             content: (
                               <ModalDeleteItem

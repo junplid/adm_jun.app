@@ -125,6 +125,7 @@ export const TableMobileComponent = (props: PropsMobile): JSX.Element => {
         style={{ height: "100%", width: "100%" }}
         totalCount={props.totalCount}
         itemContent={props.renderItem}
+        increaseViewportBy={{ top: 600, bottom: 800 }}
       />
       {!props.totalCount && props.textEmpity && !props.load && (
         <div className="cursor-default  w-full absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 px-1 py-2 text-sm text-white/30">

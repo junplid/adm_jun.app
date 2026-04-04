@@ -336,7 +336,9 @@ export function SortableItem({
                   <TbMapShare size={20} />
                 </a>
               )}
-              <span className="text-black/55 text-sm">#{order.n_order}</span>
+              <span className="text-black/55 text-sm font-semibold">
+                #{order.n_order}
+              </span>
             </div>
 
             <span className="text-black/35 text-xs sm:text-sm">
@@ -497,7 +499,9 @@ export function SortableItem({
               className="flex text-sm bg-neutral-50 px-2 justify-between font-medium pt-1"
             >
               <span>Total a pagar</span>
-              <span className="text-green-700">{formatToBRL(order.total)}</span>
+              <span className="text-green-700 font-extrabold!">
+                {formatToBRL(order.total)}
+              </span>
             </div>
           )}
 

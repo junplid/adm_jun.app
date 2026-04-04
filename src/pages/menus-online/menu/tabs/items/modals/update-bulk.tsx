@@ -1,14 +1,5 @@
-import {
-  JSX,
-  useCallback,
-  useContext,
-  useState,
-} from "react";
-import {
-  Button,
-  RadioCard,
-  VStack,
-} from "@chakra-ui/react";
+import { JSX, useCallback, useContext, useState } from "react";
+import { Button, RadioCard, VStack } from "@chakra-ui/react";
 import { CloseButton } from "@components/ui/close-button";
 import {
   DialogContent,
@@ -23,15 +14,10 @@ import {
 } from "@components/ui/dialog";
 import { Field } from "@components/ui/field";
 import { AxiosError } from "axios";
-import {
-  Controller,
-  useForm,
-} from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import {
-  updateMenuOnlineSubItemsStatus,
-} from "../../../../../../services/api/MenuOnline";
+import { updateMenuOnlineSubItemsStatus } from "../../../../../../services/api/MenuOnline";
 import { AuthContext } from "@contexts/auth.context";
 import { ErrorResponse_I } from "../../../../../../services/api/ErrorResponse";
 import { toaster } from "@components/ui/toaster";
@@ -44,12 +30,10 @@ interface IProps {
   menuUuid: string;
 }
 
-const FormSchema = z
-  .object({
-    subItemsUuid: z.array(z.string()).min(1, { message: "Campo obrigatório." }),
-    action: z.enum(["false", "true"])
-  })
-
+const FormSchema = z.object({
+  subItemsUuid: z.array(z.string()).min(1, { message: "Campo obrigatório." }),
+  action: z.enum(["false", "true"], { message: "Campo obrigatório." }),
+});
 
 type Fields = z.infer<typeof FormSchema>;
 
@@ -68,7 +52,7 @@ export function ModalUpdateBulk({
     shouldFocusError: true,
     resolver: zodResolver(FormSchema),
     mode: "onSubmit",
-    defaultValues: { action: "true" }
+    defaultValues: { action: "true" },
   });
 
   const [open, setOpen] = useState(false);
@@ -107,7 +91,12 @@ export function ModalUpdateBulk({
   return (
     <DialogRoot
       open={open}
-      onOpenChange={(e) => setOpen(e.open)}
+      onOpenChange={(e) => {
+        setOpen(e.open);
+        setTimeout(() => {
+          reset({});
+        }, 300);
+      }}
       motionPreset="slide-in-bottom"
       lazyMount
       scrollBehavior={"outside"}
@@ -157,35 +146,41 @@ export function ModalUpdateBulk({
                 )}
               />
             </Field>
-            <Controller control={control} name="action" render={({ field }) => (
-              <RadioCard.Root
-                className="w-full"
-                variant={"subtle"}
-                size={"sm"}
-                defaultValue={"true"}
-                value={field.value} onValueChange={(e) => field.onChange(e.value)}>
-                <div className="w-full flex gap-x-2">
-                  <RadioCard.Item value={"true"}>
-                    <RadioCard.ItemHiddenInput />
-                    <RadioCard.ItemControl>
-                      <RadioCard.ItemText>Ativar todas</RadioCard.ItemText>
-                      <RadioCard.ItemIndicator />
-                    </RadioCard.ItemControl>
-                  </RadioCard.Item>
-                  <RadioCard.Item value={"false"}>
-                    <RadioCard.ItemHiddenInput />
-                    <RadioCard.ItemControl>
-                      <RadioCard.ItemText>Desativar todas</RadioCard.ItemText>
-                      <RadioCard.ItemIndicator />
-                    </RadioCard.ItemControl>
-                  </RadioCard.Item>
-                </div>
-              </RadioCard.Root>
-            )} />
+            <Controller
+              control={control}
+              name="action"
+              render={({ field }) => (
+                <RadioCard.Root
+                  className="w-full"
+                  variant={"subtle"}
+                  size={"sm"}
+                  value={field.value}
+                  onValueChange={(e) => field.onChange(e.value)}
+                >
+                  <div className="w-full flex gap-x-2">
+                    <RadioCard.Item value={"true"}>
+                      <RadioCard.ItemHiddenInput />
+                      <RadioCard.ItemControl>
+                        <RadioCard.ItemText>Ativar</RadioCard.ItemText>
+                        <RadioCard.ItemIndicator />
+                      </RadioCard.ItemControl>
+                    </RadioCard.Item>
+                    <RadioCard.Item value={"false"}>
+                      <RadioCard.ItemHiddenInput />
+                      <RadioCard.ItemControl>
+                        <RadioCard.ItemText>Desativar</RadioCard.ItemText>
+                        <RadioCard.ItemIndicator />
+                      </RadioCard.ItemControl>
+                    </RadioCard.Item>
+                  </div>
+                </RadioCard.Root>
+              )}
+            />
+            {errors?.action?.message && (
+              <span className="text-red-400">{errors?.action?.message}</span>
+            )}
             {errors?.root?.message && (
-              <span className="text-red-400">
-                {errors?.root?.message}
-              </span>
+              <span className="text-red-400">{errors?.root?.message}</span>
             )}
           </VStack>
         </DialogBody>
