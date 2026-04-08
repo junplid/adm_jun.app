@@ -8,7 +8,12 @@ import {
   PopoverTrigger,
 } from "@components/ui/popover";
 import { JSX, ReactNode, useMemo, useRef, useState } from "react";
-import { BsChatLeftDots, BsRegex, BsStars } from "react-icons/bs";
+import {
+  BsChatLeftDots,
+  BsPrinterFill,
+  BsRegex,
+  BsStars,
+} from "react-icons/bs";
 import { IoSearchSharp } from "react-icons/io5";
 import {
   PiBracketsCurlyBold,
@@ -408,6 +413,14 @@ const nodesList: {
     name: "Buscar pedido",
     description: "Buscar pedido/ordem",
     type: "NodeGetOrder",
+    new: false,
+    premium: true,
+  },
+  {
+    icon: <BsPrinterFill className="text-white w-8" size={31} />,
+    name: "Imprimir pedido",
+    description: "imprimi pedido/ordem",
+    type: "NodePrintOrder",
     new: false,
     premium: true,
   },

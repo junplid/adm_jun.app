@@ -84,6 +84,7 @@ import { NodeDeleteRouterOrder } from "./nodes/DeleteRouterOrder";
 import { NodeRouterAcceptance } from "./nodes/RouteAcceptance";
 import { NodeNearestOrder } from "./nodes/NearestOrder";
 import { NodeGetMenuOnline } from "./nodes/GetMenuOnline";
+import { NodePrintOrder } from "./nodes/PrintOrder";
 
 type NodeTypesGeneric = {
   [x in TypesNodes]: any;
@@ -138,7 +139,8 @@ export type TypesNodes =
   | "NodeDeleteRouterOrder"
   | "NodeRouterAcceptance"
   | "NodeNearestOrder"
-  | "NodeGetMenuOnline";
+  | "NodeGetMenuOnline"
+  | "NodePrintOrder";
 
 const nodeTypes: NodeTypesGeneric = {
   NodeInitial: NodeInitial,
@@ -190,6 +192,7 @@ const nodeTypes: NodeTypesGeneric = {
   NodeRouterAcceptance: NodeRouterAcceptance,
   NodeNearestOrder: NodeNearestOrder,
   NodeGetMenuOnline: NodeGetMenuOnline,
+  NodePrintOrder: NodePrintOrder,
 };
 
 const edgeTypes = {
