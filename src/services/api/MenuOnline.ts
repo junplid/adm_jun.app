@@ -286,6 +286,10 @@ export async function updateMenuOnlineOperatingDays(
   await api.put(`/private/menus-online/${uuid}/operating-days`, body);
 }
 
+export async function createMenuOnlineTestPrint(uuid: string): Promise<void> {
+  await api.post(`/private/menus-online/${uuid}/test-print`);
+}
+
 export async function getMenuOnlineDetails(id: number): Promise<{
   name: string;
   updateAt: Date;

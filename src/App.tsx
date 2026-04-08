@@ -36,6 +36,7 @@ import { LayoutSettingsPageProvider } from "./pages/settings/page.context";
 import { SettingsAccountPage } from "./pages/settings/account";
 import FarewellPage from "./pages/farewell";
 import DataDeletionPage from "./pages/data-deletion";
+import { RouterOrdersPage } from "./pages/router-orders";
 
 export default function App() {
   return (
@@ -176,6 +177,8 @@ export default function App() {
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/farewell" element={<FarewellPage />} />
         <Route path="/data-deletion" element={<DataDeletionPage />} />
+
+        <Route path="/router-orders" element={<RouterOrdersPage />} />
 
         <Route
           path="*"
