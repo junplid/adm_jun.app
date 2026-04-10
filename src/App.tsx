@@ -178,7 +178,10 @@ export default function App() {
         <Route path="/farewell" element={<FarewellPage />} />
         <Route path="/data-deletion" element={<DataDeletionPage />} />
 
-        <Route path="/router-orders" element={<RouterOrdersPage />} />
+        <Route
+          path="/router-orders/:n_router/:fsid"
+          element={<RouterOrdersPage />}
+        />
 
         <Route
           path="*"

@@ -1,11 +1,12 @@
 "use client";
 
-import React, { JSX, useEffect, useMemo, useRef, useState } from "react";
+import React, { JSX, useEffect, useRef, useState } from "react";
 import {
   Badge,
   Box,
   Button,
   Center,
+  Collapsible,
   Group,
   HStack,
   PinInput,
@@ -15,9 +16,37 @@ import {
   Timeline,
   VStack,
 } from "@chakra-ui/react";
-import { FaCheck } from "react-icons/fa";
+import { FaCheck, FaWhatsapp } from "react-icons/fa";
+import { useParams, useSearchParams } from "react-router-dom";
+import {
+  collectRouteOrder,
+  completeRouter,
+  deliveryCodeRouteOrder,
+  getRouterOrders,
+  joinRouterOrders,
+} from "../../services/api/Orders";
+import { AxiosError } from "axios";
+import { ErrorResponse_I } from "../../services/api/ErrorResponse";
+import { toaster } from "@components/ui/toaster";
+import { format } from "@flasd/whatsapp-formatting";
+import parse from "html-react-parser";
+import { IoWarningSharp } from "react-icons/io5";
+import clsx from "clsx";
 
-type OrderStatus = "DELIVERED" | "TO_DELIVER" | "COLLECTED" | "IN_ROUTE";
+type OrderStatus =
+  | "draft"
+  | "pending"
+  | "processing"
+  | "confirmed"
+  | "completed"
+  | "shipped"
+  | "delivered"
+  | "cancelled"
+  | "returned"
+  | "refunded"
+  | "failed"
+  | "on_way"
+  | "ready";
 
 type OrderItem = {
   id: string;
@@ -38,27 +67,6 @@ type PendingBatch = {
   labels: string[];
 };
 
-const DEFAULT_ORDERS: OrderItem[] = [
-  {
-    id: "123456",
-    title: "2x X-Burger",
-    status: "TO_DELIVER",
-    note: "Aguardando coleta",
-  },
-  {
-    id: "234567",
-    title: "1x Pizza Calabresa",
-    status: "COLLECTED",
-    note: "Já lido no QR",
-  },
-  {
-    id: "345678",
-    title: "1x Açaí 500ml",
-    status: "DELIVERED",
-    note: "Entregue",
-  },
-];
-
 function normalizeQrValue(raw: string) {
   const value = raw.trim();
 
@@ -75,13 +83,32 @@ function normalizeQrValue(raw: string) {
 
 function statusLabel(status: OrderStatus) {
   switch (status) {
-    case "DELIVERED":
+    case "completed":
       return "Entregue";
-    case "COLLECTED":
+    case "on_way":
       return "Coletado";
-    case "IN_ROUTE":
-      return "Em rota";
-    case "TO_DELIVER":
+    case "cancelled":
+      return "Cacelado";
+    case "confirmed":
+      return "Em espera";
+    case "processing":
+      return "Preparando";
+    case "ready":
+      return "A entregar";
+    case "delivered":
+      return "Entregue";
+    case "draft":
+      return "Rascunho";
+    case "failed":
+      return "Falhou";
+    case "pending":
+      return "Pendente";
+    case "refunded":
+      return "Reembolsado";
+    case "returned":
+      return "Retornado / devolvido";
+    case "shipped":
+      return "Enviado";
     default:
       return "A entregar";
   }
@@ -89,25 +116,63 @@ function statusLabel(status: OrderStatus) {
 
 function statusAccent(status: OrderStatus) {
   switch (status) {
-    case "DELIVERED":
+    case "completed":
       return { bg: "#13301c", border: "#2f7d46", label: "#a7f3c1" };
-    case "COLLECTED":
+    case "delivered":
+      return { bg: "#13301c", border: "#2f7d46", label: "#a7f3c1" };
+    case "on_way":
       return { bg: "#1a2340", border: "#4566d4", label: "#c4d4ff" };
-    case "IN_ROUTE":
-      return { bg: "#2f1d09", border: "#c7791f", label: "#ffd59a" };
-    case "TO_DELIVER":
     default:
       return { bg: "#262626", border: "#4b4b4b", label: "#e5e5e5" };
   }
 }
 
+interface DataRouter {
+  router_link?: string;
+  status: "open" | "awaiting_assignment" | "in_progress" | "finished";
+  menu: {
+    logoImg: string;
+    titlePage: string | null;
+    MenuInfo: {
+      lat: number | null;
+      lng: number | null;
+    } | null;
+  };
+  orders: {
+    router_link: string | undefined;
+    completedAt: Date | null;
+    contact:
+      | {
+          name: string | null;
+          number: string | null;
+        }
+      | undefined;
+    status:
+      | "draft"
+      | "pending"
+      | "processing"
+      | "confirmed"
+      | "completed"
+      | "shipped"
+      | "delivered"
+      | "cancelled"
+      | "returned"
+      | "refunded"
+      | "failed"
+      | "on_way"
+      | "ready";
+    name: string | null;
+    n_order: string;
+    delivery_lat: number | null;
+    delivery_lng: number | null;
+    data: string;
+  }[];
+}
+
 export const RouterOrdersPage: React.FC<RouterOrdersPageProps> = ({
   authorized = true,
   routeInProgress = false,
-  googleMapsUrl = "https://www.google.com/maps",
-  initialOrders = DEFAULT_ORDERS,
 }): JSX.Element => {
-  const [orders, setOrders] = useState<OrderItem[]>(initialOrders);
   const [deliveryCode, setDeliveryCode] = useState<string[]>([]);
   const [cameraOpen, setCameraOpen] = useState(false);
   const [scannerSupported, setScannerSupported] = useState(true);
@@ -116,8 +181,15 @@ export const RouterOrdersPage: React.FC<RouterOrdersPageProps> = ({
     labels: [],
   });
   const [sendingBatch, setSendingBatch] = useState(false);
+  const [loadDeliveryCode, setLoadDeliveryCode] = useState(false);
+  const [loadJoin, setLoadJoin] = useState(false);
   const [localRouteInProgress, setLocalRouteInProgress] =
     useState(routeInProgress);
+
+  const [errorContainer, setErrorContainer] = useState("");
+  const params = useParams<{ n_router: string; fsid: string }>();
+  const [searchParams] = useSearchParams();
+  const [router, setRouter] = useState<DataRouter | null>(null);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -125,17 +197,7 @@ export const RouterOrdersPage: React.FC<RouterOrdersPageProps> = ({
   const debounceRef = useRef<number | null>(null);
   const scanLockRef = useRef(false);
 
-  const collectedCount = useMemo(
-    () =>
-      orders.filter((o) => o.status === "COLLECTED" || o.status === "IN_ROUTE")
-        .length,
-    [orders],
-  );
-
   const pendingCount = pendingBatch.ids.length;
-
-  const canStartRoute =
-    deliveryCode.join("").length === 6 && collectedCount > 0;
 
   const stopCamera = () => {
     if (rafRef.current) {
@@ -154,11 +216,29 @@ export const RouterOrdersPage: React.FC<RouterOrdersPageProps> = ({
   };
 
   useEffect(() => {
+    (async () => {
+      const nlid = searchParams.get("nlid");
+      if (params.n_router && nlid) {
+        try {
+          const data_router = await getRouterOrders(params.n_router!, { nlid });
+          setRouter(data_router);
+        } catch (error) {
+          if (error instanceof AxiosError) {
+            if (error.response?.status === 400) {
+              const dataError = error.response?.data as ErrorResponse_I;
+              if (dataError.toast.length)
+                dataError.toast.forEach(toaster.create);
+              if (dataError.container) setErrorContainer(dataError.container);
+            }
+          }
+        }
+      }
+    })();
+
     return () => {
       if (debounceRef.current) window.clearTimeout(debounceRef.current);
       stopCamera();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -167,22 +247,9 @@ export const RouterOrdersPage: React.FC<RouterOrdersPageProps> = ({
 
   const mockSendCollectedOrders = async (batch: PendingBatch) => {
     setSendingBatch(true);
-
-    await new Promise((resolve) => setTimeout(resolve, 900));
-
-    setOrders((prev) =>
-      prev.map((order) =>
-        batch.ids.includes(order.id)
-          ? {
-              ...order,
-              status: "COLLECTED",
-              updatedAt: "Agora",
-              note: "Lido no QR e enviado para a API",
-            }
-          : order,
-      ),
-    );
-
+    for await (const n_order of batch.ids) {
+      await handleCollectRouteOrder(n_order);
+    }
     setPendingBatch({ ids: [], labels: [] });
     setSendingBatch(false);
   };
@@ -200,25 +267,25 @@ export const RouterOrdersPage: React.FC<RouterOrdersPageProps> = ({
     const orderId = normalizeQrValue(rawValue);
     if (!orderId) return;
 
-    setOrders((prev) => {
-      const alreadyKnown = prev.some((order) => order.id === orderId);
-      if (!alreadyKnown) {
-        return [
-          ...prev,
-          {
-            id: orderId,
-            title: `Pedido #${orderId}`,
-            status: "TO_DELIVER",
-            updatedAt: "Agora",
-            note: "Lido pelo QR",
-          },
-        ];
-      }
-      return prev;
-    });
+    // setOrders((prev) => {
+    //   const alreadyKnown = prev.some((order) => order.id === orderId);
+    //   if (!alreadyKnown) {
+    //     return [
+    //       ...prev,
+    //       {
+    //         id: orderId,
+    //         title: `Pedido #${orderId}`,
+    //         status: "TO_DELIVER",
+    //         updatedAt: "Agora",
+    //         note: "Lido pelo QR",
+    //       },
+    //     ];
+    //   }
+    //   return prev;
+    // });
 
     const currentLabel =
-      orders.find((order) => order.id === orderId)?.title ??
+      router?.orders.find((order) => order.n_order === orderId)?.name ??
       `Pedido #${orderId}`;
 
     setPendingBatch((prev) => {
@@ -306,22 +373,129 @@ export const RouterOrdersPage: React.FC<RouterOrdersPageProps> = ({
     stopCamera();
   };
 
-  const handleStartRoute = () => {
-    if (!canStartRoute) return;
+  const handleJoinRoute = async () => {
+    // setLocalRouteInProgress(true);
+    try {
+      setLoadJoin(true);
+      const nlid = searchParams.get("nlid");
+      if (params.n_router && params.fsid && nlid) {
+        const response = await joinRouterOrders(params.n_router, {
+          nlid,
+          fsid: Number(params.fsid),
+        });
+        setRouter((s) =>
+          s
+            ? {
+                ...s,
+                router_link: response.router_link,
+                status: response.status,
+              }
+            : null,
+        );
+      }
+      setLoadJoin(false);
+    } catch (error) {
+      setLoadJoin(false);
+      if (error instanceof AxiosError) {
+        if (error.response?.status === 400) {
+          const dataError = error.response?.data as ErrorResponse_I;
+          if (dataError.toast.length) dataError.toast.forEach(toaster.create);
+          if (dataError.container) setErrorContainer(dataError.container);
+        }
+      }
+    }
+  };
 
-    setLocalRouteInProgress(true);
-    setOrders((prev) =>
-      prev.map((order) =>
-        order.status === "COLLECTED"
-          ? {
-              ...order,
-              status: "IN_ROUTE",
-              updatedAt: "Agora",
-              note: "Em deslocamento",
-            }
-          : order,
-      ),
-    );
+  const handleCollectRouteOrder = async (n_order: string) => {
+    try {
+      // setLoadJoin(true);
+      const nlid = searchParams.get("nlid");
+      if (params.n_router && params.fsid && nlid) {
+        const response = await collectRouteOrder(params.n_router, n_order, {
+          nlid,
+        });
+        setRouter((s) =>
+          s
+            ? {
+                ...s,
+                orders: s.orders.map((d) => {
+                  if (d.n_order === n_order) d.status = response.status;
+                  return d;
+                }),
+              }
+            : null,
+        );
+      }
+      // setLoadJoin(false);
+    } catch (error) {
+      // setLoadJoin(false);
+      if (error instanceof AxiosError) {
+        if (error.response?.status === 400) {
+          const dataError = error.response?.data as ErrorResponse_I;
+          if (dataError.toast.length) dataError.toast.forEach(toaster.create);
+          if (dataError.container) setErrorContainer(dataError.container);
+        }
+      }
+    }
+  };
+
+  const handleDeliveryCodeRouteOrder = async (delivery_code: string) => {
+    try {
+      setLoadDeliveryCode(true);
+      const nlid = searchParams.get("nlid");
+      if (params.n_router && params.fsid && nlid) {
+        const response = await deliveryCodeRouteOrder(
+          params.n_router,
+          delivery_code,
+          { nlid },
+        );
+        setRouter((s) => {
+          if (!s) return null;
+          const nextOrders = s.orders.map((d) => {
+            if (d.n_order === response.n_order) d.status = response.status;
+            return d;
+          });
+          if (
+            nextOrders.every(
+              (d) => d.status === "completed" || d.status === "delivered",
+            )
+          ) {
+            handleCompleteRouter();
+          }
+          s.orders = nextOrders;
+          return s;
+        });
+        setDeliveryCode([]);
+      }
+      setLoadDeliveryCode(false);
+    } catch (error) {
+      setLoadDeliveryCode(false);
+      if (error instanceof AxiosError) {
+        if (error.response?.status === 400) {
+          const dataError = error.response?.data as ErrorResponse_I;
+          if (dataError.toast.length) dataError.toast.forEach(toaster.create);
+          if (dataError.container) setErrorContainer(dataError.container);
+        }
+      }
+    }
+  };
+
+  const handleCompleteRouter = async () => {
+    try {
+      const nlid = searchParams.get("nlid");
+      if (params.n_router && nlid) {
+        const response = await completeRouter(params.n_router, { nlid });
+        setRouter((s) => (s ? { ...s, status: response.status } : null));
+      }
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        if (error.response?.status === 400) {
+          const dataError = error.response?.data as ErrorResponse_I;
+          if (dataError.toast.length) dataError.toast.forEach(toaster.create);
+          if (dataError.container) setErrorContainer(dataError.container);
+        }
+      }
+    }
   };
 
   return (
@@ -337,6 +511,22 @@ export const RouterOrdersPage: React.FC<RouterOrdersPageProps> = ({
         position="relative"
       >
         <VStack gap={3} align="stretch">
+          {errorContainer && (
+            <Box
+              border="1px solid #7f1d1d"
+              bg="#2a1111"
+              borderRadius="20px"
+              px={4}
+              py={4}
+            >
+              <Text fontSize="sm" fontWeight="700" color="#fecaca">
+                Error interno.
+              </Text>
+              <Text fontSize="sm" color="#fca5a5" mt={1}>
+                {errorContainer}
+              </Text>
+            </Box>
+          )}
           {!authorized ? (
             <Box
               border="1px solid #7f1d1d"
@@ -384,9 +574,11 @@ export const RouterOrdersPage: React.FC<RouterOrdersPageProps> = ({
                     <Text fontSize="lg" fontWeight="800">
                       Pedidos da rota
                     </Text>
-                    <Text fontSize="sm" color="#A3A3A3">
-                      Loja: Point do Sabor da Branca
-                    </Text>
+                    {router?.menu.titlePage && (
+                      <Text fontSize="sm" color="#A3A3A3">
+                        Loja: {router.menu.titlePage}
+                      </Text>
+                    )}
                   </Box>
 
                   <Badge
@@ -403,106 +595,161 @@ export const RouterOrdersPage: React.FC<RouterOrdersPageProps> = ({
                 </HStack>
 
                 <Stack gap={3}>
-                  <Button
-                    onClick={cameraOpen ? closeScanner : startScanner}
-                    bg="#ffffff"
-                    color="#111111"
-                    _hover={{ bg: "#f4f4f5" }}
-                    borderRadius="16px"
-                    h="48px"
-                    fontWeight="700"
-                  >
-                    {cameraOpen ? "Fechar câmera" : "Abrir câmera para ler QR"}
-                  </Button>
-
-                  <Button
-                    onClick={handleStartRoute}
-                    disabled={!canStartRoute}
-                    bg={canStartRoute ? "#2563eb" : "#3f3f46"}
-                    color="#fff"
-                    _hover={{ bg: canStartRoute ? "#1d4ed8" : "#3f3f46" }}
-                    borderRadius="16px"
-                    h="48px"
-                    fontWeight="700"
-                  >
-                    Iniciar rota
-                  </Button>
-
-                  <Button
-                    as="a"
-                    // @ts-expect-error
-                    href={googleMapsUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    bg="#18181b"
-                    color="#fff"
-                    _hover={{ bg: "#27272a" }}
-                    border="1px solid #2f2f2f"
-                    borderRadius="16px"
-                    h="48px"
-                    fontWeight="700"
-                  >
-                    Acessar rota atualizada
-                  </Button>
-
-                  <Box
-                    bg="#141414"
-                    border="1px solid #262626"
-                    borderRadius="18px"
-                    px={4}
-                    py={4}
-                    className="flex flex-col justify-center"
-                  >
-                    <Text
-                      fontSize="sm"
-                      className="text-center"
+                  {!(
+                    router?.status === "finished" ||
+                    router?.orders.every(
+                      (o) =>
+                        o.status === "delivered" || o.status === "completed",
+                    )
+                  ) && (
+                    <Button
+                      onClick={cameraOpen ? closeScanner : startScanner}
+                      bg="#ffffff"
+                      color="#111111"
+                      _hover={{ bg: "#f4f4f5" }}
+                      borderRadius="16px"
+                      h="48px"
                       fontWeight="700"
-                      mb={2}
+                      disabled={!router || router.status !== "in_progress"}
                     >
-                      Código de entrega
-                    </Text>
+                      {cameraOpen
+                        ? "Fechar câmera"
+                        : "Abrir câmera para ler QR"}
+                    </Button>
+                  )}
 
-                    <Center>
-                      <PinInput.Root
-                        otp
-                        type="numeric"
-                        count={6}
-                        value={deliveryCode}
-                        onValueChange={(details) =>
-                          setDeliveryCode(details.value)
-                        }
-                        onValueComplete={(details) =>
-                          setDeliveryCode(details.value)
-                        }
+                  <Button
+                    onClick={handleJoinRoute}
+                    disabled={!router}
+                    bg={"#356923"}
+                    color="#fff"
+                    _hover={{ bg: "#43812e" }}
+                    borderRadius="16px"
+                    h="48px"
+                    fontWeight="700"
+                    hidden={router?.status !== "awaiting_assignment"}
+                    loading={loadJoin}
+                  >
+                    Aceitar rota
+                  </Button>
+
+                  {!(
+                    router?.status === "finished" ||
+                    router?.orders.every(
+                      (o) =>
+                        o.status === "delivered" || o.status === "completed",
+                    )
+                  ) && (
+                    <Button
+                      as="a"
+                      // @ts-expect-error
+                      href={router?.router_link}
+                      target="_blank"
+                      rel="noreferrer"
+                      bg="#18181b"
+                      color="#fff"
+                      _hover={{ bg: "#27272a" }}
+                      border="1px solid #2f2f2f"
+                      borderRadius="16px"
+                      h="48px"
+                      fontWeight="700"
+                      disabled={!router}
+                    >
+                      Acessar rota atualizada
+                    </Button>
+                  )}
+
+                  {router?.status === "finished" ||
+                  router?.orders.every(
+                    (o) => o.status === "delivered" || o.status === "completed",
+                  ) ? (
+                    <Box
+                      bg="#bbdbac"
+                      border="1px solid #abdea7"
+                      borderRadius="18px"
+                      px={4}
+                      py={4}
+                      className="flex flex-col justify-center"
+                    >
+                      <Text
+                        fontSize="sm"
+                        className="text-center"
+                        fontWeight="700"
+                        opacity={!router ? 0.4 : 1}
+                        color={"#142f05"}
                       >
-                        <PinInput.HiddenInput />
-                        <PinInput.Control>
-                          <Group
-                            attached
-                            justifyContent="space-between"
-                            gap={2}
+                        ROTA CONCLUÍDA 🎉
+                      </Text>
+                    </Box>
+                  ) : (
+                    <Box
+                      bg="#141414"
+                      border="1px solid #262626"
+                      borderRadius="18px"
+                      px={4}
+                      py={4}
+                      className="flex flex-col justify-center"
+                    >
+                      <Text
+                        fontSize="sm"
+                        className="text-center"
+                        fontWeight="700"
+                        mb={2}
+                        opacity={!router ? 0.4 : 1}
+                      >
+                        Código de entrega
+                      </Text>
+
+                      <Center>
+                        {!loadDeliveryCode ? (
+                          <PinInput.Root
+                            otp
+                            type="numeric"
+                            count={4}
+                            value={deliveryCode}
+                            onValueChange={(details) =>
+                              setDeliveryCode(details.value)
+                            }
+                            onValueComplete={(details) => {
+                              setDeliveryCode(details.value);
+                              handleDeliveryCodeRouteOrder(
+                                details.value.join(""),
+                              );
+                            }}
+                            disabled={!router}
                           >
-                            {Array.from({ length: 6 }).map((_, index) => (
-                              <PinInput.Input
-                                key={index}
-                                index={index}
-                                style={{
-                                  width: "40px",
-                                  height: "48px",
-                                  borderRadius: "14px",
-                                  background: "#0f0f0f",
-                                  border: "1px solid #2f2f2f",
-                                  color: "#fff",
-                                  fontSize: "18px",
-                                  fontWeight: 700,
-                                }}
-                              />
-                            ))}
-                          </Group>
-                        </PinInput.Control>
-                      </PinInput.Root>
-                    </Center>
-                  </Box>
+                            <PinInput.HiddenInput />
+                            <PinInput.Control>
+                              <Group
+                                attached
+                                justifyContent="space-between"
+                                gap={2}
+                              >
+                                {Array.from({ length: 4 }).map((_, index) => (
+                                  <PinInput.Input
+                                    key={index}
+                                    index={index}
+                                    style={{
+                                      width: "40px",
+                                      height: "48px",
+                                      borderRadius: "14px",
+                                      background: "#0f0f0f",
+                                      border: "1px solid #2f2f2f",
+                                      color: "#fff",
+                                      fontSize: "18px",
+                                      fontWeight: 700,
+                                    }}
+                                  />
+                                ))}
+                              </Group>
+                            </PinInput.Control>
+                          </PinInput.Root>
+                        ) : (
+                          <Spinner />
+                        )}
+                      </Center>
+                    </Box>
+                  )}
 
                   <Box
                     bg="#141414"
@@ -511,89 +758,88 @@ export const RouterOrdersPage: React.FC<RouterOrdersPageProps> = ({
                     px={4}
                     py={4}
                   >
-                    <HStack justify="space-between" mb={3}>
-                      <Text fontSize="sm" fontWeight="700">
-                        Pedidos
-                      </Text>
-                      <Text fontSize="xs" color="#A3A3A3">
-                        {orders.length} total
-                      </Text>
-                    </HStack>
-
-                    <Timeline.Root>
-                      {orders.map((order) => {
-                        const accent = statusAccent(order.status);
-
-                        return (
-                          <Timeline.Item key={order.id}>
-                            <Timeline.Connector>
-                              <Timeline.Separator />
-                              <Timeline.Indicator
-                                style={{
-                                  background: accent.border,
-                                  borderColor: accent.border,
-                                }}
+                    {router?.orders.length ? (
+                      <>
+                        {!router.orders.every(
+                          (o) =>
+                            o.status === "on_way" || o.status === "completed",
+                        ) && (
+                          <Box
+                            border="1px solid #854d0e"
+                            bg="#2a1a0b"
+                            borderRadius="20px"
+                            px={4}
+                            py={4}
+                            mb={3}
+                          >
+                            <div className="flex items-center gap-x-1.5">
+                              <IoWarningSharp color="#fde68a" size={20} />
+                              <Text
+                                fontSize="sm"
+                                fontWeight="700"
+                                color="#fde68a"
                               >
-                                {order.status === "DELIVERED" && <FaCheck />}
-                              </Timeline.Indicator>
-                            </Timeline.Connector>
+                                Atenção
+                              </Text>
+                            </div>
+                            <Text fontSize="sm" color="#fbbf24" mt={1}>
+                              Colete todos os pedidos para iniciar sua rota
+                            </Text>
+                          </Box>
+                        )}
 
-                            <Timeline.Content>
-                              <Box
-                                bg={accent.bg}
-                                border={`1px solid ${accent.border}`}
-                                borderRadius="16px"
-                                px={3}
-                                py={3}
-                                mb={3}
-                              >
-                                <HStack
-                                  justify="space-between"
-                                  align="start"
-                                  gap={3}
-                                >
-                                  <Box>
-                                    <Timeline.Title>
-                                      <Text fontSize="sm" fontWeight="800">
-                                        Pedido #{order.id}
-                                      </Text>
-                                    </Timeline.Title>
+                        <HStack justify="space-between" mb={3}>
+                          <Text fontWeight="700">Pedidos</Text>
+                          <Text color="#A3A3A3">
+                            {router?.orders.length} total
+                          </Text>
+                        </HStack>
 
-                                    <Timeline.Description>
-                                      <Text
-                                        fontSize="sm"
-                                        color="#D4D4D8"
-                                        mt={1}
-                                      >
-                                        {order.title}
-                                      </Text>
-                                    </Timeline.Description>
-                                  </Box>
+                        <Timeline.Root>
+                          {router.orders.map((order) => {
+                            const accent = statusAccent(order.status);
 
-                                  <Badge
-                                    borderRadius="999px"
-                                    px={2}
-                                    py={1}
-                                    bg="#111111"
-                                    color={accent.label}
-                                    border={`1px solid ${accent.border}`}
-                                    whiteSpace="nowrap"
+                            return (
+                              <Timeline.Item key={order.n_order}>
+                                <Timeline.Connector>
+                                  <Timeline.Separator />
+                                  <Timeline.Indicator
+                                    style={{
+                                      background: accent.border,
+                                      borderColor: accent.border,
+                                    }}
                                   >
-                                    {statusLabel(order.status)}
-                                  </Badge>
-                                </HStack>
+                                    {(order.status === "completed" ||
+                                      order.status === "delivered") && (
+                                      <FaCheck />
+                                    )}
+                                  </Timeline.Indicator>
+                                </Timeline.Connector>
 
-                                {order.note && (
-                                  <Text fontSize="xs" color="#A3A3A3" mt={2}>
-                                    {order.note}
-                                  </Text>
-                                )}
-                              </Box>
-                            </Timeline.Content>
-                          </Timeline.Item>
-                        );
-                      })}
-                    </Timeline.Root>
+                                <Timeline.Content>
+                                  <BoxItemOrder
+                                    finish={
+                                      router.status === "finished" ||
+                                      router?.orders.every(
+                                        (o) =>
+                                          o.status === "delivered" ||
+                                          o.status === "completed",
+                                      )
+                                    }
+                                    accent={accent}
+                                    {...order}
+                                  />
+                                </Timeline.Content>
+                              </Timeline.Item>
+                            );
+                          })}
+                        </Timeline.Root>
+                      </>
+                    ) : (
+                      <HStack justify="center" my={3}>
+                        <Text>Pedidos não encontrados!</Text>
+                      </HStack>
+                    )}
                   </Box>
 
                   {pendingCount > 0 && (
@@ -754,3 +1000,80 @@ export const RouterOrdersPage: React.FC<RouterOrdersPageProps> = ({
     </div>
   );
 };
+
+function BoxItemOrder({
+  accent,
+  finish,
+  ...order
+}: {
+  finish: boolean;
+  accent: {
+    bg: string;
+    border: string;
+    label: string;
+  };
+} & DataRouter["orders"][0]) {
+  const [open, setOpen] = useState(false);
+  return (
+    <Box
+      bg={accent.bg}
+      border={`1px solid ${accent.border}`}
+      borderRadius="16px"
+      px={3}
+      py={3}
+      mb={3}
+    >
+      <Collapsible.Root open={open} collapsedHeight="47px">
+        <Collapsible.Content
+          _closed={{
+            shadow: "inset 0 -20px 12px -12px var(--shadow-color)",
+            shadowColor: "blackAlpha.50",
+          }}
+          onClick={() => setOpen(!open)}
+        >
+          <HStack justify="space-between" align="center" gap={3}>
+            <div className="flex flex-col gap-y-0.5">
+              <Timeline.Title fontSize={"medium"}>
+                <Text fontWeight="800" className="tracking-wider">
+                  #{order.n_order}
+                </Text>
+              </Timeline.Title>
+
+              <Timeline.Description fontSize={"medium"}>
+                <a
+                  href={finish ? undefined : ``}
+                  target={finish ? undefined : "_blank"}
+                  className={clsx(
+                    "flex items-center gap-x-1",
+                    !finish && "text-green-400! underline",
+                  )}
+                >
+                  {!finish && <FaWhatsapp size={16} />}
+                  <Text>{order.name}</Text>
+                </a>
+              </Timeline.Description>
+            </div>
+
+            <Badge
+              borderRadius="8px"
+              px={3}
+              py={2}
+              bg="#111111"
+              color={accent.label}
+              border={`1px solid ${accent.border}`}
+              whiteSpace="nowrap"
+            >
+              {statusLabel(order.status)}
+            </Badge>
+          </HStack>
+
+          {order.data && (
+            <p className="leading-4 pt-3 text-[#A3A3A3]">
+              {parse(format(order.data))}
+            </p>
+          )}
+        </Collapsible.Content>
+      </Collapsible.Root>
+    </Box>
+  );
+}

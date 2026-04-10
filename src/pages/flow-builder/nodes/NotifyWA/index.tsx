@@ -140,7 +140,7 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
 
       <Field
         label="Enviar para contatos que tem as etiquetas"
-        helperText={"use a variavel: JUN_NUMERO_LEAD_WHATSAPP_NOTIFY"}
+        helperText={"JUN_NUMERO_LEAD_WHATSAPP_NOTIFY ou JUN_FSID_NOTIFY"}
         className="mt-2"
       >
         <SelectTags
