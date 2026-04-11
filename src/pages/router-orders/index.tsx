@@ -6,7 +6,6 @@ import {
   Box,
   Button,
   Center,
-  Collapsible,
   Group,
   HStack,
   PinInput,
@@ -32,6 +31,7 @@ import { format } from "@flasd/whatsapp-formatting";
 import parse from "html-react-parser";
 import { IoWarningSharp } from "react-icons/io5";
 import clsx from "clsx";
+import { formatToBRL } from "brazilian-values";
 
 type OrderStatus =
   | "draft"
@@ -166,6 +166,29 @@ interface DataRouter {
     delivery_lat: number | null;
     delivery_lng: number | null;
     data: string;
+    delivery_address: string | null;
+    delivery_complement: string | null;
+    delivery_reference_point: string | null;
+    delivery_cep: string | null;
+    delivery_number: string | null;
+    total: number | undefined;
+    payment_change_to: number | null;
+    payment_method: string | null;
+    charge_status:
+      | (
+          | "pending"
+          | "cancelled"
+          | "refunded"
+          | "created"
+          | "approved"
+          | "authorized"
+          | "in_process"
+          | "in_mediation"
+          | "rejected"
+          | "charged_back"
+          | "refused"
+        )
+      | undefined;
   }[];
 }
 
@@ -392,6 +415,11 @@ export const RouterOrdersPage: React.FC<RouterOrdersPageProps> = ({
               }
             : null,
         );
+        toaster.create({
+          title: "Sucesso",
+          type: "success",
+          description: "Rota atribuída 🚀",
+        });
       }
       setLoadJoin(false);
     } catch (error) {
@@ -576,7 +604,7 @@ export const RouterOrdersPage: React.FC<RouterOrdersPageProps> = ({
                     </Text>
                     {router?.menu.titlePage && (
                       <Text fontSize="sm" color="#A3A3A3">
-                        Loja: {router.menu.titlePage}
+                        {router.menu.titlePage}
                       </Text>
                     )}
                   </Box>
@@ -695,7 +723,11 @@ export const RouterOrdersPage: React.FC<RouterOrdersPageProps> = ({
                         className="text-center"
                         fontWeight="700"
                         mb={2}
-                        opacity={!router ? 0.4 : 1}
+                        opacity={
+                          !router || router.status === "awaiting_assignment"
+                            ? 0.4
+                            : 1
+                        }
                       >
                         Código de entrega
                       </Text>
@@ -716,7 +748,9 @@ export const RouterOrdersPage: React.FC<RouterOrdersPageProps> = ({
                                 details.value.join(""),
                               );
                             }}
-                            disabled={!router}
+                            disabled={
+                              !router || router.status === "awaiting_assignment"
+                            }
                           >
                             <PinInput.HiddenInput />
                             <PinInput.Control>
@@ -760,33 +794,34 @@ export const RouterOrdersPage: React.FC<RouterOrdersPageProps> = ({
                   >
                     {router?.orders.length ? (
                       <>
-                        {!router.orders.every(
-                          (o) =>
-                            o.status === "on_way" || o.status === "completed",
-                        ) && (
-                          <Box
-                            border="1px solid #854d0e"
-                            bg="#2a1a0b"
-                            borderRadius="20px"
-                            px={4}
-                            py={4}
-                            mb={3}
-                          >
-                            <div className="flex items-center gap-x-1.5">
-                              <IoWarningSharp color="#fde68a" size={20} />
-                              <Text
-                                fontSize="sm"
-                                fontWeight="700"
-                                color="#fde68a"
-                              >
-                                Atenção
+                        {router.status === "in_progress" &&
+                          !router.orders.every(
+                            (o) =>
+                              o.status === "on_way" || o.status === "completed",
+                          ) && (
+                            <Box
+                              border="1px solid #854d0e"
+                              bg="#2a1a0b"
+                              borderRadius="20px"
+                              px={4}
+                              py={4}
+                              mb={3}
+                            >
+                              <div className="flex items-center gap-x-1.5">
+                                <IoWarningSharp color="#fde68a" size={20} />
+                                <Text
+                                  fontSize="sm"
+                                  fontWeight="700"
+                                  color="#fde68a"
+                                >
+                                  Atenção
+                                </Text>
+                              </div>
+                              <Text fontSize="sm" color="#fbbf24" mt={1}>
+                                Colete todos os pedidos para iniciar sua rota
                               </Text>
-                            </div>
-                            <Text fontSize="sm" color="#fbbf24" mt={1}>
-                              Colete todos os pedidos para iniciar sua rota
-                            </Text>
-                          </Box>
-                        )}
+                            </Box>
+                          )}
 
                         <HStack justify="space-between" mb={3}>
                           <Text fontWeight="700">Pedidos</Text>
@@ -1013,7 +1048,6 @@ function BoxItemOrder({
     label: string;
   };
 } & DataRouter["orders"][0]) {
-  const [open, setOpen] = useState(false);
   return (
     <Box
       bg={accent.bg}
@@ -1023,57 +1057,132 @@ function BoxItemOrder({
       py={3}
       mb={3}
     >
-      <Collapsible.Root open={open} collapsedHeight="47px">
-        <Collapsible.Content
-          _closed={{
-            shadow: "inset 0 -20px 12px -12px var(--shadow-color)",
-            shadowColor: "blackAlpha.50",
-          }}
-          onClick={() => setOpen(!open)}
-        >
-          <HStack justify="space-between" align="center" gap={3}>
-            <div className="flex flex-col gap-y-0.5">
-              <Timeline.Title fontSize={"medium"}>
-                <Text fontWeight="800" className="tracking-wider">
-                  #{order.n_order}
-                </Text>
-              </Timeline.Title>
+      <HStack justify="space-between" align="center" gap={3}>
+        <div className="flex flex-col gap-y-0.5">
+          <Timeline.Title fontSize={"medium"}>
+            <Text fontWeight="800" className="tracking-wider">
+              #{order.n_order}
+            </Text>
+          </Timeline.Title>
 
-              <Timeline.Description fontSize={"medium"}>
-                <a
-                  href={finish ? undefined : ``}
-                  target={finish ? undefined : "_blank"}
-                  className={clsx(
-                    "flex items-center gap-x-1",
-                    !finish && "text-green-400! underline",
-                  )}
-                >
-                  {!finish && <FaWhatsapp size={16} />}
-                  <Text>{order.name}</Text>
-                </a>
-              </Timeline.Description>
-            </div>
-
-            <Badge
-              borderRadius="8px"
-              px={3}
-              py={2}
-              bg="#111111"
-              color={accent.label}
-              border={`1px solid ${accent.border}`}
-              whiteSpace="nowrap"
+          <Timeline.Description fontSize={"medium"}>
+            <a
+              href={finish ? undefined : ``}
+              target={finish ? undefined : "_blank"}
+              className={clsx(
+                "flex items-center gap-x-1",
+                !finish && "text-green-400! underline",
+              )}
             >
-              {statusLabel(order.status)}
-            </Badge>
-          </HStack>
+              {!finish && <FaWhatsapp size={16} />}
+              <Text>{order.name}</Text>
+            </a>
+          </Timeline.Description>
+        </div>
 
-          {order.data && (
-            <p className="leading-4 pt-3 text-[#A3A3A3]">
-              {parse(format(order.data))}
-            </p>
+        <Badge
+          borderRadius="8px"
+          px={3}
+          py={2}
+          bg="#111111"
+          color={accent.label}
+          border={`1px solid ${accent.border}`}
+          whiteSpace="nowrap"
+        >
+          {statusLabel(order.status)}
+        </Badge>
+      </HStack>
+
+      {order.data && (
+        <p className="leading-4 pt-3 text-[#A3A3A3]">
+          {parse(format(order.data))}
+        </p>
+      )}
+
+      <div className="flex flex-col gap-y-0.5 mt-3 items-start">
+        {order.delivery_cep && (
+          <div className="text-sm flex items-center space-x-0.5">
+            <span className=" text-neutral-400">Cep</span>
+            <span className="w-full leading-3.5">{order.delivery_cep}</span>
+          </div>
+        )}
+        {order.delivery_address && (
+          <div className="text-sm flex gap-x-2">
+            <span className=" text-neutral-400">Endereço</span>
+            <span className="w-full">{order.delivery_address}</span>
+          </div>
+        )}
+        {order.delivery_address && (
+          <div className="text-sm flex gap-x-1.5">
+            <span className=" text-neutral-400">Número</span>
+            <span className="w-full">{order.delivery_number}</span>
+          </div>
+        )}
+
+        {order.delivery_reference_point && (
+          <span className=" bg-amber-300/30 mt-1 px-0.5">
+            "{order.delivery_reference_point}"
+          </span>
+        )}
+        {order.delivery_complement && (
+          <div className="text-sm flex flex-col -space-y-0.5">
+            <span className="text-xs text-neutral-400">Complemento</span>
+            <span className="w-full leading-3.5">
+              {order.delivery_complement}
+            </span>
+          </div>
+        )}
+      </div>
+
+      <div className="w-full mt-4 text-sm">
+        {/* Pagamento */}
+        <div className="space-y-1">
+          <div className="flex justify-between text-gray-400">
+            <span>Forma de pagamento</span>
+            <span className="text-white font-medium">
+              {order.payment_method}
+            </span>
+          </div>
+
+          {order.payment_change_to && (
+            <div className="flex justify-between text-gray-400">
+              <span>Troco para</span>
+              <span className="text-white font-medium">
+                {formatToBRL(order.payment_change_to)}
+              </span>
+            </div>
           )}
-        </Collapsible.Content>
-      </Collapsible.Root>
+        </div>
+
+        {/* Total */}
+        {order.total && (
+          <>
+            <div className="my-2 border-t border-gray-700" />
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-gray-300 font-semibold">Total</span>
+              <span className="text-green-400 text-xl font-bold">
+                {formatToBRL(order.total)}{" "}
+                {order.charge_status === "approved" ||
+                  (order.charge_status === "authorized" && (
+                    <span className="text-sm text-green-600">
+                      (JÁ ESTÁ PAGO)
+                    </span>
+                  ))}
+              </span>
+            </div>
+          </>
+        )}
+
+        {/* Troco */}
+        {order.payment_change_to && order.total && (
+          <div className="flex justify-between text-gray-400">
+            <span>Troco</span>
+            <span className="text-white font-medium">
+              {formatToBRL(order.payment_change_to - order.total)}
+            </span>
+          </div>
+        )}
+      </div>
     </Box>
   );
 }

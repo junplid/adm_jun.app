@@ -96,7 +96,30 @@ export async function getRouterOrders(
     n_order: string;
     delivery_lat: number | null;
     delivery_lng: number | null;
+    delivery_address: string | null;
+    delivery_complement: string | null;
+    delivery_reference_point: string | null;
+    delivery_cep: string | null;
+    delivery_number: string | null;
     data: string;
+    total: number | undefined;
+    payment_change_to: number | null;
+    payment_method: string | null;
+    charge_status:
+      | (
+          | "pending"
+          | "cancelled"
+          | "refunded"
+          | "created"
+          | "approved"
+          | "authorized"
+          | "in_process"
+          | "in_mediation"
+          | "rejected"
+          | "charged_back"
+          | "refused"
+        )
+      | undefined;
   }[];
 }> {
   const { data } = await api.get(`/public/router-orders/${code}`, { params });
