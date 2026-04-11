@@ -1,5 +1,5 @@
 import { JSX } from "react";
-import { Button, Center, Spinner } from "@chakra-ui/react";
+import { Center, Spinner } from "@chakra-ui/react";
 import {
   TabsList,
   TabsRoot,
@@ -11,7 +11,6 @@ import { useParams } from "react-router-dom";
 import { useGetMenuOnline } from "../../../hooks/menu-online";
 import { TabConfig } from "./tabs/config";
 import { FiExternalLink } from "react-icons/fi";
-import { createMenuOnlineTestPrint } from "../../../services/api/MenuOnline";
 
 export type TypeVariable = "dynamics" | "constant" | "system";
 
@@ -29,10 +28,6 @@ export const MenuOnlinePage: React.FC = (): JSX.Element => {
   const { data, isError, isFetching } = useGetMenuOnline({
     uuid: params.uuid!,
   });
-
-  const runPrint = async () => {
-    await createMenuOnlineTestPrint(params.uuid!);
-  };
 
   if (isFetching) {
     return (
@@ -60,9 +55,6 @@ export const MenuOnlinePage: React.FC = (): JSX.Element => {
       <div className="flex flex-col gap-y-0.5">
         <div className="flex items-center w-full justify-between gap-x-5">
           <div className="flex items-center gap-x-3">
-            <Button onClick={runPrint} variant="outline" size={"sm"}>
-              PRINT
-            </Button>
             <a
               className="text-lg flex items-center gap-x-1 font-semibold text-blue-300 underline"
               href={`https://menu.junplid.com.br/${data.identifier}`}

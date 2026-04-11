@@ -80,6 +80,46 @@ export async function updateMenuOnlineSubItemsStatus(
   await api.put(`/private/menus-online/${menuUuid}/subItems/status`, body);
 }
 
+export async function createMenuOnlineReport(
+  menuUuid: string,
+  body: {
+    start: Date | null;
+    end: Date | null;
+  },
+): Promise<void> {
+  const response = await api.post(
+    `/private/menus-online/${menuUuid}/report`,
+    body,
+    {
+      responseType: "blob",
+    },
+  );
+
+  const blob = new Blob([response.data], { type: "application/pdf" });
+  const url = window.URL.createObjectURL(blob);
+
+  // opcional: pegar nome do header
+  const disposition = response.headers["content-disposition"];
+  let filename = "relatorio.pdf";
+
+  if (disposition) {
+    const match = disposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+    if (match && match[1]) {
+      filename = match[1].replace(/['"]/g, "");
+    }
+  }
+
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+
+  document.body.appendChild(link);
+  link.click();
+
+  link.remove();
+  window.URL.revokeObjectURL(url);
+}
+
 export async function updateMenuOnlineItem(
   menuUuid: string,
   uuid: string,
@@ -284,10 +324,6 @@ export async function updateMenuOnlineOperatingDays(
   },
 ): Promise<void> {
   await api.put(`/private/menus-online/${uuid}/operating-days`, body);
-}
-
-export async function createMenuOnlineTestPrint(uuid: string): Promise<void> {
-  await api.post(`/private/menus-online/${uuid}/test-print`);
 }
 
 export async function getMenuOnlineDetails(id: number): Promise<{

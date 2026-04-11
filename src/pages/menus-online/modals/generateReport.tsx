@@ -1,4 +1,4 @@
-import { JSX, useState } from "react";
+import { JSX, useContext, useState } from "react";
 import { Button, VStack } from "@chakra-ui/react";
 import { CloseButton } from "@components/ui/close-button";
 import {
@@ -12,36 +12,31 @@ import {
   DialogCloseTrigger,
   DialogActionTrigger,
 } from "@components/ui/dialog";
-import { VariableRow } from "../menu";
-// import { AxiosError } from "axios";
-// import { z } from "zod";
-import DatePicker, { registerLocale, } from "react-datepicker";
+import DatePicker, { registerLocale } from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { pt } from 'date-fns/locale/pt';
+import { pt } from "date-fns/locale/pt";
 import moment from "moment";
-registerLocale('pt', pt)
+import { createMenuOnlineReport } from "../../../services/api/MenuOnline";
+import { AxiosError } from "axios";
+import { AuthContext } from "@contexts/auth.context";
+import { ErrorResponse_I } from "../../../services/api/ErrorResponse";
+import { toaster } from "@components/ui/toaster";
+registerLocale("pt", pt);
 
 interface IProps {
-  onCreate?(business: VariableRow): Promise<void>;
   trigger: JSX.Element;
   placement?: "top" | "bottom" | "center";
+  uuid: string;
 }
-
-// const FormSchema = z.object({
-//   identifier: z.string().min(1, "Campo obrigatório."),
-//   desc: z.string().optional(),
-//   img: z.instanceof(File, { message: "Campo obrigatório." }),
-//   connectionWAId: z.number({ message: "Campo obrigatório." }),
-// });
-
-// type Fields = z.infer<typeof FormSchema>;
 
 export function ModalGenerateReportMenuOnline({
   placement = "bottom",
   ...props
 }: IProps): JSX.Element {
   const [startDate, setStartDate] = useState<Date | null>(new Date());
-  const [endDate, setEndDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(new Date());
+  const [loading, setLoading] = useState(false);
+  const { logout } = useContext(AuthContext);
 
   const onChange = (dates: [Date | null, Date | null]) => {
     const [start, end] = dates;
@@ -51,21 +46,31 @@ export function ModalGenerateReportMenuOnline({
 
   const [open, setOpen] = useState(false);
 
-  // const create = useCallback(async (fields: Fields): Promise<void> => {
-  //   try {
-  //     // const { uuid } = await createMenu(fields);
-  //     // navigate(`/auth/menus-online/${uuid}`);
-  //     // reset();
-  //     // const { businessIds, ...rest } = fields;
-  //     // props.onCreate?.({ ...menu, ...rest });
-  //   } catch (error) {
-  //     if (error instanceof AxiosError) {
-  //       console.log("Error-API", error);
-  //     } else {
-  //       console.log("Error-Client", error);
-  //     }
-  //   }
-  // }, []);
+  const create = async (): Promise<void> => {
+    try {
+      setLoading(true);
+      await createMenuOnlineReport(props.uuid, {
+        start: startDate,
+        end: endDate,
+      });
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+      if (error instanceof AxiosError) {
+        if (error.response?.status === 401) logout();
+        if (error.response?.status === 400) {
+          const dataError = error.response?.data as ErrorResponse_I;
+          if (dataError.toast?.length) dataError.toast.forEach(toaster.create);
+          if (dataError.input?.length) {
+            dataError.input.forEach(({ text, path }) =>
+              // @ts-expect-error
+              setError?.(path, { message: text }),
+            );
+          }
+        }
+      }
+    }
+  };
 
   return (
     <DialogRoot
@@ -81,7 +86,12 @@ export function ModalGenerateReportMenuOnline({
       <DialogContent
         backdrop
         as={"form"}
-        // onSubmit={handleSubmit(create)}
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (!loading) {
+            create();
+          }
+        }}
         w={"348px"}
       >
         <DialogHeader flexDirection={"column"} gap={0}>
@@ -103,20 +113,31 @@ export function ModalGenerateReportMenuOnline({
               {startDate && (
                 <span>{moment(startDate).format("DD/MM/YYYY")}</span>
               )}
-              {endDate && !moment(endDate).isSame(startDate) && [
-                "à",
-                <span>{moment(endDate).format("DD/MM/YYYY")}</span>
-              ]}
+              {endDate &&
+                !moment(endDate).isSame(startDate) && [
+                  "à",
+                  <span>{moment(endDate).format("DD/MM/YYYY")}</span>,
+                ]}
             </div>
           </VStack>
         </DialogBody>
         <DialogFooter>
           <DialogActionTrigger asChild>
-            <Button type="button" size={"sm"} disabled={false} variant="outline">
+            <Button
+              type="button"
+              size={"sm"}
+              disabled={false}
+              variant="outline"
+            >
               Cancelar
             </Button>
           </DialogActionTrigger>
-          <Button type="submit" colorPalette={"blue"} size={"sm"} loading={false}>
+          <Button
+            type="submit"
+            colorPalette={"blue"}
+            size={"sm"}
+            loading={loading}
+          >
             Baixar
           </Button>
         </DialogFooter>
