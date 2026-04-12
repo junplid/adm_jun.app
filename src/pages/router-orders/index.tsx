@@ -213,6 +213,7 @@ export const RouterOrdersPage: React.FC<RouterOrdersPageProps> = ({
   const params = useParams<{ n_router: string; fsid: string }>();
   const [searchParams] = useSearchParams();
   const [router, setRouter] = useState<DataRouter | null>(null);
+  const [manualCode, setManualCode] = useState<string[]>([]);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -289,23 +290,6 @@ export const RouterOrdersPage: React.FC<RouterOrdersPageProps> = ({
   const queueQrOrder = (rawValue: string) => {
     const orderId = normalizeQrValue(rawValue);
     if (!orderId) return;
-
-    // setOrders((prev) => {
-    //   const alreadyKnown = prev.some((order) => order.id === orderId);
-    //   if (!alreadyKnown) {
-    //     return [
-    //       ...prev,
-    //       {
-    //         id: orderId,
-    //         title: `Pedido #${orderId}`,
-    //         status: "TO_DELIVER",
-    //         updatedAt: "Agora",
-    //         note: "Lido pelo QR",
-    //       },
-    //     ];
-    //   }
-    //   return prev;
-    // });
 
     const currentLabel =
       router?.orders.find((order) => order.n_order === orderId)?.name ??
@@ -394,6 +378,16 @@ export const RouterOrdersPage: React.FC<RouterOrdersPageProps> = ({
   const closeScanner = () => {
     setCameraOpen(false);
     stopCamera();
+  };
+
+  const handleManualCodeComplete = (value: string[]) => {
+    const code = value.join("").trim();
+
+    if (code.length !== 6) return;
+
+    queueQrOrder(code);
+
+    setManualCode([]); // limpa corretamente
   };
 
   const handleJoinRoute = async () => {
@@ -948,7 +942,7 @@ export const RouterOrdersPage: React.FC<RouterOrdersPageProps> = ({
                       Câmera do QR
                     </Text>
                     <Text fontSize="xs" color="#a3a3a3">
-                      aponte para o QR da nota
+                      Aponte para o QR da nota ou digite o Código do pedido
                     </Text>
                   </Box>
                   <Button
@@ -1000,6 +994,70 @@ export const RouterOrdersPage: React.FC<RouterOrdersPageProps> = ({
                   </Text>
                 </Box>
               )}
+
+              <Box
+                mt={4}
+                bg="#151515"
+                borderTop="1px solid #262626"
+                borderRadius="18px"
+                px={4}
+                py={4}
+              >
+                <Text
+                  fontSize="sm"
+                  className="text-center"
+                  fontWeight="700"
+                  mb={2}
+                  opacity={
+                    !router || router.status === "awaiting_assignment" ? 0.4 : 1
+                  }
+                >
+                  Ou digite o código do pedido
+                </Text>
+
+                <Center>
+                  <PinInput.Root
+                    otp
+                    type="numeric"
+                    count={6}
+                    value={manualCode}
+                    onValueChange={(details) => setManualCode(details.value)}
+                    onValueComplete={(details) =>
+                      handleManualCodeComplete(details.value)
+                    }
+                    disabled={
+                      !router || router.status === "awaiting_assignment"
+                    }
+                  >
+                    <PinInput.HiddenInput />
+                    <PinInput.Control>
+                      <Group attached justifyContent="space-between" gap={2}>
+                        {Array.from({ length: 6 }).map((_, index) => (
+                          <PinInput.Input
+                            key={index}
+                            index={index}
+                            style={{
+                              width: "40px",
+                              height: "48px",
+                              borderRadius: "14px",
+                              background: "#0f0f0f",
+                              border: "1px solid #2f2f2f",
+                              color: "#fff",
+                              fontSize: "18px",
+                              fontWeight: 700,
+                            }}
+                          />
+                        ))}
+                      </Group>
+                    </PinInput.Control>
+                  </PinInput.Root>
+                </Center>
+
+                <Text fontSize="xs" color="#A3A3A3" mt={3} textAlign="center">
+                  Ao completar os 6 dígitos, o pedido entra na fila
+                  automaticamente.
+                </Text>
+              </Box>
             </Box>
           </Box>
         )}
