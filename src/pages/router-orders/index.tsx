@@ -276,6 +276,7 @@ export const RouterOrdersPage: React.FC<RouterOrdersPageProps> = ({
     }
     setPendingBatch({ ids: [], labels: [] });
     setSendingBatch(false);
+    closeScanner();
   };
 
   const scheduleDebounceSend = (nextBatch: PendingBatch) => {
@@ -594,7 +595,7 @@ export const RouterOrdersPage: React.FC<RouterOrdersPageProps> = ({
                 <HStack justify="space-between" align="start" mb={3}>
                   <Box>
                     <Text fontSize="lg" fontWeight="800">
-                      Pedidos da rota
+                      Pedidos da rota ({params.n_router || ""})
                     </Text>
                     {router?.menu.titlePage && (
                       <Text fontSize="sm" color="#A3A3A3">
@@ -634,9 +635,7 @@ export const RouterOrdersPage: React.FC<RouterOrdersPageProps> = ({
                       fontWeight="700"
                       disabled={!router || router.status !== "in_progress"}
                     >
-                      {cameraOpen
-                        ? "Fechar câmera"
-                        : "Abrir câmera para ler QR"}
+                      {cameraOpen ? "Fechar câmera" : "Coletar pedido"}
                     </Button>
                   )}
 

@@ -929,7 +929,7 @@ export const OrdersPage: React.FC = (): JSX.Element => {
       const { orders: oL } = await getOrders({
         status: [
           // "draft",
-          // "pending",
+          "pending",
           "confirmed",
           "processing",
           "ready",
@@ -1145,7 +1145,11 @@ export const OrdersPage: React.FC = (): JSX.Element => {
       }) => {
         setOrders((state) => {
           const copyState = structuredClone(state);
-          const ordersStart = copyState[props.sourceStatus];
+          const ordersStart: Order[] | undefined =
+            copyState[props.sourceStatus];
+          if (!ordersStart) {
+            return copyState;
+          }
           const indexOrder = ordersStart.findIndex(
             (o) => o.id === props.orderId,
           );

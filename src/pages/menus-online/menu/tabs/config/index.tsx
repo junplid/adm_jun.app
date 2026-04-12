@@ -90,7 +90,7 @@ function FormConfigComponent({ uuid }: { uuid: string }) {
         uuid,
         ...restD
       } = data;
-      reset({ ...restD, bg_capa: "#e5e5e5" });
+      reset(restD);
     }
   }, [data]);
 
@@ -197,7 +197,7 @@ function FormConfigComponent({ uuid }: { uuid: string }) {
         >
           <Input {...register("bg_capa")} autoComplete="off" />
         </Field>
-        <Field
+        {/* <Field
           errorText={errors.bg_primary?.message}
           invalid={!!errors.bg_primary}
           label="BG Primária"
@@ -212,8 +212,7 @@ function FormConfigComponent({ uuid }: { uuid: string }) {
           disabled={isFetching || isLoading || isError}
         >
           <Input {...register("bg_secondary")} autoComplete="off" />
-        </Field>
-
+        </Field> 
         <Field
           errorText={errors.bg_tertiary?.message}
           invalid={!!errors.bg_tertiary}
@@ -221,7 +220,7 @@ function FormConfigComponent({ uuid }: { uuid: string }) {
           disabled={isFetching || isLoading || isError}
         >
           <Input {...register("bg_tertiary")} autoComplete="off" />
-        </Field>
+        </Field> */}
       </div>
 
       <Controller

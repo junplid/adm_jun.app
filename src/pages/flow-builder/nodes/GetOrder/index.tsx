@@ -16,6 +16,7 @@ const optionsFields: { label: string; value: string }[] = [
   { label: "Status", value: "status" },
   { label: "Método de pagamento", value: "payment_method" },
   { label: "Endereço de entrega", value: "delivery_address" },
+  { label: "Taxa de entrega", value: "delivery_fee" },
   { label: "Total", value: "total" },
   { label: "Conteúdo", value: "data" },
   { label: "Número do contato", value: "number_contact" },
@@ -40,6 +41,7 @@ type DataNode = {
   varId_save_delivery_code?: number; //
   varId_save_nOrder?: number; //
   varId_save_type_code?: number; //
+  varId_save_delivery_fee?: number;
 };
 
 function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
@@ -212,6 +214,29 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
             onChange={(e: any) => {
               updateNode(id, {
                 data: { ...data, varId_save_delivery_address: e.value },
+              });
+            }}
+          />
+        </Field>
+      )}
+
+      {data.fields?.includes("delivery_fee") && (
+        <Field label="Salvar Taxa de entrega">
+          <SelectVariables
+            isMulti={false}
+            isClearable={false}
+            isFlow
+            menuPlacement="bottom"
+            filter={(opt) => opt.filter((s) => s.type === "dynamics")}
+            onCreate={(tag) => {
+              updateNode(id, {
+                data: { ...data, varId_save_delivery_fee: tag.id },
+              });
+            }}
+            value={data.varId_save_delivery_fee}
+            onChange={(e: any) => {
+              updateNode(id, {
+                data: { ...data, varId_save_delivery_fee: e.value },
               });
             }}
           />
