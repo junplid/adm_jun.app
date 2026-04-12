@@ -366,13 +366,15 @@ export async function getMenuOnline(params: { uuid: string }): Promise<{
     city: string | null;
     phone_contact: string | null;
     whatsapp_contact: string | null;
-    delivery_fee?: number | null;
+    delivery_fee?: number | null; // base_fee
     payment_methods: (
       | "Dinheiro"
       | "Pix"
       | "Cartao_Credito"
       | "Cartao_Debito"
     )[];
+    price_per_km: number | undefined;
+    max_distance_km: number | null;
   } | null;
 }> {
   const { data } = await api.get(`/private/menus-online/${params.uuid}`);

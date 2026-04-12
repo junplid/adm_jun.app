@@ -23,6 +23,8 @@ const FormSchema = z.object({
   payment_methods: z.array(
     z.enum(["Dinheiro", "Pix", "Cartao_Credito", "Cartao_Debito"]),
   ),
+  price_per_km: z.number().nullish(),
+  max_distance_km: z.number().nullish(),
 });
 
 type Fields = z.infer<typeof FormSchema>;
@@ -165,11 +167,40 @@ export function FormConfigInfoComponent({ uuid }: { uuid: string }) {
       <Field
         errorText={errors.delivery_fee?.message}
         invalid={!!errors.delivery_fee}
-        label="Taxa/Valor de entrega"
+        label="Taxa Base de entrega"
         disabled={isFetching || isLoading || isError}
       >
         <Input
           {...register("delivery_fee", {
+            setValueAs: (v) =>
+              v === "" ? null : Number(v) <= 0 ? 0 : Number(v),
+          })}
+          autoComplete="off"
+        />
+      </Field>
+      <Field
+        errorText={errors.max_distance_km?.message}
+        invalid={!!errors.max_distance_km}
+        label="Raio(KM) máximo da área de entrega (opcional)"
+        disabled={isFetching || isLoading || isError}
+      >
+        <Input
+          {...register("max_distance_km", {
+            setValueAs: (v) =>
+              v === "" ? null : Number(v) <= 0 ? 0 : Number(v),
+          })}
+          autoComplete="off"
+        />
+      </Field>
+      <Field
+        errorText={errors.price_per_km?.message}
+        invalid={!!errors.price_per_km}
+        label="Valor por KM (opcional)"
+        helperText="Taxa Base + (km * Valor por km) = Valor de entrega"
+        disabled={isFetching || isLoading || isError}
+      >
+        <Input
+          {...register("price_per_km", {
             setValueAs: (v) =>
               v === "" ? null : Number(v) <= 0 ? 0 : Number(v),
           })}
