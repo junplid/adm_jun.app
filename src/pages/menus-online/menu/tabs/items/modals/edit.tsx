@@ -230,7 +230,6 @@ function Content(props: IProps): JSX.Element {
     formState: { errors, isSubmitting, isDirty, dirtyFields },
     setError,
     setValue,
-    getValues,
     reset,
     control,
     watch,
@@ -901,23 +900,6 @@ function Content(props: IProps): JSX.Element {
 
             <div
               onClick={() => {
-                const sectionsL = !!getValues("sections")?.length;
-                if (!sectionsL) {
-                  setValue(
-                    "sections",
-                    [
-                      {
-                        maxOptions: null,
-                        minOptions: null,
-                        title: "",
-                        subItems: [],
-                        uuid: "ss",
-                        helpText: null,
-                      },
-                    ],
-                    { shouldDirty: true },
-                  );
-                }
                 if (errors?.afterPrice) {
                   trigger("afterPrice");
                 }

@@ -223,7 +223,6 @@ export function ModalCreateProduct({
     control,
     watch,
     trigger,
-    getValues,
     setValue,
     setError,
   } = useForm<Fields>({
@@ -862,23 +861,6 @@ export function ModalCreateProduct({
 
               <div
                 onClick={() => {
-                  const sectionsL = !!getValues("sections")?.length;
-                  if (!sectionsL) {
-                    setValue(
-                      "sections",
-                      [
-                        {
-                          maxOptions: null,
-                          minOptions: null,
-                          title: "",
-                          subItems: [],
-                          uuid: "ss",
-                          helpText: null,
-                        },
-                      ],
-                      { shouldDirty: true },
-                    );
-                  }
                   if (errors?.afterPrice) {
                     trigger("afterPrice");
                   }
