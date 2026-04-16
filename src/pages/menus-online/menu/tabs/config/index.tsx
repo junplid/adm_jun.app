@@ -35,6 +35,7 @@ const FormSchemaConfig = z.object({
     .string()
     .min(4, { message: "Precisa conter no minimo 4 caracter" }),
   img: z.instanceof(File).optional(),
+  capaimg: z.instanceof(File).optional(),
   titlePage: z.string().nullable(),
   desc: z.string().nullable(),
   bg_primary: z.string().nullable(),
@@ -49,7 +50,11 @@ type ConfigFields = z.infer<typeof FormSchemaConfig>;
 function FormConfigComponent({ uuid }: { uuid: string }) {
   const { data, isError, isFetching, isLoading } = useGetMenuOnline({ uuid });
   const imgProfileRef = useRef<HTMLInputElement>(null);
-  const [cropFile, setCropFile] = useState<File | null>(null);
+  const imgCapaRef = useRef<HTMLInputElement>(null);
+  const [cropFile, setCropFile] = useState<{
+    file: File;
+    name: "img" | "capaimg";
+  } | null>(null);
 
   const {
     handleSubmit,
@@ -95,12 +100,18 @@ function FormConfigComponent({ uuid }: { uuid: string }) {
   }, [data]);
 
   const fileImage = watch("img");
+  const filecapaImage = watch("capaimg");
   const bg_primary = watch("bg_primary");
 
   const imgPreviewUrl = useMemo(() => {
     if (fileImage) return URL.createObjectURL(fileImage);
     if (data?.logoImg) return api.getUri() + `/public/images/${data?.logoImg}`;
   }, [fileImage, data?.logoImg]);
+
+  const imgcapaPreviewUrl = useMemo(() => {
+    if (filecapaImage) return URL.createObjectURL(filecapaImage);
+    if (data?.capaImg) return api.getUri() + `/public/images/${data?.capaImg}`;
+  }, [filecapaImage, data?.capaImg]);
 
   return (
     <form
@@ -109,9 +120,12 @@ function FormConfigComponent({ uuid }: { uuid: string }) {
     >
       {cropFile && (
         <ImageCropModal
-          file={cropFile}
+          file={cropFile.file}
+          aspect={700 / 200}
+          outputWidth={700}
+          outputHeight={200}
           onFinish={(file: any) => {
-            setValue(`img`, file, { shouldDirty: true });
+            setValue(cropFile.name, file, { shouldDirty: true });
             setCropFile(null);
           }}
         />
@@ -126,6 +140,45 @@ function FormConfigComponent({ uuid }: { uuid: string }) {
         <Input {...register("titlePage")} autoComplete="off" />
       </Field>
 
+      <Field
+        errorText={errors.titlePage?.message}
+        invalid={!!errors.titlePage}
+        label="Capa imagem"
+        disabled={isFetching || isLoading || isError}
+      >
+        <div
+          className="relative cursor-pointer border-2 p-0.5"
+          onClick={() => imgCapaRef.current?.click()}
+          style={{
+            borderColor: !!errors.capaimg ? "#e77171" : "transparent",
+          }}
+        >
+          <input
+            type="file"
+            ref={imgCapaRef}
+            hidden
+            className="hidden"
+            max={1}
+            accept="image/jpeg, image/png, image/jpg"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (!file) return;
+
+              setCropFile({ file, name: "capaimg" });
+            }}
+          />
+          {!imgcapaPreviewUrl && (
+            <button className="bg-white/20">Adicionar imagem</button>
+          )}
+          {imgcapaPreviewUrl && (
+            <img
+              src={imgcapaPreviewUrl}
+              alt=""
+              className="max-w-[700px] w-full h-auto object-center"
+            />
+          )}
+        </div>
+      </Field>
       <div className="flex items-center w-full gap-x-2">
         <div
           className="relative cursor-pointer border-2 p-0.5"
@@ -145,7 +198,7 @@ function FormConfigComponent({ uuid }: { uuid: string }) {
               const file = e.target.files?.[0];
               if (!file) return;
 
-              setCropFile(file);
+              setCropFile({ file, name: "img" });
             }}
           />
           <Avatar

@@ -227,6 +227,7 @@ export function useUpdateMenuOnline(props?: {
     bg_capa: string | null;
     connectionWAId: number;
     img?: File | undefined;
+    imgcapa?: File | undefined;
   }>;
   onSuccess?: () => Promise<void>;
 }) {
@@ -248,14 +249,19 @@ export function useUpdateMenuOnline(props?: {
         bg_capa: string | null;
         connectionWAId: number;
         img?: File | undefined;
+        capaimg?: File | undefined;
       };
     }) => MenuOnlineService.updateMenuOnline(id, body),
-    async onSuccess({ logoImg, uuid }, { id, body: { img, ...rest } }) {
+    async onSuccess(
+      { logoImg, capaImg, uuid },
+      { id, body: { img, capaimg: c2, ...rest } },
+    ) {
       if (props?.onSuccess) await props.onSuccess();
       queryClient.setQueryData(["menu-online", uuid], (old: any) => ({
         ...old,
         ...rest,
         logoImg: logoImg ? logoImg : old.logoImg,
+        capaImg: capaImg ? capaImg : old.capaimg,
       }));
 
       if (queryClient.getQueryData<any>(["menus-online", null])) {

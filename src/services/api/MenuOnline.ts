@@ -59,7 +59,7 @@ export async function createMenuOnlineItem(
     days_in_the_week_label: string;
     id: number;
     name: string;
-    image45x45png: string;
+    image45x45png?: string | null;
   }[];
 }> {
   const { data } = await api.post(
@@ -151,7 +151,7 @@ export async function updateMenuOnlineItem(
     days_in_the_week_label: string;
     name: string;
     id: number;
-    image45x45png: string;
+    image45x45png?: string | null;
   }[];
   view: boolean;
   stateWarn: string[];
@@ -172,13 +172,13 @@ export async function createMenuOnlineCategory(
   menuUuid: string,
   body: {
     name: string;
-    fileImage: File;
+    fileImage?: File | null;
     startAt?: string;
     endAt?: string;
     days_in_the_week?: number[];
   },
 ): Promise<{
-  image45x45png: string;
+  image45x45png?: string | null;
   id: number;
   uuid: string;
   days_in_the_week_label: string;
@@ -190,7 +190,9 @@ export async function createMenuOnlineCategory(
       formData.append(key, String(value));
     }
   });
-  formData.append("fileImage", fileImage);
+  if (fileImage) {
+    formData.append("fileImage", fileImage);
+  }
 
   const { data } = await api.post(
     `/private/menus-online/${menuUuid}/categories`,
@@ -206,7 +208,7 @@ export async function updateMenuOnlineCategory(
   catUuid: string,
   body: {
     name?: string;
-    fileImage?: File;
+    fileImage?: File | null;
     startAt?: string;
     endAt?: string;
     days_in_the_week?: number[];
@@ -256,19 +258,22 @@ export async function updateMenuOnline(
     bg_capa: string | null;
     connectionWAId: number;
     img?: File | undefined;
+    capaimg?: File | undefined;
   },
 ): Promise<{
   logoImg?: string;
+  capaImg?: string;
   uuid: string;
 }> {
   const formData = new FormData();
-  const { img, ...rest } = body;
+  const { img, capaimg, ...rest } = body;
   Object.entries(rest).forEach(([key, value]) => {
     if (value !== undefined) {
       formData.append(key, String(value));
     }
   });
   if (img) formData.append("fileImage", img);
+  if (capaimg) formData.append("fileCapaImage", capaimg);
 
   const { data } = await api.put(`/private/menus-online/${id}`, formData, {
     headers: { "Content-Type": "multipart/form-data" },
@@ -342,6 +347,7 @@ export async function getMenuOnline(params: { uuid: string }): Promise<{
   uuid: string;
   identifier: string;
   logoImg: string;
+  capaImg?: string;
   desc?: string;
   bg_primary?: string;
   bg_secondary?: string;
@@ -375,6 +381,10 @@ export async function getMenuOnline(params: { uuid: string }): Promise<{
     )[];
     price_per_km: number | undefined;
     max_distance_km: number | null;
+
+    deliveries_begin_at: string | null;
+    average_delivery_time: string | null;
+    minimum_value_per_order: number | null;
   } | null;
 }> {
   const { data } = await api.get(`/private/menus-online/${params.uuid}`);
@@ -475,7 +485,7 @@ export async function getMenuOnlineItems(params: { uuid: string }): Promise<
       days_in_the_week_label: string;
       id: number;
       name: string;
-      image45x45png: string;
+      image45x45png?: string | null;
     }[];
     uuid: string;
     id: number;
@@ -500,7 +510,7 @@ export async function getMenuOnlineCategories(params: {
     id: number;
     uuid: string;
     name: string;
-    image45x45png: string;
+    image45x45png?: string | null;
     items: number;
     days_in_the_week_label: string;
   }[]
@@ -519,7 +529,7 @@ export async function getOptionsMenuOnlineCategories(params: {
     id: number;
     uuid: string;
     name: string;
-    image45x45png: string;
+    image45x45png?: string | null;
   }[]
 > {
   const { data } = await api.get(
@@ -563,7 +573,7 @@ export async function getMenuOnlineCategory(params: {
   catUuid: string;
 }): Promise<{
   name: string;
-  image45x45png: string;
+  image45x45png?: string | null;
   startAt: Date | null;
   endAt: Date | null;
   days_in_the_week: number[];

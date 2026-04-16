@@ -48,12 +48,14 @@ const SelectMenuOnlineCategories = forwardRef<any, ISelectBusinessesProps>(
                     d.days_in_the_week_label ? "items-start" : "items-center",
                   )}
                 >
-                  <img
-                    src={api.getUri() + "/public/images/" + d.image45x45png}
-                    className="rounded-sm"
-                    width={"35px"}
-                    height={"35px"}
-                  />
+                  {d.image45x45png && (
+                    <img
+                      src={api.getUri() + "/public/images/" + d.image45x45png}
+                      className="rounded-sm"
+                      width={"35px"}
+                      height={"35px"}
+                    />
+                  )}
                   <div className="flex flex-col">
                     <span className="text-sm font-medium">{d.name}</span>
                     <span className="text-xs font-light text-neutral-300">
@@ -99,48 +101,48 @@ const SelectMenuOnlineCategories = forwardRef<any, ISelectBusinessesProps>(
         {...(value !== null && value !== undefined
           ? typeof value === "string"
             ? {
-              value: [
-                { label: opt?.find((i) => i.value === value)?.label, value },
-              ],
-            }
+                value: [
+                  { label: opt?.find((i) => i.value === value)?.label, value },
+                ],
+              }
             : {
-              value: value.map((item) => ({
-                label: opt?.find((i) => i.value === item)?.label,
-                value: item,
-              })),
-            }
+                value: value.map((item) => ({
+                  label: opt?.find((i) => i.value === item)?.label,
+                  value: item,
+                })),
+              }
           : { value: null })}
         menuPosition={isFlow ? "fixed" : "absolute"}
         menuPortalTarget={isFlow ? document.body : undefined}
         components={
           isFlow
             ? {
-              Option: (props) => {
-                const handleMouseDown = (e: React.MouseEvent) => {
-                  e.stopPropagation();
-                  props.innerRef?.(e.currentTarget as HTMLDivElement);
-                  props.selectOption(props.data);
-                };
+                Option: (props) => {
+                  const handleMouseDown = (e: React.MouseEvent) => {
+                    e.stopPropagation();
+                    props.innerRef?.(e.currentTarget as HTMLDivElement);
+                    props.selectOption(props.data);
+                  };
 
-                return (
-                  <div
-                    style={{
-                      backgroundColor: props.isFocused
-                        ? "#1f1e20"
-                        : "transparent",
-                      padding: "6px 8px",
-                      cursor: "pointer",
-                      fontSize: "15px",
-                      borderRadius: "0.125rem",
-                    }}
-                    onMouseDown={handleMouseDown}
-                    {...props.innerProps}
-                  >
-                    {props.children}
-                  </div>
-                );
-              },
-            }
+                  return (
+                    <div
+                      style={{
+                        backgroundColor: props.isFocused
+                          ? "#1f1e20"
+                          : "transparent",
+                        padding: "6px 8px",
+                        cursor: "pointer",
+                        fontSize: "15px",
+                        borderRadius: "0.125rem",
+                      }}
+                      onMouseDown={handleMouseDown}
+                      {...props.innerProps}
+                    >
+                      {props.children}
+                    </div>
+                  );
+                },
+              }
             : undefined
         }
         {...props}

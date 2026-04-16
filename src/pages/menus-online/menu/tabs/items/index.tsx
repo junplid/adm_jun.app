@@ -41,7 +41,7 @@ export interface ItemRow {
     days_in_the_week_label: string;
     id: number;
     name: string;
-    image45x45png: string;
+    image45x45png?: string | null;
   }[];
   uuid: string;
   id: number;
@@ -170,20 +170,22 @@ const TabProducts_ = ({ uuid }: { uuid: string }): JSX.Element => {
         styles: { width: 200 },
         render(row) {
           return (
-            <div className="flex flex-col gap-y-1">
+            <div className="flex items-baseline flex-col gap-y-1">
               {row.categories.map((cat: ItemRow["categories"][0]) => (
                 <div
                   className={clsx(
-                    "flex gap-x-1 bg-amber-50/5 p-1 rounded-md",
+                    "flex gap-x-1 bg-amber-50/5 p-1 pr-1! rounded-md",
                     cat.days_in_the_week_label ? "items-start" : "items-center",
                   )}
                 >
-                  <img
-                    src={api.getUri() + "/public/images/" + cat.image45x45png}
-                    className="rounded-sm"
-                    width={"27px"}
-                    height={"27px"}
-                  />
+                  {cat.image45x45png && (
+                    <img
+                      src={api.getUri() + "/public/images/" + cat.image45x45png}
+                      className="rounded-sm"
+                      width={"27px"}
+                      height={"27px"}
+                    />
+                  )}
                   <div className="flex flex-col">
                     <span className="text-xs font-medium">{cat.name}</span>
                     <span className="text-xs font-light text-neutral-300">
@@ -371,7 +373,7 @@ const TabProducts_ = ({ uuid }: { uuid: string }): JSX.Element => {
                     <div className="relative">
                       <img
                         src={api.getUri() + "/public/images/" + row.img}
-                        className="rounded-sm"
+                        className="rounded-sm bg-white"
                         width={"40px"}
                         height={"40px"}
                       />
@@ -399,36 +401,52 @@ const TabProducts_ = ({ uuid }: { uuid: string }): JSX.Element => {
                   </div>
 
                   <div className="flex items-center mt-1 w-full gap-x-1.5 justify-between">
-                    <div className="flex flex-wrap gap-1 w-full">
-                      {row.categories.map((cat: ItemRow["categories"][0]) => (
+                    <div className="flex gap-1 w-full">
+                      {row.categories
+                        .slice(0, 2)
+                        .map((cat: ItemRow["categories"][0]) => (
+                          <div
+                            className={clsx(
+                              "flex gap-x-1 bg-amber-50/5 p-1! rounded-md",
+                              cat.days_in_the_week_label
+                                ? "items-start"
+                                : "items-center",
+                            )}
+                          >
+                            {cat.image45x45png ? (
+                              <img
+                                src={
+                                  api.getUri() +
+                                  "/public/images/" +
+                                  cat.image45x45png
+                                }
+                                className="rounded-sm"
+                                width={"20px"}
+                                height={"20px"}
+                              />
+                            ) : (
+                              <div className="flex flex-col px-2">
+                                <span className="text-sm font-medium line-clamp-1">
+                                  {cat.name}
+                                </span>
+                                <span className="text-xs font-light text-neutral-300">
+                                  {cat.days_in_the_week_label}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      {!!(row.categories.length > 2) && (
                         <div
                           className={clsx(
-                            "flex gap-x-1 bg-amber-50/5 p-1! pr-2! rounded-md",
-                            cat.days_in_the_week_label
-                              ? "items-start"
-                              : "items-center",
+                            "flex gap-x-1 bg-amber-50/5 p-1! pr-2! rounded-md items-center",
                           )}
                         >
-                          <img
-                            src={
-                              api.getUri() +
-                              "/public/images/" +
-                              cat.image45x45png
-                            }
-                            className="rounded-sm"
-                            width={"20px"}
-                            height={"20px"}
-                          />
                           <div className="flex flex-col">
-                            <span className="text-sm font-medium">
-                              {cat.name}
-                            </span>
-                            <span className="text-xs font-light text-neutral-300">
-                              {cat.days_in_the_week_label}
-                            </span>
+                            <span className="text-sm font-medium">...</span>
                           </div>
                         </div>
-                      ))}
+                      )}
                     </div>
                     <div className="flex gap-x-2 items-center">
                       <Switch.Root

@@ -10,6 +10,7 @@ import {
 } from "../../../../../../hooks/menu-online";
 import { useCallback, useEffect } from "react";
 import SelectComponent from "@components/Select";
+import { useHookFormMask } from "use-mask-input";
 
 const FormSchema = z.object({
   delivery_fee: z.number().nullish(),
@@ -25,6 +26,10 @@ const FormSchema = z.object({
   ),
   price_per_km: z.number().nullish(),
   max_distance_km: z.number().nullish(),
+
+  deliveries_begin_at: z.string().nullish(),
+  average_delivery_time: z.string().nullish(),
+  minimum_value_per_order: z.number().nullish(),
 });
 
 type Fields = z.infer<typeof FormSchema>;
@@ -52,6 +57,9 @@ export function FormConfigInfoComponent({ uuid }: { uuid: string }) {
   const { mutateAsync: updateMenu, isPending } = useUpdateMenuOnlineInfo({
     setError,
   });
+
+  const registerWithMask = useHookFormMask(register);
+
   const edit = useCallback(async (fields: Fields): Promise<void> => {
     if (!data?.id) return;
     try {
@@ -162,6 +170,46 @@ export function FormConfigInfoComponent({ uuid }: { uuid: string }) {
               }}
             />
           )}
+        />
+      </Field>
+
+      <Field
+        errorText={errors.deliveries_begin_at?.message}
+        invalid={!!errors.deliveries_begin_at}
+        label="Horario que as Entregas/Delivery iniciam"
+        disabled={isFetching || isLoading || isError}
+        helperText="Deixe o espaço em branco se o seu serviço de entrega funcionar enquanto a loja estiver aberta."
+      >
+        <Input
+          {...register("deliveries_begin_at")}
+          autoComplete="off"
+          {...registerWithMask(`deliveries_begin_at`, "99:99")}
+        />
+      </Field>
+      <Field
+        errorText={errors.average_delivery_time?.message}
+        invalid={!!errors.average_delivery_time}
+        label="Tempo médio de saída"
+        disabled={isFetching || isLoading || isError}
+      >
+        <Input
+          {...register("average_delivery_time")}
+          placeholder="30-45 min"
+          autoComplete="off"
+        />
+      </Field>
+      <Field
+        errorText={errors.minimum_value_per_order?.message}
+        invalid={!!errors.minimum_value_per_order}
+        label="Valor mínimo por pedido"
+        disabled={isFetching || isLoading || isError}
+      >
+        <Input
+          {...register("minimum_value_per_order", {
+            setValueAs: (v) =>
+              v === "" ? null : Number(v) <= 0 ? 0 : Number(v),
+          })}
+          autoComplete="off"
         />
       </Field>
       <Field

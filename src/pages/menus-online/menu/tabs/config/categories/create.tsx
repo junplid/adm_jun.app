@@ -15,7 +15,7 @@ import { Category } from ".";
 
 const FormSchema = z.object({
   name: z.string().min(1, { message: "Campo obrigatório." }),
-  fileImage: z.instanceof(File, { message: "Campo obrigatório." }),
+  fileImage: z.instanceof(File, { message: "Campo obrigatório." }).nullish(),
   startAt: z.string().optional(),
   endAt: z.string().optional(),
   days_in_the_week: z.array(z.number()).optional(),
@@ -53,6 +53,7 @@ export function FormCreateCategoriesMenuOnlineConfig(props: Props) {
     control,
   } = useForm<Fields>({
     resolver: zodResolver(FormSchema),
+    defaultValues: { fileImage: null },
   });
 
   const create = useCallback(

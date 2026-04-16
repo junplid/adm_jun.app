@@ -1,4 +1,10 @@
-import { Circle, Collapsible, Portal, Spinner } from "@chakra-ui/react";
+import {
+  Circle,
+  Collapsible,
+  IconButton,
+  Portal,
+  Spinner,
+} from "@chakra-ui/react";
 import {
   defaultDropAnimationSideEffects,
   DndContext,
@@ -56,13 +62,14 @@ import {
   MdSupportAgent,
 } from "react-icons/md";
 import { ImConnection } from "react-icons/im";
-import { BiTimeFive } from "react-icons/bi";
+import { BiMapAlt, BiTimeFive } from "react-icons/bi";
 import { ModalChatPlayer } from "../inboxes/departments/modals/Player/modalChat";
 import { useRoomWebSocket } from "../../hooks/roomWebSocket";
 import { BsFillLockFill } from "react-icons/bs";
 import { RxEyeClosed, RxEyeOpen } from "react-icons/rx";
 import { TbMapShare, TbPlayerTrackNext } from "react-icons/tb";
 import opacity from "hex-color-opacity";
+import { ModalMapOrders } from "./modals/map";
 
 export type ItemID = string;
 
@@ -72,7 +79,7 @@ export interface KanbanData {
   done: ItemID[];
 }
 
-interface Order {
+export interface Order {
   id: number;
   name: string | null;
   n_order: string;
@@ -89,6 +96,7 @@ interface Order {
   delivery_reference_point: string | null;
   delivery_number: string | null;
   link_map?: string;
+  n_router?: string;
   channel: "baileys" | "instagram";
   contact?: string;
   adjustments: {
@@ -107,7 +115,6 @@ interface Order {
   ticket: {
     connection: { s: boolean; name: string; channel: "baileys" | "instagram" };
     id: number;
-    // lastMessage: "bot" | "contact" | "user" | "system";
     departmentName: string;
     status: "NEW" | "OPEN";
   }[];
@@ -319,7 +326,6 @@ export function SortableItem({
           className={clsx(
             "relative gap-1 pb-2",
             !isOverlay && isDragging ? "opacity-0" : "opacity-100",
-            // isOver && "opacity-0",
           )}
         >
           <div
@@ -657,8 +663,6 @@ const columns: {
   value: TypeStatusOrder;
   color: string;
 }[] = [
-  // { label: "A confirmar ...", value: "draft", color: "#f5f5f533" },
-  // { label: "Pendentes", value: "pending", color: "#f5f5f533" },
   { label: "Em espera", value: "confirmed", color: "#0EA5E933" },
   { label: "PREPARANDO", value: "processing", color: "#F9731633" },
   { label: "Prontos pra entrega", value: "ready", color: "#22C55E33" },
@@ -1188,11 +1192,50 @@ export const OrdersPage: React.FC = (): JSX.Element => {
     };
   }, []);
 
+  const points = Object.entries(orders)
+    .map(([status, orders]) => {
+      if (status === "ready" || status === "on_way") {
+        const hasPoint = orders
+          .filter(
+            (orde) =>
+              orde.link_map &&
+              orde.link_map!.match(/&destination=(.*)$/)?.length,
+          )
+          .map((d) => {
+            const geo = d.link_map!.match(/&destination=(.*)$/)![1];
+            return {
+              name: d.name,
+              status,
+              n_order: d.n_order,
+              delivery_address: d.delivery_address,
+              delivery_number: d.delivery_number,
+              n_router: d.n_router,
+              delivery_reference_point: d.delivery_reference_point,
+              lat: Number(geo.split(",")[0]),
+              lng: Number(geo.split(",")[1]),
+            };
+          });
+        return hasPoint;
+      }
+      return [];
+    })
+    .flat();
+
   return (
     <div className="h-full gap-y-2 flex flex-col px-2">
       <div className="flex flex-col sm:pl-0 pl-2">
-        <div className="flex items-center gap-x-2 sm:gap-x-5">
+        <div className="flex items-center gap-x-2">
           <h1 className="text-base sm:text-lg font-semibold">Pedidos</h1>
+
+          <ModalMapOrders
+            setOrders={setOrders}
+            points={points}
+            trigger={
+              <IconButton variant={"outline"} size={"xs"}>
+                <BiMapAlt />
+              </IconButton>
+            }
+          />
         </div>
       </div>
       <div className="flex-1 pt-0! grid gap-x-2 h-full">
@@ -1205,7 +1248,6 @@ export const OrdersPage: React.FC = (): JSX.Element => {
           <div className="md:h-[calc(100svh-110px)] sm:h-[calc(100svh-165px)] h-[calc(100svh-130px)] flex overflow-x-auto touch-pan-x">
             <DndContext
               sensors={sensors}
-              // collisionDetection={closestCorners}
               collisionDetection={pointerWithin}
               onDragStart={handleDragStart}
               onDragOver={handleDragOver}

@@ -26,6 +26,8 @@ const optionsFields: {
     | "phone_contact"
     | "whatsapp_contact"
     | "delivery_fee"
+    | "have_deliveries_started"
+    | "deliveries_begin_at"
     | "city";
 }[] = [
   { label: "Endereço", value: "address" },
@@ -42,6 +44,8 @@ const optionsFields: {
   { label: "Número WhatsApp", value: "whatsapp_contact" },
   { label: "Status do dispositivo", value: "device_online" },
   { label: "Número para contato", value: "phone_contact" },
+  { label: "Delivery já começou", value: "have_deliveries_started" },
+  { label: "Quando o delivery começa", value: "deliveries_begin_at" },
 ];
 
 type DataNode = {
@@ -61,6 +65,8 @@ type DataNode = {
     | "phone_contact"
     | "whatsapp_contact"
     | "delivery_fee"
+    | "have_deliveries_started"
+    | "deliveries_begin_at"
   )[];
 
   varId_save_identifier?: number;
@@ -77,6 +83,8 @@ type DataNode = {
   varId_save_whatsapp_contact?: number;
   varId_save_delivery_fee?: number;
   varId_save_device_online?: number;
+  varId_save_have_deliveries_started?: number;
+  varId_save_deliveries_begin_at?: number;
 };
 
 function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
@@ -415,6 +423,52 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
             onChange={(e: any) => {
               updateNode(id, {
                 data: { ...data, varId_save_whatsapp_contact: e.value },
+              });
+            }}
+          />
+        </Field>
+      )}
+
+      {data.fields?.includes("deliveries_begin_at") && (
+        <Field label="Quando o delivery começa">
+          <SelectVariables
+            isMulti={false}
+            isClearable={false}
+            isFlow
+            menuPlacement="bottom"
+            filter={(opt) => opt.filter((s) => s.type === "dynamics")}
+            onCreate={(tag) => {
+              updateNode(id, {
+                data: { ...data, varId_save_deliveries_begin_at: tag.id },
+              });
+            }}
+            value={data.varId_save_deliveries_begin_at}
+            onChange={(e: any) => {
+              updateNode(id, {
+                data: { ...data, varId_save_deliveries_begin_at: e.value },
+              });
+            }}
+          />
+        </Field>
+      )}
+
+      {data.fields?.includes("have_deliveries_started") && (
+        <Field label="O delivery já começou">
+          <SelectVariables
+            isMulti={false}
+            isClearable={false}
+            isFlow
+            menuPlacement="bottom"
+            filter={(opt) => opt.filter((s) => s.type === "dynamics")}
+            onCreate={(tag) => {
+              updateNode(id, {
+                data: { ...data, varId_save_have_deliveries_started: tag.id },
+              });
+            }}
+            value={data.varId_save_have_deliveries_started}
+            onChange={(e: any) => {
+              updateNode(id, {
+                data: { ...data, varId_save_have_deliveries_started: e.value },
               });
             }}
           />

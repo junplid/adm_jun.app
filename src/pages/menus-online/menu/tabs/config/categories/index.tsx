@@ -13,15 +13,28 @@ import { AuthContext } from "@contexts/auth.context";
 import { IoAdd } from "react-icons/io5";
 import { FormCreateCategoriesMenuOnlineConfig } from "./create";
 import { FormEditCategoryMenuOnlineConfig } from "./edit";
-import { closestCenter, DndContext, DragEndEvent, PointerSensor, TouchSensor, useSensor, useSensors } from "@dnd-kit/core";
-import { SortableContext, arrayMove, rectSortingStrategy } from "@dnd-kit/sortable";
+import {
+  closestCenter,
+  DndContext,
+  DragEndEvent,
+  PointerSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  arrayMove,
+  rectSortingStrategy,
+} from "@dnd-kit/sortable";
 import { SortableItem } from "./SortableItems";
+import clsx from "clsx";
 
 export interface Category {
   id: number;
   uuid: string;
   name: string;
-  image45x45png: string;
+  image45x45png?: string | null;
   items: number;
   days_in_the_week_label: string;
 }
@@ -38,13 +51,18 @@ export function SectionCategoriesMenuOnlineConfig(props: Props) {
   const [edit, setEdit] = useState<string | null>(null);
 
   const sensors = useSensors(
-    useSensor(clientMeta.isMobileLike ? TouchSensor : PointerSensor, clientMeta.isMobileLike ? {
-      activationConstraint: {
-        delay: 250,
-        tolerance: 8,
-        distance: 5
-      }
-    } : { activationConstraint: { distance: 1 } }),
+    useSensor(
+      clientMeta.isMobileLike ? TouchSensor : PointerSensor,
+      clientMeta.isMobileLike
+        ? {
+            activationConstraint: {
+              delay: 250,
+              tolerance: 8,
+              distance: 5,
+            },
+          }
+        : { activationConstraint: { distance: 1 } },
+    ),
   );
 
   useEffect(() => {
@@ -73,7 +91,6 @@ export function SectionCategoriesMenuOnlineConfig(props: Props) {
 
   const [upSeq, setUpSeq] = useState<string[]>([]);
 
-
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
 
@@ -91,15 +108,15 @@ export function SectionCategoriesMenuOnlineConfig(props: Props) {
 
   useEffect(() => {
     if (!uuid || !upSeq.length) return;
-    setIsLoad(true)
+    setIsLoad(true);
     const tt = setTimeout(() => {
       (async () => {
         try {
           await updateMenuOnlineCategorySequence(uuid, { items: upSeq });
           setUpSeq([]);
-          setIsLoad(false)
+          setIsLoad(false);
         } catch (error) {
-          setIsLoad(false)
+          setIsLoad(false);
           if (error instanceof AxiosError) {
             if (error.response?.status === 401) logout();
             // if (error.response?.status === 400) {
@@ -114,13 +131,12 @@ export function SectionCategoriesMenuOnlineConfig(props: Props) {
             // }
           }
         }
-      })()
+      })();
     }, 2000);
     return () => {
       clearTimeout(tt);
-    }
+    };
   }, [upSeq]);
-
 
   return (
     <section className="space-y-3">
@@ -136,9 +152,7 @@ export function SectionCategoriesMenuOnlineConfig(props: Props) {
             <IoAdd /> Adicionar
           </Button>
         )}
-        {isLoad && (
-          <Spinner />
-        )}
+        {isLoad && <Spinner />}
       </div>
 
       {!categories.length ? (
@@ -161,7 +175,6 @@ export function SectionCategoriesMenuOnlineConfig(props: Props) {
             items={categories.map((i) => i.uuid)}
             strategy={rectSortingStrategy}
           >
-
             <div
               className={
                 "flex flex-wrap bg-white py-2 border border-neutral-200 min-[480px]:grid-cols-[repeat(5,1fr)_50px] items-center gap-x-1 mt-1 px-3"
@@ -175,19 +188,26 @@ export function SectionCategoriesMenuOnlineConfig(props: Props) {
                   <SortableItem key={cat.uuid} id={cat.uuid}>
                     <div
                       style={{ background }}
-                      className="grid rounded-lg grid-cols-[45px_1fr_30px_30px] px-2 pl-1 gap-x-1 items-center cursor-pointer"
+                      className={clsx(
+                        "grid rounded-lg px-2 pl-1 gap-x-1 items-center cursor-pointer",
+                        cat.image45x45png
+                          ? "grid-cols-[45px_1fr_30px_30px]"
+                          : "grid-cols-[1fr_30px_30px]",
+                      )}
                     >
-                      <AspectRatio ratio={1} w={"100%"}>
-                        <div
-                          className={`rounded-xl w-full p-0.5 flex justify-center duration-300 items-center`}
-                        >
-                          <img
-                            src={`${api.getUri()}/public/images/${cat.image45x45png}`}
-                            className="w-full h-auto "
-                            alt={cat.name}
-                          />
-                        </div>
-                      </AspectRatio>
+                      {cat.image45x45png && (
+                        <AspectRatio ratio={1} w={"100%"}>
+                          <div
+                            className={`rounded-xl w-full p-0.5 flex justify-center duration-300 items-center`}
+                          >
+                            <img
+                              src={`${api.getUri()}/public/images/${cat.image45x45png}`}
+                              className="w-full h-auto "
+                              alt={cat.name}
+                            />
+                          </div>
+                        </AspectRatio>
+                      )}
 
                       <div className="flex flex-col">
                         <span
@@ -214,8 +234,13 @@ export function SectionCategoriesMenuOnlineConfig(props: Props) {
                             `Deseja realmente deletar a categoria "${cat.name}"?`,
                           );
                           if (state && uuid) {
-                            await deleteMenuOnlineCategory({ uuid, catUuid: cat.uuid });
-                            setCategories(c => c.filter(sss => sss.uuid !== cat.uuid))
+                            await deleteMenuOnlineCategory({
+                              uuid,
+                              catUuid: cat.uuid,
+                            });
+                            setCategories((c) =>
+                              c.filter((sss) => sss.uuid !== cat.uuid),
+                            );
                           }
                         }}
                         variant={"plain"}
@@ -249,8 +274,7 @@ export function SectionCategoriesMenuOnlineConfig(props: Props) {
             setCategories((ca) =>
               ca.map((c) => {
                 if (c.uuid === values.uuid) {
-                  if (values.image45x45png)
-                    c.image45x45png = values.image45x45png;
+                  c.image45x45png = values.image45x45png;
                   if (values.name) c.name = values.name;
                   c.days_in_the_week_label = values.days_in_the_week_label;
                 }

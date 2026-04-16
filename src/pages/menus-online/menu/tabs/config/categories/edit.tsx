@@ -18,7 +18,7 @@ import { api } from "../../../../../../services/api";
 
 const FormSchema = z.object({
   name: z.string().min(1, { message: "Campo obrigatório." }),
-  fileImage: z.instanceof(File, { message: "Campo obrigatório." }).optional(),
+  fileImage: z.instanceof(File, { message: "Campo obrigatório." }).nullish(),
   startAt: z.string().optional(),
   endAt: z.string().optional(),
   days_in_the_week: z.array(z.number()).optional(),
@@ -52,11 +52,12 @@ export function FormEditCategoryMenuOnlineConfig(props: Props) {
   const { logout } = useContext(AuthContext);
   const { uuid } = useParams<{ uuid: string }>();
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const {
     handleSubmit,
     register,
-    formState: { errors },
+    formState: { errors, isDirty },
     reset,
     setError,
     setValue,
@@ -77,7 +78,9 @@ export function FormEditCategoryMenuOnlineConfig(props: Props) {
           days_in_the_week: category.days_in_the_week || [],
           name: category.name,
         });
-        setPreviewImage(category.image45x45png);
+        if (category.image45x45png) {
+          setPreviewImage(category.image45x45png);
+        }
       } catch (error) {
         if (error instanceof AxiosError) {
           if (error.response?.status === 401) logout();
@@ -99,25 +102,22 @@ export function FormEditCategoryMenuOnlineConfig(props: Props) {
   const update = useCallback(
     async (fields: Fields): Promise<void> => {
       if (!uuid) return;
+      setLoading(true);
       try {
-        const changedFields = Object.keys(fields).reduce((acc, key) => {
-          // @ts-expect-error
-          acc[key] = fields[key];
-          return acc;
-        }, {} as Partial<Fields>);
-        console.log(changedFields);
         const category = await updateMenuOnlineCategory(
           uuid,
           props.catUuid,
-          changedFields,
+          fields,
         );
         props.onEdit({
           ...category,
           uuid: props.catUuid,
-          name: changedFields.name,
+          name: fields.name,
         });
         reset();
+        setLoading(false);
       } catch (error) {
+        setLoading(false);
         if (error instanceof AxiosError) {
           if (error.response?.status === 401) logout();
           if (error.response?.status === 400) {
@@ -137,6 +137,8 @@ export function FormEditCategoryMenuOnlineConfig(props: Props) {
     [uuid],
   );
 
+  console.log(errors);
+
   return (
     <div className="flex flex-col">
       <span>Atualizar categoria</span>
@@ -150,16 +152,27 @@ export function FormEditCategoryMenuOnlineConfig(props: Props) {
           }
         >
           {previewImage && (
-            <AspectRatio ratio={1} w={"100%"}>
-              <div
-                className={`rounded-xl w-full p-0.5 flex justify-center duration-300 items-center`}
-              >
-                <img
-                  src={`${api.getUri()}/public/images/${previewImage}`}
-                  className="w-full h-auto "
-                />
-              </div>
-            </AspectRatio>
+            <div
+              className="flex flex-col"
+              onClick={() => {
+                setValue("fileImage", null, { shouldDirty: true });
+                setPreviewImage(null);
+              }}
+            >
+              <AspectRatio ratio={1} w={"100%"}>
+                <div
+                  className={`rounded-xl w-full p-0.5 flex justify-center duration-300 items-center`}
+                >
+                  <img
+                    src={`${api.getUri()}/public/images/${previewImage}`}
+                    className="w-full h-auto "
+                  />
+                </div>
+              </AspectRatio>
+              <span className="text-[11px] text-red-400 font-medium text-center">
+                Remover
+              </span>
+            </div>
           )}
           <Field
             label="Nova foto 45x45"
@@ -231,7 +244,13 @@ export function FormEditCategoryMenuOnlineConfig(props: Props) {
           >
             Cancelar
           </Button>
-          <Button colorPalette={"teal"} size={"sm"} type="submit">
+          <Button
+            colorPalette={"teal"}
+            size={"sm"}
+            type="submit"
+            disabled={!isDirty}
+            loading={loading}
+          >
             Atualizar
           </Button>
         </div>
