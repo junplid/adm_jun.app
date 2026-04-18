@@ -14,8 +14,8 @@ import { useHookFormMask } from "use-mask-input";
 
 const FormSchema = z.object({
   delivery_fee: z.number().nullish(),
-  lat: z.number().nullish(),
-  lng: z.number().nullish(),
+  lat: z.string().nullish(),
+  lng: z.string().nullish(),
   address: z.string().nullish(),
   state_uf: z.string().nullish(),
   city: z.string().nullish(),
@@ -60,21 +60,44 @@ export function FormConfigInfoComponent({ uuid }: { uuid: string }) {
 
   const registerWithMask = useHookFormMask(register);
 
-  const edit = useCallback(async (fields: Fields): Promise<void> => {
-    if (!data?.id) return;
-    try {
-      await updateMenu({ uuid, body: fields });
-    } catch (error) {
-      if (error instanceof AxiosError) {
-        console.log("Error-API", error);
-      } else {
-        console.log("Error-Client", error);
+  const edit = useCallback(
+    async ({ lat, lng, ...fields }: Fields): Promise<void> => {
+      if (!data?.id) return;
+      try {
+        if (lat && isNaN(Number(lat))) {
+          setError("lat", { message: "Coordenadas inválidas" });
+          return;
+        }
+        if (lng && isNaN(Number(lng))) {
+          setError("lng", { message: "Coordenadas inválidas" });
+          return;
+        }
+        await updateMenu({
+          uuid,
+          body: {
+            ...fields,
+            lat: lat ? Number(lat) : null,
+            lng: lng ? Number(lng) : null,
+          },
+        });
+      } catch (error) {
+        if (error instanceof AxiosError) {
+          console.log("Error-API", error);
+        } else {
+          console.log("Error-Client", error);
+        }
       }
-    }
-  }, []);
+    },
+    [],
+  );
 
   useEffect(() => {
-    if (data?.info) reset(data.info);
+    if (data?.info)
+      reset({
+        ...data.info,
+        lat: data.info.lat ? String(data.info.lat) : null,
+        lng: data.info.lng ? String(data.info.lng) : null,
+      });
   }, [data]);
 
   return (
@@ -112,16 +135,16 @@ export function FormConfigInfoComponent({ uuid }: { uuid: string }) {
       </Field>
       <div className="flex gap-x-2">
         <Field
-          errorText={errors.address?.message}
-          invalid={!!errors.address}
+          errorText={errors.lat?.message}
+          invalid={!!errors.lat}
           label="Lat"
           disabled={isFetching || isLoading || isError}
         >
           <Input {...register("lat")} autoComplete="off" />
         </Field>
         <Field
-          errorText={errors.address?.message}
-          invalid={!!errors.address}
+          errorText={errors.lng?.message}
+          invalid={!!errors.lng}
           label="Lng"
           disabled={isFetching || isLoading || isError}
         >

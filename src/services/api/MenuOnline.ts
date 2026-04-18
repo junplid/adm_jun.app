@@ -381,6 +381,8 @@ export async function getMenuOnline(params: { uuid: string }): Promise<{
     )[];
     price_per_km: number | undefined;
     max_distance_km: number | null;
+    lat: number | null;
+    lng: number | null;
 
     deliveries_begin_at: string | null;
     average_delivery_time: string | null;
