@@ -305,7 +305,7 @@ function Content({
                         isLoadDell ? "blur-[2px]" : "",
                       )}
                     >
-                      <div className="flex flex-col -space-y-1">
+                      <div className="flex flex-col items-baseline -space-y-1">
                         <span>{item.title}</span>
                         <a
                           onClick={() =>
