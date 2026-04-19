@@ -257,7 +257,11 @@ export function SectionsItems(props: Props) {
       });
       if (sections.length) {
         // @ts-expect-error
-        props.setValue("sections", sections, { shouldDirty: true });
+        props.setValue(
+          "sections",
+          sections.map(({ currentUuid }, ...d) => d),
+          { shouldDirty: true },
+        );
       } else {
         setMessage("O item importado não tinha adicionais.");
       }

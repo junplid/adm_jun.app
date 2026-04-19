@@ -37,6 +37,7 @@ import { SettingsAccountPage } from "./pages/settings/account";
 import FarewellPage from "./pages/farewell";
 import DataDeletionPage from "./pages/data-deletion";
 import { RouterOrdersPage } from "./pages/router-orders";
+import { TablesPage } from "./pages/tables";
 
 export default function App() {
   return (
@@ -139,6 +140,7 @@ export default function App() {
               />
             </Route>
             <Route path="orders" caseSensitive element={<OrdersPage />} />
+            <Route path="tables" caseSensitive element={<TablesPage />} />
 
             <Route
               path="appointments"

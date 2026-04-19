@@ -91,6 +91,27 @@ export function useGetMenuOnlineItems(params: { uuid: string }) {
   });
 }
 
+export function useGetMenuOnlineItems2(params: { uuid: string }) {
+  const { logout } = useContext(AuthContext);
+  return useQuery({
+    queryKey: ["menus-online-items2", params],
+    queryFn: async () => {
+      try {
+        return await MenuOnlineService.getMenuOnlineItems2(params);
+      } catch (error) {
+        if (error instanceof AxiosError) {
+          if (error.response?.status === 401) logout();
+          if (error.response?.status === 400) {
+            const dataError = error.response?.data as ErrorResponse_I;
+            if (dataError.toast.length) dataError.toast.forEach(toaster.create);
+          }
+        }
+        throw error;
+      }
+    },
+  });
+}
+
 export function useGetMenusOnlineOptions(params?: {
   name?: string;
   filterIds?: number[];

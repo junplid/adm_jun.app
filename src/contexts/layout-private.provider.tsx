@@ -42,6 +42,7 @@ import clsx from "clsx";
 import { IoMdSettings } from "react-icons/io";
 import { BottomSheetComponent } from "@components/BottomSheet";
 import { CgWebsite } from "react-icons/cg";
+import { GiTable } from "react-icons/gi";
 // import { CgWebsite } from "react-icons/cg";
 // import { QrCode } from "@components/ui/qr-code";
 
@@ -269,7 +270,15 @@ export function LayoutPrivateProvider(): JSX.Element {
               </MenuItem> */}
               <MenuItem
                 icon={<CgWebsite size={22} />}
-                component={<Link to={!pathname.includes("menus-online") ? "/auth/menus-online" : "#"} />}
+                component={
+                  <Link
+                    to={
+                      !pathname.includes("menus-online")
+                        ? "/auth/menus-online"
+                        : "#"
+                    }
+                  />
+                }
                 active={pathname.includes("menus-online")}
               >
                 Cardápio digital
@@ -280,6 +289,13 @@ export function LayoutPrivateProvider(): JSX.Element {
                 active={pathname === "/auth/orders"}
               >
                 Pedidos
+              </MenuItem>
+              <MenuItem
+                icon={<GiTable size={20} />}
+                component={<Link to={"/auth/tables"} />}
+                active={pathname === "/auth/tables"}
+              >
+                Controle de mesas
               </MenuItem>
               <MenuItem
                 icon={<GrConnect size={20} />}

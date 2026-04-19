@@ -459,6 +459,7 @@ export async function getMenuOnlineSectionsOfItem(params: {
 }): Promise<
   {
     uuid: string;
+    currentUuid: string;
     title?: string;
     helpText?: string;
     required: boolean;
@@ -466,7 +467,9 @@ export async function getMenuOnlineSectionsOfItem(params: {
     maxOptions?: number;
     subItems: {
       uuid: string;
+      currentUuid: string;
       name: string;
+      status: boolean | null;
       desc: string | null;
       previewImage: string | null;
       maxLength: number;
@@ -503,6 +506,47 @@ export async function getMenuOnlineItems(params: { uuid: string }): Promise<
 > {
   const { data } = await api.get(`/private/menus-online/${params.uuid}/items`);
   return data.items;
+}
+
+export async function getMenuOnlineItems2(params: { uuid: string }): Promise<{
+  items_with_category: {
+    days_in_the_week_label: string;
+    items: {
+      isSections: boolean;
+      view: boolean;
+      stateWarn: string[];
+      afterPrice: number | undefined;
+      beforePrice: number | undefined;
+      name: string;
+      id: number;
+      uuid: string;
+      desc: string | null;
+      img: string;
+      qnt: number;
+      date_validity: Date | null;
+    }[];
+    name: string;
+    id: number;
+    uuid: string;
+    image45x45png: string | null;
+  }[];
+  items_without_category: {
+    isSections: boolean;
+    view: boolean;
+    stateWarn: string[];
+    afterPrice: number | undefined;
+    beforePrice: number | undefined;
+    uuid: string;
+    id: number;
+    name: string;
+    desc: string | null;
+    img: string;
+    qnt: number;
+    date_validity: Date | null;
+  }[];
+}> {
+  const { data } = await api.get(`/private/menus-online/${params.uuid}/items2`);
+  return data.data;
 }
 
 export async function getMenuOnlineCategories(params: {
