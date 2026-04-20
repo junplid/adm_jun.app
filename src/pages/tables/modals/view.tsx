@@ -16,7 +16,6 @@ import { toaster } from "@components/ui/toaster";
 import { formatToBRL } from "brazilian-values";
 import clsx from "clsx";
 import { useGetMenuOnlineItems2 } from "../../../hooks/menu-online";
-// import { useSearchParams } from "react-router-dom";
 import { FaChevronLeft } from "react-icons/fa";
 import {
   closeTable,
@@ -63,8 +62,6 @@ function Content({
 }: Omit<IProps, "onDeleteTable">) {
   const { logout, clientMeta } = useContext(AuthContext);
   const { dialog, onOpen, close: onCloseDialog } = useDialogModal({});
-  // const [load, setLoad] = useState(true);
-  // const [searchParams, setSearchParams] = useSearchParams();
   const [isAddItem, setIsAddItem] = useState(false);
   const [itemsSelected, setItemsSelected] = useState<ItemSelected[]>([]);
 
@@ -101,47 +98,6 @@ function Content({
         dataPreview.id,
         itemsSelected.map((s) => ({ uuid: s.uuid, qnt: s.qnt })),
       );
-      // setDataPreview((stateTables) => {
-      //   if (!stateTables.order) {
-      //     return {
-      //       ...stateTables,
-      //       status: "OCCUPIED" as TableStatus,
-      //       order: {
-      //         items: newItems.items.map(
-      //           (s) =>
-      //             ({
-      //               obs: null,
-      //               price: s.price,
-      //               side_dishes: null,
-      //               title: s.title,
-      //               ItemOfOrderId: s.ItemOfOrderId,
-      //             }) as TableItem,
-      //         ),
-      //         adjustments: newItems.adjustments,
-      //       },
-      //     };
-      //   }
-
-      //   return {
-      //     ...stateTables,
-      //     order: {
-      //       ...stateTables.order,
-      //       items: [
-      //         ...stateTables.order.items,
-      //         ...newItems.items.map(
-      //           (s) =>
-      //             ({
-      //               obs: null,
-      //               price: s.price,
-      //               side_dishes: null,
-      //               title: s.title,
-      //               ItemOfOrderId: s.ItemOfOrderId,
-      //             }) as TableItem,
-      //         ),
-      //       ],
-      //     },
-      //   };
-      // });
       close();
       onCreateNewsItems(
         newItems.items.map(
