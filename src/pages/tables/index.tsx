@@ -76,7 +76,12 @@ function MesaCard({ onClick, ...table }: { onClick: () => void } & Table) {
 
         <span className="text-xl text-center font-extrabold text-blue-700">
           {formatToBRL(
-            table.order?.items.reduce((ac, cr) => ac + (cr.price || 0), 0) || 0,
+            table.order?.items.reduce(
+              (ac, cr) =>
+                ac +
+                (cr.price || 0) * Number(cr.title.replace(/^(\d*)x.*/, "$1")),
+              0,
+            ) || 0,
           )}
         </span>
       </div>
@@ -100,8 +105,7 @@ function MesaCard({ onClick, ...table }: { onClick: () => void } & Table) {
 }
 
 export const TablesPage: React.FC = (): JSX.Element => {
-  // const { socket } = useContext(SocketContext);
-  const { logout, clientMeta } = useContext(AuthContext);
+  const { logout } = useContext(AuthContext);
   const { dialog: DialogModal, close, onOpen } = useDialogModal({});
   const [tables, setTables] = useState<Table[]>([]);
   const [load, setLoad] = useState(true);
@@ -229,18 +233,36 @@ export const TablesPage: React.FC = (): JSX.Element => {
                     size: "full",
                     content: (
                       <ModalViewTable
-                        onDeleteItem={(tableId, ItemOfOrderId) => {
+                        onDeleteTable={(tableId) => {
+                          setTables((stateTables) =>
+                            stateTables.filter(
+                              (stable) => stable.id !== tableId,
+                            ),
+                          );
+                        }}
+                        onCloseTable={(tableId) => {
                           setTables((stateTables) =>
                             stateTables.map((stable) => {
                               if (stable.id !== tableId) return stable;
-                              if (!stable.order) {
-                                return {
-                                  ...stable,
-                                  // status: "OCCUPIED" as TableStatus,
-                                  // order: { items: newItems, adjustments },
-                                };
-                              }
 
+                              return {
+                                ...stable,
+                                status: "AVAILABLE",
+                                order: {
+                                  ...stable.order,
+                                  items: [],
+                                  adjustments: [],
+                                },
+                              };
+                            }),
+                          );
+                        }}
+                        onDeleteItem={(tableId, ItemOfOrderId) => {
+                          setTables((stateTables) =>
+                            stateTables.map((stable) => {
+                              if (stable.id !== tableId || !stable.order) {
+                                return stable;
+                              }
                               return {
                                 ...stable,
                                 order: {
