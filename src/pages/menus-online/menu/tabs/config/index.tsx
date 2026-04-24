@@ -118,12 +118,25 @@ function FormConfigComponent({ uuid }: { uuid: string }) {
       onSubmit={handleSubmit(edit)}
       className="flex flex-col gap-y-2 px-1.5"
     >
-      {cropFile && (
+      {cropFile && cropFile.name === "capaimg" && (
         <ImageCropModal
           file={cropFile.file}
           aspect={700 / 200}
           outputWidth={700}
           outputHeight={200}
+          onFinish={(file: any) => {
+            setValue(cropFile.name, file, { shouldDirty: true });
+            setCropFile(null);
+          }}
+        />
+      )}
+
+      {cropFile && cropFile.name === "img" && (
+        <ImageCropModal
+          file={cropFile.file}
+          aspect={1 / 1}
+          outputWidth={400}
+          outputHeight={400}
           onFinish={(file: any) => {
             setValue(cropFile.name, file, { shouldDirty: true });
             setCropFile(null);

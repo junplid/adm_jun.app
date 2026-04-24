@@ -256,10 +256,10 @@ export function SectionsItems(props: Props) {
         itemUuid: fields.itemUuid,
       });
       if (sections.length) {
-        // @ts-expect-error
         props.setValue(
           "sections",
-          sections.map(({ currentUuid }, ...d) => d),
+          // @ts-expect-error
+          sections.map(({ currentUuid, ...d }) => d),
           { shouldDirty: true },
         );
       } else {
