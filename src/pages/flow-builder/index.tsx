@@ -321,7 +321,7 @@ function Body(props: IBody): JSX.Element {
       if (typeN === "NodeAddTags") {
         newNode.data = { list: [] };
       } else if (typeN === "NodeAddVariables") {
-        newNode.data = { list: [] };
+        newNode.data = { list: [], list_temp: [] };
       } else if (typeN === "NodeExtractVariable") {
         newNode.data = {
           flags: [],
@@ -358,6 +358,7 @@ function Body(props: IBody): JSX.Element {
         newNode.data = {
           timeout: { value: 30, type: ["MINUTES"] },
           list: [],
+          list_temp: [],
         };
       } else if (typeN === "NodeSendFiles") {
         newNode.data = { files: [] };

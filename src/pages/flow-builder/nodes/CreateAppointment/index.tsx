@@ -40,6 +40,7 @@ type DataNode = {
   startAt: string;
   // endAt: string;
   varId_save_nAppointment?: number;
+  save_locale_var_name_nAppointment?: string;
   actionChannels: { key: string; text: string }[];
 };
 
@@ -172,6 +173,27 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
           onChange={(e: any) => {
             updateNode(id, {
               data: { ...data, varId_save_nAppointment: e.value },
+            });
+          }}
+        />
+      </Field>
+
+      <Field label="Salvar código do agendamento na variável local">
+        <AutocompleteTextField
+          // @ts-expect-error
+          trigger={["/", "{{"]}
+          maxOptions={20}
+          matchAny
+          options={{
+            "{{": variables?.map((s) => s.name + "}} ") || [],
+          }}
+          defaultValue={data.save_locale_var_name_nAppointment || ""}
+          type="text"
+          placeholder={`Nome da variável local`}
+          onChange={async (target: string) => {
+            setDataMok({
+              ...data,
+              save_locale_var_name_nAppointment: target,
             });
           }}
         />

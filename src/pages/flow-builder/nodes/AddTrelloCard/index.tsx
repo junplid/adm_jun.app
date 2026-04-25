@@ -21,6 +21,7 @@ type DataNode = {
   desc?: string;
   // labels: { name: string; color: string }[];
   varId_save_cardId?: number;
+  save_locale_var_name?: string;
 };
 
 function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
@@ -212,6 +213,27 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
           onChange={(e: any) => {
             updateNode(id, {
               data: { ...data, varId_save_cardId: e.value },
+            });
+          }}
+        />
+      </Field>
+
+      <Field label="Salvar na variável local">
+        <AutocompleteTextField
+          // @ts-expect-error
+          trigger={["/", "{{"]}
+          maxOptions={20}
+          matchAny
+          options={{
+            "{{": variables?.map((s) => s.name + "}} ") || [],
+          }}
+          defaultValue={data.save_locale_var_name || ""}
+          type="text"
+          placeholder={`Nome da variável local`}
+          onChange={async (target: string) => {
+            setDataMok({
+              ...data,
+              save_locale_var_name: target,
             });
           }}
         />

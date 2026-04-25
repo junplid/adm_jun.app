@@ -51,6 +51,7 @@ type DataNode = {
   itens_count?: number;
   charge_transactionId?: string;
   varId_save_nOrder?: number;
+  save_locale_var_name_nOrder?: string;
   notify?: boolean;
   payment_method?: string;
   actionChannels: { key: string; text: string }[];
@@ -112,7 +113,9 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
           spacer={"}} "}
           placeholder="Digite o codigo ou {{code}} do pedido"
           defaultValue={data.sync_order_existing_code || ""}
-          onChange={(value: string) => setDataMok({ ...data, sync_order_existing_code: value })}
+          onChange={(value: string) =>
+            setDataMok({ ...data, sync_order_existing_code: value })
+          }
         />
       </Field>
 
@@ -138,11 +141,11 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
             value={
               data.status
                 ? {
-                  value: data.status,
-                  label:
-                    optionsStatus.find((s) => s.value === data.status)
-                      ?.label || "",
-                }
+                    value: data.status,
+                    label:
+                      optionsStatus.find((s) => s.value === data.status)
+                        ?.label || "",
+                  }
                 : null
             }
             onChange={(vl: any) => {
@@ -163,11 +166,11 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
             value={
               data.priority
                 ? {
-                  value: data.priority,
-                  label:
-                    optionsPriority.find((s) => s.value === data.priority)
-                      ?.label || "",
-                }
+                    value: data.priority,
+                    label:
+                      optionsPriority.find((s) => s.value === data.priority)
+                        ?.label || "",
+                  }
                 : null
             }
             onChange={(vl: any) => {
@@ -301,6 +304,27 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
           value={data.varId_save_nOrder}
           onChange={(e: any) => {
             updateNode(id, { data: { ...data, varId_save_nOrder: e.value } });
+          }}
+        />
+      </Field>
+
+      <Field label="Salvar código do pedido na variável local">
+        <AutocompleteTextField
+          // @ts-expect-error
+          trigger={["/", "{{"]}
+          maxOptions={20}
+          matchAny
+          options={{
+            "{{": variables?.map((s) => s.name + "}} ") || [],
+          }}
+          defaultValue={data.save_locale_var_name_nOrder || ""}
+          type="text"
+          placeholder={`Nome da variável local`}
+          onChange={async (target: string) => {
+            setDataMok({
+              ...data,
+              save_locale_var_name_nOrder: target,
+            });
           }}
         />
       </Field>
@@ -530,7 +554,7 @@ export const NodeCreateOrder: React.FC<Node<DataNode>> = ({ id, data }) => {
         isConnectable={true}
         className="border-[#868686]! bg-[#868686]/15!"
       />
-      <span className="font-semibold text-[#868686] text-[8px] absolute -right-10.5 top-[124px]">
+      <span className="font-semibold text-[#868686] text-[8px] absolute -right-10.5 top-31">
         Não encontrado
       </span>
     </div>

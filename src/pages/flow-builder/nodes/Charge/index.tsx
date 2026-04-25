@@ -25,6 +25,10 @@ type DataNode = {
   varId_save_transactionId?: number;
   varId_save_qrCode?: number;
   varId_save_linkPayment?: number;
+
+  save_locale_var_name_transactionId?: string;
+  save_locale_var_name_qrCode?: string;
+  save_locale_var_name_linkPayment?: string;
 };
 
 function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
@@ -183,6 +187,28 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
             }}
           />
         </Field>
+
+        <Field label="Salvar ID da transação na variável local">
+          <AutocompleteTextField
+            // @ts-expect-error
+            trigger={["/", "{{"]}
+            maxOptions={20}
+            matchAny
+            options={{
+              "{{": variables?.map((s) => s.name + "}} ") || [],
+            }}
+            defaultValue={data.save_locale_var_name_transactionId || ""}
+            type="text"
+            placeholder={`Nome da variável local`}
+            onChange={async (target: string) => {
+              setDataMok({
+                ...data,
+                save_locale_var_name_transactionId: target,
+              });
+            }}
+          />
+        </Field>
+
         <Field label="QR Code de pagamento">
           <SelectVariables
             isMulti={false}
@@ -198,6 +224,28 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
             }}
           />
         </Field>
+
+        <Field label="Salvar QR Code na variável local">
+          <AutocompleteTextField
+            // @ts-expect-error
+            trigger={["/", "{{"]}
+            maxOptions={20}
+            matchAny
+            options={{
+              "{{": variables?.map((s) => s.name + "}} ") || [],
+            }}
+            defaultValue={data.save_locale_var_name_qrCode || ""}
+            type="text"
+            placeholder={`Nome da variável local`}
+            onChange={async (target: string) => {
+              setDataMok({
+                ...data,
+                save_locale_var_name_qrCode: target,
+              });
+            }}
+          />
+        </Field>
+
         <Field label="Link para o pagamento">
           <SelectVariables
             isMulti={false}
@@ -209,6 +257,27 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
             onChange={(e: any) => {
               updateNode(id, {
                 data: { ...data, varId_save_linkPayment: e.value },
+              });
+            }}
+          />
+        </Field>
+
+        <Field label="Salvar Link-pagamento na variável local">
+          <AutocompleteTextField
+            // @ts-expect-error
+            trigger={["/", "{{"]}
+            maxOptions={20}
+            matchAny
+            options={{
+              "{{": variables?.map((s) => s.name + "}} ") || [],
+            }}
+            defaultValue={data.save_locale_var_name_linkPayment || ""}
+            type="text"
+            placeholder={`Nome da variável local`}
+            onChange={async (target: string) => {
+              setDataMok({
+                ...data,
+                save_locale_var_name_linkPayment: target,
               });
             }}
           />

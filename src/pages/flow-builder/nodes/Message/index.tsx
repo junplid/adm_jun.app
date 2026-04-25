@@ -18,6 +18,7 @@ type DataNode = {
     interval?: number;
     key: string;
     varId?: number;
+    save_locale_var_name?: string;
   }[];
 };
 
@@ -134,6 +135,21 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
                   data.messages[index].varId = tag.id;
                   updateNode(id, {
                     data: { messages: data.messages },
+                  });
+                }}
+              />
+            </Field>
+
+            <Field label="Salvar ID da Mensagem na variável local">
+              <AutocompleteTextField
+                // @ts-expect-error
+                defaultValue={msg.save_locale_var_name || ""}
+                type="text"
+                placeholder={`Nome da variável local`}
+                onChange={async (target: string) => {
+                  data.messages[index].save_locale_var_name = target;
+                  updateNode(id, {
+                    data: { ...data, messages: data.messages },
                   });
                 }}
               />

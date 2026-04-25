@@ -8,10 +8,14 @@ import { Field } from "@components/ui/field";
 import { PiEarBold } from "react-icons/pi";
 import { LuMessageCircleHeart } from "react-icons/lu";
 import { TiFlowParallel } from "react-icons/ti";
+import AutocompleteTextField from "@components/Autocomplete";
 
 type DataNode = {
   varIdToReaction?: number;
   varIdToMessage?: number;
+
+  save_locale_var_name_ToMessage?: string;
+  save_locale_var_name_ToReaction?: string;
 };
 
 function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
@@ -35,6 +39,20 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
           }}
         />
       </Field>
+      <Field label="Salvar código do pedido na variável local">
+        <AutocompleteTextField
+          // @ts-expect-error
+          defaultValue={data.save_locale_var_name_ToReaction || ""}
+          type="text"
+          placeholder={`Nome da variável local`}
+          onChange={async (target: string) => {
+            updateNode(id, {
+              data: { ...data, save_locale_var_name_ToReaction: target },
+            });
+          }}
+        />
+      </Field>
+
       <Field
         helperText="Salvará o texto da mensagem que foi reagida em uma variável."
         label="Variável para guardar a mensagem"
@@ -51,6 +69,20 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
           }}
           onCreate={(d) => {
             updateNode(id, { data: { ...data, varIdToMessage: d.id } });
+          }}
+        />
+      </Field>
+
+      <Field label="Salvar código do pedido na variável local">
+        <AutocompleteTextField
+          // @ts-expect-error
+          defaultValue={data.save_locale_var_name_ToMessage || ""}
+          type="text"
+          placeholder={`Nome da variável local`}
+          onChange={async (target: string) => {
+            updateNode(id, {
+              data: { ...data, save_locale_var_name_ToMessage: target },
+            });
           }}
         />
       </Field>

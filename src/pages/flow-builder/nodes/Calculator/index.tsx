@@ -12,6 +12,7 @@ import { Field } from "@components/ui/field";
 type DataNode = {
   formula: string;
   variableId: number;
+  save_locale_var_name?: string;
 };
 
 function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
@@ -60,6 +61,27 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
           }}
           menuPlacement="bottom"
           isFlow
+        />
+      </Field>
+
+      <Field label="Salvar na variável local">
+        <AutocompleteTextField
+          // @ts-expect-error
+          trigger={["/", "{{"]}
+          maxOptions={20}
+          matchAny
+          options={{
+            "{{": variables?.map((s) => s.name + "}} ") || [],
+          }}
+          defaultValue={data.save_locale_var_name || ""}
+          type="text"
+          placeholder={`Nome da variável local`}
+          onChange={async (target: string) => {
+            setDataMok({
+              ...data,
+              save_locale_var_name: target,
+            });
+          }}
         />
       </Field>
     </div>

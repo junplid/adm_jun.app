@@ -17,6 +17,7 @@ type DataNode = {
   max?: string;
   minutes?: number;
   varId_save_nRouter?: number;
+  save_locale_var_name_nRouter?: string;
 };
 
 function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
@@ -82,6 +83,27 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
           value={data.varId_save_nRouter}
           onChange={(e: any) => {
             updateNode(id, { data: { ...data, varId_save_nRouter: e.value } });
+          }}
+        />
+      </Field>
+
+      <Field label="Salvar na variável local">
+        <AutocompleteTextField
+          // @ts-expect-error
+          trigger={["/", "{{"]}
+          maxOptions={20}
+          matchAny
+          options={{
+            "{{": variables?.map((s) => s.name + "}} ") || [],
+          }}
+          defaultValue={data.save_locale_var_name_nRouter || ""}
+          type="text"
+          placeholder={`Nome da variável local`}
+          onChange={async (target: string) => {
+            setDataMok({
+              ...data,
+              save_locale_var_name_nRouter: target,
+            });
           }}
         />
       </Field>

@@ -13,6 +13,7 @@ import { FaRoute } from "react-icons/fa";
 type DataNode = {
   geo_string: string; // -99,99999|99,99999
   varId_save_code_order?: number;
+  save_locale_var_name_code_order?: string;
 };
 
 function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
@@ -70,6 +71,20 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
           onChange={(e: any) => {
             updateNode(id, {
               data: { ...data, varId_save_code_order: e.value },
+            });
+          }}
+        />
+      </Field>
+
+      <Field label="Salvar código do pedido na variável local">
+        <AutocompleteTextField
+          // @ts-expect-error
+          defaultValue={data.save_locale_var_name_code_order || ""}
+          type="text"
+          placeholder={`Nome da variável local`}
+          onChange={async (target: string) => {
+            updateNode(id, {
+              data: { ...data, save_locale_var_name_code_order: target },
             });
           }}
         />

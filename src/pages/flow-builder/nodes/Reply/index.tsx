@@ -29,6 +29,7 @@ import { useGetVariablesOptions } from "../../../../hooks/variable";
 type DataNode = {
   isSave?: boolean;
   list: number[];
+  list_temp: string[];
   timeout?: {
     type?: ("SECONDS" | "MINUTES" | "HOURS" | "DAYS")[];
     value: number;
@@ -109,6 +110,14 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
       .filter((s) => s !== null);
   }, [data.list, variables]);
 
+  const selectedsLocal = useMemo(() => {
+    return data.list_temp
+      ?.map((id) => {
+        return { id: String(id), text: id, className: "" };
+      })
+      .filter((s) => s !== null);
+  }, [data.list_temp]);
+
   const handleAddition = async (tag: Tag) => {
     const nextName = tag.text.trim().replace(/\s/g, "_");
     const exist = (variables || []).find((s) => s.name === nextName);
@@ -129,11 +138,54 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
   const handleDelete = (index: number) => {
     if (!index && data.list.length === 1) {
       updateNode(id, {
-        data: { ...data, list: data.list.filter((_, i) => i !== index) },
+        data: {
+          ...data,
+          list: data.list.filter((_, i) => i !== index),
+          list_temp: data.list_temp,
+        },
       });
     } else {
       updateNode(id, {
-        data: { ...data, list: data.list.filter((_, i) => i !== index) },
+        data: {
+          ...data,
+          list: data.list.filter((_, i) => i !== index),
+          list_temp: data.list_temp,
+        },
+      });
+    }
+  };
+
+  const handleDeleteLocal = (index: number) => {
+    if (!index && data.list_temp.length === 1) {
+      updateNode(id, {
+        data: {
+          ...data,
+          list_temp: data.list_temp.filter((_, i) => i !== index),
+          list: data.list,
+        },
+      });
+    } else {
+      updateNode(id, {
+        data: {
+          ...data,
+          list_temp: data.list_temp.filter((_, i) => i !== index),
+          list: data.list,
+        },
+      });
+    }
+  };
+
+  const handleAdditionLocal = async (tag: Tag) => {
+    const nextName = tag.text.trim().replace(/\s/g, "_");
+    const exist = data.list_temp?.find((s) => s === nextName);
+
+    if (!exist) {
+      updateNode(id, {
+        data: {
+          ...data,
+          list_temp: [...data.list_temp, nextName],
+          list: data.list,
+        },
       });
     }
   };
@@ -141,45 +193,89 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
   return (
     <div className="flex flex-col relative -mt-3 gap-y-5">
       {!!data.isSave && (
-        <ReactTags
-          tags={selecteds}
-          suggestions={suggestions}
-          separators={[SEPARATORS.ENTER]}
-          handleAddition={handleAddition}
-          handleDelete={handleDelete}
-          placeholder="Digite e pressione `ENTER`"
-          allowDragDrop={false}
-          handleTagClick={handleDelete}
-          renderSuggestion={(item, query) => (
-            <div
-              key={item.id}
-              className="p-2 text-white/50 py-1.5 cursor-pointer"
-              style={{ borderRadius: 20 }}
-            >
-              <Highlight
-                styles={{
-                  // px: "0.5",
-                  // bg: "#ea5c0a",
-                  color: "#ffffff",
-                  fontWeight: 600,
-                }}
-                query={query}
+        <div>
+          <span>Variavel persistente</span>
+          <ReactTags
+            tags={selecteds}
+            suggestions={suggestions}
+            separators={[SEPARATORS.ENTER]}
+            handleAddition={handleAddition}
+            handleDelete={handleDelete}
+            placeholder="Digite e pressione `ENTER`"
+            allowDragDrop={false}
+            handleTagClick={handleDelete}
+            renderSuggestion={(item, query) => (
+              <div
+                key={item.id}
+                className="p-2 text-white/50 py-1.5 cursor-pointer"
+                style={{ borderRadius: 20 }}
               >
-                {item.text}
-              </Highlight>
-            </div>
-          )}
-          classNames={{
-            selected: `flex flex-wrap border gap-1.5 gap-y-2 w-full border-none`,
-            tagInputField: `p-2.5 rounded-sm w-full border border-white/10`,
-            remove: "hidden",
-            tag: "hover:bg-red-500 rounded-xs duration-300 !cursor-pointer bg-white/15 px-1",
-            tagInput: "w-full",
-            tags: "w-full relative",
-            suggestions:
-              "absolute z-50 bg-[#111111] w-full translate-y-2 shadow-xl p-1 border border-white/10 rounded-sm",
-          }}
-        />
+                <Highlight
+                  styles={{
+                    // px: "0.5",
+                    // bg: "#ea5c0a",
+                    color: "#ffffff",
+                    fontWeight: 600,
+                  }}
+                  query={query}
+                >
+                  {item.text}
+                </Highlight>
+              </div>
+            )}
+            classNames={{
+              selected: `flex flex-wrap border gap-1.5 gap-y-2 w-full border-none`,
+              tagInputField: `p-2.5 rounded-sm w-full border border-white/10`,
+              remove: "hidden",
+              tag: "hover:bg-red-500 rounded-xs duration-300 !cursor-pointer bg-white/15 px-1",
+              tagInput: "w-full",
+              tags: "w-full relative",
+              suggestions:
+                "absolute z-50 bg-[#111111] w-full translate-y-2 shadow-xl p-1 border border-white/10 rounded-sm",
+            }}
+          />
+          <hr className="my-3" />
+          <span>Variavel local</span>
+          <ReactTags
+            tags={selectedsLocal}
+            suggestions={[]}
+            separators={[SEPARATORS.ENTER]}
+            handleAddition={handleAdditionLocal}
+            handleDelete={handleDeleteLocal}
+            placeholder="Digite e pressione `ENTER`"
+            allowDragDrop={false}
+            handleTagClick={handleDeleteLocal}
+            renderSuggestion={(item, query) => (
+              <div
+                key={item.id}
+                className="p-2 text-white/50 py-1.5 cursor-pointer"
+                style={{ borderRadius: 20 }}
+              >
+                <Highlight
+                  styles={{
+                    // px: "0.5",
+                    // bg: "#ea5c0a",
+                    color: "#ffffff",
+                    fontWeight: 600,
+                  }}
+                  query={query}
+                >
+                  {item.text}
+                </Highlight>
+              </div>
+            )}
+            classNames={{
+              selected: `flex flex-wrap border gap-1.5 gap-y-2 w-full border-none`,
+              tagInputField: `p-2.5 rounded-sm w-full border border-white/10`,
+              remove: "hidden",
+              tag: "hover:bg-red-500 rounded-xs duration-300 !cursor-pointer bg-white/15 px-1",
+              tagInput: "w-full",
+              tags: "w-full relative",
+              suggestions:
+                "absolute z-50 bg-[#111111] w-full translate-y-2 shadow-xl p-1 border border-white/10 rounded-sm",
+            }}
+          />
+        </div>
       )}
 
       <Button

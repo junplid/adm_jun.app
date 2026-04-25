@@ -12,12 +12,14 @@ import {
 import { GrClose } from "react-icons/gr";
 import { CustomHandle } from "../../customs/node";
 import AutocompleteTextField from "@components/Autocomplete";
+import { v4 } from "uuid";
 
 type DataNode = {
   list: {
     id: number;
     value: string;
   }[];
+  list_temp: { name: string; value: string; key: string }[];
 };
 
 function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
@@ -63,11 +65,35 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
   const handleDelete = (index: number) => {
     if (!index && data.list.length === 1) {
       updateNode(id, {
-        data: { list: data.list.filter((_, i) => i !== index) },
+        data: {
+          list: data.list.filter((_, i) => i !== index),
+          list_temp: data.list_temp,
+        },
       });
     } else {
       updateNode(id, {
-        data: { list: data.list.filter((_, i) => i !== index) },
+        data: {
+          list: data.list.filter((_, i) => i !== index),
+          list_temp: data.list_temp,
+        },
+      });
+    }
+  };
+
+  const handleDeleteLocal = (index: number) => {
+    if (!index && data.list_temp.length === 1) {
+      updateNode(id, {
+        data: {
+          list_temp: data.list_temp.filter((_, i) => i !== index),
+          list: data.list,
+        },
+      });
+    } else {
+      updateNode(id, {
+        data: {
+          list_temp: data.list_temp.filter((_, i) => i !== index),
+          list: data.list,
+        },
       });
     }
   };
@@ -83,17 +109,41 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
         type: "dynamics",
       });
       updateNode(id, {
-        data: { list: [...data.list, { id: variable.id, value: "" }] },
+        data: {
+          list: [...data.list, { id: variable.id, value: "" }],
+          list_temp: data.list_temp,
+        },
       });
     } else {
       updateNode(id, {
-        data: { list: [...data.list, { id: Number(exist.id), value: "" }] },
+        data: {
+          list: [...data.list, { id: Number(exist.id), value: "" }],
+          list_temp: data.list_temp,
+        },
+      });
+    }
+  };
+
+  const handleAdditionLocal = async (tag: Tag) => {
+    const nextName = tag.text.trim().replace(/\s/g, "_");
+    const exist = data.list_temp?.find((s) => s.name === nextName);
+
+    if (!exist) {
+      updateNode(id, {
+        data: {
+          list_temp: [
+            ...data.list_temp,
+            { name: nextName, key: v4(), value: "" },
+          ],
+          list: data.list,
+        },
       });
     }
   };
 
   return (
     <div className="flex flex-col gap-y-3 -mt-3">
+      <span>Variavel persistente</span>
       {!data.list.length ? (
         <span className="text-white/70">*Nenhuma variável selecionada.</span>
       ) : (
@@ -123,7 +173,7 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
                   // @ts-expect-error
                   onChange={(value) => {
                     data.list[index].value = value;
-                    setDataMok({ list: data.list });
+                    setDataMok({ list: data.list, list_temp: data.list_temp });
                   }}
                 />
               </div>
@@ -131,6 +181,7 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
           ))}
         </div>
       )}
+
       <div className="flex w-full items-center gap-x-2">
         <Presence
           animationName={{
@@ -151,6 +202,91 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
           suggestions={suggestions}
           separators={[SEPARATORS.ENTER]}
           handleAddition={handleAddition}
+          placeholder="Digite e pressione `ENTER`"
+          allowDragDrop={false}
+          shouldRenderSuggestions={(query) => {
+            return query.length > 0;
+          }}
+          handleFilterSuggestions={(query, suggestions) => {
+            return suggestions
+              .filter((s) => s.text.toLowerCase().includes(query.toLowerCase()))
+              .slice(0, 3);
+          }}
+          renderSuggestion={(item, query) => (
+            <div
+              key={item.id}
+              className="p-2 text-white/50 py-1.5 cursor-pointer"
+              style={{ borderRadius: 20 }}
+            >
+              <Highlight
+                styles={{
+                  // px: "0.5",
+                  // bg: "#ea5c0a",
+                  color: "#ffffff",
+                  fontWeight: 600,
+                }}
+                query={query}
+              >
+                {item.text}
+              </Highlight>
+            </div>
+          )}
+          classNames={{
+            selected: `flex flex-wrap border gap-1.5 gap-y-2 w-full border-none`,
+            tagInputField: `p-2.5 rounded-sm w-full border border-white/10`,
+            remove: "hidden",
+            tag: "hover:bg-red-500 duration-300 !cursor-pointer bg-white/15 px-1",
+            tagInput: "w-full",
+            tags: "w-full relative",
+            suggestions:
+              "absolute z-50 bg-[#111111] w-full translate-y-2 shadow-xl p-1 border border-white/10 rounded-sm",
+          }}
+        />
+      </div>
+      <hr className="my-3" />
+      <span>Variavel local</span>
+
+      {!data.list_temp.length ? (
+        <span className="text-white/70">*Nenhuma variável selecionada.</span>
+      ) : (
+        <div className="flex flex-col gap-y-1.5 mt-1">
+          {data.list_temp.map(({ key, name, value }, index) => (
+            <div key={key} className="flex gap-x-1">
+              <button
+                className="hover:bg-white/5 duration-200 rounded-sm p-1.5 cursor-pointer"
+                type="button"
+                onClick={() => handleDeleteLocal(index)}
+              >
+                <GrClose size={15} color="#d36060" />
+              </button>
+              <div className="flex flex-col gap-1.5 w-full">
+                <span>{`$.${name || "..."}`}:</span>
+                <AutocompleteTextField
+                  // @ts-expect-error
+                  trigger={["{{"]}
+                  options={{ "{{": variables?.map((s) => s.name) || [] }}
+                  spacer={"}} "}
+                  type="textarea"
+                  placeholder="Valor"
+                  defaultValue={value}
+                  // @ts-expect-error
+                  onChange={(value) => {
+                    data.list_temp[index].value = value;
+                    setDataMok({ list: data.list, list_temp: data.list_temp });
+                  }}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="flex w-full items-center gap-x-2">
+        <ReactTags
+          tags={[]}
+          suggestions={suggestions}
+          separators={[SEPARATORS.ENTER]}
+          handleAddition={handleAdditionLocal}
           placeholder="Digite e pressione `ENTER`"
           allowDragDrop={false}
           shouldRenderSuggestions={(query) => {

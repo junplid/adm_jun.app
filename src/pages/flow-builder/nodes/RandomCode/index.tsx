@@ -5,10 +5,13 @@ import { TbNumber123 } from "react-icons/tb";
 import useStore from "../../flowStore";
 import { CustomHandle } from "../../customs/node";
 import SelectVariables from "@components/SelectVariables";
+import { Field } from "@components/ui/field";
+import AutocompleteTextField from "@components/Autocomplete";
 
 type DataNode = {
   count: number;
-  id: number;
+  id?: number;
+  save_locale_var_name?: string;
 };
 
 function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
@@ -25,6 +28,20 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
         onChange={(e: any) => updateNode(id, { data: { id: e.value } })}
         onCreate={(tag) => updateNode(id, { data: { id: tag.id } })}
       />
+
+      <Field label="Salvar na variável local">
+        <AutocompleteTextField
+          // @ts-expect-error
+          defaultValue={data.save_locale_var_name || ""}
+          type="text"
+          placeholder={`Nome da variável local`}
+          onChange={async (target: string) => {
+            updateNode(id, {
+              data: { ...data, save_locale_var_name: target },
+            });
+          }}
+        />
+      </Field>
     </div>
   );
 }

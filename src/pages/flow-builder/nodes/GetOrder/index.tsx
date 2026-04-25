@@ -42,6 +42,20 @@ type DataNode = {
   varId_save_nOrder?: number; //
   varId_save_type_code?: number; //
   varId_save_delivery_fee?: number;
+
+  save_locale_var_name_name?: string;
+  save_locale_var_name_status?: string;
+  save_locale_var_name_payment_method?: string;
+  save_locale_var_name_delivery_address?: string;
+  save_locale_var_name_total?: string;
+  save_locale_var_name_data?: string;
+  save_locale_var_name_data_items?: string;
+  save_locale_var_name_number_contact?: string;
+  save_locale_var_name_router_code?: string;
+  save_locale_var_name_delivery_code?: string;
+  save_locale_var_name_nOrder?: string;
+  save_locale_var_name_type_code?: string;
+  save_locale_var_name_delivery_fee?: string;
 };
 
 function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
@@ -88,266 +102,497 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
       </Field>
 
       {data.fields?.includes("type_code") && (
-        <Field
-          label="Salvar tipo do codigo"
-          helperText={'"code_delivery" ou "code_order"'}
-        >
-          <SelectVariables
-            isMulti={false}
-            isClearable={false}
-            isFlow
-            menuPlacement="bottom"
-            filter={(opt) => opt.filter((s) => s.type === "dynamics")}
-            onCreate={(tag) => {
-              updateNode(id, {
-                data: { ...data, varId_save_type_code: tag.id },
-              });
-            }}
-            value={data.varId_save_type_code}
-            onChange={(e: any) => {
-              updateNode(id, {
-                data: { ...data, varId_save_type_code: e.value },
-              });
-            }}
-          />
-        </Field>
+        <div className="my-2">
+          <Field
+            label="Salvar tipo do codigo"
+            helperText={'"code_delivery" ou "code_order"'}
+          >
+            <SelectVariables
+              isMulti={false}
+              isClearable={false}
+              isFlow
+              menuPlacement="bottom"
+              filter={(opt) => opt.filter((s) => s.type === "dynamics")}
+              onCreate={(tag) => {
+                updateNode(id, {
+                  data: { ...data, varId_save_type_code: tag.id },
+                });
+              }}
+              value={data.varId_save_type_code}
+              onChange={(e: any) => {
+                updateNode(id, {
+                  data: { ...data, varId_save_type_code: e.value },
+                });
+              }}
+            />
+          </Field>
+          <Field label="Salvar valor em variável local">
+            <AutocompleteTextField
+              // @ts-expect-error
+              trigger={["/", "{{"]}
+              maxOptions={20}
+              matchAny
+              defaultValue={data.save_locale_var_name_type_code || ""}
+              type="text"
+              placeholder={`Nome da variável local`}
+              onChange={async (target: string) => {
+                updateNode(id, {
+                  data: { ...data, save_locale_var_name_type_code: target },
+                });
+              }}
+            />
+          </Field>
+        </div>
       )}
 
       {data.fields?.includes("name") && (
-        <Field label="Salvar NOME">
-          <SelectVariables
-            isMulti={false}
-            isClearable={false}
-            isFlow
-            menuPlacement="bottom"
-            filter={(opt) => opt.filter((s) => s.type === "dynamics")}
-            onCreate={(tag) => {
-              updateNode(id, { data: { ...data, varId_save_name: tag.id } });
-            }}
-            value={data.varId_save_name}
-            onChange={(e: any) => {
-              updateNode(id, { data: { ...data, varId_save_name: e.value } });
-            }}
-          />
-        </Field>
+        <div className="my-2">
+          <Field label="Salvar NOME">
+            <SelectVariables
+              isMulti={false}
+              isClearable={false}
+              isFlow
+              menuPlacement="bottom"
+              filter={(opt) => opt.filter((s) => s.type === "dynamics")}
+              onCreate={(tag) => {
+                updateNode(id, { data: { ...data, varId_save_name: tag.id } });
+              }}
+              value={data.varId_save_name}
+              onChange={(e: any) => {
+                updateNode(id, { data: { ...data, varId_save_name: e.value } });
+              }}
+            />
+          </Field>
+          <Field label="Salvar valor em variável local">
+            <AutocompleteTextField
+              // @ts-expect-error
+              trigger={["/", "{{"]}
+              maxOptions={20}
+              matchAny
+              defaultValue={data.save_locale_var_name_name || ""}
+              type="text"
+              placeholder={`Nome da variável local`}
+              onChange={async (target: string) => {
+                updateNode(id, {
+                  data: { ...data, save_locale_var_name_name: target },
+                });
+              }}
+            />
+          </Field>
+        </div>
       )}
 
       {data.fields?.includes("status") && (
-        <Field label="Salvar STATUS">
-          <SelectVariables
-            isMulti={false}
-            isClearable={false}
-            isFlow
-            menuPlacement="bottom"
-            filter={(opt) => opt.filter((s) => s.type === "dynamics")}
-            onCreate={(tag) => {
-              updateNode(id, { data: { ...data, varId_save_status: tag.id } });
-            }}
-            value={data.varId_save_status}
-            onChange={(e: any) => {
-              updateNode(id, { data: { ...data, varId_save_status: e.value } });
-            }}
-          />
-        </Field>
+        <div className="my-2">
+          <Field label="Salvar STATUS">
+            <SelectVariables
+              isMulti={false}
+              isClearable={false}
+              isFlow
+              menuPlacement="bottom"
+              filter={(opt) => opt.filter((s) => s.type === "dynamics")}
+              onCreate={(tag) => {
+                updateNode(id, {
+                  data: { ...data, varId_save_status: tag.id },
+                });
+              }}
+              value={data.varId_save_status}
+              onChange={(e: any) => {
+                updateNode(id, {
+                  data: { ...data, varId_save_status: e.value },
+                });
+              }}
+            />
+          </Field>
+          <Field label="Salvar valor em variável local">
+            <AutocompleteTextField
+              // @ts-expect-error
+              trigger={["/", "{{"]}
+              maxOptions={20}
+              matchAny
+              defaultValue={data.save_locale_var_name_status || ""}
+              type="text"
+              placeholder={`Nome da variável local`}
+              onChange={async (target: string) => {
+                updateNode(id, {
+                  data: { ...data, save_locale_var_name_status: target },
+                });
+              }}
+            />
+          </Field>
+        </div>
       )}
 
       {data.fields?.includes("payment_method") && (
-        <Field label="Salvar METODO DE PAGAMENTO">
-          <SelectVariables
-            isMulti={false}
-            isClearable={false}
-            isFlow
-            menuPlacement="bottom"
-            filter={(opt) => opt.filter((s) => s.type === "dynamics")}
-            onCreate={(tag) => {
-              updateNode(id, {
-                data: { ...data, varId_save_payment_method: tag.id },
-              });
-            }}
-            value={data.varId_save_payment_method}
-            onChange={(e: any) => {
-              updateNode(id, {
-                data: { ...data, varId_save_payment_method: e.value },
-              });
-            }}
-          />
-        </Field>
+        <div className="my-2">
+          <Field label="Salvar METODO DE PAGAMENTO">
+            <SelectVariables
+              isMulti={false}
+              isClearable={false}
+              isFlow
+              menuPlacement="bottom"
+              filter={(opt) => opt.filter((s) => s.type === "dynamics")}
+              onCreate={(tag) => {
+                updateNode(id, {
+                  data: { ...data, varId_save_payment_method: tag.id },
+                });
+              }}
+              value={data.varId_save_payment_method}
+              onChange={(e: any) => {
+                updateNode(id, {
+                  data: { ...data, varId_save_payment_method: e.value },
+                });
+              }}
+            />
+          </Field>
+          <Field label="Salvar valor em variável local">
+            <AutocompleteTextField
+              // @ts-expect-error
+              trigger={["/", "{{"]}
+              maxOptions={20}
+              matchAny
+              defaultValue={data.save_locale_var_name_payment_method || ""}
+              type="text"
+              placeholder={`Nome da variável local`}
+              onChange={async (target: string) => {
+                updateNode(id, {
+                  data: {
+                    ...data,
+                    save_locale_var_name_payment_method: target,
+                  },
+                });
+              }}
+            />
+          </Field>
+        </div>
       )}
 
       {data.fields?.includes("router_code") && (
-        <Field label="Salvar código da rota">
-          <SelectVariables
-            isMulti={false}
-            isClearable={false}
-            isFlow
-            menuPlacement="bottom"
-            filter={(opt) => opt.filter((s) => s.type === "dynamics")}
-            onCreate={(tag) => {
-              updateNode(id, {
-                data: { ...data, varId_save_router_code: tag.id },
-              });
-            }}
-            value={data.varId_save_router_code}
-            onChange={(e: any) => {
-              updateNode(id, {
-                data: { ...data, varId_save_router_code: e.value },
-              });
-            }}
-          />
-        </Field>
+        <div className="my-2">
+          <Field label="Salvar código da rota">
+            <SelectVariables
+              isMulti={false}
+              isClearable={false}
+              isFlow
+              menuPlacement="bottom"
+              filter={(opt) => opt.filter((s) => s.type === "dynamics")}
+              onCreate={(tag) => {
+                updateNode(id, {
+                  data: { ...data, varId_save_router_code: tag.id },
+                });
+              }}
+              value={data.varId_save_router_code}
+              onChange={(e: any) => {
+                updateNode(id, {
+                  data: { ...data, varId_save_router_code: e.value },
+                });
+              }}
+            />
+          </Field>
+          <Field label="Salvar valor em variável local">
+            <AutocompleteTextField
+              // @ts-expect-error
+              trigger={["/", "{{"]}
+              maxOptions={20}
+              matchAny
+              defaultValue={data.save_locale_var_name_router_code || ""}
+              type="text"
+              placeholder={`Nome da variável local`}
+              onChange={async (target: string) => {
+                updateNode(id, {
+                  data: { ...data, save_locale_var_name_router_code: target },
+                });
+              }}
+            />
+          </Field>
+        </div>
       )}
 
       {data.fields?.includes("delivery_address") && (
-        <Field label="Salvar ENDEREÇO DE ENTREGA">
-          <SelectVariables
-            isMulti={false}
-            isClearable={false}
-            isFlow
-            menuPlacement="bottom"
-            filter={(opt) => opt.filter((s) => s.type === "dynamics")}
-            onCreate={(tag) => {
-              updateNode(id, {
-                data: { ...data, varId_save_delivery_address: tag.id },
-              });
-            }}
-            value={data.varId_save_delivery_address}
-            onChange={(e: any) => {
-              updateNode(id, {
-                data: { ...data, varId_save_delivery_address: e.value },
-              });
-            }}
-          />
-        </Field>
+        <div className="my-2">
+          <Field label="Salvar ENDEREÇO DE ENTREGA">
+            <SelectVariables
+              isMulti={false}
+              isClearable={false}
+              isFlow
+              menuPlacement="bottom"
+              filter={(opt) => opt.filter((s) => s.type === "dynamics")}
+              onCreate={(tag) => {
+                updateNode(id, {
+                  data: { ...data, varId_save_delivery_address: tag.id },
+                });
+              }}
+              value={data.varId_save_delivery_address}
+              onChange={(e: any) => {
+                updateNode(id, {
+                  data: { ...data, varId_save_delivery_address: e.value },
+                });
+              }}
+            />
+          </Field>
+          <Field label="Salvar valor em variável local">
+            <AutocompleteTextField
+              // @ts-expect-error
+              trigger={["/", "{{"]}
+              maxOptions={20}
+              matchAny
+              defaultValue={data.save_locale_var_name_delivery_address || ""}
+              type="text"
+              placeholder={`Nome da variável local`}
+              onChange={async (target: string) => {
+                updateNode(id, {
+                  data: {
+                    ...data,
+                    save_locale_var_name_delivery_address: target,
+                  },
+                });
+              }}
+            />
+          </Field>
+        </div>
       )}
 
       {data.fields?.includes("delivery_fee") && (
-        <Field label="Salvar Taxa de entrega">
-          <SelectVariables
-            isMulti={false}
-            isClearable={false}
-            isFlow
-            menuPlacement="bottom"
-            filter={(opt) => opt.filter((s) => s.type === "dynamics")}
-            onCreate={(tag) => {
-              updateNode(id, {
-                data: { ...data, varId_save_delivery_fee: tag.id },
-              });
-            }}
-            value={data.varId_save_delivery_fee}
-            onChange={(e: any) => {
-              updateNode(id, {
-                data: { ...data, varId_save_delivery_fee: e.value },
-              });
-            }}
-          />
-        </Field>
+        <div className="my-2">
+          <Field label="Salvar Taxa de entrega">
+            <SelectVariables
+              isMulti={false}
+              isClearable={false}
+              isFlow
+              menuPlacement="bottom"
+              filter={(opt) => opt.filter((s) => s.type === "dynamics")}
+              onCreate={(tag) => {
+                updateNode(id, {
+                  data: { ...data, varId_save_delivery_fee: tag.id },
+                });
+              }}
+              value={data.varId_save_delivery_fee}
+              onChange={(e: any) => {
+                updateNode(id, {
+                  data: { ...data, varId_save_delivery_fee: e.value },
+                });
+              }}
+            />
+          </Field>
+          <Field label="Salvar valor em variável local">
+            <AutocompleteTextField
+              // @ts-expect-error
+              trigger={["/", "{{"]}
+              maxOptions={20}
+              matchAny
+              defaultValue={data.save_locale_var_name_delivery_fee || ""}
+              type="text"
+              placeholder={`Nome da variável local`}
+              onChange={async (target: string) => {
+                updateNode(id, {
+                  data: { ...data, save_locale_var_name_delivery_fee: target },
+                });
+              }}
+            />
+          </Field>
+        </div>
       )}
 
       {data.fields?.includes("total") && (
-        <Field label="Salvar TOTAL">
-          <SelectVariables
-            isMulti={false}
-            isClearable={false}
-            isFlow
-            menuPlacement="bottom"
-            filter={(opt) => opt.filter((s) => s.type === "dynamics")}
-            onCreate={(tag) => {
-              updateNode(id, { data: { ...data, varId_save_total: tag.id } });
-            }}
-            value={data.varId_save_total}
-            onChange={(e: any) => {
-              updateNode(id, { data: { ...data, varId_save_total: e.value } });
-            }}
-          />
-        </Field>
+        <div className="my-2">
+          <Field label="Salvar TOTAL">
+            <SelectVariables
+              isMulti={false}
+              isClearable={false}
+              isFlow
+              menuPlacement="bottom"
+              filter={(opt) => opt.filter((s) => s.type === "dynamics")}
+              onCreate={(tag) => {
+                updateNode(id, { data: { ...data, varId_save_total: tag.id } });
+              }}
+              value={data.varId_save_total}
+              onChange={(e: any) => {
+                updateNode(id, {
+                  data: { ...data, varId_save_total: e.value },
+                });
+              }}
+            />
+          </Field>
+          <Field label="Salvar valor em variável local">
+            <AutocompleteTextField
+              // @ts-expect-error
+              trigger={["/", "{{"]}
+              maxOptions={20}
+              matchAny
+              defaultValue={data.save_locale_var_name_total || ""}
+              type="text"
+              placeholder={`Nome da variável local`}
+              onChange={async (target: string) => {
+                updateNode(id, {
+                  data: { ...data, save_locale_var_name_total: target },
+                });
+              }}
+            />
+          </Field>
+        </div>
       )}
 
       {data.fields?.includes("data") && (
-        <Field label="Salvar CONTEÚDO">
-          <SelectVariables
-            isMulti={false}
-            isClearable={false}
-            isFlow
-            menuPlacement="bottom"
-            filter={(opt) => opt.filter((s) => s.type === "dynamics")}
-            onCreate={(tag) => {
-              updateNode(id, { data: { ...data, varId_save_data: tag.id } });
-            }}
-            value={data.varId_save_data}
-            onChange={(e: any) => {
-              updateNode(id, { data: { ...data, varId_save_data: e.value } });
-            }}
-          />
-        </Field>
+        <div className="my-2">
+          <Field label="Salvar CONTEÚDO">
+            <SelectVariables
+              isMulti={false}
+              isClearable={false}
+              isFlow
+              menuPlacement="bottom"
+              filter={(opt) => opt.filter((s) => s.type === "dynamics")}
+              onCreate={(tag) => {
+                updateNode(id, { data: { ...data, varId_save_data: tag.id } });
+              }}
+              value={data.varId_save_data}
+              onChange={(e: any) => {
+                updateNode(id, { data: { ...data, varId_save_data: e.value } });
+              }}
+            />
+          </Field>
+          <Field label="Salvar valor em variável local">
+            <AutocompleteTextField
+              // @ts-expect-error
+              trigger={["/", "{{"]}
+              maxOptions={20}
+              matchAny
+              defaultValue={data.save_locale_var_name_data || ""}
+              type="text"
+              placeholder={`Nome da variável local`}
+              onChange={async (target: string) => {
+                updateNode(id, {
+                  data: { ...data, save_locale_var_name_data: target },
+                });
+              }}
+            />
+          </Field>
+        </div>
       )}
 
       {data.fields?.includes("number_contact") && (
-        <Field label="Salvar NUMERO DO LEAD">
-          <SelectVariables
-            isMulti={false}
-            isClearable={false}
-            isFlow
-            menuPlacement="bottom"
-            filter={(opt) => opt.filter((s) => s.type === "dynamics")}
-            onCreate={(tag) => {
-              updateNode(id, {
-                data: { ...data, varId_save_number_contact: tag.id },
-              });
-            }}
-            value={data.varId_save_number_contact}
-            onChange={(e: any) => {
-              updateNode(id, {
-                data: { ...data, varId_save_number_contact: e.value },
-              });
-            }}
-          />
-        </Field>
+        <div className="my-2">
+          <Field label="Salvar NUMERO DO LEAD">
+            <SelectVariables
+              isMulti={false}
+              isClearable={false}
+              isFlow
+              menuPlacement="bottom"
+              filter={(opt) => opt.filter((s) => s.type === "dynamics")}
+              onCreate={(tag) => {
+                updateNode(id, {
+                  data: { ...data, varId_save_number_contact: tag.id },
+                });
+              }}
+              value={data.varId_save_number_contact}
+              onChange={(e: any) => {
+                updateNode(id, {
+                  data: { ...data, varId_save_number_contact: e.value },
+                });
+              }}
+            />
+          </Field>
+          <Field label="Salvar valor em variável local">
+            <AutocompleteTextField
+              // @ts-expect-error
+              trigger={["/", "{{"]}
+              maxOptions={20}
+              matchAny
+              defaultValue={data.save_locale_var_name_number_contact || ""}
+              type="text"
+              placeholder={`Nome da variável local`}
+              onChange={async (target: string) => {
+                updateNode(id, {
+                  data: {
+                    ...data,
+                    save_locale_var_name_number_contact: target,
+                  },
+                });
+              }}
+            />
+          </Field>
+        </div>
       )}
 
       {data.fields?.includes("nOrder") && (
-        <Field label="Salvar codigo do pedido">
-          <SelectVariables
-            isMulti={false}
-            isClearable={false}
-            isFlow
-            menuPlacement="bottom"
-            filter={(opt) => opt.filter((s) => s.type === "dynamics")}
-            onCreate={(tag) => {
-              updateNode(id, {
-                data: { ...data, varId_save_nOrder: tag.id },
-              });
-            }}
-            value={data.varId_save_nOrder}
-            onChange={(e: any) => {
-              updateNode(id, {
-                data: { ...data, varId_save_nOrder: e.value },
-              });
-            }}
-          />
-        </Field>
+        <div className="my-2">
+          <Field label="Salvar codigo do pedido">
+            <SelectVariables
+              isMulti={false}
+              isClearable={false}
+              isFlow
+              menuPlacement="bottom"
+              filter={(opt) => opt.filter((s) => s.type === "dynamics")}
+              onCreate={(tag) => {
+                updateNode(id, {
+                  data: { ...data, varId_save_nOrder: tag.id },
+                });
+              }}
+              value={data.varId_save_nOrder}
+              onChange={(e: any) => {
+                updateNode(id, {
+                  data: { ...data, varId_save_nOrder: e.value },
+                });
+              }}
+            />
+          </Field>
+          <Field label="Salvar valor em variável local">
+            <AutocompleteTextField
+              // @ts-expect-error
+              trigger={["/", "{{"]}
+              maxOptions={20}
+              matchAny
+              defaultValue={data.save_locale_var_name_nOrder || ""}
+              type="text"
+              placeholder={`Nome da variável local`}
+              onChange={async (target: string) => {
+                updateNode(id, {
+                  data: { ...data, save_locale_var_name_nOrder: target },
+                });
+              }}
+            />
+          </Field>
+        </div>
       )}
 
       {data.fields?.includes("delivery_code") && (
-        <Field label="Salvar codigo de entrega">
-          <SelectVariables
-            isMulti={false}
-            isClearable={false}
-            isFlow
-            menuPlacement="bottom"
-            filter={(opt) => opt.filter((s) => s.type === "dynamics")}
-            onCreate={(tag) => {
-              updateNode(id, {
-                data: { ...data, varId_save_delivery_code: tag.id },
-              });
-            }}
-            value={data.varId_save_delivery_code}
-            onChange={(e: any) => {
-              updateNode(id, {
-                data: { ...data, varId_save_delivery_code: e.value },
-              });
-            }}
-          />
-        </Field>
+        <div className="my-2">
+          <Field label="Salvar codigo de entrega">
+            <SelectVariables
+              isMulti={false}
+              isClearable={false}
+              isFlow
+              menuPlacement="bottom"
+              filter={(opt) => opt.filter((s) => s.type === "dynamics")}
+              onCreate={(tag) => {
+                updateNode(id, {
+                  data: { ...data, varId_save_delivery_code: tag.id },
+                });
+              }}
+              value={data.varId_save_delivery_code}
+              onChange={(e: any) => {
+                updateNode(id, {
+                  data: { ...data, varId_save_delivery_code: e.value },
+                });
+              }}
+            />
+          </Field>
+          <Field label="Salvar valor em variável local">
+            <AutocompleteTextField
+              // @ts-expect-error
+              trigger={["/", "{{"]}
+              maxOptions={20}
+              matchAny
+              defaultValue={data.save_locale_var_name_delivery_code || ""}
+              type="text"
+              placeholder={`Nome da variável local`}
+              onChange={async (target: string) => {
+                updateNode(id, {
+                  data: { ...data, save_locale_var_name_delivery_code: target },
+                });
+              }}
+            />
+          </Field>
+        </div>
       )}
 
       <Field label={"Selecione os campos"}>

@@ -19,6 +19,7 @@ type DataNode = {
   value: string;
   var2Id: number;
   tools?: "match" | "replace";
+  save_locale_var_name_var2Id?: string;
 };
 
 const items = [
@@ -184,6 +185,27 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
           value={data.var2Id}
           onChange={(e: any) => setDataMok({ ...data, var2Id: e.value })}
           onCreate={(d) => setDataMok({ ...data, var2Id: d.id })}
+        />
+      </Field>
+
+      <Field label="Salvar valor em variável local">
+        <AutocompleteTextField
+          // @ts-expect-error
+          trigger={["/", "{{"]}
+          maxOptions={20}
+          matchAny
+          options={{
+            "{{": variables?.map((s) => s.name + "}} ") || [],
+          }}
+          defaultValue={data.save_locale_var_name_var2Id || ""}
+          type="text"
+          placeholder={`Nome da variável local`}
+          onChange={async (target: string) => {
+            setDataMok({
+              ...data,
+              save_locale_var_name_var2Id: target,
+            });
+          }}
         />
       </Field>
     </div>
