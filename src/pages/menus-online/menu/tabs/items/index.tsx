@@ -170,30 +170,47 @@ const TabProducts_ = ({ uuid }: { uuid: string }): JSX.Element => {
         styles: { width: 200 },
         render(row) {
           return (
-            <div className="flex items-baseline flex-col gap-y-1">
-              {row.categories.map((cat: ItemRow["categories"][0]) => (
+            <div className="flex flex-wrap gap-x-1">
+              {row.categories
+                .slice(0, 2)
+                .map((cat: ItemRow["categories"][0]) => (
+                  <div
+                    className={clsx(
+                      "flex gap-x-1 bg-amber-50/5 p-1 pr-1! rounded-md",
+                      cat.days_in_the_week_label
+                        ? "items-start"
+                        : "items-center",
+                    )}
+                  >
+                    {cat.image45x45png && (
+                      <img
+                        src={
+                          api.getUri() + "/public/images/" + cat.image45x45png
+                        }
+                        className="rounded-sm"
+                        width={"27px"}
+                        height={"27px"}
+                      />
+                    )}
+                    <div className="flex flex-col">
+                      <span className="text-xs font-medium">{cat.name}</span>
+                      <span className="text-xs font-light text-neutral-300">
+                        {cat.days_in_the_week_label}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              {!!(row.categories.length > 2) && (
                 <div
                   className={clsx(
-                    "flex gap-x-1 bg-amber-50/5 p-1 pr-1! rounded-md",
-                    cat.days_in_the_week_label ? "items-start" : "items-center",
+                    "flex gap-x-1 bg-amber-50/5 p-1! pr-1! rounded-md items-center",
                   )}
                 >
-                  {cat.image45x45png && (
-                    <img
-                      src={api.getUri() + "/public/images/" + cat.image45x45png}
-                      className="rounded-sm"
-                      width={"27px"}
-                      height={"27px"}
-                    />
-                  )}
                   <div className="flex flex-col">
-                    <span className="text-xs font-medium">{cat.name}</span>
-                    <span className="text-xs font-light text-neutral-300">
-                      {cat.days_in_the_week_label}
-                    </span>
+                    <span className="text-sm font-medium">...</span>
                   </div>
                 </div>
-              ))}
+              )}
             </div>
           );
         },

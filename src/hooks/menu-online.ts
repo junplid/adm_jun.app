@@ -249,6 +249,7 @@ export function useUpdateMenuOnline(props?: {
     connectionWAId: number;
     img?: File | undefined;
     imgcapa?: File | undefined;
+    is_accepting_motoboys: boolean;
   }>;
   onSuccess?: () => Promise<void>;
 }) {
@@ -271,6 +272,7 @@ export function useUpdateMenuOnline(props?: {
         connectionWAId: number;
         img?: File | undefined;
         capaimg?: File | undefined;
+        is_accepting_motoboys: boolean;
       };
     }) => MenuOnlineService.updateMenuOnline(id, body),
     async onSuccess(

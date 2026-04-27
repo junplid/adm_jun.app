@@ -259,6 +259,7 @@ export async function updateMenuOnline(
     connectionWAId: number;
     img?: File | undefined;
     capaimg?: File | undefined;
+    is_accepting_motoboys: boolean;
   },
 ): Promise<{
   logoImg?: string;

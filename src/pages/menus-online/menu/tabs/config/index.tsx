@@ -9,7 +9,7 @@ import {
   useState,
 } from "react";
 import { Field } from "@components/ui/field";
-import { Button, Input } from "@chakra-ui/react";
+import { Button, Input, Switch } from "@chakra-ui/react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -29,6 +29,7 @@ import { FormConfigInfoComponent } from "./info";
 import { FormConfigOperatingDaysComponent } from "./operating-days";
 import { ImageCropModal } from "../items/modals/ImageCropModal";
 import { SectionPairCodeAgentMenuOnlineConfig } from "./pair-code-app";
+import clsx from "clsx";
 
 const FormSchemaConfig = z.object({
   identifier: z
@@ -43,6 +44,7 @@ const FormSchemaConfig = z.object({
   bg_tertiary: z.string().nullable(),
   bg_capa: z.string().nullable(),
   connectionWAId: z.number({ message: "Conexão é obrigatória!" }),
+  is_accepting_motoboys: z.boolean(),
 });
 
 type ConfigFields = z.infer<typeof FormSchemaConfig>;
@@ -187,7 +189,7 @@ function FormConfigComponent({ uuid }: { uuid: string }) {
             <img
               src={imgcapaPreviewUrl}
               alt=""
-              className="max-w-[700px] w-full h-auto object-center"
+              className="max-w-175 w-full h-auto object-center"
             />
           )}
         </div>
@@ -312,6 +314,25 @@ function FormConfigComponent({ uuid }: { uuid: string }) {
           </Field>
         )}
       />
+
+      <Controller
+        name={`is_accepting_motoboys`}
+        control={control}
+        render={({ field }) => (
+          <Switch.Root
+            checked={!!field.value}
+            onCheckedChange={(e) => field.onChange(Number(e.checked))}
+            className="flex flex-col space-y-2.5"
+          >
+            <Switch.Label>Aceita novos motoboys?</Switch.Label>
+            <Switch.HiddenInput />
+            <Switch.Control
+              className={clsx(field.value ? "bg-blue-300!" : "bg-red-400!")}
+            />
+          </Switch.Root>
+        )}
+      />
+
       <div className="flex gap-x-1.5 ml-auto mt-3">
         <Button
           type="button"
