@@ -14,7 +14,8 @@ import AutocompleteTextField from "@components/Autocomplete";
 import { useGetVariablesOptions } from "../../../../hooks/variable";
 
 type DataNode = {
-  id: number;
+  id?: number;
+  locale_var_name?: string;
   values: { v: string; key: string }[];
   preview: { key: string; v: string }[];
 };
@@ -57,10 +58,24 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
           menuPlacement="bottom"
           isFlow
           isCreatable={false}
-          value={data.id}
+          value={data.id || null}
           onChange={(e: any) => {
             updateNode(id, {
               data: { ...data, id: e.value },
+            });
+          }}
+        />
+      </Field>
+
+      <Field label="Variável local">
+        <AutocompleteTextField
+          // @ts-expect-error
+          defaultValue={data.locale_var_name || ""}
+          type="text"
+          placeholder={`$.<variavel_local>`}
+          onChange={async (target: string) => {
+            updateNode(id, {
+              data: { ...data, locale_var_name: target },
             });
           }}
         />

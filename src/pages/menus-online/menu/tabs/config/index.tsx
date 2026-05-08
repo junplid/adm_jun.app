@@ -321,8 +321,8 @@ function FormConfigComponent({ uuid }: { uuid: string }) {
         render={({ field }) => (
           <Switch.Root
             checked={!!field.value}
-            onCheckedChange={(e) => field.onChange(Number(e.checked))}
-            className="flex flex-col space-y-2.5"
+            onCheckedChange={(e) => field.onChange(e.checked)}
+            className="flex flex-col mt-y-2"
           >
             <Switch.Label>Aceita novos motoboys?</Switch.Label>
             <Switch.HiddenInput />
