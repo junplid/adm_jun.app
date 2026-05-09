@@ -13,12 +13,13 @@ import { useGetVariablesOptions } from "../../../../hooks/variable";
 import SelectComponent from "@components/Select";
 
 type DataNode = {
-  var1Id: number;
+  var1Id?: number;
   regex: string;
   flags: string[];
   value: string;
-  var2Id: number;
+  var2Id?: number;
   tools?: "match" | "replace";
+  locale_var_name_var1?: string;
   save_locale_var_name_var2Id?: string;
 };
 
@@ -65,6 +66,20 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
 
   return (
     <div className="flex flex-col -mt-3 gap-y-2 min-h-60">
+      <Field label="Variável local">
+        <AutocompleteTextField
+          // @ts-expect-error
+          defaultValue={data.locale_var_name_var1 || ""}
+          type="text"
+          placeholder={`$.<variavel>`}
+          onChange={async (target: string) => {
+            setDataMok({
+              ...data,
+              save_locale_var_name_var2Id: target,
+            });
+          }}
+        />
+      </Field>
       <Field label="Variável de origem">
         <SelectVariables
           isMulti={false}
@@ -191,12 +206,6 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
       <Field label="Salvar valor em variável local">
         <AutocompleteTextField
           // @ts-expect-error
-          trigger={["/", "{{"]}
-          maxOptions={20}
-          matchAny
-          options={{
-            "{{": variables?.map((s) => s.name + "}} ") || [],
-          }}
           defaultValue={data.save_locale_var_name_var2Id || ""}
           type="text"
           placeholder={`Nome da variável local`}
