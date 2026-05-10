@@ -280,14 +280,14 @@ function Content({
     return (
       <DialogBody p={0} className="flex flex-col select-none!">
         {!isAddItem ? (
-          <div className="flex-1 flex flex-col m-2 border border-neutral-800 bg-neutral-800/20 rounded-xl">
+          <div className="flex-1 flex flex-col m-2 border dark:border-neutral-800 border-neutral-300 dark:bg-neutral-800/20 rounded-xl">
             <div className="grid p-3 pt-2 text-lg grid-cols-[1fr_80px] py-1 font-semibold">
               <span>Item</span>
               <span className="text-center">Subtotal</span>
             </div>
             <div
               style={{ height: "calc(100vh - 318px)" }}
-              className="flex flex-col overflow-y-auto border-neutral-800 border-y"
+              className="flex flex-col overflow-y-auto dark:border-neutral-800 border-neutral-300 dark:bg-neutral-800/20 border-y"
             >
               {(dataPreview.order?.items || []).map((item) => {
                 const isLoadDell = loadDelItems.includes(item.ItemOfOrderId);
@@ -295,7 +295,7 @@ function Content({
                   <div
                     key={item.ItemOfOrderId}
                     className={clsx(
-                      "grid grid-cols-[1fr_80px] p-3 border-b last:border-b-0 not-odd:bg-white/2 bg-white/4  border-neutral-800",
+                      "grid grid-cols-[1fr_80px] p-3 border-b last:border-b-0 dark:not-odd:bg-white/2 dark:bg-white/4 bg-black/4 not-odd:bg-black/2  dark:border-neutral-800 border-neutral-300",
                       isLoadDell ? "blur-[2px]" : "",
                     )}
                   >
@@ -331,7 +331,7 @@ function Content({
             <div className="h-full flex-1 flex flex-col gap-y-3">
               {products.items_with_category.map((cat) => (
                 <div key={cat.uuid} className="space-y-2 flex flex-col">
-                  <span className="font-semibold uppercase text-neutral-300">
+                  <span className="font-semibold uppercase dark:text-neutral-300">
                     • {cat.name}
                   </span>
                   <div className="grid grid-cols-[repeat(auto-fill,minmax(140px,1fr))] min-w-35 gap-1.5 auto-rows-[85px]">
@@ -370,8 +370,8 @@ function Content({
                           className={clsx(
                             "flex flex-col border-2 p-3! py-2! rounded-md",
                             isSelect
-                              ? "bg-green-200/20 border-green-200"
-                              : "bg-amber-50/5 border-transparent",
+                              ? "dark:bg-green-200/20 bg-green-200 dark:border-green-200 border-green-400"
+                              : "dark:bg-amber-50/5 bg-black/5 border-transparent",
                           )}
                         >
                           <div className="flex w-full gap-x-1 items-start flex-1">
@@ -435,9 +435,9 @@ function Content({
                   </div>
                 </div>
               ))}
-              <div className="pt-4 border-t-2 mt-4 border-neutral-800">
+              <div className="pt-4 border-t-2 mt-4 dark:border-neutral-800 border-neutral-300 dark:bg-neutral-800/20">
                 <div className="space-y-2 flex flex-col">
-                  <span className="font-semibold uppercase text-neutral-300">
+                  <span className="font-semibold uppercase dark:text-neutral-300">
                     • Produtos sem categoria
                   </span>
                   <div className="grid grid-cols-[repeat(auto-fill,minmax(140px,1fr))] min-w-35 gap-1.5 auto-rows-[85px]">
@@ -476,8 +476,8 @@ function Content({
                           className={clsx(
                             "flex flex-col p-3! py-2! border-2 rounded-md",
                             isSelect
-                              ? "bg-green-200/20 border-green-200"
-                              : "bg-amber-50/5 border-transparent",
+                              ? "dark:bg-green-200/20 bg-green-200 dark:border-green-200 border-green-400"
+                              : "dark:bg-amber-50/5 bg-black/5 border-transparent",
                           )}
                         >
                           <div className="flex w-full gap-x-1 items-start flex-1">
@@ -549,7 +549,7 @@ function Content({
             ? [
                 <div className="flex px-2 justify-end items-center font-medium gap-x-1.5 pt-1">
                   <span>Total:</span>
-                  <span className="text-white text-lg font-bold">
+                  <span className="dark:text-white text-lg font-bold">
                     {formatToBRL(totalTable)}
                   </span>
                 </div>,
@@ -620,14 +620,14 @@ function Content({
   return (
     <>
       <DialogBody className="grid grid-cols-[minmax(210px,410px)_1fr] items-start gap-x-3">
-        <div className="flex-1 flex flex-col border border-neutral-800 bg-neutral-800/20 rounded-xl">
+        <div className="flex-1 flex flex-col border dark:border-neutral-800 border-neutral-300 dark:bg-neutral-800/20 rounded-xl">
           <div className="grid p-3 pt-2 text-lg grid-cols-[1fr_80px] py-1 font-semibold">
             <span>Item</span>
             <span className="text-center">Subtotal</span>
           </div>
           <div
             style={{ height: "calc(100vh - 315px)" }}
-            className="flex flex-col overflow-y-auto border-neutral-800 border-y"
+            className="flex flex-col overflow-y-auto dark:border-neutral-800 border-neutral-300 border-y"
           >
             {(dataPreview.order?.items || []).map((item) => {
               const isLoadDell = loadDelItems.includes(item.ItemOfOrderId);
@@ -635,7 +635,7 @@ function Content({
                 <div
                   key={item.ItemOfOrderId}
                   className={clsx(
-                    "grid grid-cols-[1fr_80px] p-3 border-b last:border-b-0 not-odd:bg-white/2 bg-white/4  border-neutral-800",
+                    "grid grid-cols-[1fr_80px] p-3 border-b last:border-b-0 dark:not-odd:bg-white/2 dark:bg-white/4 bg-black/4 not-odd:bg-black/2  dark:border-neutral-800 border-neutral-300",
                     isLoadDell ? "blur-[2px]" : "",
                   )}
                 >
@@ -665,7 +665,7 @@ function Content({
           <div className="flex flex-col">
             <div className="flex px-2 justify-end items-center font-medium gap-x-1.5 pt-1">
               <span>Total:</span>
-              <span className="text-white text-lg font-bold">
+              <span className="dark:text-white text-lg font-bold">
                 {formatToBRL(totalTable)}
               </span>
             </div>
@@ -707,7 +707,7 @@ function Content({
           <div className="h-full flex-1 flex flex-col gap-y-3">
             {products.items_with_category.map((cat) => (
               <div key={cat.uuid} className="space-y-2 flex flex-col">
-                <span className="font-semibold uppercase text-neutral-300">
+                <span className="font-semibold uppercase dark:text-neutral-300">
                   • {cat.name}
                 </span>
                 <div className="grid grid-cols-[repeat(auto-fill,minmax(190px,1fr))] min-w-35 gap-1.5 auto-rows-[85px]">
@@ -746,8 +746,8 @@ function Content({
                         className={clsx(
                           "flex flex-col border-2 p-3! py-2! rounded-md",
                           isSelect
-                            ? "bg-green-200/20 border-green-200"
-                            : "bg-amber-50/5 border-transparent",
+                            ? "dark:bg-green-200/20 bg-green-200 dark:border-green-200 border-green-400"
+                            : "dark:bg-amber-50/5 bg-black/5 border-transparent",
                         )}
                       >
                         <div className="flex w-full gap-x-1 items-start flex-1">
@@ -809,9 +809,9 @@ function Content({
                 </div>
               </div>
             ))}
-            <div className="pt-4 border-t-2 mt-4 border-neutral-800">
+            <div className="pt-4 border-t-2 mt-4 dark:border-neutral-800 border-neutral-300">
               <div className="space-y-2 flex flex-col">
-                <span className="font-semibold uppercase text-neutral-300">
+                <span className="font-semibold uppercase dark:text-neutral-300">
                   • Produtos sem categoria
                 </span>
                 <div className="grid grid-cols-[repeat(auto-fill,minmax(190px,1fr))] min-w-35 gap-1.5 auto-rows-[85px]">
@@ -850,8 +850,8 @@ function Content({
                         className={clsx(
                           "flex flex-col p-3! py-2! border-2 rounded-md",
                           isSelect
-                            ? "bg-green-200/20 border-green-200"
-                            : "bg-amber-50/5 border-transparent",
+                            ? "dark:bg-green-200/20 bg-green-200 dark:border-green-200 border-green-400"
+                            : "dark:bg-amber-50/5 bg-black/5 border-transparent",
                         )}
                       >
                         <div className="flex w-full gap-x-1 items-start flex-1">

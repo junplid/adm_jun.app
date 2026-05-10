@@ -130,7 +130,7 @@ export function FormCreateCategoriesMenuOnlineConfig(props: Props) {
                   isSearchable={false}
                   isClearable
                   ref={field.ref}
-                  placeholder=""
+                  placeholder="Selecione"
                   onChange={(e: any) => {
                     setValue("startAt", undefined);
                     setValue("endAt", undefined);

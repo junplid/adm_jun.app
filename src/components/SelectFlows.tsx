@@ -65,11 +65,11 @@ const SelectFlows = forwardRef<any, ISelectFlowsProps>(
         noOptionsMessage={({ inputValue }) => {
           return (
             <div className="flex  text-sm flex-col gap-1 pointer-events-auto">
-              <span className="text-white/60">
+              <span className="dark:text-white/60 text-black/60">
                 Nenhum fluxo {inputValue && `"${inputValue}"`} encontrado.
               </span>
               {isCreatable && !inputValue && (
-                <span className="text-sm text-white/80">
+                <span className="text-sm dark:text-white/80 text-black/80">
                   Digite o nome do fluxo que quer adicionar.
                 </span>
               )}
@@ -79,11 +79,15 @@ const SelectFlows = forwardRef<any, ISelectFlowsProps>(
                   className="flex flex-col gap-1 items-center"
                 >
                   {isPendingCreate ? (
-                    <span className="text-white/60">Criando novo fluxo...</span>
+                    <span className="dark:text-white/60 text-black/60">
+                      Criando novo fluxo...
+                    </span>
                   ) : (
                     <span className="text-xs">
-                      <strong className="text-white/80">ENTER</strong> para
-                      adicionar rapidamente.
+                      <strong className="dark:text-white/80 text-black/80">
+                        ENTER
+                      </strong>{" "}
+                      para adicionar rapidamente.
                     </span>
                   )}
                 </div>

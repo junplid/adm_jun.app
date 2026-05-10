@@ -217,7 +217,7 @@ export function FormEditCategoryMenuOnlineConfig(props: Props) {
                   isSearchable={false}
                   isClearable
                   ref={field.ref}
-                  placeholder=""
+                  placeholder="Selecione"
                   onChange={(e: any) => {
                     // setValue("startAt", undefined, { shouldDirty: true });
                     // setValue("endAt", undefined, { shouldDirty: true });

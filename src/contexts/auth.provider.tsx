@@ -108,7 +108,7 @@ export function AuthProvider(props: IProps): JSX.Element {
   );
 
   return (
-    <div className="bg-[#181616c5] h-svh">
+    <div className="dark:bg-[#181616c5] bg-neutral-100 h-svh">
       {/* @ts-expect-error */}
       <AuthContext.Provider value={dataValue}>
         {!load && (

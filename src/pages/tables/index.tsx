@@ -50,8 +50,8 @@ function AddMesaCard({
     <ModalCreateTable
       onCreate={(table) => setTables((state) => [...state, table])}
       trigger={
-        <div className="rounded-md border-2 border-dashed border-neutral-800 flex flex-col items-center justify-center cursor-pointer hover:bg-neutral-800/60 transition">
-          <FiPlus size={24} className="text-white" />
+        <div className="rounded-md border-2 border-dashed dark:border-neutral-800 border-neutral-300 flex flex-col items-center justify-center cursor-pointer dark:hover:bg-neutral-800/60 hover:bg-neutral-800/10 transition">
+          <FiPlus size={24} className="dark:text-white text-black" />
           <span className="text-lg text-center font-semibold uppercase">
             Nova Mesa
           </span>
@@ -67,14 +67,14 @@ function MesaCard({ onClick, ...table }: { onClick: () => void } & Table) {
       <div
         onClick={onClick}
         className={
-          "bg-blue-300 rounded-md flex-1 justify-center p-2 flex flex-col cursor-pointer"
+          "dark:bg-blue-300 bg-blue-200 rounded-md flex-1 justify-center p-2 flex flex-col cursor-pointer"
         }
       >
-        <span className="text-sm font-medium text-blue-700 line-clamp-2 text-center">
+        <span className="text-sm font-medium dark:text-blue-700 text-blue-500 line-clamp-2 text-center">
           Mesa: {table.name}
         </span>
 
-        <span className="text-xl text-center font-extrabold text-blue-700">
+        <span className="text-xl text-center font-extrabold dark:text-blue-700 text-blue-900">
           {formatToBRL(
             table.order?.items.reduce(
               (ac, cr) =>
@@ -92,11 +92,11 @@ function MesaCard({ onClick, ...table }: { onClick: () => void } & Table) {
     <div
       onClick={onClick}
       className={
-        "bg-neutral-800/60 rounded-md flex-1 justify-center p-2 flex flex-col cursor-pointer"
+        "dark:bg-neutral-800/60 bg-neutral-800/20 rounded-md flex-1 justify-center p-2 flex flex-col cursor-pointer"
       }
     >
       <span className="text-sm inline text-center font-medium">
-        <span className="text-xs font-normal text-neutral-400">Mesa</span>{" "}
+        <span className="text-xs font-normal dark:text-neutral-400">Mesa</span>{" "}
         {table.name}
       </span>
       <span className="text-lg text-center font-semibold uppercase">Livre</span>

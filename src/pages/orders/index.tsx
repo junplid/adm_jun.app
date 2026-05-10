@@ -596,7 +596,7 @@ export function Container(props: ContainerProps) {
       style={{
         width: "100%",
         minWidth: "220px",
-        background: opacity(props.column.color, 0.06),
+        background: opacity(props.column.color, 0.5),
       }}
       className="grid grid-rows-[40px_1fr] sm:grid-rows-[50px_1fr] px-1.5 pt-1.5 select-none sm:w-52 sm:min-w-52 min-w-44 w-44"
     >
@@ -663,11 +663,11 @@ const columns: {
   value: TypeStatusOrder;
   color: string;
 }[] = [
-  { label: "Em espera", value: "confirmed", color: "#0EA5E933" },
-  { label: "PREPARANDO", value: "processing", color: "#F9731633" },
-  { label: "Prontos pra entrega", value: "ready", color: "#22C55E33" },
-  { label: "A caminho", value: "on_way", color: "#3B82F633" },
-  { label: "Concluídos", value: "completed", color: "#14B8A633" },
+  { label: "Em espera", value: "confirmed", color: "#0ea4e9c7" },
+  { label: "PREPARANDO", value: "processing", color: "#f97416bb" },
+  { label: "Prontos pra entrega", value: "ready", color: "#22c55ebd" },
+  { label: "A caminho", value: "on_way", color: "#3b83f6bb" },
+  { label: "Concluídos", value: "completed", color: "#14b8a5c3" },
 ];
 
 export const OrdersPage: React.FC = (): JSX.Element => {

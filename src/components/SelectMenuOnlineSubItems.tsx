@@ -41,11 +41,7 @@ const SelectMenuOnlineSubItems = forwardRef<any, ISelectBusinessesProps>(
             s.map((d) => ({
               value: d.uuids.join("_"),
               label: (
-                <div
-                  className={clsx(
-                    "flex gap-x-1",
-                  )}
-                >
+                <div className={clsx("flex gap-x-1")}>
                   <div className="flex flex-col">
                     <div className="flex items-center gap-x-2">
                       <span className="font-light">({d.uuids.length})</span>
@@ -81,7 +77,7 @@ const SelectMenuOnlineSubItems = forwardRef<any, ISelectBusinessesProps>(
         noOptionsMessage={({ inputValue }) => {
           return (
             <div className="flex  text-sm flex-col gap-1 pointer-events-auto">
-              <span className="text-white/60">
+              <span className="dark:text-white/60 text-black/60">
                 Nenhuma opção {inputValue && `"${inputValue}"`} encontrada.
               </span>
             </div>
@@ -91,48 +87,48 @@ const SelectMenuOnlineSubItems = forwardRef<any, ISelectBusinessesProps>(
         {...(value !== null && value !== undefined
           ? typeof value === "string"
             ? {
-              value: [
-                { label: opt?.find((i) => i.value === value)?.value, value },
-              ],
-            }
+                value: [
+                  { label: opt?.find((i) => i.value === value)?.value, value },
+                ],
+              }
             : {
-              value: value.map((item) => ({
-                label: opt?.find((i) => i.value === item)?.label,
-                value: item,
-              })),
-            }
+                value: value.map((item) => ({
+                  label: opt?.find((i) => i.value === item)?.label,
+                  value: item,
+                })),
+              }
           : { value: null })}
         menuPosition={isFlow ? "fixed" : "absolute"}
         menuPortalTarget={isFlow ? document.body : undefined}
         components={
           isFlow
             ? {
-              Option: (props) => {
-                const handleMouseDown = (e: React.MouseEvent) => {
-                  e.stopPropagation();
-                  props.innerRef?.(e.currentTarget as HTMLDivElement);
-                  props.selectOption(props.data);
-                };
+                Option: (props) => {
+                  const handleMouseDown = (e: React.MouseEvent) => {
+                    e.stopPropagation();
+                    props.innerRef?.(e.currentTarget as HTMLDivElement);
+                    props.selectOption(props.data);
+                  };
 
-                return (
-                  <div
-                    style={{
-                      backgroundColor: props.isFocused
-                        ? "#1f1e20"
-                        : "transparent",
-                      padding: "6px 8px",
-                      cursor: "pointer",
-                      fontSize: "15px",
-                      borderRadius: "0.125rem",
-                    }}
-                    onMouseDown={handleMouseDown}
-                    {...props.innerProps}
-                  >
-                    {props.children}
-                  </div>
-                );
-              },
-            }
+                  return (
+                    <div
+                      style={{
+                        backgroundColor: props.isFocused
+                          ? "#1f1e20"
+                          : "transparent",
+                        padding: "6px 8px",
+                        cursor: "pointer",
+                        fontSize: "15px",
+                        borderRadius: "0.125rem",
+                      }}
+                      onMouseDown={handleMouseDown}
+                      {...props.innerProps}
+                    >
+                      {props.children}
+                    </div>
+                  );
+                },
+              }
             : undefined
         }
         {...props}

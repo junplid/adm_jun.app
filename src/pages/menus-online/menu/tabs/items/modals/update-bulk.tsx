@@ -111,7 +111,7 @@ export function ModalUpdateBulk({
         mx={2}
       >
         <DialogHeader flexDirection={"column"} gap={0}>
-          <DialogTitle>Atulização em massa de opções</DialogTitle>
+          <DialogTitle>Atulização de acompanhamentos</DialogTitle>
         </DialogHeader>
         <DialogBody
           mt={clientMeta.isMobileLike ? "-15px" : "-5px"}
@@ -123,7 +123,8 @@ export function ModalUpdateBulk({
               invalid={!!errors.subItemsUuid}
               label={
                 <span>
-                  Selecione as opções <span className="text-red-300">*</span>
+                  Selecione os acompanhamentos{" "}
+                  <span className="dark:text-red-300 text-red-500">*</span>
                 </span>
               }
             >
@@ -136,6 +137,7 @@ export function ModalUpdateBulk({
                     name={field.name}
                     isMulti
                     ref={field.ref}
+                    placeholder="Selecione"
                     isSearchable={false}
                     onBlur={field.onBlur}
                     onChange={(e: any) => {

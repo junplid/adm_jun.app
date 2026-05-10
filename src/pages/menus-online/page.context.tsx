@@ -23,19 +23,10 @@ export function LayoutSitesPageProvider(): JSX.Element {
   return (
     <LayoutWorkbenchPageContext.Provider value={dataValue}>
       <div className="h-full -space-y-1 px-2 flex flex-col">
-        <div className="flex flex-col">
-          <div className="flex items-center gap-x-5">
-            <h1 className="text-lg font-semibold">Cardápio digital</h1>
-            {!isFetching && !isPending && !!!menusOnline?.length && (
-              <ModalCreateMenuOnline
-                trigger={
-                  <Button variant="outline" size={"sm"}>
-                    <IoAdd /> Adicionar
-                  </Button>
-                }
-              />
-            )}
-            {!!menusOnline?.length && (
+        {!!menusOnline?.length && (
+          <div className="flex flex-col">
+            <div className="flex items-center gap-x-5">
+              <h1 className="text-lg font-semibold">Cardápio digital</h1>
               <ModalGenerateReportMenuOnline
                 uuid={menusOnline[0].uuid}
                 trigger={
@@ -44,9 +35,9 @@ export function LayoutSitesPageProvider(): JSX.Element {
                   </Button>
                 }
               />
-            )}
+            </div>
           </div>
-        </div>
+        )}
 
         {(isFetching || isPending) && (
           <div className="flex w-full h-full items-center justify-center">
@@ -59,12 +50,21 @@ export function LayoutSitesPageProvider(): JSX.Element {
             className="flex flex-1 items-start gap-x-2 w-full"
           >
             <div className="mt-20 flex flex-col text-sm text-center w-full">
-              <span className="text-white font-semibold">
-                Nenhum cardápio online
+              <span className="dark:text-white font-semibold">
+                Nenhum cardápio digital
               </span>
-              <span className="text-white/70">
+              <span className="dark:text-white/70 text-black/70">
                 Seu cardápio digital aparecerá aqui.
               </span>
+              <div className="mt-6">
+                <ModalCreateMenuOnline
+                  trigger={
+                    <Button variant="outline" size={"sm"}>
+                      <IoAdd /> Adicionar
+                    </Button>
+                  }
+                />
+              </div>
             </div>
           </div>
         )}

@@ -52,6 +52,7 @@ import { useSearchParams } from "react-router-dom";
 import { SectionsItems } from "./SectionsItem";
 import { RiErrorWarningFill } from "react-icons/ri";
 import clsx from "clsx";
+import { useColorModeValue } from "@components/ui/color-mode";
 
 interface IProps {
   menuUuid: string;
@@ -223,6 +224,7 @@ function Content(props: IProps): JSX.Element {
   const [stateItem, setStateItem] = useState<
     "sucess" | "not_found" | "error" | null
   >(null);
+  const shadowCard = useColorModeValue("#f0f0f0", "#888888");
 
   const {
     handleSubmit,
@@ -461,7 +463,7 @@ function Content(props: IProps): JSX.Element {
                     )}
                     style={{
                       background: "#fff",
-                      boxShadow: "inset 0px 0px 10px #888888",
+                      boxShadow: `inset 0px 0px 10px ${shadowCard}`,
                     }}
                   >
                     <div className="pl-1 flex flex-col gap-y-2 py-1.5 justify-between">
@@ -914,7 +916,9 @@ function Content(props: IProps): JSX.Element {
               }}
               className="rounded-md w-full hover:bg-blue-200/5 duration-200 flex cursor-pointer items-center bg-blue-200/4 py-3 justify-center gap-x-1"
             >
-              <span className="font-medium text-blue-200">Acompanhamentos</span>
+              <span className="font-medium dark:text-blue-200 text-blue-400">
+                Acompanhamentos
+              </span>
             </div>
           </VStack>
         </DialogBody>

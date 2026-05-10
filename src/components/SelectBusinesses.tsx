@@ -70,11 +70,11 @@ const SelectBusinesses = forwardRef<any, ISelectBusinessesProps>(
         noOptionsMessage={({ inputValue }) => {
           return (
             <div className="flex  text-sm flex-col gap-1 pointer-events-auto">
-              <span className="text-white/60">
+              <span className="dark:text-white/60 text-black/60">
                 Nenhum projeto {inputValue && `"${inputValue}"`} encontrado.
               </span>
               {!inputValue && (
-                <span className="text-sm text-white/80">
+                <span className="text-sm dark:text-white/80 text-black/80">
                   Digite o nome do projeto que quer adicionar.
                 </span>
               )}
@@ -84,13 +84,15 @@ const SelectBusinesses = forwardRef<any, ISelectBusinessesProps>(
                   className="flex flex-col gap-1 items-center"
                 >
                   {isPendingCreate ? (
-                    <span className="text-white/60">
+                    <span className="dark:text-white/60 text-black/60">
                       Criando novo projeto...
                     </span>
                   ) : (
                     <span className="text-xs">
-                      <strong className="text-white/80">ENTER</strong> para
-                      adicionar rapidamente.
+                      <strong className="dark:text-white/80 text-black/80">
+                        ENTER
+                      </strong>{" "}
+                      para adicionar rapidamente.
                     </span>
                   )}
                 </div>

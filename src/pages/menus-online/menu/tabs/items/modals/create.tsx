@@ -44,6 +44,7 @@ import { ImageCropModal } from "./ImageCropModal";
 import { TbShoppingBagPlus } from "react-icons/tb";
 import { SectionsItems } from "./SectionsItem";
 import { RiErrorWarningFill } from "react-icons/ri";
+import { useColorModeValue } from "@components/ui/color-mode";
 
 interface IProps {
   onCreate(business: ItemRow): void;
@@ -234,6 +235,7 @@ export function ModalCreateProduct({
   const [cropFile, setCropFile] = useState<File | null>(null);
   const [collapsibles, setCollapsibles] = useState<string[]>([]);
   const [searchParams, setSearchParams] = useSearchParams();
+  const shadowCard = useColorModeValue("#f0f0f0", "#888888");
 
   const registerWithMask = useHookFormMask(register);
 
@@ -397,7 +399,7 @@ export function ModalCreateProduct({
                       )}
                       style={{
                         background: "#fff",
-                        boxShadow: "inset 0px 0px 10px #888888",
+                        boxShadow: `inset 0px 0px 10px ${shadowCard}`,
                       }}
                     >
                       <div className="pl-1 flex flex-col gap-y-2 py-1.5 justify-between">
@@ -875,7 +877,7 @@ export function ModalCreateProduct({
                 }}
                 className="rounded-md w-full hover:bg-blue-200/5 duration-200 flex cursor-pointer items-center bg-blue-200/4 py-3 justify-center gap-x-1"
               >
-                <span className="font-medium text-blue-200">
+                <span className="font-medium dark:text-blue-200 text-blue-400">
                   Acompanhamentos
                 </span>
               </div>

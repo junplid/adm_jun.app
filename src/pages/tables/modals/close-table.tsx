@@ -21,7 +21,7 @@ function Content({ onClickMethod, close }: IProps) {
       <div className="px-4">
         <h3
           className={clsx(
-            "font-semibold text-sm uppercase text-center tracking-wide mb-2 transition-colors text-white",
+            "font-semibold text-sm uppercase text-center tracking-wide mb-2 transition-colors dark:text-white",
           )}
         >
           Forma de Pagamento
@@ -35,7 +35,7 @@ function Content({ onClickMethod, close }: IProps) {
                 close;
               }}
               className={clsx(
-                "py-5 px-2 rounded-xl bg-neutral-800/50 text-sm font-medium transition-all",
+                "py-5 px-2 rounded-xl dark:bg-neutral-800/50 bg-neutral-800/10 text-sm font-medium transition-all",
               )}
             >
               {method.label}

@@ -1,5 +1,6 @@
 import { forwardRef } from "react";
 import Select, { MenuPlacement, Props as SelectProps } from "react-select";
+import { useColorModeValue } from "./ui/color-mode";
 
 interface SelectInputProps extends SelectProps {
   isFlow?: boolean;
@@ -9,6 +10,17 @@ interface SelectInputProps extends SelectProps {
 
 const SelectComponent = forwardRef<any, SelectInputProps>(
   ({ isFlow, menuPlacement, singleValueColor, ...props }, ref) => {
+    const bgMultiValue = useColorModeValue("#c6c6c658", "#4a4a4a59");
+    const colorTextActive = useColorModeValue("#1d1c1c", "#ededed");
+    const colorTextOff = useColorModeValue("#cdcdcd", "#5a5a5a");
+
+    const bgMenu = useColorModeValue("#ffffff", "#111111");
+
+    const bgOptionActive = useColorModeValue("#e9e9e9", "#202020");
+
+    const shadowMenu = useColorModeValue("#7e7e7e64", "#090909e4");
+    const colorMenuBorder = useColorModeValue("#f0f0f0", "#27272a");
+
     return (
       <Select
         isClearable
@@ -37,15 +49,15 @@ const SelectComponent = forwardRef<any, SelectInputProps>(
           }),
           clearIndicator: (base) => ({
             ...base,
-            color: "#ffffff",
+            color: colorTextActive,
             cursor: "pointer",
             ":hover": {
-              color: "#ffffff",
+              color: colorTextActive,
             },
           }),
           multiValue: (base) => ({
             ...base,
-            backgroundColor: "#4a4a4a59",
+            backgroundColor: bgMultiValue,
             margin: 2.7,
             ":first-of-type": {
               marginLeft: "0 !important",
@@ -53,7 +65,7 @@ const SelectComponent = forwardRef<any, SelectInputProps>(
           }),
           singleValue: (base) => ({
             ...base,
-            color: singleValueColor || "#ffffff",
+            color: singleValueColor || colorTextActive,
             fontWeight: 500,
           }),
           multiValueRemove: (base) => ({
@@ -66,7 +78,7 @@ const SelectComponent = forwardRef<any, SelectInputProps>(
           }),
           multiValueLabel: (base) => ({
             ...base,
-            color: "#ffffff",
+            color: colorTextActive,
             fontWeight: 500,
           }),
           menuPortal: (base) => ({
@@ -75,11 +87,11 @@ const SelectComponent = forwardRef<any, SelectInputProps>(
           }),
           menu: (base) => ({
             ...base,
-            backgroundColor: "#111111",
-            border: `1px solid #27272a`,
+            backgroundColor: bgMenu,
+            border: `1px solid ${colorMenuBorder}`,
             marginTop: 7,
             borderRadius: "3px",
-            boxShadow: "0px 6px 10px -3px #090909e4",
+            boxShadow: `0px 6px 10px -3px ${shadowMenu}`,
             overflow: "hidden",
           }),
           menuList: (base) => ({
@@ -88,8 +100,8 @@ const SelectComponent = forwardRef<any, SelectInputProps>(
           }),
           option: (base, props) => ({
             ...base,
-            backgroundColor: props.isFocused ? "#1F1E20" : "#111111",
-            color: props.isDisabled ? "#5f5f5f" : "#ffffff",
+            backgroundColor: props.isFocused ? bgOptionActive : "transparent",
+            color: props.isDisabled ? colorTextOff : colorTextActive,
             cursor: "pointer",
             padding: "6px 8px",
             borderRadius: "0.125rem",

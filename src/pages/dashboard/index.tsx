@@ -1,112 +1,112 @@
-import { JSX, useContext, useEffect, useState } from "react";
+import { JSX } from "react";
 import { InstallPWA } from "./InstallPWA";
-import LineCharts from "@components/Charts/Line";
-import { SocketContext } from "@contexts/socket.context";
+// import LineCharts from "@components/Charts/Line";
+// import { SocketContext } from "@contexts/socket.context";
 import { useRoomWebSocket } from "../../hooks/roomWebSocket";
-import { getServicesToday } from "../../services/api/Dashboard";
-import { AxiosError } from "axios";
-import { ErrorResponse_I } from "../../services/api/ErrorResponse";
-import { toaster } from "@components/ui/toaster";
-import { AuthContext } from "@contexts/auth.context";
-import { Skeleton } from "@chakra-ui/react";
-import { useFiveMinuteClock } from "../../hooks/preciseFiveMinuteListener";
+// import { getServicesToday } from "../../services/api/Dashboard";
+// import { AxiosError } from "axios";
+// import { ErrorResponse_I } from "../../services/api/ErrorResponse";
+// import { toaster } from "@components/ui/toaster";
+// import { AuthContext } from "@contexts/auth.context";
+// import { Skeleton } from "@chakra-ui/react";
+// import { useFiveMinuteClock } from "../../hooks/preciseFiveMinuteListener";
 
 export function DashboardPage(): JSX.Element {
-  const { logout } = useContext(AuthContext);
-  const [load, setLoad] = useState(true);
-  const [servicesToday, setServicesToday] = useState<
-    Record<string, number | null>
-  >({});
-  const [currentValue, setCurrentValue] = useState<number>(0);
+  // const { logout } = useContext(AuthContext);
+  // const [load, setLoad] = useState(true);
+  // const [servicesToday, setServicesToday] = useState<
+  //   Record<string, number | null>
+  // >({});
+  // const [currentValue, setCurrentValue] = useState<number>(0);
 
-  const { socket } = useContext(SocketContext);
+  // const { socket } = useContext(SocketContext);
   useRoomWebSocket("dashboard", undefined);
 
-  useFiveMinuteClock((hour) => {
-    console.log(hour);
-    setServicesToday((services) => {
-      if (services[hour] === null) {
-        const keys = Object.keys(services);
-        const index = keys.findIndex((s) => s === hour);
-        if (index < 0) {
-          return { ...services };
-        } else {
-          const prevIndex = Math.max(0, index - 1);
-          const valuePrev = services[keys[prevIndex]];
-          services[hour] = valuePrev || 0;
-          setCurrentValue(valuePrev || 0);
-        }
-      } else {
-        services[hour] = services[hour] || 0;
-        setCurrentValue(services[hour] || 0);
-      }
-      return { ...services };
-    });
-  });
+  // useFiveMinuteClock((hour) => {
+  //   console.log(hour);
+  //   setServicesToday((services) => {
+  //     if (services[hour] === null) {
+  //       const keys = Object.keys(services);
+  //       const index = keys.findIndex((s) => s === hour);
+  //       if (index < 0) {
+  //         return { ...services };
+  //       } else {
+  //         const prevIndex = Math.max(0, index - 1);
+  //         const valuePrev = services[keys[prevIndex]];
+  //         services[hour] = valuePrev || 0;
+  //         setCurrentValue(valuePrev || 0);
+  //       }
+  //     } else {
+  //       services[hour] = services[hour] || 0;
+  //       setCurrentValue(services[hour] || 0);
+  //     }
+  //     return { ...services };
+  //   });
+  // });
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const services = await getServicesToday();
-        const lastIndex = Object.values(services).findIndex((s) => s === null);
-        if (lastIndex >= 0) {
-          setCurrentValue(Object.values(services)[lastIndex - 1] || 0);
-        }
+  // useEffect(() => {
+  //   (async () => {
+  //     try {
+  //       const services = await getServicesToday();
+  //       const lastIndex = Object.values(services).findIndex((s) => s === null);
+  //       if (lastIndex >= 0) {
+  //         setCurrentValue(Object.values(services)[lastIndex - 1] || 0);
+  //       }
 
-        setServicesToday(services);
-        setTimeout(() => setLoad(false), 200);
-      } catch (error) {
-        setLoad(false);
-        if (error instanceof AxiosError) {
-          if (error.response?.status === 401) logout();
-          if (error.response?.status === 400) {
-            const dataError = error.response?.data as ErrorResponse_I;
-            if (dataError.toast.length) dataError.toast.forEach(toaster.create);
-          }
-        }
-        throw error;
-      }
-      socket.on(
-        "dashboard_services",
-        (data: { delta: number; hour: string }) => {
-          setServicesToday((services) => {
-            if (services[data.hour] === null) {
-              const keys = Object.keys(services);
-              const index = keys.findIndex((s) => s === data.hour);
-              if (index < 0) {
-                return { ...services };
-              } else {
-                const prevIndex = Math.max(0, index - 1);
-                const valuePrev = services[keys[prevIndex]];
-                const nextValue = (valuePrev || 0) + data.delta;
-                services[data.hour] = nextValue;
-                setCurrentValue(nextValue);
-              }
-            } else {
-              const nextValue = (services[data.hour] || 0) + data.delta;
-              services[data.hour] = nextValue;
-              setCurrentValue(nextValue);
-            }
-            return { ...services };
-          });
-        },
-      );
-    })();
+  //       setServicesToday(services);
+  //       setTimeout(() => setLoad(false), 200);
+  //     } catch (error) {
+  //       setLoad(false);
+  //       if (error instanceof AxiosError) {
+  //         if (error.response?.status === 401) logout();
+  //         if (error.response?.status === 400) {
+  //           const dataError = error.response?.data as ErrorResponse_I;
+  //           if (dataError.toast.length) dataError.toast.forEach(toaster.create);
+  //         }
+  //       }
+  //       throw error;
+  //     }
+  //     socket.on(
+  //       "dashboard_services",
+  //       (data: { delta: number; hour: string }) => {
+  //         setServicesToday((services) => {
+  //           if (services[data.hour] === null) {
+  //             const keys = Object.keys(services);
+  //             const index = keys.findIndex((s) => s === data.hour);
+  //             if (index < 0) {
+  //               return { ...services };
+  //             } else {
+  //               const prevIndex = Math.max(0, index - 1);
+  //               const valuePrev = services[keys[prevIndex]];
+  //               const nextValue = (valuePrev || 0) + data.delta;
+  //               services[data.hour] = nextValue;
+  //               setCurrentValue(nextValue);
+  //             }
+  //           } else {
+  //             const nextValue = (services[data.hour] || 0) + data.delta;
+  //             services[data.hour] = nextValue;
+  //             setCurrentValue(nextValue);
+  //           }
+  //           return { ...services };
+  //         });
+  //       },
+  //     );
+  //   })();
 
-    return () => {
-      socket.off("dashboard_services");
-    };
-  }, []);
+  //   return () => {
+  //     socket.off("dashboard_services");
+  //   };
+  // }, []);
 
   return (
     <div className="sm:p-0 p-2">
-      <div className="mb-4 flex flex-col text-sm text-center text-white/70">
+      <div className="mb-4 flex flex-col text-sm text-center dark:text-white/70 text-black/70">
         <span>Estamos construindo algo melhor.</span>
-        <span className="text-white text-base">
-          Em breve, métricas profundas e mais inteligentes.
+        <span className="dark:text-white text-base">
+          Em breve, métricas profundas e inteligentes.
         </span>
       </div>
-
+      {/* 
       <Skeleton
         height="180px"
         className="rounded-xl! mb-3"
@@ -132,17 +132,17 @@ export function DashboardPage(): JSX.Element {
                   {currentValue}
                 </span>
               </div>
-              {/* <div className="flex items-center">
-              <span className="font-semibold text-xl">13</span>
-              <span className="text-[#84df5a] text-sm">+90%</span>
-            </div> */}
+           // <div className="flex items-center">
+              //<span className="font-semibold text-xl">13</span>
+              //<span className="text-[#84df5a] text-sm">+90%</span>
+            //</div> 
             </div>
-            {/* <div className="flex items-center gap-1 text-gray-100">
-            <BsCalendarWeek />
-            <button className="flex bg-gray-100 border p-0.5 px-2 rounded-sm">
-              <span className="text-[11px] text-black/70">20/01 - 27/01</span>
-            </button>
-          </div> */}
+           //<div className="flex items-center gap-1 text-gray-100">
+            //<BsCalendarWeek />
+            //<button className="flex bg-gray-100 border p-0.5 px-2 rounded-sm">
+              //<span className="text-[11px] text-black/70">20/01 - 27/01</span>
+            //</button>
+          //</div>  
           </div>
 
           <div
@@ -233,7 +233,7 @@ export function DashboardPage(): JSX.Element {
             />
           </div>
         </div>
-      </Skeleton>
+      </Skeleton> */}
 
       {/* <ListOfAgentTemplatesComponent /> */}
       <InstallPWA />

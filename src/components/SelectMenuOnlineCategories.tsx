@@ -91,7 +91,7 @@ const SelectMenuOnlineCategories = forwardRef<any, ISelectBusinessesProps>(
         noOptionsMessage={({ inputValue }) => {
           return (
             <div className="flex  text-sm flex-col gap-1 pointer-events-auto">
-              <span className="text-white/60">
+              <span className="dark:text-white/60 text-black/60">
                 Nenhuma categoria {inputValue && `"${inputValue}"`} encontrada.
               </span>
             </div>
