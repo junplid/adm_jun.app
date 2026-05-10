@@ -1,6 +1,6 @@
 import { api } from "./index";
 
-export async function getAgentTemplates(params: { limit?: number }): Promise<
+export async function getTemplates(params: { limit?: number }): Promise<
   {
     id: number;
     title: string;
@@ -12,21 +12,18 @@ export async function getAgentTemplates(params: { limit?: number }): Promise<
     created_by: string;
   }[]
 > {
-  const { data } = await api.get("/private/template-agents", { params });
+  const { data } = await api.get("/private/templates", { params });
   return data.templates;
 }
 
-export async function getAgentTemplate(
-  id: number,
-  fields?: string,
-): Promise<any> {
-  const { data } = await api.get(`/private/template-agents/${id}`, {
+export async function getTemplate(id: number, fields?: string): Promise<any> {
+  const { data } = await api.get(`/private/templates/${id}`, {
     params: { fields },
   });
   return data.template;
 }
 
-export async function testAgentTemplate(body: {
+export async function testTemplate(body: {
   content: string; // mensagem
   providerCredentialId?: number;
   apiKey?: string;
@@ -34,10 +31,10 @@ export async function testAgentTemplate(body: {
   templatedId: number;
   fields: Record<string, Record<string, number | string | number[] | string[]>>;
 }): Promise<any> {
-  await api.post(`/private/agent-template/test`, body);
+  await api.post(`/private/templates/test`, body);
 }
 
-export async function createAgentTemplate(body: {
+export async function createTemplate(body: {
   providerCredentialId?: number;
   apiKey?: string;
   nameProvider?: string;
@@ -45,5 +42,5 @@ export async function createAgentTemplate(body: {
   templatedId: number;
   fields: Record<string, Record<string, number | string | number[] | string[]>>;
 }): Promise<any> {
-  await api.post(`/private/agent-template`, body);
+  await api.post(`/private/templates`, body);
 }

@@ -12,7 +12,7 @@ import { AuthContext } from "@contexts/auth.context";
 import { AxiosError } from "axios";
 import { ErrorResponse_I } from "../../services/api/ErrorResponse";
 import { toaster } from "@components/ui/toaster";
-import { getAgentTemplate } from "../../services/api/AgentTemplate";
+import { getTemplate } from "../../services/api/AgentTemplate";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
@@ -86,7 +86,7 @@ function Body({ id, title, ...props }: PropsModalDelete) {
   useEffect(() => {
     (async () => {
       try {
-        const data = await getAgentTemplate(
+        const data = await getTemplate(
           id,
           "title,markdown_desc,created_by,updateAt,createAt,chat_demo",
         );
@@ -108,7 +108,7 @@ function Body({ id, title, ...props }: PropsModalDelete) {
   const getSections = useCallback(async () => {
     try {
       setLoadSections(true);
-      const data = await getAgentTemplate(
+      const data = await getTemplate(
         id,
         "Sections{id,name,title,collapsible,desc,inputs}",
       );

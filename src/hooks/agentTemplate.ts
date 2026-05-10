@@ -9,10 +9,10 @@ import { ErrorResponse_I } from "../services/api/ErrorResponse";
 export function useGetAgentTemplates(params: { limit?: number }) {
   const { logout } = useContext(AuthContext);
   return useQuery({
-    queryKey: ["agent-templates"],
+    queryKey: ["templates"],
     queryFn: async () => {
       try {
-        return await AgentAIService.getAgentTemplates(params);
+        return await AgentAIService.getTemplates(params);
       } catch (error) {
         if (error instanceof AxiosError) {
           if (error.response?.status === 401) logout();

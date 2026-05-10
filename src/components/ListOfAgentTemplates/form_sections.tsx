@@ -27,10 +27,7 @@ import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { v4 } from "uuid";
-import {
-  createAgentTemplate,
-  testAgentTemplate,
-} from "../../services/api/AgentTemplate";
+import { createTemplate, testTemplate } from "../../services/api/AgentTemplate";
 import { AxiosError } from "axios";
 import { AuthContext } from "@contexts/auth.context";
 import { ErrorResponse_I } from "../../services/api/ErrorResponse";
@@ -186,7 +183,7 @@ export function FormSectionsComponent(props: Props) {
         { id: keyMsg, role: "user", content: draft },
       ]);
       setDraft("");
-      await testAgentTemplate({
+      await testTemplate({
         content: draft.trim(),
         token_modal_chat_template: token_modal_chat_templateRef.current,
         fields: getValues("fields"),
@@ -217,10 +214,10 @@ export function FormSectionsComponent(props: Props) {
   const clearTokenTest = () => {
     if (token_modal_chat_templateRef.current) {
       socket.emit(
-        "agent-template:clear-tokenTest",
+        "template:clear-tokenTest",
         token_modal_chat_templateRef.current,
       );
-      socket.off(`test-agent-template-${token_modal_chat_templateRef.current}`);
+      socket.off(`test-template-${token_modal_chat_templateRef.current}`);
       createTokenTest();
     }
   };
@@ -228,7 +225,7 @@ export function FormSectionsComponent(props: Props) {
   const createTokenTest = () => {
     token_modal_chat_templateRef.current = v4();
     socket.on(
-      `test-agent-template-${token_modal_chat_templateRef.current}`,
+      `test-template-${token_modal_chat_templateRef.current}`,
       async (data: {
         role: "agent" | "system";
         content: string;
@@ -250,42 +247,39 @@ export function FormSectionsComponent(props: Props) {
   };
 
   useEffect(() => {
-    socket.on(
-      `modal-agent-template-${modalHash}`,
-      (data: DataSocketMapCreate) => {
-        if (data.type === "error-input") {
-          setIsCreating(false);
-          setMapCreate(mapCreateList);
+    socket.on(`modal-template-${modalHash}`, (data: DataSocketMapCreate) => {
+      if (data.type === "error-input") {
+        setIsCreating(false);
+        setMapCreate(mapCreateList);
+        // @ts-expect-error
+        setFocus(data.input[0].path);
+        data.input.forEach(({ text, path }) => {
           // @ts-expect-error
-          setFocus(data.input[0].path);
-          data.input.forEach(({ text, path }) => {
-            // @ts-expect-error
-            setError(path, { message: text });
-          });
-          return;
-        }
+          setError(path, { message: text });
+        });
+        return;
+      }
 
-        setMapCreate((state) =>
-          state.map((s) => {
-            const { id, ...rest } = data;
-            if (s.id === id) s = { ...s, ...rest };
-            return s;
-          }),
-        );
-        if (data.id === "6" && data.type === "success") {
-          setShowLoader(true);
-          setConnectionId(data.connectionId!);
-          setTimeout(() => {
-            setShowLoader(false);
-            setSucessCreate(true);
-          }, 2400);
-        }
-      },
-    );
+      setMapCreate((state) =>
+        state.map((s) => {
+          const { id, ...rest } = data;
+          if (s.id === id) s = { ...s, ...rest };
+          return s;
+        }),
+      );
+      if (data.id === "6" && data.type === "success") {
+        setShowLoader(true);
+        setConnectionId(data.connectionId!);
+        setTimeout(() => {
+          setShowLoader(false);
+          setSucessCreate(true);
+        }, 2400);
+      }
+    });
     createTokenTest();
     return () => {
-      socket.off(`test-agent-template-${token_modal_chat_templateRef.current}`);
-      socket.off(`modal-agent-template-${modalHash}`);
+      socket.off(`test-template-${token_modal_chat_templateRef.current}`);
+      socket.off(`modal-template-${modalHash}`);
       setLoadCreate(false);
       setIsCreating(true);
       setSucessCreate(false);
@@ -296,7 +290,7 @@ export function FormSectionsComponent(props: Props) {
   const create = useCallback(async (fields: Schema) => {
     try {
       setLoadCreate(true);
-      await createAgentTemplate({
+      await createTemplate({
         ...fields,
         modalHash,
         templatedId: props.id,
