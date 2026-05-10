@@ -91,7 +91,6 @@ export function FormCreateCategoriesMenuOnlineConfig(props: Props) {
       >
         <Field
           label="Imagem 45x45"
-          required
           invalid={!!errors.fileImage}
           errorText={errors.fileImage?.message}
         >
