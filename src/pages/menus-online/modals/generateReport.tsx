@@ -49,7 +49,7 @@ export function ModalGenerateReportMenuOnline({
   const create = async (): Promise<void> => {
     try {
       setLoading(true);
-      await createMenuOnlineReport(props.uuid, {
+      await createMenuOnlineReport({
         start: startDate,
         end: endDate,
       });

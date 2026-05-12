@@ -408,13 +408,13 @@ export function LayoutPrivateProvider(): JSX.Element {
               >
                 Conexões
               </MenuItem>
-              {/* <MenuItem
+              <MenuItem
                 icon={<LuCalendarDays size={20} />}
                 component={<Link to={"/auth/appointments"} />}
                 active={pathname === "/auth/appointments"}
               >
                 Agenda
-              </MenuItem> */}
+              </MenuItem>
               <MenuItem
                 icon={<LuBotMessageSquare size={22} />}
                 active={pathname === "/auth/chatbots"}
@@ -422,20 +422,20 @@ export function LayoutPrivateProvider(): JSX.Element {
               >
                 Bots de recepção
               </MenuItem>
-              {/* <MenuItem
+              <MenuItem
                 icon={<BsStars size={20} />}
                 component={<Link to={"/auth/agents-ai"} />}
                 active={pathname === "/auth/agents-ai"}
               >
                 Assistentes de IA
-              </MenuItem> */}
-              {/* <MenuItem
+              </MenuItem>
+              <MenuItem
                 icon={<FiInbox size={22} />}
                 component={<Link to={"/auth/inboxes/departments"} />}
                 active={pathname.includes("inboxes")}
               >
                 Suporte humano
-              </MenuItem> */}
+              </MenuItem>
               <MenuItem
                 icon={<PiPicnicTableBold size={22} />}
                 component={<Link to={"/auth/workbench/storage"} />}
@@ -443,13 +443,13 @@ export function LayoutPrivateProvider(): JSX.Element {
               >
                 Workbench
               </MenuItem>
-              {/* <MenuItem
+              <MenuItem
                 icon={<PiPuzzlePieceBold size={22} />}
                 component={<Link to={"/auth/integrations/payments"} />}
                 active={pathname.includes("integrations")}
               >
                 Integrações
-              </MenuItem> */}
+              </MenuItem>
               <MenuItem
                 icon={<IoMdSettings size={22} />}
                 component={<Link to={"/auth/settings/account"} />}
@@ -569,6 +569,30 @@ export function LayoutPrivateProvider(): JSX.Element {
                   onClick={() => {
                     api.stop();
                     setTimeout(() => {
+                      if (pathname !== "/auth/tables") {
+                        navigate("/auth/tables", {
+                          replace: searchParams.get("bs") === "true",
+                        });
+                      }
+                    }, 10);
+                  }}
+                  className={clsx(
+                    pathname === "/auth/tables"
+                      ? "bg-neutral-800 shadow-sm shadow-black/20"
+                      : "bg-transparent",
+                    "w-full h-full select-none! justify-center flex flex-col items-center gap-y-1 rounded-xl",
+                  )}
+                >
+                  <GiTable size={18} />
+                  <span className="text-xs select-none w-full text-center font-medium px-2 truncate">
+                    Mesas
+                  </span>
+                </a>
+                <a
+                  style={{ touchAction: "manipulation" }}
+                  onClick={() => {
+                    api.stop();
+                    setTimeout(() => {
                       if (pathname !== "/auth/orders") {
                         navigate("/auth/orders", {
                           replace: searchParams.get("bs") === "true",
@@ -609,7 +633,7 @@ export function LayoutPrivateProvider(): JSX.Element {
                 >
                   <CgWebsite size={18} />
                   <span className="text-xs select-none w-full text-center font-medium px-2 truncate">
-                    Cardápio digital
+                    Cardápio
                   </span>
                 </a>
                 <a
@@ -633,7 +657,7 @@ export function LayoutPrivateProvider(): JSX.Element {
                 >
                   <BsStars size={18} />
                   <span className="text-xs select-none w-full text-center px-2 font-medium truncate">
-                    Assistente de IA
+                    Assistente
                   </span>
                 </a>
                 <a

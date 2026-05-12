@@ -75,7 +75,7 @@ function BodyNode({ id, data }: { id: string; data: DataNode }): JSX.Element {
           onChange={async (target: string) => {
             setDataMok({
               ...data,
-              save_locale_var_name_var2Id: target,
+              locale_var_name_var1: target,
             });
           }}
         />

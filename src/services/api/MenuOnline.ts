@@ -80,20 +80,13 @@ export async function updateMenuOnlineSubItemsStatus(
   await api.put(`/private/menus-online/${menuUuid}/subItems/status`, body);
 }
 
-export async function createMenuOnlineReport(
-  menuUuid: string,
-  body: {
-    start: Date | null;
-    end: Date | null;
-  },
-): Promise<void> {
-  const response = await api.post(
-    `/private/menus-online/${menuUuid}/report`,
-    body,
-    {
-      responseType: "blob",
-    },
-  );
+export async function createMenuOnlineReport(body: {
+  start: Date | null;
+  end: Date | null;
+}): Promise<void> {
+  const response = await api.post(`/private/menus-online/report`, body, {
+    responseType: "blob",
+  });
 
   const blob = new Blob([response.data], { type: "application/pdf" });
   const url = window.URL.createObjectURL(blob);

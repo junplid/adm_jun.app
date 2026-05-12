@@ -2,7 +2,7 @@ import { JSX, useContext } from "react";
 import { Outlet } from "react-router-dom";
 import { LayoutPrivateContext } from "@contexts/layout-private.context";
 import { AuthContext } from "@contexts/auth.context";
-import { ColorModeButton } from "@components/ui/color-mode";
+// import { ColorModeButton } from "@components/ui/color-mode";
 
 export function LayoutMain(): JSX.Element {
   const { clientMeta } = useContext(AuthContext);
@@ -14,7 +14,7 @@ export function LayoutMain(): JSX.Element {
         {clientMeta.isMobileLike || clientMeta.isSmallScreen
           ? undefined
           : ToggleMenu}
-        <ColorModeButton />
+        {/* <ColorModeButton /> */}
       </header>
       <div
         className="w-full mb-16 h-full max-w-7xl mx-auto p-0 sm:p-8 pb-1! py-2 flex-1"
